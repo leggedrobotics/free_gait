@@ -8,108 +8,87 @@
 
 #pragma once
 
+// robotTask
 #include "robotTask/tasks/TaskRobotBase.hpp"
-#include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
 
-//#include "loco/gait_pattern/GaitPatternAPS.hpp"
-//#include "loco/gait_pattern/GaitPatternFlightPhases.hpp"
-#include "loco/gait_pattern/GaitPatternFreeGait.hpp"
-#include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
-#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
-#include "loco/torso_control/TorsoControlBase.hpp"
-#include "loco/motion_control/VirtualModelController.hpp"
-#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
-#include "loco/contact_detection/ContactDetectorBase.hpp"
+// starlethModel
+#include <starlethModel/State.hpp>
+#include <starlethModel/Command.hpp>
 
-#include "loco/mission_control/MissionControlBase.hpp"
-#include "loco/tools/TuningWithSliderboardLocoDynamicGait.hpp"
+// roco
+#include <roco/time/TimeStd.hpp>
+#include <roco/controllers/Controller.hpp>
 
+// loco
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/ParameterSet.hpp"
-#include <memory>
+#include "loco/locomotion_controller/LocomotionControllerBase.hpp"
+#include "loco/gait_pattern/GaitPatternBase.hpp"
+#include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
+#include "loco/motion_control/MotionControllerBase.hpp"
+#include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
+#include "loco/contact_detection/ContactDetectorBase.hpp"
+#include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 
-/****************
- * roco headers *
- ****************/
-#include <roco/time/TimeStd.hpp>
-#include <roco/controllers/Controller.hpp>
-#include <starlethModel/State.hpp>
-#include <starlethModel/Command.hpp>
-/****************/
 
 namespace robotTask {
 
-class FreeGait: public roco::controllers::Controller<robotModel::State, robotModel::Command> {
-  public:
-    typedef roco::controllers::Controller<robotModel::State, robotModel::Command> Base;
+class FreeGait : public roco::controllers::Controller<robotModel::State, robotModel::Command>
+{
+ public:
+  typedef roco::controllers::Controller<robotModel::State, robotModel::Command> Base;
 
-  public:
+  FreeGait();
+  virtual ~FreeGait();
 
-    FreeGait();
-    virtual ~FreeGait();
+  //! roco implementation.
+  virtual bool create(double dt);
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
+  virtual bool reset(double dt);
+  virtual bool cleanup();
+  virtual bool change();
+  roco::time::TimeStd timeAtInit_;
 
-    /***********************
-     * roco implementation *
-     ***********************/
-    virtual bool create(double dt);
-    virtual bool initialize(double dt);
-    virtual bool advance(double dt);
-    virtual bool reset(double dt);
-    virtual bool cleanup();
-    virtual bool change();
-    roco::time::TimeStd timeAtInit_;
-    /***********************/
+  virtual bool loadTaskParameters(const TiXmlHandle& handle);
+  void setParameterFile(const std::string& parameterFile);
 
-    virtual bool loadTaskParameters(const TiXmlHandle& handle);
+ private:
+  std::string pathToParameterFiles_;
+  std::string parameterFile_;
+  std::string gaitNameString_;
 
-    loco::LocomotionControllerDynamicGait* getLocomotionController();
-    loco::ParameterSet* getParameterSet();
-    void setParameterFile(const std::string& parameterFile);
+ public:
+  //! Legs.
+  std::shared_ptr<loco::LegGroup> legs_;
+  std::shared_ptr<loco::LegStarlETH> leftForeLeg_;
+  std::shared_ptr<loco::LegStarlETH> rightForeLeg_;
+  std::shared_ptr<loco::LegStarlETH> leftHindLeg_;
+  std::shared_ptr<loco::LegStarlETH> rightHindLeg_;
 
-    /********************
-     * Accessor methods *
-     ********************/
-    loco::TerrainPerceptionBase* getTerrainPerceptionBase();
-    loco::TerrainModelBase* getTerrainModelBase();
-    loco::TorsoBase* getTorsoBase();
-    /********************/
+  //! Base.
+  std::shared_ptr<loco::TorsoStarlETH> torso_;
+  std::shared_ptr<loco::TorsoControlBase> torsoController_;
 
-  private:
-    std::string pathToParameterFiles_;
-    std::string parameterFile_;
-    std::string gaitNameString_;
+  //! Terrain.
+  std::shared_ptr<loco::TerrainModelBase> terrainModel_;
+  std::shared_ptr<loco::TerrainPerceptionBase> terrainPerception_;
 
-  public:
-    // legs
-    std::shared_ptr<loco::LegGroup> legs_;
-    std::shared_ptr<loco::LegStarlETH> leftForeLeg_;
-    std::shared_ptr<loco::LegStarlETH> rightForeLeg_;
-    std::shared_ptr<loco::LegStarlETH> leftHindLeg_;
-    std::shared_ptr<loco::LegStarlETH> rightHindLeg_;
+  //! Gaits.
+  std::shared_ptr<loco::GaitPatternBase> gaitPattern_;
+  std::shared_ptr<loco::LimbCoordinatorBase> limbCoordinator_;
+  std::shared_ptr<loco::FootPlacementStrategyBase> footPlacementStrategy_;
 
-    // body
-    std::shared_ptr<loco::TorsoStarlETH> torso_;
-    std::shared_ptr<loco::TorsoControlBase> torsoController_;
-
-    // terrain
-    std::shared_ptr<loco::TerrainModelBase> terrainModel_;
-    std::shared_ptr<loco::TerrainPerceptionBase> terrainPerception_;
-
-    // gaits
-//    std::shared_ptr<loco::GaitPatternAPS> gaitPatternAPS_;
-    std::shared_ptr<loco::GaitPatternFreeGait> gaitPattern_;
-    std::shared_ptr<loco::LimbCoordinatorDynamicGait> limbCoordinator_;
-    std::shared_ptr<loco::FootPlacementStrategyBase> footPlacementStrategy_;
-
-    // strategy
-    std::shared_ptr<loco::ContactForceDistribution> contactForceDistribution_;
-    std::shared_ptr<loco::VirtualModelController> virtualModelController_;
-    std::shared_ptr<loco::LocomotionControllerDynamicGait> locomotionController_;
-    std::shared_ptr<loco::ParameterSet> parameterSet_;
-    std::shared_ptr<loco::ContactDetectorBase> contactDetector_;
+  //! Strategy.
+  std::shared_ptr<loco::ContactForceDistributionBase> contactForceDistribution_;
+  std::shared_ptr<loco::MotionControllerBase> virtualModelController_;
+  std::shared_ptr<loco::LocomotionControllerBase> locomotionController_;
+  std::shared_ptr<loco::ParameterSet> parameterSet_;
+  std::shared_ptr<loco::ContactDetectorBase> contactDetector_;
 };
 
 } // namespace
-
