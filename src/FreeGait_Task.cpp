@@ -103,14 +103,14 @@ bool FreeGait::create(double dt)
   torso_.reset(new loco::TorsoStarlETH(getState().getRobotModelPtr()));
   terrainPerception_.reset(new loco::TerrainPerceptionFreePlane((loco::TerrainModelFreePlane*) terrainModel_.get(), legs_.get(), torso_.get()));
   contactDetector_.reset(new loco::ContactDetectorFeedThrough());
-  gaitPattern_.reset(new loco::GaitPatternFreeGait());
+  gaitPattern_.reset(new loco::GaitPatternFreeGait(legs_.get(), torso_.get()));
   limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPattern_.get()));
   torsoController_.reset(new loco::TorsoControlFreeGait(legs_.get(), torso_.get(), terrainModel_.get()));
   footPlacementStrategy_.reset(new loco::FootPlacementStrategyFreeGait(legs_.get(), torso_.get(), terrainModel_.get()));
   contactForceDistribution_.reset(new loco::ContactForceDistribution(torso_, legs_, terrainModel_));
   virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
   locomotionController_.reset(new loco::LocomotionControllerDynamicGait(
-      legs_.get(), torso_.get(), terrainPerception_.get(), ontactDetector_.get(),
+      legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(),
       limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(),
       virtualModelController_.get(), contactForceDistribution_.get(),
       parameterSet_.get(), gaitPattern_.get(), terrainModel_.get()));

@@ -1,34 +1,7 @@
 <?xml version="1.0" ?>
 <LocomotionController>
-	<Mission>
-		<Configuration>
-			<Position>
-				<Initial x="0.0" y="0.0" z="0.0" />
-				<Minimal x="-0.0" y="-0.0" z="0.0" />
-				<Maximal x="0.0" y="0." z="0.0" />
-			</Position>
-			<Orientation><!-- Euler Angle ZYX -->
-				<Initial x="0.0" y="0.0" z="0" />
-				<Minimal x="-0.0" y="-0.0" z="-0.0" />
-				<Maximal x="0.0" y="0.0" z="0.0" />
-			</Orientation>
-		</Configuration>
-		<Speed>
-			<Initial headingSpeed="0.0" lateralSpeed="0.0" turningSpeed="0.0" />
-			<Maximum headingSpeed="0.2" lateralSpeed="0.2" turningSpeed="0.8" />
-		</Speed>
-	</Mission>
 	<LimbCoordination>
 		<GaitPattern> 
-			<APS>
-	             <GaitDiagram cycleDuration="1.5" foreLag="0.5" hindLag="0.5" pairLag="0.75" foreDutyFactor="0.84" hindDutyFactor="0.84" />
-	        </APS>
-	        <FlightPhases cycleDuration="3.0" initCyclePhase="0.5">
-		        <LF liftOff="0.02" touchDown="0.25" />
-				<RF liftOff="0.52" touchDown="0.75" />
-				<LH liftOff="0.77" touchDown="1.00" />
-				<RH liftOff="0.27" touchDown="0.5" />
-	        </FlightPhases>
 		</GaitPattern>
 	</LimbCoordination>
 	<TorsoControl>
