@@ -101,9 +101,10 @@ bool FreeGait::create(double dt)
   rightHindLeg_.reset(new loco::LegStarlETH("rightHind", 3, getState().getRobotModelPtr()));
   legs_.reset( new loco::LegGroup(leftForeLeg_.get(), rightForeLeg_.get(), leftHindLeg_.get(), rightHindLeg_.get()));
   torso_.reset(new loco::TorsoStarlETH(getState().getRobotModelPtr()));
+  stepQueue_.reset(new loco::StepQueue(legs_, torso_));
   terrainPerception_.reset(new loco::TerrainPerceptionFreePlane((loco::TerrainModelFreePlane*) terrainModel_.get(), legs_.get(), torso_.get()));
   contactDetector_.reset(new loco::ContactDetectorFeedThrough());
-  gaitPattern_.reset(new loco::GaitPatternFreeGait(legs_.get(), torso_.get()));
+  gaitPattern_.reset(new loco::GaitPatternFreeGait(legs_, torso_, stepQueue_));
   limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPattern_.get()));
   torsoController_.reset(new loco::TorsoControlFreeGait(legs_.get(), torso_.get(), terrainModel_.get()));
   footPlacementStrategy_.reset(new loco::FootPlacementStrategyFreeGait(legs_.get(), torso_.get(), terrainModel_.get()));
@@ -137,6 +138,7 @@ bool FreeGait::initialize(double dt)
 bool FreeGait::advance(double dt)
 {
   if (!locomotionController_->advanceMeasurements(dt)) return false;
+  if (!stepQueue_->advance(dt)) return false;
   if (!locomotionController_->advanceSetPoints(dt)) return false;
 
   // Copy desired commands from locomotion controller to robot model.

@@ -24,6 +24,7 @@
 #include "loco/common/TorsoStarlETH.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/ParameterSet.hpp"
+#include "loco/common/StepQueue.hpp"
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 #include "loco/gait_pattern/GaitPatternBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
@@ -73,6 +74,9 @@ class FreeGait : public roco::controllers::Controller<robotModel::State, robotMo
   //! Base.
   std::shared_ptr<loco::TorsoStarlETH> torso_;
   std::shared_ptr<loco::TorsoControlBase> torsoController_;
+
+  //! Data queue.
+  std::shared_ptr<loco::StepQueue> stepQueue_;
 
   //! Terrain.
   std::shared_ptr<loco::TerrainModelBase> terrainModel_;
