@@ -1,0 +1,101 @@
+% Encoding settings
+\usepackage[utf8]{inputenc}
+\usepackage[OT1]{fontenc}
+
+% More symbols
+\usepackage{textcomp}
+\usepackage{gensymb}
+
+% ISO date
+\usepackage[english]{isodate}
+
+% Figures 
+\usepackage{graphicx}
+
+% Subfigures (obsolete)
+\usepackage{subfigure}
+
+% Bibliography
+\usepackage[numbers]{natbib}
+
+% Nicer tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% Colors
+\usepackage{color}
+\usepackage{colortbl}
+\definecolor{black}{rgb}{0,0,0}
+\definecolor{white}{rgb}{1,1,1}
+\definecolor{darkred}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\definecolor{shadecolor}{rgb}{.9, .9, .9}
+
+% Additional math functionality
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Nice fractions
+\usepackage{nicefrac}
+
+% Upper case greek letters
+\usepackage{upgreek}
+
+% ISO math notation
+\usepackage{isomath}
+\renewcommand{\vec}{\vectorsym}
+\newcommand{\mat}{\matrixsym}
+
+% Left exp and sup
+\newcommand{\leftexp}[2]{{\vphantom{#2}}^{#1}{#2}}
+\newcommand{\leftsub}[2]{{\vphantom{#2}}_{#1}{#2}}
+
+% Long overbrace
+\newcommand{\longoverbrace}[2]{\overbrace{#1}^{\text{\hbox to 0cm{\hss #2 \hss}}}}
+
+% Units
+\usepackage{units}
+
+% Unitary sim
+\newcommand{\unsim}{\mathord{\sim}}
+
+% Swap \phi and \varphi
+\let\temp\phi
+\let\phi\varphi
+\let\varphi\temp
+
+% Rotated objects
+\usepackage{rotating}
+
+% Lorem ipsum placeholder
+\usepackage{lipsum}
+
+% To do notes package
+\usepackage[]{todonotes}
+\presetkeys{todonotes}{inline}{}
+
+% Code formatting
+\usepackage{listings}
+\lstnewenvironment{code}{
+	\lstset{backgroundcolor=\color{shadecolor},
+		frame=single,
+		framerule=0pt,
+		basicstyle=\ttfamily,
+		columns=fullflexible
+	}
+}{}
+\newcommand{\codeinline}{\lstinline[basicstyle=\ttfamily]}
+
+% Watermark
+\usepackage[nostamp]{draftwatermark}
+
+% Links (last package)
+\usepackage{hyperref}
+
+% Clever references (has to be loaded after hyperref)
+\usepackage[capitalize]{cleveref}
+\crefformat{equation}{(#2#1#3)}
+\crefrangeformat{equation}{(#3#1#4) to~(#5#2#6)}
+\crefmultiformat{equation}{(#2#1#3)}{ and~(#2#1#3)}{, (#2#1#3)}{ and~(#2#1#3)}

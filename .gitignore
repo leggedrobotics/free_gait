@@ -24,3 +24,13 @@
 .cproject
 .project
 .settings
+
+# OS X
+.DS_Store
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.gz
