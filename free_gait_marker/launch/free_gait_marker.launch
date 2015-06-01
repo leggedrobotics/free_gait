@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <node pkg="free_gait_marker" type="free_gait_marker" name="free_gait_marker" output="screen">
+    <rosparam command="load" file="$(find free_gait_marker)/config/locomotion_controller.yaml" />
+  </node>
+	
+</launch>

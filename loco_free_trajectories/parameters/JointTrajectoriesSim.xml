@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<LocomotionController>
+	<LimbCoordination>
+		<GaitPattern> 
+		</GaitPattern>
+	</LimbCoordination>
+	<TorsoControl>
+		<TorsoConfiguration>
+			<TorsoHeight torsoHeight="0.38" />
+		</TorsoConfiguration>
+		<DynamicGait>
+			<CoMOverSupportPolygonControl>
+				<Weight minSwingLegWeight="0.0" />
+				<Timing startShiftAwayFromLegAtStancePhase="0.0" startShiftTowardsLegAtSwingPhase="0.8" />
+			</CoMOverSupportPolygonControl>
+			<HipConfiguration>
+				<HeightTrajectory offset="0.39" fore="true" hind="true">
+					<Knot t="0.00" v="-0" />
+					<Knot t="0.25" v="0.00" />
+					<Knot t="0.50" v="-0.0" />
+					<Knot t="0.75" v="0.00" />
+					<Knot t="1.00" v="-0" />
+				</HeightTrajectory>
+			</HipConfiguration>
+		</DynamicGait>
+	</TorsoControl>
+	<FootPlacementStrategy>
+		<InvertedPendulum>
+			<Offset>
+				<Fore heading="-0.00" lateral="-0.01" />
+				<Hind  heading="0.00" lateral="0.1" />
+			</Offset>
+			<HeightTrajectory>
+				<Knot t="0.0" v="0.0" />
+				<Knot t="0.5" v="0.07" />
+				<Knot t="1.0" v="-0.00" />
+			</HeightTrajectory>
+	        <Gains feedbackScale="1.1" />
+        </InvertedPendulum>
+	</FootPlacementStrategy>
+	<VirtualModelController>
+		<Gains>
+			<Heading 	kp="600" 	kd="100" 	ki="0.0"	kff="0.0"	maxI="0.0"/>
+			<Lateral 	kp="600" 	kd="100"	ki="0.0"	kff="0.0"	maxI="0.0"/>
+			<Vertical 	kp="600" 	kd="120" 	ki="0.0"	kff="0.0"	maxI="0.0"/>
+			<Roll 		kp="62" 	kd="5" 		ki="0.0"	kff="0.0" 	maxI="0.0"/>
+			<Pitch 		kp="60" 	kd="4" 		ki="0.0"	kff="0.0" 	maxI="0.0"/>
+			<Yaw 		kp="50" 	kd="20" 	ki="0.0"	kff="0.0" 	maxI="0.0"/> 
+		</Gains>
+	</VirtualModelController>
+	<ContactForceDistribution>
+		<Weights>
+			<Force heading="1.0" lateral="1.0" vertical="1" />
+			<Torque roll="10" pitch="10" yaw="5" />
+			<Regularizer value="0.00001"/>
+		</Weights>
+		<Constraints frictionCoefficient="0.7" minimalNormalForce="2.0" />
+		<LoadFactor loadFactor="1.0" />
+	</ContactForceDistribution> 
+</LocomotionController>
+

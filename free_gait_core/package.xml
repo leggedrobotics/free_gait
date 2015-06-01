@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>free_gait_core</name>
+  <version>0.1.0</version>
+  <description>Free gait for legged robots.</description>
+  <maintainer email="pfankhauser@ethz.ch">Péter Fankhauser</maintainer>
+  <license>BSD</license>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
+  <url type="bugtracker">https://bitbucket.org/ethz-asl-lr/free_gait/issues</url>
+  <author email="pfankhauser@ethz.ch">Péter Fankhauser</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>loco</depend>
+  <depend>robot_utils</depend>
+  <depend>robot_utils_ros</depend>
+</package>

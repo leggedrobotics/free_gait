@@ -1,0 +1,11 @@
+action_server_topic: "/locomotion_controller/step"
+wait_for_action_timeout: 5
+foothold:
+  frame_id: "map"
+  scale: 0.075
+  radius: 0.06
+  color:
+    r: 0.0
+    g: 0.0
+    b: 0.65
+    a: 1.0

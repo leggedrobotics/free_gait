@@ -1,0 +1,54 @@
+# Project configuration
+cmake_minimum_required (VERSION 2.8)
+project(loco_joint_trajectories)
+message("      Including task loco joint trajectories")
+
+add_definitions(--std=c++11)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  robot_model
+  robot_utils
+  signal_logger
+  roco
+  loco
+)
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS robot_model robot_utils signal_logger roco loco
+#  DEPENDS system_lib
+)
+
+find_package(Eigen3 REQUIRED)
+
+# Attempt to find catkinized kindr
+find_package(kindr QUIET)
+if(NOT kindr_FOUND)
+  # Attempt to find package-based kindr
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(kindr kindr REQUIRED)
+endif()
+
+include_directories(include)
+include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${kindr_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
+
+add_library(${PROJECT_NAME}
+  src/JointTrajectories.cpp
+)
+add_dependencies(${PROJECT_NAME}
+  robot_model
+  robot_utils
+  signal_logger
+  roco
+  loco
+)
+
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)

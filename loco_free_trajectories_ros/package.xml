@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>loco_joint_trajectories_ros</name>
+  <version>0.0.0</version>
+  <description>The loco_joint_trajectories_ros package</description>
+  <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
+  <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
+  <license>BSD</license>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/loco_joint_trajectories</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>loco_joint_trajectories</build_depend>
+  <build_depend>loco_ros</build_depend>
+  <build_depend>robot_utils_ros</build_depend>
+  <build_depend>loco_free_gait_ros</build_depend>
+  
+  <run_depend>loco_joint_trajectories</run_depend>
+  <run_depend>loco_ros</run_depend>
+  <run_depend>robot_utils_ros</run_depend>
+  <run_depend>loco_free_gait_ros</run_depend>
+
+</package>

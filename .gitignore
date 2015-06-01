@@ -34,3 +34,6 @@
 *.blg
 *.log
 *.gz
+
+# Python
+*.pydevproject
