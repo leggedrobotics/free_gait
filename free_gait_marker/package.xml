@@ -23,5 +23,6 @@
   <run_depend>geometry_msgs</run_depend>
   <run_depend>quadruped_msgs</run_depend>
   <run_depend>curves</run_depend>
+  <run_depend>multi_dof_joint_trajectory_rviz_plugins</run_depend>
   
 </package>
