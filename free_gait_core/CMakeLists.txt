@@ -6,8 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   loco
-  robot_utils
-  robot_utils_ros
+  curves
 )
 
 ## System dependencies are found with CMake's conventions
@@ -29,8 +28,7 @@ catkin_package(
       ${PROJECT_NAME}
     CATKIN_DEPENDS
       loco
-      robot_utils
-      robot_utils_ros
+      curves
     DEPENDS
       Eigen3
 )

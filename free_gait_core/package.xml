@@ -10,6 +10,5 @@
   <author email="pfankhauser@ethz.ch">Péter Fankhauser</author>
   <buildtool_depend>catkin</buildtool_depend>
   <depend>loco</depend>
-  <depend>robot_utils</depend>
-  <depend>robot_utils_ros</depend>
+  <depend>curves</depend>
 </package>

@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   geometry_msgs
   quadruped_msgs
-  robot_utils
+  curves
 )
 
 ###################################
@@ -27,7 +27,13 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES starleth_marker
-  CATKIN_DEPENDS interactive_markers roscpp visualization_msgs geometry_msgs quadruped_msgs robot_utils
+  CATKIN_DEPENDS
+    interactive_markers
+    roscpp
+    visualization_msgs
+    geometry_msgs
+    quadruped_msgs
+    curves
 #  DEPENDS system_lib
 )
 
@@ -43,25 +49,21 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a cpp library
-# add_library(starleth_marker
-#   src/${PROJECT_NAME}/starleth_marker.cpp
-# )
-
 ## Declare a cpp executable
 add_executable(
-	${PROJECT_NAME}
-	src/free_gait_marker_node.cpp
-	src/FreeGaitMarker.cpp
+  ${PROJECT_NAME}
+  src/free_gait_marker_node.cpp
+  src/marker_manager/MarkerManager.cpp
+  src/markers/MarkerFoot.cpp
+  src/markers/MarkerKnot.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(
-  ${PROJECT_NAME}
-  starleth_msgs_generate_messages_cpp
-  ${step_actionlib_EXPORTED_TARGETS}
-)
+#add_dependencies(
+#  ${PROJECT_NAME}
+#  ${step_actionlib_EXPORTED_TARGETS}
+#)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(

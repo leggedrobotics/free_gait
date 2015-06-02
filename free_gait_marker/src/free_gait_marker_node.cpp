@@ -2,12 +2,13 @@
  * free_gait_marker_node.cpp
  *
  *  Created on: Feb 18, 2015
- *      Author: Péter Fankhauser
+ *      Author: Péter Fankhauser, Dario Bellicoso
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #include <ros/ros.h>
-#include "free_gait_marker/FreeGaitMarker.hpp"
+
+#include "free_gait_marker/marker_manager/MarkerManager.hpp"
 
 int main(int argc, char** argv)
 {
@@ -15,13 +16,12 @@ int main(int argc, char** argv)
 
   ros::NodeHandle nodeHandle("~");
 
-  free_gait_marker::FreeGaitMarker freeGaitMarker(nodeHandle);
+  free_gait_marker::MarkerManager markerManager(nodeHandle);
 
   ros::Rate loop_rate(30);
-  int count = 0;
   while (ros::ok()) {
     ros::spinOnce();
-    freeGaitMarker.publishKnots();
+    markerManager.publishKnots();
     loop_rate.sleep();
   }
 

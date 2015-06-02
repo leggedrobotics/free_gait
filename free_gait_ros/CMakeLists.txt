@@ -7,8 +7,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 find_package(catkin REQUIRED COMPONENTS
   quadruped_msgs
   free_gait_core
-  robot_utils
-  robot_utils_ros
+  curves_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -31,8 +30,7 @@ catkin_package(
     CATKIN_DEPENDS
       quadruped_msgs
       free_gait_core
-      robot_utils
-      robot_utils_ros
+      curves_ros
     DEPENDS
       Eigen3
 )

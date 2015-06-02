@@ -16,7 +16,7 @@ namespace free_gait {
 
 SwingSplineTrajectoryRosWrapper::SwingSplineTrajectoryRosWrapper() :
     SwingSplineTrajectory(),
-    robot_utils_ros::RosMultiDOFJointTrajectoryTranslationInterface()
+    curves::RosMultiDOFJointTrajectoryTranslationInterface()
 {
 
 }
@@ -30,7 +30,7 @@ bool SwingSplineTrajectoryRosWrapper::fromMessage(
     const trajectory_msgs::MultiDOFJointTrajectory& message, const std::string& jointName)
 {
   setFrameId(message.header.frame_id);
-  robot_utils_ros::RosMultiDOFJointTrajectoryTranslationInterface trajectory;
+  curves::RosMultiDOFJointTrajectoryTranslationInterface trajectory;
   if (!trajectory.fromMessage(message, jointName)) return false;
   trajectory_ = trajectory;
   return true;

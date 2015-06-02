@@ -11,8 +11,8 @@
 // Free Gait
 #include "free_gait_core/BaseShiftTrajectoryBase.hpp"
 
-// Robot Utils
-#include "robotUtils/curves/CubicHermiteSE3Curve.hpp"
+// Curves
+#include "curves/CubicHermiteSE3Curve.hpp"
 
 // STD
 #include <memory>
@@ -73,7 +73,7 @@ class BaseShiftSplineTrajectory : public BaseShiftTrajectoryBase
  protected:
 
   //! Base trajectory.
-  robotUtils::CubicHermiteSE3Curve trajectory_;
+  curves::CubicHermiteSE3Curve trajectory_;
 };
 
-} /* namespace loco */
+} /* namespace */

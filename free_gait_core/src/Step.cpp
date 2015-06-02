@@ -13,11 +13,6 @@
 // Loco
 #include "loco/utils/math.hpp"
 
-// Robot Utils
-#include <robotUtils/curves/PolynomialSplineScalarCurve.hpp>
-#include <robotUtils/curves/PolynomialSplineVectorSpaceCurve.hpp>
-#include <robotUtils/function_approximators/polynomialSplines/PolynomialSplineQuintic.hpp>
-
 namespace free_gait {
 
 Step::Step(std::shared_ptr<loco::LegGroup> legs, std::shared_ptr<loco::TorsoBase> torso)

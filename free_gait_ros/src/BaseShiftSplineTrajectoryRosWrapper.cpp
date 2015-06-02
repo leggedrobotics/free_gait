@@ -16,7 +16,7 @@ namespace free_gait {
 
 BaseShiftSplineTrajectoryRosWrapper::BaseShiftSplineTrajectoryRosWrapper() :
     BaseShiftSplineTrajectory(),
-    robot_utils_ros::RosMultiDOFJointTrajectoryInterface(),
+    curves::RosMultiDOFJointTrajectoryInterface(),
     jointName_("base")
 {
 
@@ -30,7 +30,7 @@ BaseShiftSplineTrajectoryRosWrapper::~BaseShiftSplineTrajectoryRosWrapper()
 bool BaseShiftSplineTrajectoryRosWrapper::fromMessage(const trajectory_msgs::MultiDOFJointTrajectory& message)
 {
   setFrameId(message.header.frame_id);
-  robot_utils_ros::RosMultiDOFJointTrajectoryInterface trajectory;
+  curves::RosMultiDOFJointTrajectoryInterface trajectory;
   if (!trajectory.fromMessage(message, jointName_)) return false;
   trajectory_ = trajectory;
   return true;

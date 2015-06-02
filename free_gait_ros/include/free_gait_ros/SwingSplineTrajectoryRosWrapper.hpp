@@ -11,8 +11,8 @@
 // Free Gait
 #include "free_gait_core/free_gait_core.hpp"
 
-// Robot utils
-#include <robot_utils_ros/ros_trajectory_interface/RosMultiDOFJointTrajectoryTranslationInterface.hpp>
+// Curves
+#include <curves_ros/RosMultiDOFJointTrajectoryTranslationInterface.hpp>
 
 // ROS
 #include <trajectory_msgs/MultiDOFJointTrajectory.h>
@@ -22,7 +22,7 @@
 
 namespace free_gait {
 
-class SwingSplineTrajectoryRosWrapper : public SwingSplineTrajectory, public robot_utils_ros::RosMultiDOFJointTrajectoryTranslationInterface
+class SwingSplineTrajectoryRosWrapper : public SwingSplineTrajectory, public curves::RosMultiDOFJointTrajectoryTranslationInterface
 {
  public:
   SwingSplineTrajectoryRosWrapper();

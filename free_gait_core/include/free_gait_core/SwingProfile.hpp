@@ -12,8 +12,8 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/SwingTrajectoryBase.hpp"
 
-// Robot Utils
-#include <robotUtils/curves/PolynomialSplineVectorSpaceCurve.hpp>
+// Curves
+#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
 
 // STD
 #include <string>
@@ -24,8 +24,8 @@ namespace free_gait {
 class SwingProfile : public SwingTrajectoryBase
 {
  public:
-  typedef typename robotUtils::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
-  typedef typename robotUtils::Time Time;
+  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
+  typedef typename curves::Time Time;
 
   SwingProfile();
   virtual ~SwingProfile();
@@ -95,7 +95,7 @@ class SwingProfile : public SwingTrajectoryBase
   void generateSquareKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
 
   //! Foot trajectory.
-  robotUtils::PolynomialSplineQuinticVector3Curve trajectory_;
+  curves::PolynomialSplineQuinticVector3Curve trajectory_;
 
   //! If trajectory is updated.
   bool trajectoryUpdated_;

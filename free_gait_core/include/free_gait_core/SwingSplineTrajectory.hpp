@@ -11,8 +11,8 @@
 // Free Gait
 #include "free_gait_core/SwingTrajectoryBase.hpp"
 
-// Robot Utils
-#include <robotUtils/curves/PolynomialSplineVectorSpaceCurve.hpp>
+// Curves
+#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
 
 // STD
 #include <memory>
@@ -79,7 +79,7 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
  protected:
 
   //! Foot trajectory.
-  robotUtils::PolynomialSplineQuinticVector3Curve trajectory_;
+  curves::PolynomialSplineQuinticVector3Curve trajectory_;
 };
 
 } /* namespace loco */

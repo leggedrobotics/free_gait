@@ -15,16 +15,16 @@
 // STD
 #include <string>
 
-// Robot utils
-#include "robotUtils/curves/CubicHermiteSE3Curve.hpp"
+// Curves
+#include "curves/CubicHermiteSE3Curve.hpp"
 
 namespace free_gait {
 
 class BaseShiftProfile : public BaseShiftTrajectoryBase
 {
  public:
-  typedef typename robotUtils::CubicHermiteSE3Curve::ValueType ValueType;
-  typedef typename robotUtils::Time Time;
+  typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
+  typedef typename curves::Time Time;
 
   BaseShiftProfile();
   virtual ~BaseShiftProfile();
@@ -90,7 +90,7 @@ class BaseShiftProfile : public BaseShiftTrajectoryBase
   bool computeTrajectory();
 
   //! Base trajectory.
-  robotUtils::CubicHermiteSE3Curve trajectory_;
+  curves::CubicHermiteSE3Curve trajectory_;
 
   //! If trajectory is updated.
   bool trajectoryUpdated_;
