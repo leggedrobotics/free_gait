@@ -12,4 +12,5 @@
   <depend>quadruped_msgs</depend>
   <depend>free_gait_core</depend>
   <depend>curves_ros</depend>
+  <depend>kindr</depend>
 </package>
