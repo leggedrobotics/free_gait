@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   visualization_msgs
   geometry_msgs
-  starleth_msgs
+  quadruped_msgs
   robot_utils
 )
 
@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES starleth_marker
-  CATKIN_DEPENDS interactive_markers roscpp visualization_msgs geometry_msgs starleth_msgs robot_utils
+  CATKIN_DEPENDS interactive_markers roscpp visualization_msgs geometry_msgs quadruped_msgs robot_utils
 #  DEPENDS system_lib
 )
 

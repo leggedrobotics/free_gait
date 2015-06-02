@@ -11,7 +11,7 @@
 // ROS
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
-#include <starleth_msgs/Step.h>
+#include <quadruped_msgs/Step.h>
 
 // STD
 #include <algorithm>
@@ -43,8 +43,8 @@ FreeGaitMarker::FreeGaitMarker(ros::NodeHandle& nodeHandle)
 {
   loadParameters();
 
-  stepActionClient_ = std::unique_ptr<actionlib::SimpleActionClient<starleth_msgs::StepAction>>(
-      new actionlib::SimpleActionClient<starleth_msgs::StepAction>(actionServerTopic_, true));
+  stepActionClient_ = std::unique_ptr<actionlib::SimpleActionClient<quadruped_msgs::StepAction>>(
+      new actionlib::SimpleActionClient<quadruped_msgs::StepAction>(actionServerTopic_, true));
 
   // Setup context menu
   interactive_markers::MenuHandler::EntryHandle stepHandle = menuHandler_.insert("Step", boost::bind(&FreeGaitMarker::menuStepCallback, this, _1));
@@ -450,7 +450,7 @@ bool FreeGaitMarker::sendStepGoal()
   }
 
   std::sort(footholdList_.begin(), footholdList_.end());
-  starleth_msgs::StepGoal goal;
+  quadruped_msgs::StepGoal goal;
 
   for (const auto& foothold : footholdList_) {
     InteractiveMarker marker;
@@ -460,9 +460,9 @@ bool FreeGaitMarker::sendStepGoal()
     }
 
     if (!foothold.isActive) continue;
-    starleth_msgs::Step step;
+    quadruped_msgs::Step step;
     step.step_number = foothold.stepNumber;
-    starleth_msgs::SwingData swingData;
+    quadruped_msgs::SwingData swingData;
     swingData.name = foothold.legName;
     swingData.profile.target.header.frame_id = footholdFrameId_;
     swingData.profile.target.point = marker.pose.position;

@@ -15,7 +15,7 @@
 #include <visualization_msgs/InteractiveMarker.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <starleth_msgs/StepAction.h>
+#include <quadruped_msgs/StepAction.h>
 #include <tf/transform_listener.h>
 #include <std_msgs/ColorRGBA.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -114,7 +114,7 @@ class FreeGaitMarker
   interactive_markers::MenuHandler menuHandler_;
 
   //! Step action client.
-  std::unique_ptr<actionlib::SimpleActionClient<starleth_msgs::StepAction>> stepActionClient_;
+  std::unique_ptr<actionlib::SimpleActionClient<quadruped_msgs::StepAction>> stepActionClient_;
 
   //! TF listener.
   tf::TransformListener transformListener_;
