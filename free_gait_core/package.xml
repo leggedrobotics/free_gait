@@ -11,4 +11,5 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>loco</depend>
   <depend>curves</depend>
+  <depend>kindr</depend>
 </package>
