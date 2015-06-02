@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   curves
 )
 
+find_package(Eigen3 REQUIRED)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -34,7 +36,8 @@ catkin_package(
     geometry_msgs
     quadruped_msgs
     curves
-#  DEPENDS system_lib
+  DEPENDS
+    Eigen3
 )
 
 ###########
@@ -47,6 +50,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 ## Declare a cpp executable
