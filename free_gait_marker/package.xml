@@ -16,6 +16,7 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>quadruped_msgs</build_depend>
   <build_depend>curves</build_depend>
+  <build_depend>robot_utils</build_depend>
   
   <run_depend>roscpp</run_depend>
   <run_depend>interactive_markers</run_depend>
@@ -24,5 +25,6 @@
   <run_depend>quadruped_msgs</run_depend>
   <run_depend>curves</run_depend>
   <run_depend>multi_dof_joint_trajectory_rviz_plugins</run_depend>
+  <run_depend>robot_utils</run_depend>
   
 </package>

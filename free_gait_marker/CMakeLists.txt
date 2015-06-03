@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   quadruped_msgs
   curves
+  robot_utils
 )
 
 find_package(Eigen3 REQUIRED)
@@ -36,6 +37,7 @@ catkin_package(
     geometry_msgs
     quadruped_msgs
     curves
+    robot_utils
   DEPENDS
     Eigen3
 )
