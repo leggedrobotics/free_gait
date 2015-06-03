@@ -47,8 +47,8 @@ bool StepQueue::advance(double dt)
   }
 
   if (hasSwitchedStep() || getCurrentStep().hasSwitchedState()) {
-    ROCO_INFO_STREAM("Switched step state to:");
-    ROCO_INFO_STREAM(getCurrentStep());
+    ROCO_DEBUG_STREAM("Switched step state to:");
+    ROCO_DEBUG_STREAM(getCurrentStep());
   }
 
   return true;

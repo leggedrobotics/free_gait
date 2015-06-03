@@ -75,12 +75,12 @@ bool Step::advance(double dt)
 
   bool status = checkStatus();
   if (!status) {
-    ROCO_WARN_THROTTLE_STREAM(1.0, "Not continuing step.");
+    ROCO_WARN_THROTTLE_STREAM(1.0, "Not continuing step. Status not ok.");
     return true;
   }
 
   if (status && !previousStatus_) {
-    ROCO_INFO_STREAM("Continuing with step.");
+    ROCO_DEBUG_STREAM("Continuing with step.");
   }
 
   previousStatus_ = status;
