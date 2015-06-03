@@ -59,10 +59,15 @@ bool StepQueue::empty() const
   return queue_.empty();
 }
 
-void StepQueue::clear()
+void StepQueue::clearNextSteps()
 {
   if (empty()) return;
   queue_.erase(queue_.begin() + 1, queue_.end());
+}
+
+void StepQueue::clear()
+{
+  queue_.clear();
 }
 
 Step& StepQueue::getCurrentStep()

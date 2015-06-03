@@ -44,7 +44,12 @@ class StepQueue
   bool empty() const;
 
   /*!
-   * Clears queue but keeps the currently running step.
+   * Clear queue but keeps the currently running step.
+   */
+  void clearNextSteps();
+
+  /*!
+   * Clear entire queue including currently active step.
    */
   void clear();
 

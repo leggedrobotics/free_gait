@@ -80,7 +80,7 @@ void StepActionServer::preemptCallback()
   ROS_INFO("StepAction is requested to preempt.");
   if (stepQueue_->empty()) return;
   if (stepQueue_->size() <= 1) return;
-  stepQueue_->clear();
+  stepQueue_->clearNextSteps();
   isPreempting_ = true;
 }
 
