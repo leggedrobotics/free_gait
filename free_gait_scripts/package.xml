@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>free_gait_scripts</name>
+  <version>0.1.0</version>
+  <description>A collection of scripts for the free gait.</description>
+  <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
+  <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
+  <license>BSD</license>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/loco_free_gait</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>quadruped_msgs</build_depend>
+  <run_depend>quadruped_msgs</run_depend>
+
+</package>
