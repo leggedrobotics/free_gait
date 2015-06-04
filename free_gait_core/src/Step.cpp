@@ -46,6 +46,7 @@ void Step::addSimpleStep(const int stepNumber, const std::string& legName,
   swingData.setTrajectory(profile);
   swingData.setUseProfile(true);
   swingData_.insert(std::pair<std::string, SwingData>(legName, swingData));
+  isDurationComputed_ = false;
 }
 
 void Step::setStepNumber(const int stepNumber)
@@ -56,11 +57,13 @@ void Step::setStepNumber(const int stepNumber)
 void Step::addSwingData(const std::string& legName, const SwingData& data)
 {
   swingData_.insert(std::pair<std::string, SwingData>(legName, data));
+  isDurationComputed_ = false;
 }
 
 void Step::addBaseShiftData(const Step::State& state, const BaseShiftData& data)
 {
   baseShiftData_.insert(std::pair<Step::State, BaseShiftData>(state, data));
+  isDurationComputed_ = false;
 }
 
 bool Step::isComplete() const
@@ -103,7 +106,7 @@ bool Step::advance(double dt)
 bool Step::checkStatus()
 {
   for (auto leg : *legs_) {
-    if (leg->shouldBeGrounded()) {
+    if (leg->shouldBeGrounded()) { // TODO Replace with better handling.
       if (!leg->isSupportLeg()) {
         ROCO_WARN_THROTTLE_STREAM(
             1.0, "Leg " << leg->getName() << " should be grounded but it is not.");

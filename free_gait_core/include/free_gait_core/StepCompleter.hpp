@@ -23,7 +23,7 @@ class StepCompleter
   StepCompleter();
   virtual ~StepCompleter();
 
-  virtual bool complete(Step& step);
+  virtual bool complete(Step& step) const;
 
   Vector surfaceNormal_;
   double swingProfileDuration_;
