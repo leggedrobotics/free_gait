@@ -21,17 +21,17 @@ StepCompleter::StepCompleter() // TODO Load through XML.
       swingProfileHeight_(0.1),
       swingProfileType_("triangle"),
       baseShiftProfileDuration_(1.5),
-      baseShiftProfileHeight_(0.38),
-      baseShiftProfileType_("linear")
+      baseShiftProfileHeight_(0.45),
+      baseShiftProfileType_("linear"),
+      surfaceNormal_(Vector::UnitZ())
 {
-  surfaceNormal_ = Vector::UnitZ();
 }
 
 StepCompleter::~StepCompleter()
 {
 }
 
-bool StepCompleter::complete(Step& step)
+bool StepCompleter::complete(Step& step) const
 {
   for (auto& swingData : step.swingData_) {
     // Surface normal.
@@ -51,11 +51,9 @@ bool StepCompleter::complete(Step& step)
     // Profile.
     if (baseShiftData.second.isUsingProfile()) {
       auto profile = std::static_pointer_cast<BaseShiftProfile>(baseShiftData.second.getTrajectory());
-      if (profile->getType() != "ignore") { // TODO?
-        if (profile->getDuration() == 0.0) profile->setDuration(baseShiftProfileDuration_);
-        if (profile->getHeight() == 0.0) profile->setHeight(baseShiftProfileHeight_);
-        if (profile->getType().empty()) profile->setType(baseShiftProfileType_);
-      }
+      if (profile->getDuration() == 0.0) profile->setDuration(baseShiftProfileDuration_);
+      if (profile->getHeight() == 0.0) profile->setHeight(baseShiftProfileHeight_);
+      if (profile->getType().empty()) profile->setType(baseShiftProfileType_);
     }
   }
 
