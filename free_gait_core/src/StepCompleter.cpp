@@ -16,7 +16,7 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter() // TODO Load through XML.
+StepCompleter::StepCompleter()
     : swingProfileDuration_(1.5),
       swingProfileHeight_(0.1),
       swingProfileType_("triangle"),

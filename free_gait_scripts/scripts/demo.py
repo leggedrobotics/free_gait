@@ -16,9 +16,19 @@ def step_client():
     
     goal = quadruped_msgs.msg.StepGoal()
     
-    # Default step in place
+    # Base shift up
     step = quadruped_msgs.msg.Step()
     step.step_number = 1
+    baseShiftData = quadruped_msgs.msg.BaseShiftData()
+    baseShiftData.name = "at_step";
+    baseShiftData.profile.height = 0.35
+    step.base_shift_data.append(baseShiftData)
+    goal.steps.append(step)
+    del step, baseShiftData
+    
+    # Default step in place
+    step = quadruped_msgs.msg.Step()
+    step.step_number = 2
     swingData = quadruped_msgs.msg.SwingData()
     swingData.name = "rightFore";
     swingData.profile.target.header.frame_id = "map"
@@ -29,7 +39,7 @@ def step_client():
     
     # High, slow step
     step = quadruped_msgs.msg.Step()
-    step.step_number = 2
+    step.step_number = 3
     swingData = quadruped_msgs.msg.SwingData()
     swingData.name = "rightHind";
     swingData.profile.target.header.frame_id = "map"
@@ -42,7 +52,7 @@ def step_client():
     
     # Foot trajectory
     step = quadruped_msgs.msg.Step()
-    step.step_number = 3
+    step.step_number = 4
     swingData = quadruped_msgs.msg.SwingData()
     swingData.name = "leftFore";
     swingData.trajectory.header.frame_id = "map"
