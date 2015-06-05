@@ -37,3 +37,4 @@
 
 # Python
 *.pydevproject
+*.pyc
