@@ -1,0 +1,40 @@
+steps:
+
+ # Simple step.
+ - step_number: 1
+   swing_data:
+    - name: "leftFore"
+      profile:
+       target: [0.1, 0.1, 0.1]
+       
+ # Extended swing data.
+ - step_number: 2
+   swing_data:
+    - name: "leftFore"
+      profile:
+       target: [0.1, 0.1, 0.1]
+       target_frame: "map"
+       height: 0.12
+       duration: 2.5
+       type: "triangle"
+      no_touchdown: false
+      surface_normal: [0, 0, 1]
+       
+ # Step with two legs.
+ - step_number: 3
+   swing_data:
+    - name: "leftFore"
+      profile:
+       target: [0.1, 0.1, 0.1]
+    - name: "rightFore"
+      profile:
+       target: [-0.1, -0.1, -0.1]
+       
+ # Custom step. TODO.
+ 
+ # Simple base height shift.
+ - step_number: 4
+   base_shift_data:
+    - name: "at_step"
+      profile:
+       height: 0.5

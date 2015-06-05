@@ -29,13 +29,17 @@ def step_client():
     # Default step in place
     step = quadruped_msgs.msg.Step()
     step.step_number = 2
+    baseShiftData = quadruped_msgs.msg.BaseShiftData()
+    baseShiftData.name = "pre_step";
+    baseShiftData.profile.height = 0.35
+    step.base_shift_data.append(baseShiftData)
     swingData = quadruped_msgs.msg.SwingData()
     swingData.name = "rightFore";
     swingData.profile.target.header.frame_id = "map"
     swingData.profile.target.point = geometry_msgs.msg.Point(0.279204123175, -0.2189, 0.02491)
     step.swing_data.append(swingData)
     goal.steps.append(step)
-    del step, swingData
+    del step, swingData, baseShiftData
     
     # High, slow step
     step = quadruped_msgs.msg.Step()
