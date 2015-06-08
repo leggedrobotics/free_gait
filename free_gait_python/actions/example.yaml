@@ -1,3 +1,5 @@
+adapt_to_current_position: false
+
 steps:
 
  # Simple step.
@@ -19,7 +21,8 @@ steps:
        type: "triangle"
       no_touchdown: false
       surface_normal: [0, 0, 1]
-       
+      surface_normal_frame: "map"
+
  # Step with two legs.
  - step_number: 3
    swing_data:

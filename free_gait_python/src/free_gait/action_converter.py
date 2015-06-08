@@ -18,7 +18,7 @@ class ActionConverter:
         
         goal = quadruped_msgs.msg.StepGoal()
         
-        # For each steps.
+        # For each step.
         for step_parameter in action[0][0]['steps']:
 
             # Step.
@@ -99,4 +99,12 @@ class ActionConverter:
                     
             goal.steps.append(step)
         
+        return goal
+    
+    @staticmethod
+    def adapt_coordinates(goal, pose_of_base):
+        # For each steps.
+        for step in goal.steps:
+            pass
+
         return goal
