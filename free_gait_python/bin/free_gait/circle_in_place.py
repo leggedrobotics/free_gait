@@ -3,7 +3,7 @@
 import roslib
 from copy import deepcopy
 from math import cos, sin
-roslib.load_manifest('free_gait_scripts')
+roslib.load_manifest('free_gait_python')
 import rospy
 import actionlib
 import quadruped_msgs.msg

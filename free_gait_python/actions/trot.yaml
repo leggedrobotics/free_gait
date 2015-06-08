@@ -2,38 +2,43 @@ adapt_to_current_position: true
 
 steps:
 
- - step: 
- 	number: 1
+ - step: &step_1
     swing_data:
-     - name: "rightHind"
+     - name: rightHind
        profile:
-        target: [-0.279, -0.218, 0.0249]
+        target: [-0.279, -0.218, 0.0]
         duration: 0.3
         height: 0.12
-     - name: "leftFore"
+     - name: leftFore
        profile:
-        target: [0.279, 0.218, 0.0249]
+        target: [0.279, 0.218, 0.0]
         duration: 0.3
         height: 0.12
     base_shift_data:
-     - name: "pre_step"
+     - name: pre_step
        profile:
-        duration: 0.1
-       
- - step_number: 2
-   swing_data:
-    - name: "leftHind"
-      profile:
-       target: [-0.279, 0.218, 0.0249]
-       duration: 0.3
-       height: 0.12
-    - name: "rightFore"
-      profile:
-       target: [0.279, -0.218, 0.0249]
-       duration: 0.3
-       height: 0.12
-      base_shift_data:
-   base_shift_data:
-    - name: "pre_step"
-      profile:
-       duration: 0.1
+        duration: 0.01
+        
+ - step: &step_2
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [-0.279, 0.218, 0.0]
+        duration: 0.3
+        height: 0.12
+     - name: rightFore
+       profile:
+        target: [0.279, -0.218, 0.0]
+        duration: 0.3
+        height: 0.12
+    base_shift_data:
+     - name: pre_step
+       profile:
+        duration: 0.01
+        
+ - step: *step_1
+ - step: *step_2
+ - step: *step_1
+ - step: *step_2
+ - step: *step_1
+ - step: *step_2

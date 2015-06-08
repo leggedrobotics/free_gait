@@ -1,1 +1,3 @@
-from action_converter import ActionConverter
+from free_gait import load_from_file
+from free_gait import get_from_yaml
+from free_gait import adapt_coordinates
