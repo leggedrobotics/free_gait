@@ -26,9 +26,6 @@ class BaseShiftProfileRosWrapper : public BaseShiftProfile
   virtual ~BaseShiftProfileRosWrapper();
 
   bool fromMessage(const quadruped_msgs::BaseShiftProfile& message);
-
- private:
-  const std::string frameId_;
 };
 
 } /* namespace */

@@ -30,9 +30,6 @@ class SwingDataRosWrapper : public SwingData
    * @param message the swing data ROS message.
    */
   bool fromMessage(const quadruped_msgs::SwingData& message);
-
- private:
-  const std::string frameId_;
 };
 
 } /* namespace */

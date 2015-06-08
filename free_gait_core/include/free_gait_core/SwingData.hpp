@@ -35,6 +35,18 @@ class SwingData
   const std::string& getName() const;
   void setName(const std::string& name);
 
+  /*!
+   * Returns the frame id of the surface normal.
+   * @return the frame id.
+   */
+  const std::string& getSurfaceNormalFrameId() const;
+
+  /*!
+   * Set the frame id of the surface normal.
+   * @param frameId the frame id.
+   */
+  void setSurfaceNormalFrameId(const std::string& frameId);
+
   const Vector& getSurfaceNormal() const;
   void setSurfaceNormal(const Vector& surfaceNormal);
 
@@ -52,6 +64,7 @@ class SwingData
   std::string name_;
 
   free_gait::Vector surfaceNormal_;
+  std::string surfaceNormalFrameId_;
 
   std::shared_ptr<SwingTrajectoryBase> trajectory_;
 

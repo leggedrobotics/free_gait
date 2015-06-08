@@ -163,3 +163,4 @@ void SwingProfile::generateSquareKnots(std::vector<Time>& times,
 }
 
 } /* namespace loco */
+

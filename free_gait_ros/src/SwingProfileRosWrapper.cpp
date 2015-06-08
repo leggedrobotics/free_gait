@@ -14,9 +14,8 @@
 
 namespace free_gait {
 
-SwingProfileRosWrapper::SwingProfileRosWrapper() :
-    SwingProfile(),
-    frameId_("map")
+SwingProfileRosWrapper::SwingProfileRosWrapper()
+    : SwingProfile()
 {
 
 }
@@ -28,35 +27,32 @@ SwingProfileRosWrapper::~SwingProfileRosWrapper()
 
 bool SwingProfileRosWrapper::fromMessage(const quadruped_msgs::SwingProfile& message)
 {
-    // Target position.
-    const auto& target = message.target.point;
-    if (message.target.header.frame_id == frameId_) {
-      target_.x() = target.x;
-      target_.y() = target.y;
-      target_.z() = target.z;
-    } else {
-      ROS_ERROR_STREAM(
-          "Invalid target position frame in step message: '" << message.target.header.frame_id << "'.");
-      return false;
-    }
+  // Target frame.
+  setFrameId(message.target.header.frame_id);
 
-    // Swing height.
-    if (message.height != 0.0) {
-      height_ = message.height;
-    }
+  // Target position.
+  const auto& target = message.target.point;
+  target_.x() = target.x;
+  target_.y() = target.y;
+  target_.z() = target.z;
 
-    // Duration.
-    const auto& duration = ros::Duration(message.duration).toSec();
-    if (duration != 0.0) {
-      duration_ = duration;
-    }
+  // Swing height.
+  if (message.height != 0.0) {
+    height_ = message.height;
+  }
 
-    // Type.
-    if (message.type != "") {
-      type_ = message.type;
-    }
+  // Duration.
+  const auto& duration = ros::Duration(message.duration).toSec();
+  if (duration != 0.0) {
+    duration_ = duration;
+  }
 
-    return true;
+  // Type.
+  if (message.type != "") {
+    type_ = message.type;
+  }
+
+  return true;
 }
 
 } /* namespace */

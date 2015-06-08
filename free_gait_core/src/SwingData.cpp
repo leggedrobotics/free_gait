@@ -40,6 +40,17 @@ void SwingData::setName(const std::string& name)
   name_ = name;
 }
 
+
+const std::string& SwingData::getSurfaceNormalFrameId() const
+{
+  return surfaceNormalFrameId_;
+}
+
+void SwingData::setSurfaceNormalFrameId(const std::string& frameId)
+{
+  surfaceNormalFrameId_ = frameId;
+}
+
 const Vector& SwingData::getSurfaceNormal() const
 {
   return surfaceNormal_;

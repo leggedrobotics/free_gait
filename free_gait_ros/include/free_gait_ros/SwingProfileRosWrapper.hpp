@@ -30,9 +30,6 @@ class SwingProfileRosWrapper : public SwingProfile
    * @param message the swing profile ROS message.
    */
   bool fromMessage(const quadruped_msgs::SwingProfile& message);
-
- private:
-  const std::string frameId_;
 };
 
 } /* namespace */
