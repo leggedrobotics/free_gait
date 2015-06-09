@@ -31,16 +31,35 @@ foot_positions.lh = params.base_position + distances.lh + params.offsets.lh;
 feet = fieldnames(foot_positions);
 n_feet = length(feet);
 
-% Stance feet
+% Support polygon
+support = zeros(params.n_stance_leg+1, 2);
+for i = 1:params.n_stance_leg
+    support(i, :) = foot_positions.(params.stance_legs{i})';
+end
+% Add extra point to close polygon
+support(params.n_stance_leg+1,:) = foot_positions.(params.stance_legs{1})';
 
 %% Problem definition
-% min Ax - b
+% min Ax - b, Gx <= h
 
+% Objective
 A = repmat(eye(2), n_feet, 1);
 b = zeros(2 * n_feet, 1);
 for i = 1:n_feet
     b(1+2*(i-1):2*i) = foot_positions.(feet{i}) - distances.(hips{i});
 end
+
+% Inequality constraints
+% G = zeros(params.n_stance_leg, 2);
+% h = zeros(params.n_stance_leg, 1);
+% for i = 1:params.n_stance_leg
+%     foot_1 = support(i,:)';
+%     foot_2 = support(i+1,:)';
+%     m = (foot_2(2) - foot_1(2)) / (foot_2(1) - foot_1(1));
+%     G(i, :) = [-m 1]
+%     h(i) = -m*foot_1(1) + foot_1(2)
+% end
+[G,h]=vert2con(support);
   
 %% Formulation as QP
 % min 1/2 x'Px + q'x + r
@@ -50,7 +69,7 @@ q = -2*A'*b;
 r = b'*b;
 
 %% Solve
-[x,fval,exitflag,output,lambda] = quadprog(P, q);
+[x,fval,exitflag,output,lambda] = quadprog(P, q, G, h);
 %[x,fval,exitflag,output,lambda] = linprog(f,A,b,[],[],lb);
 
 %% Compute hip positions
@@ -71,11 +90,6 @@ axis([x_min x_max y_min y_max])
 axis equal
 
 % Support polygon
-support = zeros(params.n_stance_leg+1, 2);
-for i = 1:params.n_stance_leg
-    support(i, :) = foot_positions.(params.stance_legs{i})';
-end
-support(params.n_stance_leg+1,:) = foot_positions.(params.stance_legs{1})';
 plot(support(:,1), support(:,2), ':k')
 
 % Feet points
