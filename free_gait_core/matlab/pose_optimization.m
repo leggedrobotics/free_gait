@@ -3,16 +3,16 @@ clear all
 
 %% Parameters
 params.n_states = 3;
-params.stance_legs = cellstr(['rf'; 'rh'; 'lh']);
-params.width = 0.2;
-params.length = 0.25;
-params.base_position = [1.0; 3.0]; % m
-params.yaw_0 = 0.4; % rad
-params.plot_margin = 0.4;
-params.offsets.lf = [0.15; 0.05];
-params.offsets.rf = [-0.04; 0.02];
-params.offsets.rh = [-0.07; 0.03];
-params.offsets.lh = [0; 0.01];
+params.stance_legs = cellstr(['lf'; 'rf'; 'rh'; 'lh']);
+params.width = 0.5;
+params.length = 1.0;
+params.base_position = [0.0; 0.0]; % m
+params.yaw_0 = 0.5; % rad
+params.plot_margin = 1.5;
+params.offsets.lf = [1.0; 0.0];
+params.offsets.rf = [0.0; 0.0];
+params.offsets.rh = [0.0; 0.0];
+params.offsets.lh = [0.0; 0.0];
 
 %% Setup
 params.n_stance_leg = length(params.stance_legs);
@@ -79,8 +79,14 @@ r = b'*b;
 %% Solve
 [x,fval,exitflag,output,lambda] = quadprog(P, q, G, h);
 %[x,fval,exitflag,output,lambda] = linprog(f,A,b,[],[],lb);
+x
 
-residual = A*x - b
+T = [cos(x(3)) -sin(x(3)) 0 x(1);
+     sin(x(3))  cos(x(3)) 0 x(2);
+     0          0         1 0;
+     0          0         0 1]
+
+residual = A*x - b;
 
 %% Compute hip positions
 for i = 1:n_hips
@@ -128,5 +134,4 @@ for i = 1:n_feet
     error = error + sum((leg(1, :) - leg(2, :)).^2);
     plot(leg(:, 1), leg(:, 2), '-r')
 end
-sqrt(error)
-norm(residual)
+sqrt(error) % ~= norm(residual)
