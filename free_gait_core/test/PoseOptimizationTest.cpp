@@ -123,6 +123,22 @@ TEST(quadruped, symmetricWithYawRotationUnconstrained)
   EXPECT_TRUE(optimization.compute(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  // 
+  // 
+  // 
+  // x =
+  // 
+  //     0.2500
+  //    -0.0000
+  //    -0.1000
+  // 
+  // 
+  // T =
+  // 
+  //     0.9950   -0.0998         0    0.2500
+  //     0.0998    0.9950         0   -0.0000
+  //          0         0    1.0000         0
+  //          0         0         0    1.0000
 }
 
 TEST(quadruped, withYawRotationUnconstrained)
@@ -151,15 +167,24 @@ TEST(quadruped, withYawRotationUnconstrained)
   EXPECT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected << 0.9211, -0.3894, 0.0,  0.2194, // TODO Check.
-              0.3894,  0.9211, 0.0,  0.1199,
-              0.0,     0.0,    1.0,  0.0,
-              0.0,     0.0,    0.0,  1.0;
+  expected <<  0.9211, 0.3894, 0.0,  0.2194,
+              -0.3894, 0.9211, 0.0,  0.1199,
+               0.0,    0.0,    1.0,  0.0,
+               0.0,    0.0,    0.0,  1.0;
 
-//  0.82533561490967844 -0.56464247339503526        -0 0.21939564047259319
-//  0.56464247339503526 0.82533561490967844         0 0.11985638465105081
-//          0        -0         1         0
-//          0         0         0         1
+// x =
+// 
+//     0.2194
+//     0.1199
+//    -0.1000
+// 
+// 
+// T =
+// 
+//     0.9211    0.3894         0    0.2194
+//    -0.3894    0.9211         0    0.1199
+//          0         0    1.0000         0
+//          0         0         0    1.0000
 
 //  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -203,19 +228,23 @@ TEST(quadruped, constrained)
               0.0,     0.0,    0.0,  1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  
+  // x =
+  // 
+  //     0.2235
+  //     0.0081
+  //    -0.1000
+  // 
+  // 
+  // T =
+  // 
+  //     0.9211    0.3894         0    0.2235
+  //    -0.3894    0.9211         0    0.0081
+  //          0         0    1.0000         0
+  //          0         0         0    1.0000
+  // 
+  // 
+  // ans =
+  // 
+  //     0.8660
 }
-//
-//
-//x =
-//
-//    0.2235
-//    0.0081
-//   -0.1000
-//
-//
-//T =
-//
-//    0.9211   -0.3894         0    0.2235
-//    0.3894    0.9211         0    0.0081
-//         0         0    1.0000         0
-//         0         0         0    1.0000

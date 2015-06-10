@@ -82,8 +82,8 @@ r = b'*b;
 x
 
 yaw = params.yaw_0 + x(3);
-T = [cos(yaw) -sin(yaw) 0 x(1);
-     sin(yaw)  cos(yaw) 0 x(2);
+T = [cos(yaw)  sin(yaw) 0 x(1);
+     -sin(yaw)  cos(yaw)  0 x(2);
      0          0         1 0;
      0          0         0 1]
 
