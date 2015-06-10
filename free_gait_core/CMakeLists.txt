@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 find_package(catkin REQUIRED COMPONENTS
   loco
   curves
+  grid_map_core
 )
 
 ## System dependencies are found with CMake's conventions
@@ -29,6 +30,7 @@ catkin_package(
     CATKIN_DEPENDS
       loco
       curves
+      grid_map_core
     DEPENDS
       Eigen3
 )
@@ -65,9 +67,18 @@ add_library(${PROJECT_NAME}
    src/SwingProfile.cpp
    src/SwingSplineTrajectory.cpp
    src/SwingTrajectoryBase.cpp
+   src/PoseOptimization.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_library(free_gait_pose_optimization
+  src/PoseOptimization.cpp
+)
+
+target_link_libraries(free_gait_pose_optimization
   ${catkin_LIBRARIES}
 )
 
@@ -79,8 +90,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 ## Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
-#  test/StepTest.cpp
+  test/PoseOptimizationTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
-  target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+  target_link_libraries(${PROJECT_NAME}-test
+    #${PROJECT_NAME}
+    free_gait_pose_optimization
+  )
 endif()
