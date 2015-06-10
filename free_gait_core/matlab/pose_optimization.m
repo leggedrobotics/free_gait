@@ -2,12 +2,14 @@ clc
 clear all
 
 %% Parameters
+params.n_states = 3;
 params.stance_legs = cellstr(['rf'; 'rh'; 'lh']);
 params.width = 0.2;
 params.length = 0.25;
-params.base_position = [1.0; 3.0];
+params.base_position = [1.0; 3.0]; % m
+params.yaw_0 = 0.4; % rad
 params.plot_margin = 0.4;
-params.offsets.lf = [0.1; 0.0];
+params.offsets.lf = [0.15; 0.05];
 params.offsets.rf = [-0.04; 0.02];
 params.offsets.rh = [-0.07; 0.03];
 params.offsets.lh = [0; 0.01];
@@ -24,10 +26,12 @@ hips = fieldnames(distances);
 n_hips = length(hips);
 
 % Foot positions
-foot_positions.lf = params.base_position + distances.lf + params.offsets.lf;
-foot_positions.rf = params.base_position + distances.rf + params.offsets.rf;
-foot_positions.rh = params.base_position + distances.rh + params.offsets.rh;
-foot_positions.lh = params.base_position + distances.lh + params.offsets.lh;
+R_0 = [cos(params.yaw_0) -sin(params.yaw_0);
+       sin(params.yaw_0)  cos(params.yaw_0)];
+foot_positions.lf = params.base_position + R_0 * (distances.lf + params.offsets.lf);
+foot_positions.rf = params.base_position + R_0 * (distances.rf + params.offsets.rf);
+foot_positions.rh = params.base_position + R_0 * (distances.rh + params.offsets.rh);
+foot_positions.lh = params.base_position + R_0 * (distances.lh + params.offsets.lh);
 feet = fieldnames(foot_positions);
 n_feet = length(feet);
 
@@ -43,10 +47,13 @@ support(params.n_stance_leg+1,:) = foot_positions.(params.stance_legs{1})';
 % min Ax - b, Gx <= h
 
 % Objective
-A = repmat(eye(2), n_feet, 1);
+A = zeros(2 * n_feet, params.n_states);
 b = zeros(2 * n_feet, 1);
+R_star = [0 -1;
+          1  0];
 for i = 1:n_feet
-    b(1+2*(i-1):2*i) = foot_positions.(feet{i}) - distances.(hips{i});
+    A(1+2*(i-1):2*i,:) = horzcat(eye(2), R_0*R_star*distances.(hips{i}));
+    b(1+2*(i-1):2*i) = foot_positions.(feet{i}) - R_0*distances.(hips{i});
 end
 
 % Inequality constraints
@@ -60,6 +67,7 @@ end
 %     h(i) = -m*foot_1(1) + foot_1(2)
 % end
 [G,h]=vert2con(support);
+G = horzcat(G, zeros(size(G, 1), 1));
   
 %% Formulation as QP
 % min 1/2 x'Px + q'x + r
@@ -72,9 +80,11 @@ r = b'*b;
 [x,fval,exitflag,output,lambda] = quadprog(P, q, G, h);
 %[x,fval,exitflag,output,lambda] = linprog(f,A,b,[],[],lb);
 
+residual = A*x - b
+
 %% Compute hip positions
 for i = 1:n_hips
-    hip_positions.(hips{i}) = x + distances.(hips{i});
+    hip_positions.(hips{i}) = x(1:2) + R_0 * (eye(2) + R_star*x(3)) * distances.(hips{i});
 end
 
 %% Plot
@@ -109,11 +119,14 @@ end
 outline(n_hips+1,:) = hip_positions.(hips{1})';
 plot(outline(:,1), outline(:,2), '-k')
 
-% Leg
+% Leg & error
 leg = zeros(2, 2);
+error = 0;
 for i = 1:n_feet
     leg(1, :) = hip_positions.(hips{i});
     leg(2, :) = foot_positions.(feet{i});
+    error = error + sum((leg(1, :) - leg(2, :)).^2);
     plot(leg(:, 1), leg(:, 2), '-r')
 end
-
+sqrt(error)
+norm(residual)
