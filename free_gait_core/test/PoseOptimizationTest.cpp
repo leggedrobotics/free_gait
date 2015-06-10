@@ -18,7 +18,7 @@
 using namespace free_gait;
 using namespace kindr::common::eigen;
 
-TEST(quadruped, symmetric)
+TEST(quadruped, symmetricUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -40,7 +40,7 @@ TEST(quadruped, symmetric)
   assertEqual(Pose().getTransformationMatrix(), result.getTransformationMatrix(), KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, symmetricWithOffset)
+TEST(quadruped, symmetricWithOffsetUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -66,7 +66,7 @@ TEST(quadruped, symmetricWithOffset)
   assertEqual(startPose.getTransformationMatrix(), result.getTransformationMatrix(), KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, asymmetric)
+TEST(quadruped, asymmetricUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -94,7 +94,7 @@ TEST(quadruped, asymmetric)
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, withYawRotation)
+TEST(quadruped, withYawRotationUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -120,10 +120,59 @@ TEST(quadruped, withYawRotation)
   EXPECT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected <<  0.9950, 0.0998, 0.0,  0.2194, // TODO wrong rotation.
-              -0.0998, 0.9950, 0.0,  0.1199,
-               0.0,    0.0,    1.0,  0.0,
-               0.0,    0.0,    0.0,  1.0;
+  expected << 0.9211, -0.3894, 0.0,  0.2194,
+              0.3894,  0.9211, 0.0,  0.1199,
+              0.0,     0.0,    1.0,  0.0,
+              0.0,     0.0,    0.0,  1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
+
+TEST(quadruped, constrained)
+{
+  PoseOptimization optimization;
+
+  optimization.setDesiredLegConfiguration( {
+    Position(1.0, 0.5, 0.0),
+    Position(1.0, -0.5, 0.0),
+    Position(-1.0, -0.5, 0.0),
+    Position(-1.0, 0.5, 0.0) });
+
+  std::vector<Position> feetPositions;
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD rotation(0.0, 0.0, 0.5);
+  feetPositions.push_back(rotation.rotate(Position(2.0, 0.5, 0.0)));
+  feetPositions.push_back(rotation.rotate(Position(1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.rotate(Position(-1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.rotate(Position(-1.0, 0.5, 0.0)));
+    optimization.setFeetPositions(feetPositions);
+
+  Pose startPose;
+  startPose.getRotation() = rotation;
+  optimization.setStartPose(startPose);
+
+  Pose result;
+  EXPECT_TRUE(optimization.compute(result));
+
+  Eigen::Matrix4d expected;
+  expected << 0.9211, -0.3894, 0.0,  0.2194,
+              0.3894,  0.9211, 0.0,  0.1199,
+              0.0,     0.0,    1.0,  0.0,
+              0.0,     0.0,    0.0,  1.0;
+
+  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+}
+
+
+x =
+
+    0.2235
+    0.0081
+   -0.1000
+
+
+T =
+
+    0.9211   -0.3894         0    0.2235
+    0.3894    0.9211         0    0.0081
+         0         0    1.0000         0
+         0         0         0    1.0000

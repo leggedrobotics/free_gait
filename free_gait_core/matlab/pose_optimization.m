@@ -3,7 +3,7 @@ clear all
 
 %% Parameters
 params.n_states = 3;
-params.stance_legs = cellstr(['lf'; 'rf'; 'rh'; 'lh']);
+params.stance_legs = cellstr(['rf'; 'rh'; 'lh']);
 params.width = 0.5;
 params.length = 1.0;
 params.base_position = [0.0; 0.0]; % m
@@ -81,8 +81,9 @@ r = b'*b;
 %[x,fval,exitflag,output,lambda] = linprog(f,A,b,[],[],lb);
 x
 
-T = [cos(x(3)) -sin(x(3)) 0 x(1);
-     sin(x(3))  cos(x(3)) 0 x(2);
+yaw = params.yaw_0 + x(3);
+T = [cos(yaw) -sin(yaw) 0 x(1);
+     sin(yaw)  cos(yaw) 0 x(2);
      0          0         1 0;
      0          0         0 1]
 
