@@ -11,3 +11,6 @@ A free gait implementation for loco.
 ## Build
 
 	catkin_make -DUSE_TASK_LOCOFREEGAIT=ON -DUSE_TASK_LOCOFREEGAIT_ROS=ON
+
+## Unit Tests
+	catkin build free_gait_core --no-deps --verbose --catkin-make-args run_tests

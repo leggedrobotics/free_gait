@@ -30,6 +30,7 @@ class PoseOptimization
   /*!
    * Define the desired leg configuration by specifying the desired feet positions
    * relative to the base.
+   * Note: The number and order of the feet has to be the same as in `setFeetPositions`.
    * @param desiredFeetPositionsInBase the desired feet positions in base frame.
    */
   void setDesiredLegConfiguration(const std::vector<Position>& desiredFeetPositionsInBase);

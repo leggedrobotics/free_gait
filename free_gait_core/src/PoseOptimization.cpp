@@ -82,7 +82,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
-  optimizedPose.getPosition().vector().head<2>() = x.head<2>();
+  optimizedPose.getPosition() << x.head<2>(), startPose_.getPosition().z();
   const double yaw = x.tail<1>()[0];
   optimizedPose.getRotation() = optimizedPose.getRotation() * kindr::rotations::eigen_impl::EulerAnglesXyzPD(0.0, 0.0, yaw);
 
