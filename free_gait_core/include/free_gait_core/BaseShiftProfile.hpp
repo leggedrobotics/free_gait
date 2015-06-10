@@ -96,4 +96,4 @@ class BaseShiftProfile : public BaseShiftTrajectoryBase
   bool trajectoryUpdated_;
 };
 
-} /* namespace loco */
+} /* namespace */

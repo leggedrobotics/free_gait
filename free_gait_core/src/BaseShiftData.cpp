@@ -78,4 +78,4 @@ std::ostream& operator<<(std::ostream& out, const BaseShiftData& baseShiftData)
     return out;
 }
 
-} /* namespace loco */
+} /* namespace */

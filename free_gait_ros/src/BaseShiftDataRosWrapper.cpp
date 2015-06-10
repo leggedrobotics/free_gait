@@ -9,10 +9,9 @@
 #include <free_gait_ros/BaseShiftDataRosWrapper.hpp>
 #include <free_gait_ros/BaseShiftProfileRosWrapper.hpp>
 #include <free_gait_ros/BaseShiftSplineTrajectoryRosWrapper.hpp>
-#include <ros/ros.h>
 
-// Loco
-#include "loco/common/TypeDefs.hpp"
+// ROS
+#include <ros/ros.h>
 
 // STD
 #include <string>

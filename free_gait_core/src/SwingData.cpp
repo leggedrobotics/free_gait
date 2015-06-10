@@ -100,5 +100,5 @@ void SwingData::setUseProfile(bool useProfile)
   useProfile_ = useProfile;
 }
 
-} /* namespace loco */
+} /* namespace */
 

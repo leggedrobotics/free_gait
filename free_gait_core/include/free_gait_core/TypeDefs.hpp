@@ -36,5 +36,4 @@ typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
 
 typedef kindr::phys_quant::eigen_impl::VectorTypeless3D Vector;
 
-
 } // namespace

@@ -85,4 +85,4 @@ class BaseShiftTrajectoryBase
   std::string frameId_;
 };
 
-} /* namespace loco */
+} /* namespace */

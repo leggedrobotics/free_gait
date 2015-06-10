@@ -93,4 +93,4 @@ bool StepQueue::hasSwitchedStep() const
   return (previousStepNumber_ != queue_.front().getStepNumber());
 }
 
-} /* namespace loco */
+} /* namespace */

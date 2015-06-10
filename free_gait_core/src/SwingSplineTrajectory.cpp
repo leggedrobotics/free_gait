@@ -50,4 +50,4 @@ std::ostream& operator<<(std::ostream& out, const SwingSplineTrajectory& swingSp
   return out;
 }
 
-} /* namespace loco */
+} /* namespace */

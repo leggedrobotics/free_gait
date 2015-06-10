@@ -94,4 +94,4 @@ class SwingTrajectoryBase
   std::string frameId_;
 };
 
-} /* namespace loco */
+} /* namespace */

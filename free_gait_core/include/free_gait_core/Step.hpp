@@ -18,7 +18,6 @@
 
 // Loco
 #include "loco/common/LegGroup.hpp"
-#include "loco/common/TorsoBase.hpp"
 
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
@@ -30,7 +29,7 @@ namespace free_gait {
 class Step
 {
  public:
-  Step(std::shared_ptr<loco::LegGroup> legs, std::shared_ptr<loco::TorsoBase> torso);
+  Step(std::shared_ptr<loco::LegGroup> legs);
   virtual ~Step();
 
   /*!
@@ -177,9 +176,6 @@ class Step
   //! Common loco leg group class.
   std::shared_ptr<loco::LegGroup> legs_;
 
-  //! Common loco torso class.
-  std::shared_ptr<loco::TorsoBase> torso_;
-
   //! Step number.
   unsigned int stepNumber_;
 
@@ -204,4 +200,4 @@ class Step
 Step::State& operator++(Step::State& phase);
 std::ostream& operator<<(std::ostream& os, const Step::State& phase);
 
-} /* namespace loco */
+} /* namespace */

@@ -127,4 +127,4 @@ std::ostream& operator<<(std::ostream& out, const BaseShiftProfile& baseShiftPro
   return out;
 }
 
-} /* namespace loco */
+} /* namespace */

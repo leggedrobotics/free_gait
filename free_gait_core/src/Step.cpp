@@ -15,9 +15,8 @@
 
 namespace free_gait {
 
-Step::Step(std::shared_ptr<loco::LegGroup> legs, std::shared_ptr<loco::TorsoBase> torso)
+Step::Step(std::shared_ptr<loco::LegGroup> legs)
     : legs_(legs),
-      torso_(torso),
       stepNumber_(0),
       time_(0.0),
       state_(Step::State::Undefined),
@@ -332,4 +331,4 @@ std::ostream& operator<<(std::ostream& os, const Step::State& phase)
   }
 }
 
-} /* namespace loco */
+} /* namespace */

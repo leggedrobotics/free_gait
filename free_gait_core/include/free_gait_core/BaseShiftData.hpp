@@ -52,4 +52,4 @@ class BaseShiftData
   bool useProfile_;
 };
 
-} /* namespace loco */
+} /* namespace */

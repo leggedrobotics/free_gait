@@ -72,4 +72,4 @@ class SwingData
   bool useProfile_;
 };
 
-} /* namespace loco */
+} /* namespace */

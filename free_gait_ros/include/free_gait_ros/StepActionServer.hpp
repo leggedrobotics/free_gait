@@ -13,7 +13,6 @@
 
 // Loco
 #include "loco/common/LegGroup.hpp"
-#include "loco/common/TorsoBase.hpp"
 
 // ROS
 #include <ros/ros.h>
@@ -32,7 +31,7 @@ class StepActionServer
   StepActionServer(ros::NodeHandle nodeHandle, const std::string& name,
                    std::shared_ptr<StepQueue> stepQueue,
                    std::shared_ptr<StepCompleter> stepCompleter,
-                   std::shared_ptr<loco::LegGroup> legs, std::shared_ptr<loco::TorsoBase> torso);
+                   std::shared_ptr<loco::LegGroup> legs);
   virtual ~StepActionServer();
 
   void update();
@@ -60,9 +59,6 @@ class StepActionServer
 
   //! Common loco leg group class.
   std::shared_ptr<loco::LegGroup> legs_;
-
-  //! Common loco torso class.
-  std::shared_ptr<loco::TorsoBase> torso_;
 
   std::string name_;
   actionlib::SimpleActionServer<quadruped_msgs::StepAction> server_;

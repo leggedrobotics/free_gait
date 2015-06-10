@@ -101,4 +101,4 @@ class SwingProfile : public SwingTrajectoryBase
   bool trajectoryUpdated_;
 };
 
-} /* namespace loco */
+} /* namespace */

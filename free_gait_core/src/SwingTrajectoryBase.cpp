@@ -30,4 +30,4 @@ void SwingTrajectoryBase::setFrameId(const std::string& frameId)
   frameId_ = frameId;
 }
 
-} /* namespace loco */
+} /* namespace */

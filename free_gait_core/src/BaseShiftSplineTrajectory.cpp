@@ -45,4 +45,4 @@ std::ostream& operator<<(std::ostream& out, const BaseShiftSplineTrajectory& bas
   return out;
 }
 
-} /* namespace loco */
+} /* namespace */

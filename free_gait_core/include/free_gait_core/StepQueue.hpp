@@ -86,4 +86,4 @@ class StepQueue
   int previousStepNumber_;
 };
 
-} /* namespace loco */
+} /* namespace */

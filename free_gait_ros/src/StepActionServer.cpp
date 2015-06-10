@@ -23,15 +23,13 @@ namespace free_gait {
 StepActionServer::StepActionServer(ros::NodeHandle nodeHandle, const std::string& name,
                                    std::shared_ptr<free_gait::StepQueue> stepQueue,
                                    std::shared_ptr<free_gait::StepCompleter> stepCompleter,
-                                   std::shared_ptr<loco::LegGroup> legs,
-                                   std::shared_ptr<loco::TorsoBase> torso)
+                                   std::shared_ptr<loco::LegGroup> legs)
     : nodeHandle_(nodeHandle),
       name_(name),
       stepQueue_(stepQueue),
       stepCompleter_(stepCompleter),
       server_(nodeHandle_, name_, false),
       legs_(legs),
-      torso_(torso),
       isPreempting_(false)
 {
   server_.registerGoalCallback(boost::bind(&StepActionServer::goalCallback, this));
@@ -68,7 +66,7 @@ void StepActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   for (auto& stepMessage : server_.acceptNewGoal()->steps) {
-    StepRosWrapper step(legs_, torso_);
+    StepRosWrapper step(legs_);
     step.fromMessage(stepMessage);
     stepCompleter_->complete(step);
     stepQueue_->add(step);

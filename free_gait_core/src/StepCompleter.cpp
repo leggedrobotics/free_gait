@@ -6,7 +6,6 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-// Loco
 #include "free_gait_core/StepCompleter.hpp"
 #include "free_gait_core/SwingProfile.hpp"
 #include "free_gait_core/BaseShiftProfile.hpp"
@@ -60,4 +59,4 @@ bool StepCompleter::complete(Step& step) const
   return step.isComplete_ = true;
 }
 
-} /* namespace loco */
+} /* namespace */

@@ -34,4 +34,4 @@ class StepCompleter
   std::string baseShiftProfileType_;
 };
 
-} /* namespace loco */
+} /* namespace */

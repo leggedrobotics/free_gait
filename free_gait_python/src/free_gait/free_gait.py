@@ -121,6 +121,8 @@ def adapt_coordinates(goal, position, orientation):
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
     
+    # TODO For base shift trajectories
+    # TODO For multi-dof trajectories
     for step in goal.steps:
         for swing_data in step.swing_data:
             swing_data.profile.target.point = transform_point(transform, swing_data.profile.target.point)

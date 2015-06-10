@@ -15,9 +15,8 @@
 
 namespace free_gait {
 
-StepRosWrapper::StepRosWrapper(std::shared_ptr<loco::LegGroup> legs,
-                               std::shared_ptr<loco::TorsoBase> torso)
-    : Step(legs, torso)
+StepRosWrapper::StepRosWrapper(std::shared_ptr<loco::LegGroup> legs)
+    : Step(legs)
 {
 
 }

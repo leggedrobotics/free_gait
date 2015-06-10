@@ -82,4 +82,4 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
   curves::PolynomialSplineQuinticVector3Curve trajectory_;
 };
 
-} /* namespace loco */
+} /* namespace */
