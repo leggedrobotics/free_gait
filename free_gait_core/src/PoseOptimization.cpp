@@ -7,10 +7,16 @@
  */
 
 #include <free_gait_core/PoseOptimization.hpp>
+#include <Eigen/Core>
+#include <ooqp_eigen_interface/OoqpEigenInterface.hpp>
+#include <kindr/rotations/RotationEigen.hpp>
+
+using namespace Eigen;
 
 namespace free_gait {
 
 PoseOptimization::PoseOptimization()
+    : nStates_(3)
 {
 }
 
@@ -43,6 +49,43 @@ void PoseOptimization::setStartPose(const Pose& startPose)
 
 bool PoseOptimization::compute(Pose& optimizedPose)
 {
+  // Problem definition:
+  // min Ax - b, Gx <= h
+  unsigned int nFeet = feetPositions_.size();
+  MatrixXd A = MatrixXd::Zero(2 * nFeet, nStates_);
+  VectorXd b = VectorXd::Zero(2 * nFeet);
+  Matrix3d R_0 = RotationMatrix(startPose_.getRotation()).toImplementation();
+  Matrix3d Rstar;
+  Rstar << 0, -1, 0,
+           1,  0, 0,
+           0,  0, 0;
+
+  for (unsigned int i = 0; i < nFeet; i++) {
+    A.block(2 * i, 0, 2, A.cols()) << Matrix2d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[i].vector()).head<2>();
+    b.segment(2 * i, 2) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
+  }
+
+//  std::cout << "A: " << std::endl << A << std::endl;
+//  std::cout << "b: " << std::endl << b << std::endl;
+
+  // Formulation as QP:
+  // min 1/2 x'Px + q'x + r
+  MatrixXd P = 2 * A.transpose() * A;
+  VectorXd q = -2 * A.transpose() * b;
+//  MatrixXd r = b.transpose() * b;
+
+  // Solve.
+  Eigen::SparseMatrix<double, Eigen::RowMajor> P_sparse = P.sparseView();
+  Eigen::VectorXd x;
+  if (!ooqpei::OoqpEigenInterface::solve(P_sparse, q, x))
+      return false;
+//  std::cout << "x: " << std::endl << x << std::endl;
+
+  // Return optimized pose.
+  optimizedPose.getPosition().vector().head<2>() = x.head<2>();
+  const double yaw = x.tail<1>()[0];
+  optimizedPose.getRotation() = optimizedPose.getRotation() * kindr::rotations::eigen_impl::EulerAnglesXyzPD(0.0, 0.0, yaw);
+
   return true;
 }
 

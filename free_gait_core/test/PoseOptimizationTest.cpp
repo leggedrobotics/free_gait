@@ -6,6 +6,7 @@
  *	 Institute: ETH Zurich, Autonomous Systems Lab
  */
 
+#include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/PoseOptimization.hpp"
 
 // gtest
@@ -16,6 +17,11 @@ using namespace free_gait;
 TEST(quadruped, symmetric)
 {
   PoseOptimization optimization;
-  grid_map::Polygon test;
-  EXPECT_TRUE(1==1);
+  optimization.setDesiredLegConfiguration( { Position(1.0, 0.5, 0.0), Position(1.0, -0.5, 0.0),
+      Position(-1.0, -0.5, 0.0), Position(-1.0, 0.5, 0.0) });
+  optimization.setFeetPositions({ Position(31.0, 20.5, 0.0), Position(31.0, 19.5, 0.0),
+      Position(29.0, 19.5, 0.0), Position(29.0, 20.5, 0.0) });
+  Pose result;
+  EXPECT_TRUE(optimization.compute(result));
+  std::cout << result << std::endl;
 }

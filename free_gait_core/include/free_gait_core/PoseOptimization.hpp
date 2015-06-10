@@ -56,6 +56,7 @@ class PoseOptimization
   bool compute(Pose& optimizedPose);
 
  private:
+  unsigned int nStates_;
   std::vector<Position> feetPositions_;
   std::vector<Position> desiredFeetPositionsInBase_;
   grid_map::Polygon supportPolygon_;
