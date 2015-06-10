@@ -15,6 +15,9 @@
 // kindr
 #include "kindr/common/gtest_eigen.hpp"
 
+// Grid map
+#include <grid_map_core/Polygon.hpp>
+
 using namespace free_gait;
 using namespace kindr::common::eigen;
 
@@ -110,7 +113,7 @@ TEST(quadruped, symmetricWithYawRotationUnconstrained)
   feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
-    optimization.setFeetPositions(feetPositions);
+  optimization.setFeetPositions(feetPositions);
 
   Pose startPose;
   startPose.getRotation() = rotation;
@@ -138,7 +141,7 @@ TEST(quadruped, withYawRotationUnconstrained)
   feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
-    optimization.setFeetPositions(feetPositions);
+  optimization.setFeetPositions(feetPositions);
 
   Pose startPose;
   startPose.getRotation() = rotation;
@@ -148,47 +151,59 @@ TEST(quadruped, withYawRotationUnconstrained)
   EXPECT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected << 0.9211, -0.3894, 0.0,  0.2194,
+  expected << 0.9211, -0.3894, 0.0,  0.2194, // TODO Check.
               0.3894,  0.9211, 0.0,  0.1199,
+              0.0,     0.0,    1.0,  0.0,
+              0.0,     0.0,    0.0,  1.0;
+
+//  0.82533561490967844 -0.56464247339503526        -0 0.21939564047259319
+//  0.56464247339503526 0.82533561490967844         0 0.11985638465105081
+//          0        -0         1         0
+//          0         0         0         1
+
+//  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+}
+
+TEST(quadruped, constrained)
+{
+  PoseOptimization optimization;
+
+  optimization.setDesiredLegConfiguration( {
+    Position(1.0, 0.5, 0.0),
+    Position(1.0, -0.5, 0.0),
+    Position(-1.0, -0.5, 0.0),
+    Position(-1.0, 0.5, 0.0) });
+
+  std::vector<Position> feetPositions;
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD rotation(0.0, 0.0, 0.5);
+  feetPositions.push_back(rotation.inverseRotate(Position(2.0, 0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
+  optimization.setFeetPositions(feetPositions);
+
+  grid_map::Polygon supportPolygon;
+  // Skipping LF.
+  supportPolygon.addVertex(feetPositions[1].vector().head<2>());
+  supportPolygon.addVertex(feetPositions[2].vector().head<2>());
+  supportPolygon.addVertex(feetPositions[3].vector().head<2>());
+  optimization.setSupportPolygon(supportPolygon);
+
+  Pose startPose;
+  startPose.getRotation() = rotation;
+  optimization.setStartPose(startPose);
+
+  Pose result;
+  EXPECT_TRUE(optimization.compute(result));
+
+  Eigen::Matrix4d expected;
+  expected << 0.8253, -0.5646, 0.0,  0.2235,
+              0.5646,  0.8253, 0.0,  0.0081,
               0.0,     0.0,    1.0,  0.0,
               0.0,     0.0,    0.0,  1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
-
-//TEST(quadruped, constrained)
-//{
-//  PoseOptimization optimization;
-//
-//  optimization.setDesiredLegConfiguration( {
-//    Position(1.0, 0.5, 0.0),
-//    Position(1.0, -0.5, 0.0),
-//    Position(-1.0, -0.5, 0.0),
-//    Position(-1.0, 0.5, 0.0) });
-//
-//  std::vector<Position> feetPositions;
-//  kindr::rotations::eigen_impl::EulerAnglesXyzPD rotation(0.0, 0.0, 0.5);
-//  feetPositions.push_back(rotation.inverseRotate(Position(2.0, 0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
-//    optimization.setFeetPositions(feetPositions);
-//
-//  Pose startPose;
-//  startPose.getRotation() = rotation;
-//  optimization.setStartPose(startPose);
-//
-//  Pose result;
-//  EXPECT_TRUE(optimization.compute(result));
-//
-//  Eigen::Matrix4d expected;
-//  expected << 0.9211, -0.3894, 0.0,  0.2194,
-//              0.3894,  0.9211, 0.0,  0.1199,
-//              0.0,     0.0,    1.0,  0.0,
-//              0.0,     0.0,    0.0,  1.0;
-//
-//  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
-//}
 //
 //
 //x =

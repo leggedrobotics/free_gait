@@ -69,6 +69,8 @@ bool PoseOptimization::compute(Pose& optimizedPose)
 //  std::cout << "A: " << std::endl << A << std::endl;
 //  std::cout << "b: " << std::endl << b << std::endl;
 
+  // Inequality constraints.
+
   // Formulation as QP:
   // min 1/2 x'Px + q'x + r
   MatrixXd P = 2 * A.transpose() * A;
