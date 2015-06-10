@@ -72,7 +72,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   // min 1/2 x'Px + q'x + r
   MatrixXd P = 2 * A.transpose() * A;
   VectorXd q = -2 * A.transpose() * b;
-//  MatrixXd r = b.transpose() * b;
+//  MatrixXd r = b.transpose() * b; // Not used.
 
   // Solve.
   Eigen::SparseMatrix<double, Eigen::RowMajor> P_sparse = P.sparseView();
