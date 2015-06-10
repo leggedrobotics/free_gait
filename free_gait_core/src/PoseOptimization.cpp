@@ -54,7 +54,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   unsigned int nFeet = feetPositions_.size();
   MatrixXd A = MatrixXd::Zero(2 * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(2 * nFeet);
-  Matrix3d R_0 = RotationMatrix(startPose_.getRotation()).toImplementation();
+  Matrix3d R_0 = RotationMatrix(startPose_.getRotation().inverted()).matrix();
   Matrix3d Rstar;
   Rstar << 0, -1, 0,
            1,  0, 0,
@@ -65,6 +65,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
     b.segment(2 * i, 2) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
   }
 
+//  std::cout << "R_0: " << std::endl << R_0 << std::endl;
 //  std::cout << "A: " << std::endl << A << std::endl;
 //  std::cout << "b: " << std::endl << b << std::endl;
 
@@ -84,7 +85,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   // Return optimized pose.
   optimizedPose.getPosition() << x.head<2>(), startPose_.getPosition().z();
   const double yaw = x.tail<1>()[0];
-  optimizedPose.getRotation() = optimizedPose.getRotation() * kindr::rotations::eigen_impl::EulerAnglesXyzPD(0.0, 0.0, yaw);
+  optimizedPose.getRotation() = (RotationMatrix(R_0) * kindr::rotations::eigen_impl::EulerAnglesZyxPD(yaw, 0.0, 0.0)).inverted();
 
   return true;
 }
