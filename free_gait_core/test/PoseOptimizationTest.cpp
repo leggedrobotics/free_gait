@@ -38,9 +38,9 @@ TEST(quadruped, symmetricUnconstrained)
     Position(-1.0, 0.5, 0.0) });
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.compute(result));
 
-  assertEqual(Pose().getTransformationMatrix(), result.getTransformationMatrix(), KINDR_SOURCE_FILE_POS);
+  assertNear(Pose().getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, symmetricWithOffsetUnconstrained)
@@ -64,9 +64,9 @@ TEST(quadruped, symmetricWithOffsetUnconstrained)
   optimization.setStartPose(startPose);
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.compute(result));
 
-  assertEqual(startPose.getTransformationMatrix(), result.getTransformationMatrix(), KINDR_SOURCE_FILE_POS);
+  assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, asymmetricUnconstrained)
@@ -86,8 +86,8 @@ TEST(quadruped, asymmetricUnconstrained)
     Position(-1.0, 0.5, 0.0) });
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
-  
+  ASSERT_TRUE(optimization.compute(result));
+
   Eigen::Matrix4d expected;
   expected <<  0.9950, -0.0998, 0.0, 0.25,
                0.0998,  0.9950, 0.0, 0.0,
@@ -97,7 +97,35 @@ TEST(quadruped, asymmetricUnconstrained)
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, symmetricWithYawRotationUnconstrained)
+TEST(quadruped, symmetricWithYawUnconstrainedLegsOrdered)
+{
+  PoseOptimization optimization;
+
+  optimization.setDesiredLegConfiguration( {
+    Position( 1.0,  0.5, 0.0),
+    Position(-1.0,  0.5, 0.0),
+    Position(-1.0, -0.5, 0.0),
+    Position( 1.0, -0.5, 0.0) });
+
+  std::vector<Position> feetPositions;
+  kindr::rotations::eigen_impl::EulerAnglesZyxPD rotation(0.5, 0.0, 0.0);
+  feetPositions.push_back(rotation.inverseRotate(Position( 1.0,  0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(-1.0,  0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position( 1.0, -0.5, 0.0)));
+  optimization.setFeetPositions(feetPositions);
+
+  Pose startPose;
+  startPose.getRotation() = rotation;
+  optimization.setStartPose(startPose);
+
+  Pose result;
+  ASSERT_TRUE(optimization.compute(result));
+
+  assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+}
+
+TEST(quadruped, checkIndependenceOfLegOrdering)
 {
   PoseOptimization optimization;
 
@@ -120,28 +148,21 @@ TEST(quadruped, symmetricWithYawRotationUnconstrained)
   optimization.setStartPose(startPose);
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.compute(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
-  // 
-  // 
-  // 
-  // x =
-  // 
-  //     0.2500
-  //    -0.0000
-  //    -0.1000
-  // 
-  // 
-  // T =
-  // 
-  //     0.9950   -0.0998         0    0.2500
-  //     0.0998    0.9950         0   -0.0000
-  //          0         0    1.0000         0
-  //          0         0         0    1.0000
+
+//  x:
+//  0
+//  0
+//  1.55981e-16
+//   0.877583 -0.479426        -0         0
+//   0.479426  0.877583         0         0
+//          0        -0         1         0
+//          0         0         0         1
 }
 
-TEST(quadruped, withYawRotationUnconstrained)
+TEST(quadruped, withYawUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -164,29 +185,15 @@ TEST(quadruped, withYawRotationUnconstrained)
   optimization.setStartPose(startPose);
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected <<  0.9211, 0.3894, 0.0,  0.2194,
-              -0.3894, 0.9211, 0.0,  0.1199,
-               0.0,    0.0,    1.0,  0.0,
-               0.0,    0.0,    0.0,  1.0;
+  expected << 0.8253, -0.5646, 0.0, 0.2194, // TODO Check.
+              0.5646,  0.8253, 0.0, 0.1199,
+              0.0,     0.0,    1.0, 0.0,
+              0.0,     0.0,    0.0, 1.0;
 
-// x =
-// 
-//     0.2194
-//     0.1199
-//    -0.1000
-// 
-// 
-// T =
-// 
-//     0.9211    0.3894         0    0.2194
-//    -0.3894    0.9211         0    0.1199
-//          0         0    1.0000         0
-//          0         0         0    1.0000
-
-//  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, constrained)
@@ -195,16 +202,16 @@ TEST(quadruped, constrained)
 
   optimization.setDesiredLegConfiguration( {
     Position(1.0, 0.5, 0.0),
-    Position(1.0, -0.5, 0.0),
+    Position(-1.0, 0.5, 0.0),
     Position(-1.0, -0.5, 0.0),
-    Position(-1.0, 0.5, 0.0) });
+    Position(1.0, -0.5, 0.0) });
 
   std::vector<Position> feetPositions;
   kindr::rotations::eigen_impl::EulerAnglesXyzPD rotation(0.0, 0.0, 0.5);
   feetPositions.push_back(rotation.inverseRotate(Position(2.0, 0.5, 0.0)));
-  feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
-  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
+  feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
   optimization.setFeetPositions(feetPositions);
 
   grid_map::Polygon supportPolygon;
@@ -219,7 +226,7 @@ TEST(quadruped, constrained)
   optimization.setStartPose(startPose);
 
   Pose result;
-  EXPECT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
   expected << 0.8253, -0.5646, 0.0,  0.2235,
@@ -228,23 +235,23 @@ TEST(quadruped, constrained)
               0.0,     0.0,    0.0,  1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
-  
+
   // x =
-  // 
+  //
   //     0.2235
   //     0.0081
   //    -0.1000
-  // 
-  // 
+  //
+  //
   // T =
-  // 
+  //
   //     0.9211    0.3894         0    0.2235
   //    -0.3894    0.9211         0    0.0081
   //          0         0    1.0000         0
   //          0         0         0    1.0000
-  // 
-  // 
+  //
+  //
   // ans =
-  // 
+  //
   //     0.8660
 }
