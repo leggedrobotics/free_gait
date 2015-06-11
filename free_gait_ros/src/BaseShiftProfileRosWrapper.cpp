@@ -9,6 +9,9 @@
 #include <free_gait_ros/BaseShiftProfileRosWrapper.hpp>
 #include <ros/ros.h>
 
+// Kindr
+#include <kindr/thirdparty/ros/RosEigen.hpp>
+
 // STD
 #include <string>
 
@@ -31,10 +34,14 @@ bool BaseShiftProfileRosWrapper::fromMessage(const quadruped_msgs::BaseShiftProf
   setFrameId(message.target.header.frame_id);
 
   // Target position.
-  const auto& target = message.target.pose;
-  target_.getPosition().x() = target.position.x;
-  target_.getPosition().y() = target.position.y;
-  target_.getPosition().z() = target.position.z;
+  const auto& targetMsg = message.target.pose;
+  if (!(targetMsg.position.x == 0 && targetMsg.position.y == 0 && targetMsg.position.z == 0
+      && targetMsg.orientation.x == 0 && targetMsg.orientation.y == 0
+      && targetMsg.orientation.z == 0 && targetMsg.orientation.w == 0)) {
+    Pose target;
+    kindr::poses::eigen_impl::convertFromRosGeometryMsg(message.target.pose, target);
+    setTarget(target);
+  }
 
   // Base height.
   if (message.height != 0.0) {

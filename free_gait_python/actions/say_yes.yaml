@@ -1,0 +1,39 @@
+adapt_to_current_position: true
+
+steps:
+
+ - step:
+    base_shift_data:
+     - name: "at_step"
+       profile:
+        duration: 0.7
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0.3, 0]
+         
+ - step:
+    base_shift_data:
+     - name: "at_step"
+       profile:
+        duration: 0.9
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, -0.25, 0]
+         
+ - step:
+    base_shift_data:
+     - name: "at_step"
+       profile:
+        duration: 0.7
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0.15, 0]
+         
+ - step:
+    base_shift_data:
+     - name: "at_step"
+       profile:
+        duration: 0.4
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0, 0]

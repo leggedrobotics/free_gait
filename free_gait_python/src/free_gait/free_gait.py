@@ -85,9 +85,25 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                     # Profile target.
                     if 'target' in base_shift_data_parameter['profile']:
                         target_parameter = base_shift_data_parameter['profile']['target']
-                        base_shift_data.profile.target.point.x = target_parameter[0]
-                        base_shift_data.profile.target.point.y = target_parameter[1]
-                        base_shift_data.profile.target.point.z = target_parameter[2]
+                        # Profile target position.
+                        if 'position' in target_parameter:
+                            base_shift_data.profile.target.pose.position.x = target_parameter['position'][0]
+                            base_shift_data.profile.target.pose.position.y = target_parameter['position'][1]
+                            base_shift_data.profile.target.pose.position.z = target_parameter['position'][2]
+                        # Profile target position.
+                        if 'orientation' in target_parameter:
+                            if len(target_parameter['orientation']) == 4:
+                                base_shift_data.profile.target.pose.orientation.x = target_parameter['orientation'][0]
+                                base_shift_data.profile.target.pose.orientation.y = target_parameter['orientation'][1]
+                                base_shift_data.profile.target.pose.orientation.z = target_parameter['orientation'][2]
+                                base_shift_data.profile.target.pose.orientation.w = target_parameter['orientation'][3]
+                            if len(target_parameter['orientation']) == 3:
+                                rpy = target_parameter['orientation']
+                                quaternion = quaternion_from_euler(rpy[0], rpy[1], rpy[2])
+                                base_shift_data.profile.target.pose.orientation.x = quaternion[0]
+                                base_shift_data.profile.target.pose.orientation.y = quaternion[1]
+                                base_shift_data.profile.target.pose.orientation.z = quaternion[2]
+                                base_shift_data.profile.target.pose.orientation.w = quaternion[3]
                     # Profile target frame.
                     if 'target_frame' in base_shift_data_parameter['profile']:
                         base_shift_data.profile.target.header.frame_id = base_shift_data_parameter['profile']['target_frame']
@@ -125,9 +141,46 @@ def adapt_coordinates(goal, position, orientation):
     # TODO For multi-dof trajectories
     for step in goal.steps:
         for swing_data in step.swing_data:
-            swing_data.profile.target.point = transform_point(transform, swing_data.profile.target.point)
-            
+            position = swing_data.profile.target.point;
+            if check_if_position_valid(position):
+                position = transform_position(transform, position)
+                swing_data.profile.target.point = position
+        for base_shift_data in step.base_shift_data:
+            pose = base_shift_data.profile.target.pose;
+            if check_if_pose_valid(pose):
+                pose = transform_pose(transform, pose)
+                base_shift_data.profile.target.pose = pose
 
-def transform_point(transform, point):
-    transformed_point = transform.dot([point.x, point.y, point.z, 1.0])
+def transform_position(transform, position):
+    transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
     return geometry_msgs.msg.Point(transformed_point[0], transformed_point[1], transformed_point[2])
+
+def transform_orientation(transform, orientation):
+    q1 = quaternion_from_matrix(transform)
+    q2 = [orientation.x, orientation.y, orientation.z, orientation.w]
+    q = quaternion_multiply(q1, q2)
+    print q
+    return geometry_msgs.msg.Quaternion(q[0], q[1], q[2], q[3])
+
+def transform_pose(transform, pose):
+    pose.position = transform_position(transform, pose.position)
+    pose.orientation = transform_orientation(transform, pose.orientation)
+    return pose
+
+def check_if_position_valid(position):
+    if (position.x == 0 and position.y == 0 and position.z == 0):
+        return False
+    else:
+        return True
+    
+def check_if_orientation_valid(orientation):
+    if (orientation.x == 0 and orientation.y == 0 and orientation.z == 0 and orientation.w == 0):
+        return False
+    else:
+        return True
+    
+def check_if_pose_valid(pose):
+    if check_if_position_valid(pose.position) and check_if_orientation_valid(pose.orientation):
+        return True
+    else:
+        return False

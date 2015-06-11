@@ -42,6 +42,7 @@ def step_client():
     #file_path = os.path.abspath(os.path.join(directory, '../../actions/example.yaml'))
     rospy.loginfo('Loading free gait action from "' + file_path + '".')
     goal = load_from_file(file_path, translation, rotation)
+#     print goal
 
     # Send action.
     client.send_goal(goal, feedback_cb=feedback_callback)
