@@ -88,13 +88,15 @@ TEST(quadruped, asymmetricUnconstrained)
   Pose result;
   ASSERT_TRUE(optimization.compute(result));
 
-  Eigen::Matrix4d expected;
-  expected <<  1.0, -0.1, 0.0, 0.25,
-               0.1,  1.0, 0.0, 0.0,
-               0.0,  0.0, 1.0, 0.0,
-               0.0,  0.0, 0.0, 1.0;
+  Eigen::Matrix3d expectedOrientation;
+  expectedOrientation <<  1.0, -0.1, 0.0,
+                          0.1,  1.0, 0.0,
+                          0.0,  0.0, 1.0;
 
-  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  Eigen::Vector3d expectedPosition(0.25, 0.0, 0.0);
+
+  assertNear(expectedOrientation, RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, symmetricWithYawUnconstrainedLegsOrdered)
@@ -178,13 +180,15 @@ TEST(quadruped, withYawUnconstrained)
   Pose result;
   ASSERT_TRUE(optimization.compute(result));
 
-  Eigen::Matrix4d expected;
-  expected <<  0.9255, 0.3917, 0.0, 0.2194,
-              -0.3917, 0.9255, 0.0, 0.1199,
-               0.0,     0.0,   1.0, 0.0,
-               0.0,     0.0,   0.0, 1.0;
+  Eigen::Matrix3d expectedOrientation;
+  expectedOrientation <<  0.9255, 0.3917, 0.0,
+                         -0.3917, 0.9255, 0.0,
+                          0.0,    0.0,    1.0;
 
-  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  Eigen::Vector3d expectedPosition(0.2194, 0.1199, 0.0);
+
+  assertNear(expectedOrientation, RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, constrained)
@@ -219,17 +223,13 @@ TEST(quadruped, constrained)
   Pose result;
   ASSERT_TRUE(optimization.compute(result));
 
-  Eigen::Matrix4d expected;
-  expected <<  0.9255, 0.3917, 0.0,  0.2235,
-              -0.3917, 0.9255, 0.0,  0.0081,
-               0.0,    0.0,    1.0,  0.0,
-               0.0,    0.0,    0.0,  1.0;
+  Eigen::Matrix3d expectedOrientation;
+  expectedOrientation <<  0.9255, 0.3917, 0.0,
+                         -0.3917, 0.9255, 0.0,
+                          0.0,    0.0,    1.0;
 
-  assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  Eigen::Vector3d expectedPosition(0.2235, 0.0081, 0.0);
 
-  // x =
-  //
-  //     0.2235
-  //     0.0081
-  //    -0.1000
+  assertNear(expectedOrientation, RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }

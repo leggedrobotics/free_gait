@@ -103,7 +103,8 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   // Return optimized pose.
   optimizedPose.getPosition() << x.head<2>(), startPose_.getPosition().z();
   const double yaw = x.tail<1>()[0];
-  optimizedPose.getRotation() = (RotationMatrix(R_0) * kindr::rotations::eigen_impl::EulerAnglesZyxPD(yaw, 0.0, 0.0)).inverted();
+  optimizedPose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
+  optimizedPose.getRotation().fix();
 
   return true;
 }
