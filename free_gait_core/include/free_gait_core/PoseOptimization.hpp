@@ -39,9 +39,8 @@ class PoseOptimization
    * Set the support polygon for constraining the pose optimization.
    * If support polygon is not set, the convex hull of all feet positions is used.
    * @param supportPolygon the support polygon as a list of vertices.
-   * @param safetyMargin the inscribed safety boundary of the support polygon [m].
    */
-  void setSupportPolygon(const grid_map::Polygon& supportPolygon, const double safetyMargin = 0.0);
+  void setSupportPolygon(const grid_map::Polygon& supportPolygon);
 
   /*!
    * Set the start pose of the base as initial guess for the optimization.

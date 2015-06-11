@@ -35,11 +35,9 @@ void PoseOptimization::setDesiredLegConfiguration(
   desiredFeetPositionsInBase_ = desiredFeetPositionsInBase;
 }
 
-void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon,
-                                         const double safetyMargin)
+void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon)
 {
   supportPolygon_ = supportPolygon;
-  safetyMargin_ = safetyMargin;
 }
 
 void PoseOptimization::setStartPose(const Pose& startPose)
@@ -51,7 +49,6 @@ bool PoseOptimization::compute(Pose& optimizedPose)
 {
   // If no support polygon provided, use positions.
   if (supportPolygon_.nVertices() == 0) {
-    std::cout << "Using feet as support polygon." << std::endl;
     for (const auto& foot : feetPositions_)
       supportPolygon_.addVertex(foot.vector().head<2>());
   }
@@ -81,8 +78,9 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   Eigen::VectorXd h;
   supportPolygon_.convertToInequalityConstraints(Gp, h);
   Eigen::MatrixXd G(Gp.rows(), Gp.cols() + 1);
-  G << Gp, Eigen::MatrixXd::Zero(Gp.cols(), 1);
+  G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), 1);
 
+//  std::cout << "Gp: " << std::endl << Gp << std::endl;
 //  std::cout << "G: " << std::endl << G << std::endl;
 //  std::cout << "h: " << std::endl << h << std::endl;
 
@@ -98,7 +96,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   Eigen::VectorXd x;
   if (!ooqpei::OoqpEigenInterface::solve(P_sparse, q, G_sparse, h, x))
       return false;
-  std::cout << "x: " << std::endl << x << std::endl;
+//  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
   optimizedPose.getPosition() << x.head<2>(), startPose_.getPosition().z();
