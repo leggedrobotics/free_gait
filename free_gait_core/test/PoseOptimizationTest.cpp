@@ -89,10 +89,10 @@ TEST(quadruped, asymmetricUnconstrained)
   ASSERT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected <<  0.9950, -0.0998, 0.0, 0.25,
-               0.0998,  0.9950, 0.0, 0.0,
-               0.0,     0.0,    1.0, 0.0,
-               0.0,     0.0,    0.0, 1.0;
+  expected <<  1.0, -0.1, 0.0, 0.25,
+               0.1,  1.0, 0.0, 0.0,
+               0.0,  0.0, 1.0, 0.0,
+               0.0,  0.0, 0.0, 1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -151,15 +151,6 @@ TEST(quadruped, checkIndependenceOfLegOrdering)
   ASSERT_TRUE(optimization.compute(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
-
-//  x:
-//  0
-//  0
-//  1.55981e-16
-//   0.877583 -0.479426        -0         0
-//   0.479426  0.877583         0         0
-//          0        -0         1         0
-//          0         0         0         1
 }
 
 TEST(quadruped, withYawUnconstrained)
@@ -188,10 +179,10 @@ TEST(quadruped, withYawUnconstrained)
   ASSERT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected << 0.8253, -0.5646, 0.0, 0.2194, // TODO Check.
-              0.5646,  0.8253, 0.0, 0.1199,
-              0.0,     0.0,    1.0, 0.0,
-              0.0,     0.0,    0.0, 1.0;
+  expected <<  0.9255, 0.3917, 0.0, 0.2194,
+              -0.3917, 0.9255, 0.0, 0.1199,
+               0.0,     0.0,   1.0, 0.0,
+               0.0,     0.0,   0.0, 1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -229,10 +220,10 @@ TEST(quadruped, constrained)
   ASSERT_TRUE(optimization.compute(result));
 
   Eigen::Matrix4d expected;
-  expected << 0.8253, -0.5646, 0.0,  0.2235,
-              0.5646,  0.8253, 0.0,  0.0081,
-              0.0,     0.0,    1.0,  0.0,
-              0.0,     0.0,    0.0,  1.0;
+  expected <<  0.9255, 0.3917, 0.0,  0.2235,
+              -0.3917, 0.9255, 0.0,  0.0081,
+               0.0,    0.0,    1.0,  0.0,
+               0.0,    0.0,    0.0,  1.0;
 
   assertNear(expected, result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 
@@ -241,17 +232,4 @@ TEST(quadruped, constrained)
   //     0.2235
   //     0.0081
   //    -0.1000
-  //
-  //
-  // T =
-  //
-  //     0.9211    0.3894         0    0.2235
-  //    -0.3894    0.9211         0    0.0081
-  //          0         0    1.0000         0
-  //          0         0         0    1.0000
-  //
-  //
-  // ans =
-  //
-  //     0.8660
 }

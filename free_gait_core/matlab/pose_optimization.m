@@ -81,11 +81,13 @@ r = b'*b;
 %[x,fval,exitflag,output,lambda] = linprog(f,A,b,[],[],lb);
 x
 
-yaw = params.yaw_0 + x(3);
-T = [cos(yaw)  sin(yaw) 0 x(1);
-     -sin(yaw)  cos(yaw)  0 x(2);
-     0          0         1 0;
-     0          0         0 1]
+% R = (R_0 * [ cos(x(3)) sin(x(3)); ...
+%             -sin(x(3)) cos(x(3))])
+R = (R_0 * (eye(2) + R_star*x(3)))';
+T = [R(1,1)  R(1,2)  0 x(1);
+     R(2,1)  R(2,2)  0 x(2);
+     0          0    1 0;
+     0          0    0 1]
 
 residual = A*x - b;
 
@@ -135,4 +137,5 @@ for i = 1:n_feet
     error = error + sum((leg(1, :) - leg(2, :)).^2);
     plot(leg(:, 1), leg(:, 2), '-r')
 end
-sqrt(error) % ~= norm(residual)
+sqrt(error) % ~= residual
+%norm(residual)

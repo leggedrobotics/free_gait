@@ -1,10 +1,10 @@
 clc
 clear all
 
-V = [1.0, 1.0; 0.0, 0.0; 1.1, -1.1];
+V = [-1.0, 0.5; -1.0, -0.5; 1.0, -0.5];
 
 % Assuming counter-clockwise ordered convex polygon.
-%k = convhulln(V);
+%k = convhulln(V)
 k = NaN * zeros(size(V));
 for i = 1:size(V,1)
     k(i, :) = [i, mod(i, size(V,1))+1];
@@ -31,3 +31,8 @@ b = b+A*c';
 
 A
 b
+
+%% 
+V = [-1.0, -0.5; 1.0, -0.5; -1.0, 0.5];
+disp('VS.')
+[A, b] = vert2con(V)
