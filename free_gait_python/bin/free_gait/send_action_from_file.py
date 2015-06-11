@@ -13,24 +13,33 @@ import trajectory_msgs.msg
 import std_msgs.msg
 from free_gait import *
 import os
+global print_feedback
 
 def step_client():
-    client = actionlib.SimpleActionClient('/locomotion_controller/step', quadruped_msgs.msg.StepAction)
+    global print_feedback
+    file_path = rospy.get_param('~file_path');
+    action_server_topic = rospy.get_param('~action_server');
+    map_frame_id = rospy.get_param('~map_frame_id');
+    foot_frame_id = rospy.get_param('~foot_frame_id');
+    print_feedback = rospy.get_param('~print_feedback', 'false');
+    
+    client = actionlib.SimpleActionClient(action_server_topic, quadruped_msgs.msg.StepAction)
     client.wait_for_server()
 
     # Get current pose of robot to adapt action
     # to the current coordinates if necessary.
     listener = tf.TransformListener()
-    listener.waitForTransform('map', 'footprint', rospy.Time(0), rospy.Duration(10.0))
+    listener.waitForTransform(map_frame_id, foot_frame_id, rospy.Time(0), rospy.Duration(10.0))
     try:
-        (translation, rotation) = listener.lookupTransform('map', 'footprint', rospy.Time(0))
+        (translation, rotation) = listener.lookupTransform(map_frame_id, foot_frame_id, rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        rospy.logerr('Could not look up TF transformation from "map" to "footprint".')
+        rospy.logerr('Could not look up TF transformation from "' +
+                     map_frame_id + '" to "' + foot_frame_id + '".')
         return
     
     # Load action from YAML file.
-    directory = os.path.dirname(__file__)
-    file_path = os.path.abspath(os.path.join(directory, '../../actions/trot.yaml'))
+    #directory = os.path.dirname(__file__)
+    #file_path = os.path.abspath(os.path.join(directory, '../../actions/example.yaml'))
     rospy.loginfo('Loading free gait action from "' + file_path + '".')
     goal = load_from_file(file_path, translation, rotation)
 
@@ -41,12 +50,14 @@ def step_client():
     return client.get_result()
 
 def feedback_callback(feedback):
-    print "Feedback:"
-    print feedback
+    global print_feedback
+    if print_feedback:
+        print "Feedback:"
+        print feedback
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('send_action_from_file')
+        rospy.init_node('free_gait_action_from_file')
         result = step_client()
         print "Result:"
         print result
