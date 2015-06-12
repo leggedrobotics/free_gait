@@ -11,7 +11,7 @@ def load_from_file(file_path, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
     
     if not os.path.isfile(file_path):
         rospy.logerr('File with path "' + file_path + '" does not exists.')
-        return
+        return None
 
     return get_from_yaml(load_file(file_path), position, orientation)
 
@@ -159,7 +159,6 @@ def transform_orientation(transform, orientation):
     q1 = quaternion_from_matrix(transform)
     q2 = [orientation.x, orientation.y, orientation.z, orientation.w]
     q = quaternion_multiply(q1, q2)
-    print q
     return geometry_msgs.msg.Quaternion(q[0], q[1], q[2], q[3])
 
 def transform_pose(transform, pose):

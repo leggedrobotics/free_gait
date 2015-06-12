@@ -1,4 +1,3 @@
 action_server: /locomotion_controller/step
 map_frame_id: map
 foot_frame_id: footprint
-print_feedback: false
