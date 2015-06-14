@@ -38,7 +38,7 @@ TEST(quadruped, symmetricUnconstrained)
     Position(-1.0, 0.5, 0.0) });
 
   Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.optimize(result));
 
   assertNear(Pose().getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -61,10 +61,9 @@ TEST(quadruped, symmetricWithOffsetUnconstrained)
 
   Pose startPose;
   startPose.getPosition() << 30.0, 20.0, 10.0;
-  optimization.setStartPose(startPose);
 
-  Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  Pose result = startPose;
+  ASSERT_TRUE(optimization.optimize(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -86,7 +85,7 @@ TEST(quadruped, asymmetricUnconstrained)
     Position(-1.0, 0.5, 0.0) });
 
   Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  ASSERT_TRUE(optimization.optimize(result));
 
   Eigen::Matrix3d expectedOrientation;
   expectedOrientation <<  1.0, -0.1, 0.0,
@@ -119,10 +118,9 @@ TEST(quadruped, symmetricWithYawUnconstrainedLegsOrdered)
 
   Pose startPose;
   startPose.getRotation() = rotation;
-  optimization.setStartPose(startPose);
 
-  Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  Pose result = startPose;
+  ASSERT_TRUE(optimization.optimize(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -147,10 +145,9 @@ TEST(quadruped, checkIndependenceOfLegOrdering)
 
   Pose startPose;
   startPose.getRotation() = rotation;
-  optimization.setStartPose(startPose);
 
-  Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  Pose result = startPose;
+  ASSERT_TRUE(optimization.optimize(result));
 
   assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
@@ -173,12 +170,9 @@ TEST(quadruped, withYawUnconstrained)
   feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
   optimization.setFeetPositions(feetPositions);
 
-  Pose startPose;
-  startPose.getRotation() = rotation;
-  optimization.setStartPose(startPose);
-
-  Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  Pose pose;
+  pose.getRotation() = rotation;
+  ASSERT_TRUE(optimization.optimize(pose));
 
   Eigen::Matrix3d expectedOrientation;
   expectedOrientation <<  0.9255, 0.3917, 0.0,
@@ -187,8 +181,8 @@ TEST(quadruped, withYawUnconstrained)
 
   Eigen::Vector3d expectedPosition(0.2194, 0.1199, 0.0);
 
-  assertNear(expectedOrientation, RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
-  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedOrientation, RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, constrained)
@@ -216,12 +210,9 @@ TEST(quadruped, constrained)
   supportPolygon.addVertex(feetPositions[3].vector().head<2>());
   optimization.setSupportPolygon(supportPolygon);
 
-  Pose startPose;
-  startPose.getRotation() = rotation;
-  optimization.setStartPose(startPose);
-
-  Pose result;
-  ASSERT_TRUE(optimization.compute(result));
+  Pose pose;
+  pose.getRotation() = rotation;
+  ASSERT_TRUE(optimization.optimize(pose));
 
   Eigen::Matrix3d expectedOrientation;
   expectedOrientation <<  0.9255, 0.3917, 0.0,
@@ -230,6 +221,6 @@ TEST(quadruped, constrained)
 
   Eigen::Vector3d expectedPosition(0.2235, 0.0081, 0.0);
 
-  assertNear(expectedOrientation, RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
-  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedOrientation, RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }

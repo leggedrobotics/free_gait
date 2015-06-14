@@ -40,12 +40,7 @@ void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon
   supportPolygon_ = supportPolygon;
 }
 
-void PoseOptimization::setStartPose(const Pose& startPose)
-{
-  startPose_ = startPose;
-}
-
-bool PoseOptimization::compute(Pose& optimizedPose)
+bool PoseOptimization::optimize(Pose& pose)
 {
   // If no support polygon provided, use positions.
   if (supportPolygon_.nVertices() == 0) {
@@ -58,7 +53,7 @@ bool PoseOptimization::compute(Pose& optimizedPose)
   unsigned int nFeet = feetPositions_.size();
   MatrixXd A = MatrixXd::Zero(2 * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(2 * nFeet);
-  Matrix3d R_0 = RotationMatrix(startPose_.getRotation().inverted()).matrix();
+  Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
   Matrix3d Rstar;
   Rstar << 0, -1, 0,
            1,  0, 0,
@@ -99,10 +94,10 @@ bool PoseOptimization::compute(Pose& optimizedPose)
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
-  optimizedPose.getPosition() << x.head<2>(), startPose_.getPosition().z();
+  pose.getPosition().vector().head<2>() = x.head<2>();
   const double yaw = x.tail<1>()[0];
-  optimizedPose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
-  optimizedPose.getRotation().fix();
+  pose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
+  pose.getRotation().fix();
 
   return true;
 }

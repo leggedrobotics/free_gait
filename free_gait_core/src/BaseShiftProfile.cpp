@@ -45,7 +45,8 @@ bool BaseShiftProfile::updateStartPose(const Pose& startPose)
 const Pose BaseShiftProfile::evaluate(const double time)
 {
   if (!trajectoryUpdated_) computeTrajectory();
-  return Pose(trajectory_.evaluate(time));
+  double timeInRange = time <= duration_ ? time : duration_;
+  return Pose(trajectory_.evaluate(timeInRange));
 }
 
 double BaseShiftProfile::getDuration() const

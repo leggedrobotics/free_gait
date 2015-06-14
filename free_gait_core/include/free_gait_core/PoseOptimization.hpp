@@ -43,17 +43,11 @@ class PoseOptimization
   void setSupportPolygon(const grid_map::Polygon& supportPolygon);
 
   /*!
-   * Set the start pose of the base as initial guess for the optimization.
-   * @param startPose the start pose of the base.
-   */
-  void setStartPose(const Pose& startPose);
-
-  /*!
    * Computes the optimized pose.
-   * @param[out] optimizedPose
+   * @param[in/out] optimizedPose
    * @return true if successful, false otherwise.
    */
-  bool compute(Pose& optimizedPose);
+  bool optimize(Pose& pose);
 
  private:
   unsigned int nStates_;
@@ -61,7 +55,6 @@ class PoseOptimization
   std::vector<Position> desiredFeetPositionsInBase_;
   grid_map::Polygon supportPolygon_;
   double safetyMargin_;
-  Pose startPose_;
 };
 
 } /* namespace loco */
