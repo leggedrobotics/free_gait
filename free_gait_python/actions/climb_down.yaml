@@ -1,0 +1,100 @@
+adapt_to_current_position: true
+
+steps:
+
+# Preparation
+ - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.45
+    swing_data:
+     - name: leftHind
+       profile:
+        height: 0.05
+        target: [-0.0, 0.22, 0.0]
+ - step:
+    swing_data:
+     - name: rightHind
+       profile:
+        height: 0.05
+        target: [0.05, -0.22, 0.0]
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        height: 0.41
+        duration: 2.0
+ 
+ # Step down
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 2.5
+        height: 0.41
+    swing_data:
+     - name: rightFore
+       profile:
+        duration: 3.0
+        target: [0.48, -0.22, -0.16]
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 2.5
+        height: 0.41
+    swing_data:
+     - name: leftFore
+       profile:
+        duration: 3.0
+        target: [0.53, 0.22, -0.16]
+        
+ # Decreasing inclination
+ - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        duration: 2.5
+        height: 0.35
+    swing_data:
+     - name: rightFore
+       profile:
+        height: 0.05
+        target: [0.6, -0.22, -0.16]
+ - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.44
+    swing_data:
+     - name: leftFore
+       profile:
+        height: 0.05
+        target: [0.65, 0.22, -0.16]
+        
+ # Sneaking half
+ - step:
+    swing_data:
+     - name: rightHind
+       profile:
+        height: 0.05
+        target: [0.1, -0.22, 0.0]
+ - step:
+    swing_data:
+     - name: rightFore
+       profile:
+        height: 0.05
+        target: [0.7, -0.22, -0.16]
+ - step:
+    swing_data:
+     - name: leftHind
+       profile:
+        height: 0.05
+        target: [0.1, 0.22, 0.0]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        height: 0.05
+        target: [0.75, 0.22, -0.16]

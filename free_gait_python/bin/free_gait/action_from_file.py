@@ -83,6 +83,7 @@ def get_path(file):
 def list_actions_service(request):
     path = rospy.get_param('~directory')
     actions = [ splitext(f)[0] for f in listdir(path) if isfile(join(path,f)) ]
+    actions.sort()
     response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(actions)
     return response
 

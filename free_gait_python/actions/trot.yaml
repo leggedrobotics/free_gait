@@ -8,14 +8,17 @@ steps:
        profile:
         target: [-0.279, -0.218, 0.0]
         duration: 0.3
-        height: 0.12
+        height: 0.05
      - name: leftFore
        profile:
         target: [0.279, 0.218, 0.0]
         duration: 0.3
-        height: 0.12
+        height: 0.05
     base_shift_data:
      - name: pre_step
+       profile:
+        duration: 0.01
+     - name: at_step
        profile:
         duration: 0.01
         
@@ -25,14 +28,17 @@ steps:
        profile:
         target: [-0.279, 0.218, 0.0]
         duration: 0.3
-        height: 0.12
+        height: 0.05
      - name: rightFore
        profile:
         target: [0.279, -0.218, 0.0]
         duration: 0.3
-        height: 0.12
+        height: 0.05
     base_shift_data:
      - name: pre_step
+       profile:
+        duration: 0.01
+     - name: at_step
        profile:
         duration: 0.01
         

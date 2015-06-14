@@ -1,0 +1,12 @@
+adapt_to_current_position: true
+
+steps:
+
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 1.5
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0, 0]
