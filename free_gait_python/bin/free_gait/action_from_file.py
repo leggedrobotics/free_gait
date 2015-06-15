@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 import roslib
-from copy import deepcopy
 from math import cos, sin
 roslib.load_manifest('free_gait_python')
 import rospy
@@ -21,26 +20,14 @@ def send_action(file_path):
     global client
     
     action_server_topic = rospy.get_param('~action_server')
-    map_frame_id = rospy.get_param('~map_frame_id')
-    foot_frame_id = rospy.get_param('~foot_frame_id')
+    default_frame_id = rospy.get_param('~default_frame_id')
     
     client = actionlib.SimpleActionClient(action_server_topic, quadruped_msgs.msg.StepAction)
     client.wait_for_server()
-
-    # Get current pose of robot to adapt action
-    # to the current coordinates if necessary.
-    listener = tf.TransformListener()
-    listener.waitForTransform(map_frame_id, foot_frame_id, rospy.Time(0), rospy.Duration(10.0))
-    try:
-        (translation, rotation) = listener.lookupTransform(map_frame_id, foot_frame_id, rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        rospy.logerr('Could not look up TF transformation from "' +
-                     map_frame_id + '" to "' + foot_frame_id + '".')
-        return None
     
     # Load action from YAML file.
     rospy.loginfo('Loading free gait action from "' + file_path + '".')
-    goal = load_from_file(file_path, translation, rotation)
+    goal = load_from_file(file_path, default_frame_id)
 #     print goal
 
     # Send action.

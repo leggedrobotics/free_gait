@@ -5,7 +5,42 @@ import quadruped_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 
-def load_from_file(file_path, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
+def load_from_file(file_path, source_frame_id):
+    import os
+    import tf
+    from rosparam import load_file
+    if not os.path.isfile(file_path):
+        rospy.logerr('File with path "' + file_path + '" does not exists.')
+        return None
+    
+    is_adapt = False
+    position = [0, 0, 0]
+    orientation = [0, 0, 0, 1]
+    
+    parameters = load_file(file_path)
+    if 'adapt_coordinates' in parameters[0][0]:
+        adapt_parameters = parameters[0][0]['adapt_coordinates']
+        is_adapt = True
+        target_frame_id = adapt_parameters['frame']
+        if 'pose' in adapt_parameters:
+            position = adapt_parameters['pose']['position']
+            orientation = adapt_parameters['pose']['orientation']
+
+    if is_adapt:
+        listener = tf.TransformListener()
+        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        try:
+            (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            rospy.logerr('Could not look up TF transformation from "' +
+                         source_frame_id + '" to "' + foot_frame_id + '".')
+            return None
+        position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
+        orientation = quaternion_multiply(rotation, orientation)
+
+    return get_from_yaml(parameters, position, orientation)
+
+def load_from_file_and_transform(file_path, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
     from rosparam import load_file
     import os
     
@@ -122,9 +157,8 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
         goal.steps.append(step)
     
     # Adapt to local coordinates if desired.
-    if 'adapt_to_current_position' in yaml_object[0][0]:
-        if yaml_object[0][0]['adapt_to_current_position']:
-            adapt_coordinates(goal, position, orientation)
+    if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
+        adapt_coordinates(goal, position, orientation)
             
     return goal
 

@@ -1,4 +1,5 @@
-adapt_to_current_position: true
+adapt_coordinates:
+  frame: footprint
 
 steps:
 

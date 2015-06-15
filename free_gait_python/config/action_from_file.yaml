@@ -1,3 +1,2 @@
 action_server: /locomotion_controller/step
-map_frame_id: map
-foot_frame_id: footprint
+default_frame_id: map
