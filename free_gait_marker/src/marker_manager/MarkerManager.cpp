@@ -536,7 +536,7 @@ bool MarkerManager::sendStepGoal()
     swingData.name = foothold.legName;
     swingData.profile.target.header.frame_id = footholdFrameId_;
     swingData.profile.target.point = marker.pose.position;
-    swingData.profile.type = "square";
+//    swingData.profile.type = "square";
     step.swing_data.push_back(swingData);
     goal.steps.push_back(step);
   }

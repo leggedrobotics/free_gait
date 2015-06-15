@@ -129,8 +129,8 @@ void SwingProfile::generateTriangleKnots(std::vector<Time>& times,
   // Interpolate on the xy-plane.
   Position knot2 = start_ + 0.5 * (target_ - start_);
   // Apex height.
-  // TODO: Add swing height depending on mean height of stance feet.
-  knot2.z() = start_.z() + height_;
+  double basis = start_.z() > target_.z() ? start_.z() : target_.z();
+  knot2.z() = basis + height_;
   values.push_back(knot2.vector());
 
   // Knot 3.
@@ -141,7 +141,8 @@ void SwingProfile::generateTriangleKnots(std::vector<Time>& times,
 void SwingProfile::generateSquareKnots(std::vector<Time>& times,
                                        std::vector<ValueType>& values) const
 {
-  double height = start_.z() + height_;
+  double basis = start_.z() > target_.z() ? start_.z() : target_.z();
+  double height = basis + height_;
 
   // Knot 1.
   times.push_back(0.0);
@@ -149,12 +150,12 @@ void SwingProfile::generateSquareKnots(std::vector<Time>& times,
 
   // Knot 2.
   times.push_back(1.0/3.0 * duration_);
-  Position knot2 = start_ + Position(0, 0, height);
+  Position knot2(start_.x(), start_.y(), height);
   values.push_back(knot2.vector());
 
   // Knot 3.
   times.push_back(2.0/3.0 * duration_);
-  Position knot3 = target_ + Position(0, 0, height);
+  Position knot3(target_.x(), start_.y(), height);
   values.push_back(knot3.vector());
 
   // Knot 4.
