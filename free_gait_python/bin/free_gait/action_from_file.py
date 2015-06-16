@@ -28,6 +28,10 @@ def send_action(file_path):
     # Load action from YAML file.
     rospy.loginfo('Loading free gait action from "' + file_path + '".')
     goal = load_from_file(file_path, default_frame_id)
+    if goal == None:
+        rospy.logerr('Could not load action.')
+        return
+        
 #     print goal
 
     # Send action.

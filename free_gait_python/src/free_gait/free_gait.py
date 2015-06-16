@@ -28,13 +28,16 @@ def load_from_file(file_path, source_frame_id):
 
     if is_adapt:
         listener = tf.TransformListener()
-        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        # Not working in current version of tf/tf2.
+        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        rospy.sleep(1.0)
         try:
             (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logerr('Could not look up TF transformation from "' +
-                         source_frame_id + '" to "' + foot_frame_id + '".')
+                         source_frame_id + '" to "' + target_frame_id + '".')
             return None
+
         position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
         orientation = quaternion_multiply(rotation, orientation)
 
