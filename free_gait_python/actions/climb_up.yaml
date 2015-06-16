@@ -32,6 +32,7 @@ steps:
         target: [0.52, -0.22, 0.16]
         height: 0.12
         type: square
+        duration: 4.0
  - step:
     swing_data:
      - name: leftFore
@@ -39,6 +40,7 @@ steps:
         target: [0.52, 0.22, 0.16]
         height: 0.12
         type: square
+        duration: 4.0
  - step:
     base_shift_data:
      - name: pre_step

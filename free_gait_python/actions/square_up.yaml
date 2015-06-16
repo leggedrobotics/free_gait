@@ -12,25 +12,21 @@ steps:
      - name: "leftFore"
        profile:
         target: [0.29, 0.22, 0.0]
-        height: 0.03
         
  - step:
     swing_data:
      - name: "leftHind"
        profile:
         target: [-0.29, 0.22, 0.0]
-        height: 0.03
         
  - step:
     swing_data:
      - name: "rightFore"
        profile:
         target: [0.29, -0.22, 0.0]
-        height: 0.03
         
  - step:
     swing_data:
      - name: "rightHind"
        profile:
         target: [-0.29, -0.22, 0.0]
-        height: 0.03
