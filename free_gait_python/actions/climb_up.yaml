@@ -11,13 +11,11 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        height: 0.05
         target: [-0.1, 0.20, 0.0]
  - step:
     swing_data:
      - name: rightHind
        profile:
-        height: 0.05
         target: [-0.05, -0.20, 0.0]
 
  # Step up.
@@ -30,7 +28,7 @@ steps:
      - name: rightFore
        profile:
         target: [0.52, -0.22, 0.16]
-        height: 0.12
+        height: 0.04
         type: square
         duration: 4.0
  - step:
@@ -38,7 +36,6 @@ steps:
      - name: leftFore
        profile:
         target: [0.52, 0.22, 0.16]
-        height: 0.12
         type: square
         duration: 4.0
  - step:
@@ -49,7 +46,7 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        height: 0.1
+        height: 0.04
         target: [0.05, 0.20, 0.0]
  - step:
     base_shift_data:
@@ -62,7 +59,6 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        height: 0.05
         target: [0.1, -0.20, 0.0]
 
  # Sneaking half.
@@ -75,7 +71,6 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        height: 0.1
         target: [0.15, 0.20, 0.0]
  - step:
     swing_data:
@@ -86,7 +81,6 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        height: 0.05
         target: [0.2, -0.20, 0.0]
  - step:
     swing_data:
@@ -97,7 +91,6 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        height: 0.1
         target: [0.3, 0.20, 0.0]
  - step:
     swing_data:
@@ -108,7 +101,6 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        height: 0.05
         target: [0.33, -0.20, 0.0]
              
  # Prepare for hind step up.
@@ -137,7 +129,6 @@ steps:
      - name: rightHind
        profile:
         target: [0.5, -0.27, 0.16]
-        height: 0.12
         duration: 3.0
         type: square
 
