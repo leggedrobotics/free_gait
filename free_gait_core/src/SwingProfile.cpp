@@ -155,7 +155,7 @@ void SwingProfile::generateSquareKnots(std::vector<Time>& times,
 
   // Knot 3.
   times.push_back(2.0/3.0 * duration_);
-  Position knot3(target_.x(), start_.y(), height);
+  Position knot3(target_.x(), target_.y(), height);
   values.push_back(knot3.vector());
 
   // Knot 4.
