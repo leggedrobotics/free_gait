@@ -4,6 +4,7 @@ import rospy
 import quadruped_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
+import trajectory_msgs.msg
 
 def load_from_file(file_path, source_frame_id):
     import os
@@ -96,10 +97,14 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                     # Profile type.
                     if 'type' in swing_data_parameter['profile']:
                         swing_data.profile.type = swing_data_parameter['profile']['type']
+                        
+                # Trajectory.
+                if 'trajectory' in swing_data_parameter:
+                    swing_data.trajectory = parse_multi_dof_trajectory(swing_data.name, swing_data_parameter['trajectory'])
                 
                 # Expect touchdown.
-                if 'expect_touchdown' in swing_data_parameter:
-                    swing_data.expect_touchdown = swing_data_parameter['expect_touchdown']
+                if 'no_touchdown' in swing_data_parameter:
+                    swing_data.no_touchdown = swing_data_parameter['no_touchdown']
                 # Surface normal.
                 if 'surface_normal' in swing_data_parameter:
                     normal_parameter = swing_data_parameter['surface_normal']
@@ -154,6 +159,10 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                     # Profile type.
                     if 'type' in base_shift_data_parameter['profile']:
                         base_shift_data.profile.type = base_shift_data_parameter['profile']['type']
+                        
+                # Trajectory.
+                if 'trajectory' in base_shift_data_parameter:
+                    base_shift_data.trajectory = parse_multi_dof_trajectory('base', base_shift_data_parameter['trajectory'])
 
                 step.base_shift_data.append(base_shift_data)
                 
@@ -165,6 +174,35 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
             
     return goal
 
+def parse_multi_dof_trajectory(joint_name, trajectory):
+    output = trajectory_msgs.msg.MultiDOFJointTrajectory()
+    output.header.frame_id = trajectory['frame']
+    output.joint_names.append(joint_name)
+    for knot in trajectory['knots']:
+        point = trajectory_msgs.msg.MultiDOFJointTrajectoryPoint()
+        point.time_from_start = rospy.Time(knot['time'])
+        transform = geometry_msgs.msg.Transform()
+        transform.translation.x = knot['position'][0]
+        transform.translation.y = knot['position'][1]
+        transform.translation.z = knot['position'][2]
+        if 'orientation' in knot:
+            if len(knot['orientation']) == 4:
+                transform.rotation.x = knot['orientation'][0]
+                transform.rotation.y = knot['orientation'][1]
+                transform.rotation.z = knot['orientation'][2]
+                transform.rotation.w = knot['orientation'][3]
+            if len(knot['orientation']) == 3:
+                rpy = knot['orientation']
+                quaternion = quaternion_from_euler(rpy[0], rpy[1], rpy[2])
+                transform.rotation.x = quaternion[0]
+                transform.rotation.y = quaternion[1]
+                transform.rotation.z = quaternion[2]
+                transform.rotation.w = quaternion[3]
+            
+        point.transforms.append(transform)
+        output.points.append(point)
+    
+    return output
 
 def adapt_coordinates(goal, position, orientation):
     # For each steps.
@@ -182,6 +220,8 @@ def adapt_coordinates(goal, position, orientation):
             if check_if_position_valid(position):
                 position = transform_position(transform, position)
                 swing_data.profile.target.point = position
+            for point in swing_data.trajectory.points:
+                position = transform_position(transform, point.transforms[0].translation)
         for base_shift_data in step.base_shift_data:
             pose = base_shift_data.profile.target.pose;
             if check_if_pose_valid(pose):

@@ -90,6 +90,8 @@ class SwingProfile : public SwingTrajectoryBase
    */
   bool computeTrajectory();
 
+  void generateStraightKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
+
   void generateTriangleKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
 
   void generateSquareKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;

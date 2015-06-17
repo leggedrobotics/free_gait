@@ -25,6 +25,9 @@ namespace free_gait {
 class SwingSplineTrajectory : public SwingTrajectoryBase
 {
  public:
+  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
+  typedef typename curves::Time Time;
+
   /*!
    * Constructor.
    */
@@ -47,7 +50,7 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
    * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  bool updateStartPosition(const Position& startPosition) ;
+  bool updateStartPosition(const Position& startPosition);
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.
@@ -78,7 +81,21 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
 
  protected:
 
-  //! Foot trajectory.
+  //! Knots.
+  std::vector<Time> times_;
+  std::vector<ValueType> values_;
+
+ private:
+
+  /*!
+   * Computes the internal trajectory based on the knots.
+   */
+  bool computeTrajectory();
+
+  //! If trajectory is updated.
+  bool trajectoryUpdated_;
+
+  //! Foot trajectory, updated based on knots.
   curves::PolynomialSplineQuinticVector3Curve trajectory_;
 };
 

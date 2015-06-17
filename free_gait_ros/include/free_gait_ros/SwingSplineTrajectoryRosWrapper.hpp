@@ -11,9 +11,6 @@
 // Free Gait
 #include "free_gait_core/free_gait_core.hpp"
 
-// Curves
-#include <curves_ros/RosMultiDOFJointTrajectoryTranslationInterface.hpp>
-
 // ROS
 #include <trajectory_msgs/MultiDOFJointTrajectory.h>
 
@@ -22,7 +19,8 @@
 
 namespace free_gait {
 
-class SwingSplineTrajectoryRosWrapper : public SwingSplineTrajectory, public curves::RosMultiDOFJointTrajectoryTranslationInterface
+class SwingSplineTrajectoryRosWrapper :
+    public SwingSplineTrajectory
 {
  public:
   SwingSplineTrajectoryRosWrapper();

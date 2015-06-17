@@ -13,15 +13,18 @@
 namespace free_gait {
 
 SwingData::SwingData() :
-    useProfile_(true)
+    useProfile_(true),
+    noTouchdown_(false)
 {
 }
 
 SwingData::SwingData(const SwingData& other) :
     name_(other.name_),
     surfaceNormal_(other.surfaceNormal_),
+    surfaceNormalFrameId_(other.surfaceNormalFrameId_),
     trajectory_(other.trajectory_->clone()),
-    useProfile_(other.useProfile_)
+    useProfile_(other.useProfile_),
+    noTouchdown_(other.noTouchdown_)
 {
 
 }
@@ -80,6 +83,8 @@ std::ostream& operator<<(std::ostream& out, const SwingData& swingData)
 {
   out << "Name: " << swingData.name_ << std::endl;
   out << "Surface normal: " << swingData.surfaceNormal_ << std::endl;
+  out << "Surface frame: " << swingData.surfaceNormalFrameId_ << std::endl;
+  out << "No touchdown: " << swingData.noTouchdown_ << std::endl;
   if (swingData.useProfile_) {
     const auto& trajectory = std::static_pointer_cast<SwingProfile>(swingData.trajectory_);
     out << *trajectory << std::endl;
@@ -98,6 +103,16 @@ bool SwingData::isUsingProfile() const
 void SwingData::setUseProfile(bool useProfile)
 {
   useProfile_ = useProfile;
+}
+
+bool SwingData::isNoTouchdown() const
+{
+  return noTouchdown_;
+}
+
+void SwingData::setNoTouchdown(bool noTouchdown)
+{
+  noTouchdown_ = noTouchdown;
 }
 
 } /* namespace */

@@ -1,0 +1,17 @@
+adapt_coordinates:
+  frame: footprint
+  
+steps:
+
+ - step:
+    base_shift_data:
+     - name: "post_step"
+       profile:
+        height: 0.47
+    swing_data:
+     - name: "rightFore"
+       no_touchdown: false
+       profile:
+        target: [0.29, -0.22, 0.0]
+        height: 0.01
+        type: straight

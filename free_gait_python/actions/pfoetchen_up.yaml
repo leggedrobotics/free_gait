@@ -1,0 +1,25 @@
+adapt_coordinates:
+  frame: footprint
+  
+steps:
+
+ - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.47
+     - name: at_step
+       profile:
+        duration: 4.0
+        height: 0.44
+     - name: post_step
+       profile:
+        height: 0.4
+    swing_data:
+     - name: rightFore
+       no_touchdown: true
+       trajectory:
+        frame: map
+        knots:
+         - time: 4.0
+           position: [0.39, -0.22, 0.20]

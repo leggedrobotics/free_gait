@@ -56,6 +56,8 @@ bool StepCompleter::complete(Step& step) const
     }
   }
 
+  std::cout << step << std::endl;
+
   return step.isComplete_ = true;
 }
 

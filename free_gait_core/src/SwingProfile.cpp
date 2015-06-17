@@ -107,6 +107,8 @@ bool SwingProfile::computeTrajectory()
     generateTriangleKnots(times, values);
   } else if (type_ == "square") {
     generateSquareKnots(times, values);
+  } else if (type_ == "straight") {
+    generateStraightKnots(times, values);
   } else {
     ROCO_ERROR_STREAM("Swing profile of type '" << type_ << "' not supported.");
     return false;
@@ -115,6 +117,18 @@ bool SwingProfile::computeTrajectory()
   trajectory_.fitCurve(times, values);
   trajectoryUpdated_ = true;
   return true;
+}
+
+void SwingProfile::generateStraightKnots(std::vector<Time>& times,
+                                         std::vector<ValueType>& values) const
+{
+  // Knot 1.
+  times.push_back(0.0);
+  values.push_back(start_.vector());
+
+  // Knot 2.
+  times.push_back(duration_);
+  values.push_back(target_.vector());
 }
 
 void SwingProfile::generateTriangleKnots(std::vector<Time>& times,

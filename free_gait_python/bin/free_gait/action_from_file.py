@@ -32,7 +32,7 @@ def send_action(file_path):
         rospy.logerr('Could not load action.')
         return
         
-#     print goal
+    print goal
 
     # Send action.
     client.send_goal(goal, feedback_cb=feedback_callback)

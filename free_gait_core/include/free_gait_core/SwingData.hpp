@@ -57,6 +57,9 @@ class SwingData
   bool isUsingProfile() const;
   void setUseProfile(bool useProfile);
 
+  bool isNoTouchdown() const;
+  void setNoTouchdown(bool noTouchdown);
+
   friend std::ostream& operator << (std::ostream& out, const SwingData& swingData);
 
 
@@ -65,6 +68,7 @@ class SwingData
 
   free_gait::Vector surfaceNormal_;
   std::string surfaceNormalFrameId_;
+  bool noTouchdown_;
 
   std::shared_ptr<SwingTrajectoryBase> trajectory_;
 

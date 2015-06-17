@@ -44,6 +44,9 @@ bool SwingDataRosWrapper::fromMessage(const quadruped_msgs::SwingData& message)
   surfaceNormal_.y() = normal.y;
   surfaceNormal_.z() = normal.z;
 
+  // No touchdown.
+  setNoTouchdown(message.no_touchdown);
+
   if (message.trajectory.joint_names.size() > 0) {
     // Trajectory.
     SwingSplineTrajectoryRosWrapper trajectory;

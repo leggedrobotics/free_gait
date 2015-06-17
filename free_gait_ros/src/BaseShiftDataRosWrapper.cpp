@@ -35,10 +35,12 @@ bool BaseShiftDataRosWrapper::fromMessage(const quadruped_msgs::BaseShiftData& m
 
   if (message.trajectory.joint_names.size() > 0) {
     // Trajectory.
+    setUseProfile(false);
     BaseShiftSplineTrajectoryRosWrapper trajectory;
     if (!trajectory.fromMessage(message.trajectory)) return false;
     setTrajectory(trajectory);
   } else {
+    setUseProfile(true);
     BaseShiftProfileRosWrapper profile;
     if (!profile.fromMessage(message.profile)) return false;
     setTrajectory(profile);
