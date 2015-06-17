@@ -1,0 +1,61 @@
+adapt_coordinates:
+  frame: footprint
+  
+steps:
+
+# Straighten.
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0, 0]
+ 
+# Orientation.
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, 0.05, 0.42]
+         orientation: [0.1, 0.1, 0.15]
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, -0.05, 0.42]
+         orientation: [-0.1, 0.1, -0.15]
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, 0.05, 0.47]
+         orientation: [0.1, -0.1, -0.15]
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, -0.05, 0.47]
+         orientation: [-0.1, -0.1, 0.15]
+
+
+         
+# Straighten.
+ - step:
+    base_shift_data:
+     - name: at_step
+       profile:
+        duration: 3
+        target:
+         position: [0, 0, 0.47]
+         orientation: [0, 0, 0]
+

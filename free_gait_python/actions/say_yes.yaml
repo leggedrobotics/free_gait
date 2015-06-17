@@ -1,8 +1,5 @@
 adapt_coordinates:
   frame: footprint
-  pose:
-    position: [0, 0, 0]
-    orientation: [0, 0, 0, 1]
 
 steps:
 
