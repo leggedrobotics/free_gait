@@ -1,0 +1,36 @@
+adapt_coordinates:
+  frame: footprint
+  
+steps:
+
+ - step:
+    base_shift_data:
+     - name: "pre_step"
+       profile:
+        height: 0.47
+    swing_data:
+     - name: "leftFore"
+       profile:
+        type: square
+        target: [0.29, 0.22, 0.0]
+        
+ - step:
+    swing_data:
+     - name: "leftHind"
+       profile:
+        type: square
+        target: [-0.29, 0.22, 0.0]
+        
+ - step:
+    swing_data:
+     - name: "rightFore"
+       profile:
+        type: square
+        target: [0.29, -0.22, 0.0]
+        
+ - step:
+    swing_data:
+     - name: "rightHind"
+       profile:
+        type: square
+        target: [-0.29, -0.22, 0.0]
