@@ -16,7 +16,7 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        target: [-0.05, -0.20, 0.0]
+        target: [-0.1, -0.20, 0.0]
 
  # Step up.
  - step:

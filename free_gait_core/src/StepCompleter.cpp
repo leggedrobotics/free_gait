@@ -19,7 +19,7 @@ StepCompleter::StepCompleter()
     : swingProfileDuration_(2.0),
       swingProfileHeight_(0.06),
       swingProfileType_("triangle"),
-      baseShiftProfileDuration_(2.0),
+      baseShiftProfileDuration_(4.0),
       baseShiftProfileHeight_(0.45),
       baseShiftProfileType_("linear"),
       surfaceNormal_(Vector::UnitZ())

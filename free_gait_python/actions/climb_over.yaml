@@ -7,7 +7,17 @@ steps:
     base_shift_data:
      - name: pre_step
        profile:
-        height: 0.44
+        height: 0.46
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [-0.12, 0.22, 0.0]
+ - step:
+    swing_data:
+     - name: rightHind
+       profile:
+        target: [-0.12, -0.22, 0.0]
+ - step:
     swing_data:
      - name: leftHind
        profile:
