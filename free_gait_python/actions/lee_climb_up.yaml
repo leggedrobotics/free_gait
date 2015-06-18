@@ -68,6 +68,10 @@ steps:
 
 # Prepare with hind legs.
  - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.42
     swing_data:
      - name: leftHind
        profile:
@@ -83,7 +87,7 @@ steps:
     base_shift_data:
      - name: pre_step
        profile:
-        height: 0.44
+        height: 0.38
     swing_data:
      - name: rightFore
        profile:
@@ -123,6 +127,10 @@ steps:
         target: [0.85, -0.22, 0.16]
         
  - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.42
     swing_data:
      - name: leftHind
        profile:
@@ -145,6 +153,10 @@ steps:
         
 # First step, step up with hind legs.
  - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.44
     swing_data:
      - name: leftHind
        profile:
