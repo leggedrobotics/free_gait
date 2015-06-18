@@ -185,7 +185,7 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        target: [0.73, 0.27, 0.16]
+        target: [0.8, 0.27, 0.16]
         height: 0.04
         duration: 5.0
         type: square
@@ -193,7 +193,7 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        target: [0.73, -0.27, 0.16]
+        target: [0.8, -0.27, 0.16]
         height: 0.04
         duration: 5.0
         type: square
