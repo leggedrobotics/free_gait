@@ -1,5 +1,8 @@
 adapt_coordinates:
-  frame: footprint
+  frame: map
+  pose:
+   position: [0.960, 8.15, -0.06]
+   orientation: [0, 0, -0.707, 0.707]
 
 steps:
 
@@ -84,7 +87,7 @@ steps:
     swing_data:
      - name: rightFore
        profile:
-        target: [0.7, -0.22, 0.16] PENIS
+        target: [0.7, -0.22, 0.16]
         height: 0.06
         duration: 5.0
         type: square
