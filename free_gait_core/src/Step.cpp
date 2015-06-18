@@ -272,6 +272,13 @@ double Step::getTotalPhase()
   return loco::mapTo01Range(getTime(), 0.0, getTotalDuration());
 }
 
+bool Step::isApproachingEndOfState()
+{
+  double tolerance = 0.01;
+  if (getStateTime() + tolerance >= getStateDuration()) return true;
+  return false;
+}
+
 bool Step::computeDurations()
 {
   if (!isComplete())

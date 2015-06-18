@@ -160,6 +160,8 @@ class Step
 
   double getTotalPhase();
 
+  bool isApproachingEndOfState();
+
   friend std::ostream& operator << (std::ostream& out, const Step& step);
 
   friend class StepCompleter;

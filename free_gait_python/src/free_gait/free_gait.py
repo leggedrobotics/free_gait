@@ -212,8 +212,6 @@ def adapt_coordinates(goal, position, orientation):
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
     
-    # TODO For base shift trajectories
-    # TODO For multi-dof trajectories
     for step in goal.steps:
         for swing_data in step.swing_data:
             position = swing_data.profile.target.point;
@@ -222,11 +220,15 @@ def adapt_coordinates(goal, position, orientation):
                 swing_data.profile.target.point = position
             for point in swing_data.trajectory.points:
                 position = transform_position(transform, point.transforms[0].translation)
+                point.transforms[0].translation = position
         for base_shift_data in step.base_shift_data:
             pose = base_shift_data.profile.target.pose;
             if check_if_pose_valid(pose):
                 pose = transform_pose(transform, pose)
                 base_shift_data.profile.target.pose = pose
+            for point in base_shift_data.trajectory.points:
+                transformation = transform_transformation(transform, point.transforms[0])
+                point.transforms[0] = transformation
 
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
@@ -242,6 +244,11 @@ def transform_pose(transform, pose):
     pose.position = transform_position(transform, pose.position)
     pose.orientation = transform_orientation(transform, pose.orientation)
     return pose
+
+def transform_transformation(transform, transformation):
+    transformation.translation = transform_position(transform, transformation.translation)
+    transformation.rotation = transform_orientation(transform, transformation.rotation)
+    return transformation
 
 def check_if_position_valid(position):
     if (position.x == 0 and position.y == 0 and position.z == 0):
