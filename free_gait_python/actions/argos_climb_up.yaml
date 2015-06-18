@@ -77,10 +77,14 @@ steps:
         
  # Second step, step up with front legs.
  - step:
+    base_shift_data:
+     - name: pre_step
+       profile:
+        height: 0.44
     swing_data:
      - name: rightFore
        profile:
-        target: [0.73, -0.22, 0.16]
+        target: [0.7, -0.22, 0.16] PENIS
         height: 0.06
         duration: 5.0
         type: square
@@ -88,17 +92,13 @@ steps:
     swing_data:
      - name: leftFore
        profile:
-        target: [0.73, 0.22, 0.16]
+        target: [0.7, 0.22, 0.16]
         height: 0.06
         duration: 5.0
         type: square
 
  # Sneak half ways on second step.
  - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.44
     swing_data:
      - name: leftHind
        profile:
