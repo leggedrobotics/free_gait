@@ -11,6 +11,7 @@
 #include <roco/log/log_messages.hpp>
 
 // Loco
+#include "loco/state_switcher/StateSwitcher.hpp"
 #include "loco/utils/math.hpp"
 
 namespace free_gait {
@@ -105,14 +106,27 @@ bool Step::advance(double dt)
 bool Step::checkStatus()
 {
   for (auto leg : *legs_) {
-    if (leg->shouldBeGrounded()) { // TODO Replace with better handling.
-      if (!leg->isSupportLeg()) {
-        ROCO_WARN_THROTTLE_STREAM(
-            1.0, "Leg " << leg->getName() << " should be grounded but it is not.");
+    loco::StateSwitcher* stateSwitcher = leg->getStateSwitcher();
+    switch (stateSwitcher->getState()) {
+      case (loco::StateSwitcher::States::StanceSlipping):
+      case (loco::StateSwitcher::States::StanceLostContact):
+      case (loco::StateSwitcher::States::SwingExpectingContact):
+        ROCO_WARN_THROTTLE_STREAM(1.0, "Leg " << leg->getName() << " should be grounded but it is not.");
         return false;
-      }
+
+      case (loco::StateSwitcher::States::StanceNormal):
+      case (loco::StateSwitcher::States::SwingNormal):
+      case (loco::StateSwitcher::States::SwingLateLiftOff):
+      case (loco::StateSwitcher::States::SwingBumpedIntoObstacle):
+      case (loco::StateSwitcher::States::SwingEarlyTouchDown):
+        break;
+
+      default:
+        ROCO_ERROR_STREAM_FP("Unhandled state: " << stateSwitcher->getStateName(stateSwitcher->getState()) << std::endl);
+        return false;
     }
   }
+
   return true;
 }
 
