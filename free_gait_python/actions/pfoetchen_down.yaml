@@ -4,10 +4,6 @@ adapt_coordinates:
 steps:
 
  - step:
-    base_shift_data:
-     - name: post_step
-       profile:
-        height: 0.47
     swing_data:
      - name: rightFore
        no_touchdown: false

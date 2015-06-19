@@ -16,12 +16,12 @@
 namespace free_gait {
 
 StepCompleter::StepCompleter()
-    : swingProfileDuration_(3.0),
+    : swingProfileDuration_(2.0),
       swingProfileHeight_(0.06),
       swingProfileType_("triangle"),
-      standardBaseShiftProfileDuration_(3.0),
-      atStepBaseShiftProfileDuration_(2.0),
-      baseShiftProfileHeight_(0.45),
+      standardBaseShiftProfileDuration_(2.0),
+      atStepBaseShiftProfileDuration_(1.5),
+      baseShiftProfileHeight_(0.46),
       baseShiftProfileType_("linear"),
       surfaceNormal_(Vector::UnitZ())
 {

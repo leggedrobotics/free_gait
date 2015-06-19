@@ -43,8 +43,20 @@ steps:
         frame: map
         knots:
          - time: 3.0
-           position: [-0.29, -0.22, 0.1]
+           position: [-0.4, -0.22, 0.35]
          - time: 6.0
-           position: [-0.5, -0.35, 0.25]
+           position: [-0.4, -0.35, 0.35]
          - time: 9.0
            position: [-0.29, -0.45, 0.0]
+ - step:
+    swing_data:
+     - name: rightFore
+       trajectory:
+        frame: map
+        knots:
+         - time: 3.0
+           position: [0.4, -0.22, 0.35]
+         - time: 6.0
+           position: [0.4, -0.35, 0.35]
+         - time: 9.0
+           position: [0.29, -0.45, 0.0]
