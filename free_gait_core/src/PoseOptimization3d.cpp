@@ -16,7 +16,8 @@ using namespace Eigen;
 namespace free_gait {
 
 PoseOptimization::PoseOptimization()
-    : nStates_(4)
+    : nStates_(4),
+      nDimensions_(3)
 {
 }
 
@@ -51,8 +52,8 @@ bool PoseOptimization::optimize(Pose& pose)
   // Problem definition:
   // min Ax - b, Gx <= h
   unsigned int nFeet = feetPositions_.size();
-  MatrixXd A = MatrixXd::Zero(2 * nFeet, nStates_);
-  VectorXd b = VectorXd::Zero(2 * nFeet);
+  MatrixXd A = MatrixXd::Zero(nDimensions_ * nFeet, nStates_);
+  VectorXd b = VectorXd::Zero(nDimensions_ * nFeet);
   Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
   Matrix3d Rstar;
   Rstar << 0, -1, 0,
@@ -60,8 +61,8 @@ bool PoseOptimization::optimize(Pose& pose)
            0,  0, 0;
 
   for (unsigned int i = 0; i < nFeet; i++) {
-    A.block(2 * i, 0, 2, A.cols()) << Matrix2d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[i].vector()).head<2>();
-    b.segment(2 * i, 2) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
+    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[i].vector());
+    b.segment(nDimensions_ * i, nDimensions_) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
   }
 
 //  std::cout << "R_0: " << std::endl << R_0 << std::endl;
@@ -72,8 +73,8 @@ bool PoseOptimization::optimize(Pose& pose)
   Eigen::MatrixXd Gp;
   Eigen::VectorXd h;
   supportPolygon_.convertToInequalityConstraints(Gp, h);
-  Eigen::MatrixXd G(Gp.rows(), Gp.cols() + 1);
-  G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), 1);
+  Eigen::MatrixXd G(Gp.rows(), nStates_);
+  G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), nStates_ - Gp.cols());
 
 //  std::cout << "Gp: " << std::endl << Gp << std::endl;
 //  std::cout << "G: " << std::endl << G << std::endl;
@@ -94,7 +95,7 @@ bool PoseOptimization::optimize(Pose& pose)
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
-  pose.getPosition().vector().head<2>() = x.head<2>();
+  pose.getPosition().vector() = x;
   const double yaw = x.tail<1>()[0];
   pose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
   pose.getRotation().fix();

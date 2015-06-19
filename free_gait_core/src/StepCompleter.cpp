@@ -19,7 +19,8 @@ StepCompleter::StepCompleter()
     : swingProfileDuration_(3.0),
       swingProfileHeight_(0.06),
       swingProfileType_("triangle"),
-      baseShiftProfileDuration_(3.0),
+      standardBaseShiftProfileDuration_(3.0),
+      atStepBaseShiftProfileDuration_(2.0),
       baseShiftProfileHeight_(0.45),
       baseShiftProfileType_("linear"),
       surfaceNormal_(Vector::UnitZ())
@@ -50,7 +51,7 @@ bool StepCompleter::complete(Step& step) const
     // Profile.
     if (baseShiftData.second.isUsingProfile()) {
       auto profile = std::static_pointer_cast<BaseShiftProfile>(baseShiftData.second.getTrajectory());
-      if (profile->getDuration() == 0.0) profile->setDuration(baseShiftProfileDuration_);
+      if (profile->getDuration() == 0.0) profile->setDuration(standardBaseShiftProfileDuration_);
       if (profile->getHeight() == 0.0) profile->setHeight(baseShiftProfileHeight_);
       if (profile->getType().empty()) profile->setType(baseShiftProfileType_);
     }

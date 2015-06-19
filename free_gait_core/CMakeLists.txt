@@ -67,7 +67,7 @@ add_library(${PROJECT_NAME}
    src/SwingProfile.cpp
    src/SwingSplineTrajectory.cpp
    src/SwingTrajectoryBase.cpp
-   src/PoseOptimization.cpp
+   src/PoseOptimization3d.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -76,7 +76,7 @@ target_link_libraries(${PROJECT_NAME}
 
 # This is required because loco's test don't work.
 add_library(free_gait_to_test
-  src/PoseOptimization.cpp
+  src/PoseOptimization3d.cpp
 )
 
 target_link_libraries(free_gait_to_test
@@ -104,7 +104,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 ## Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
-  test/PoseOptimizationTest.cpp
+  test/PoseOptimization3dTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test

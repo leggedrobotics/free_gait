@@ -29,7 +29,8 @@ class StepCompleter
   double swingProfileDuration_;
   double swingProfileHeight_;
   std::string swingProfileType_;
-  double baseShiftProfileDuration_;
+  double standardBaseShiftProfileDuration_;
+  double atStepBaseShiftProfileDuration_;
   double baseShiftProfileHeight_;
   std::string baseShiftProfileType_;
 };

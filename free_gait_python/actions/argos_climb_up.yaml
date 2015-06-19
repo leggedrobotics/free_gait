@@ -8,11 +8,11 @@ steps:
     base_shift_data:
      - name: pre_step
        profile:
-        height: 0.45
+        height: 0.44
     swing_data:
      - name: leftHind
        profile:
-        target: [-0.15, 0.22, 0.0]
+        target: [-0.1, 0.22, 0.0]
  - step:
     swing_data:
      - name: rightHind
@@ -21,10 +21,6 @@ steps:
 
  # First step, step up with front legs.
  - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.46
     swing_data:
      - name: rightFore
        profile:
@@ -46,12 +42,7 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        target: [-0.05, 0.22, 0.0]
- - step:
-    swing_data:
-     - name: leftFore
-       profile:
-        target: [0.55, 0.22, 0.08]
+        target: [0.0, 0.22, 0.0]
  - step:
     swing_data:
      - name: rightHind
@@ -62,17 +53,18 @@ steps:
      - name: rightFore
        profile:
         target: [0.55, -0.22, 0.08]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [0.55, 0.22, 0.08]
 
 # Prepare with hind legs.
  - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.42
     swing_data:
      - name: leftHind
        profile:
-        target: [0.1, 0.22, 0.0]
+        target: [0.15, 0.22, 0.0]
  - step:
     swing_data:
      - name: rightHind
@@ -85,7 +77,7 @@ steps:
      - name: rightFore
        profile:
         target: [0.7, -0.22, 0.16]
-        height: 0.06
+        height: 0.04
         duration: 5.0
         type: square
  - step:
@@ -93,25 +85,16 @@ steps:
      - name: leftFore
        profile:
         target: [0.7, 0.22, 0.16]
-        height: 0.06
+        height: 0.04
         duration: 5.0
         type: square
 
  # Sneak half ways on second step.
  - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.38
     swing_data:
      - name: leftHind
        profile:
-        target: [0.2, 0.22, 0.0]
- - step:
-    swing_data:
-     - name: leftFore
-       profile:
-        target: [0.8, 0.22, 0.16]
+        target: [0.25, 0.22, 0.0]
  - step:
     swing_data:
      - name: rightHind
@@ -122,21 +105,17 @@ steps:
      - name: rightFore
        profile:
         target: [0.85, -0.22, 0.16]
-        
- - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.42
-    swing_data:
-     - name: leftHind
-       profile:
-        target: [0.3, 0.22, 0.0]
  - step:
     swing_data:
      - name: leftFore
        profile:
-        target: [0.95, 0.22, 0.16]
+        target: [0.85, 0.22, 0.16]
+        
+ - step:
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [0.35, 0.22, 0.0]
  - step:
     swing_data:
      - name: rightHind
@@ -147,13 +126,14 @@ steps:
      - name: rightFore
        profile:
         target: [0.95, -0.22, 0.16]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [0.95, 0.22, 0.16]
         
 # First step, step up with hind legs.
  - step:
-    base_shift_data:
-     - name: pre_step
-       profile:
-        height: 0.44
     swing_data:
      - name: leftHind
        profile:
@@ -175,22 +155,22 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        target: [0.52, 0.22, 0.08]
- - step:
-    swing_data:
-     - name: leftFore
-       profile:
-        target: [1.1, 0.22, 0.16]
+        target: [0.55, 0.22, 0.08]
  - step:
     swing_data:
      - name: rightHind
        profile:
-        target: [0.52, -0.22, 0.08]
+        target: [0.55, -0.22, 0.08]
  - step:
     swing_data:
      - name: rightFore
        profile:
         target: [1.1, -0.22, 0.16]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [1.1, 0.22, 0.16]
         
  # Second step, step up with hind legs.
  - step:
@@ -219,21 +199,21 @@ steps:
   #      duration: 2.0
  - step:
     swing_data:
-     - name: leftFore
-       profile:
-        target: [1.4, 0.22, 0.16]
- - step:
-    swing_data:
      - name: rightFore
        profile:
         target: [1.4, -0.22, 0.16]
  - step:
     swing_data:
+     - name: leftFore
+       profile:
+        target: [1.4, 0.22, 0.16]
+ - step:
+    swing_data:
      - name: leftHind
        profile:
-        target: [1.0, 0.22, 0.16]
+        target: [0.9, 0.22, 0.16]
  - step:
     swing_data:
      - name: rightHind
        profile:
-        target: [1.0, -0.22, 0.16]
+        target: [0.9, -0.22, 0.16]
