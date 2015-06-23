@@ -32,15 +32,19 @@ TEST(quadruped, symmetricUnconstrained)
     Position(-1.0, 0.5, -0.4) });
 
   optimization.setFeetPositions({
-    Position(1.0, 0.5, 0.0),
-    Position(1.0, -0.5, 0.0),
-    Position(-1.0, -0.5, 0.0),
-    Position(-1.0, 0.5, 0.0) });
+    Position(1.0, 0.5, -0.1),
+    Position(1.0, -0.5, -0.1),
+    Position(-1.0, -0.5, -0.1),
+    Position(-1.0, 0.5, -0.1) });
 
   Pose result;
   ASSERT_TRUE(optimization.optimize(result));
 
-  assertNear(Pose().getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
+  Eigen::Vector3d expectedPosition(0.0, 0.0, 0.3);
+  RotationMatrix expectedOrientation; // Identity.
+
+  assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
 TEST(quadruped, symmetricWithOffsetUnconstrained)
@@ -223,4 +227,33 @@ TEST(quadruped, constrained)
 
   assertNear(expectedOrientation, RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
   assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+}
+
+TEST(quadruped, DebugLoco1)
+{
+  PoseOptimization optimization;
+
+  optimization.setDesiredLegConfiguration( {
+    Position(0.2525, 0.185, -0.36),
+    Position(0.2525, -0.185, -0.36),
+    Position(-0.2525, -0.185, -0.36),
+    Position(-0.2525, 0.185, -0.36) });
+
+  optimization.setFeetPositions({
+    Position(0.328993, 0.220197, 0.0137381),
+    Position(0.328873, -0.21858, 0.0137441),
+    Position(-0.30376, 0.219006, 0.013784),
+    Position(-0.303636, -0.217628, 0.0137876) });
+
+  Position expectedPosition(0.0126176, 0.000748497, 0.373763);
+  RotationMatrix expectedOrientation;
+  expectedOrientation.matrix() << 1.0, -0.000188893, 7.06191e-05, 0.000188892, 1.0, 1.10137e-05, -7.06212e-05, -1.10003e-05, 1.0;
+
+  Pose pose;
+  pose.getPosition() = expectedPosition;
+  pose.getRotation() = expectedOrientation;
+  ASSERT_TRUE(optimization.optimize(pose));
+
+  assertNear(expectedOrientation.matrix(), RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  assertNear(expectedPosition.vector(), pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
