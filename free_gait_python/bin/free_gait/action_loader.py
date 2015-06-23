@@ -16,83 +16,93 @@ from os import listdir
 from os.path import *
 global client
 
-def load_yaml_action(file_path):
-    # Load action from YAML file.
-    print "PENNISSSSSSSSSS"
-    rospy.loginfo('Loading free gait action from "' + file_path + '".')
-    print "PENNISSSSSSSSSS222222"
-    goal = load_from_file(file_path, default_frame_id)
-    print "goal:"
-    print goal
-    print "finis goal====="
-    if goal == None:
-        rospy.logerr('Could not load action.')
-    return goal
-
-def send_goal(goal):
-    global client
-    print goal
+class ActionLoader:
     
-    action_server_topic = rospy.get_param('~action_server')
-    default_frame_id = rospy.get_param('~default_frame_id')
-    
-    client = actionlib.SimpleActionClient(action_server_topic, quadruped_msgs.msg.StepAction)
-    client.wait_for_server()
+    def __init__(self):
+        self.default_frame_id = 'map'
+        self.action_server_topic = '/locomotion_controller/step'
+        self._load_parameters()
         
-    print goal
+    def _load_parameters(self):
+        self.default_frame_id = rospy.get_param('~default_frame_id')
+        self.action_server_topic = rospy.get_param('~action_server')
+        self.directory = rospy.get_param('~directory')
+    
+    def _get_path(self, file):
+        directory = rospy.get_param('~directory')
+        file_path = abspath(join(directory, file))
+        if not isfile(file_path):
+            return None
+        return file_path
+        
+    def send_action(self, request):
+        response = locomotion_controller_msgs.srv.SwitchControllerResponse()
+        file_path = self._get_path(request.name)
+        file_type = splitext(request.name)[-1]
+        if file_path == None:
+            rospy.logerr('Action with name "' + request.name + '" does not exists.')
+            response.status = response.STATUS_NOTFOUND
+        else:
+            #try:
+                if file_type == '.yaml':
+                    goal = self.load_yaml_action(file_path)
+                elif file_type == '.py':
+                    goal = self.load_python_action(file_path)
+                    
+                if goal == None:
+                    response.status = response.STATUS_ERROR
+                    return response
+                result = self.send_goal(goal)
+                rospy.loginfo('Result:')
+                rospy.loginfo(result)
+                response.status = response.STATUS_SWITCHED
+            #except:
+            #    rospy.logerr('An unknown error occured.')
+            #    response.status = response.STATUS_ERROR
+            
+        return response
 
-    # Send action.
-    client.send_goal(goal, feedback_cb=feedback_callback)
-    rospy.loginfo('Goal sent. Waiting for result.')
-    client.wait_for_result()
-    return client.get_result()
-
-def feedback_callback(feedback):
-    pass
-    #print "Feedback:"
-    #print feedback
-
-def send_action(request):
-    response = locomotion_controller_msgs.srv.SwitchControllerResponse()
-    file_path = get_path(request.name)
-    if file_path == None:
-        rospy.logerr('Action with name "' + file_path + '" does not exists.')
-        response.status = response.STATUS_NOTFOUND
+    def load_yaml_action(self, file_path):
+        # Load action from YAML file.
+        rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
+        goal = load_from_file(file_path, self.default_frame_id)
+        if goal == None:
+            rospy.logerr('Could not load action from YAML file.')
+        return goal
+    
+    def load_python_action(self, file_path):
+        # Load action from Python script.
+        rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
+        
+        action_locals = dict()
+        execfile(file_path, dict(), action_locals)
+        goal = action_locals['goal']
+        if goal == None:
+            rospy.logerr('Could not load action from Python script.')
+        return goal
+    
+    def send_goal(self, goal):
+        client = actionlib.SimpleActionClient(self.action_server_topic, quadruped_msgs.msg.StepAction)
+        client.wait_for_server()
+#         print goal
+    
+        # Send action.
+        client.send_goal(goal, feedback_cb=self.feedback_callback)
+        rospy.loginfo('Goal sent. Waiting for result.')
+        client.wait_for_result()
+        return client.get_result()
+    
+    def list_actions_service(self, request):
+        actions = [ f for f in listdir(self.directory) if isfile(join(self.directory, f)) ]
+        actions.sort()
+        response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(actions)
         return response
     
-    else:
-    #try:
-        print "PENNIS1"
-        goal = load_yaml_action(file_path)
-        print "PENNIS2"
-        if goal == None:
-            rospy.logerror("Could not parse free gait action from YAML file.")
-            response.status = response.STATUS_ERROR
-            return response
-        result = send_goal(goal)
-        rospy.loginfo("Result:")
-        rospy.loginfo(result)
-        response.status = response.STATUS_SWITCHED
-    #except:
-     #   response.status = response.STATUS_ERROR
-     #   return response
+    def feedback_callback(self, feedback):
+        pass
+         #print "Feedback:"
+         #print feedback
     
-    return response
-
-def get_path(file):
-    directory = rospy.get_param('~directory')
-    file_path = abspath(join(directory, file + '.yaml'))
-    if not isfile(file_path):
-        return None
-    return file_path
-
-def list_actions_service(request):
-    path = rospy.get_param('~directory')
-    actions = [ splitext(f)[0] for f in listdir(path) if isfile(join(path,f)) ]
-    actions.sort()
-    response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(actions)
-    return response
-
 def preempt():
     global client
     try:
@@ -107,20 +117,25 @@ if __name__ == '__main__':
     try:
         rospy.init_node('free_gait_action_loader')
         rospy.on_shutdown(preempt)
+        action_loader = ActionLoader()
         
         # Decide what to do.
+        load_file = False
         if rospy.has_param('~file'):
             file = rospy.get_param('~file')
+            if file != "":
+                load_file = True
             rospy.delete_param('~file')
+            
+        if load_file:
             request = locomotion_controller_msgs.srv.SwitchControllerRequest(file)
-            send_action(request)
+            action_loader.send_action(request)
             rospy.signal_shutdown("Action sent, shutting down.")
         else:
-            rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, send_action)
-            rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, list_actions_service)
+            rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
+            rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions_service)
             rospy.loginfo("Ready to load actions from service call.")
             rospy.spin()
-            
         
     except rospy.ROSInterruptException:
         rospy.logerr("Program interrupted before completion.")

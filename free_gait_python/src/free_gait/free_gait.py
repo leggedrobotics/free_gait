@@ -7,7 +7,29 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 
 def load_from_file(file_path, source_frame_id):
-    print "HALLLOHHHHHHOOOOOOOOOOOOOO"
+    import os
+    from rosparam import load_file
+    if not os.path.isfile(file_path):
+        rospy.logerr('File with path "' + file_path + '" does not exists.')
+        return None
+    
+    is_adapt = False
+    position = [0, 0, 0]
+    orientation = [0, 0, 0, 1]
+    
+    parameters = load_file(file_path)
+    if 'adapt_coordinates' in parameters[0][0]:
+        adapt_parameters = parameters[0][0]['adapt_coordinates']
+        is_adapt = True
+        target_frame_id = adapt_parameters['frame']
+        if 'pose' in adapt_parameters:
+            position = adapt_parameters['pose']['position']
+            orientation = adapt_parameters['pose']['orientation']
+
+    if is_adapt:
+        (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
+
+    return get_from_yaml(parameters, position, orientation)
 
 def load_from_file_and_transform(file_path, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
     from rosparam import load_file
@@ -194,6 +216,23 @@ def adapt_coordinates(goal, position, orientation):
             for point in base_shift_data.trajectory.points:
                 transformation = transform_transformation(transform, point.transforms[0])
                 point.transforms[0] = transformation
+
+def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
+    import tf
+    listener = tf.TransformListener()
+    # Not working in current version of tf/tf2.
+    #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+    rospy.sleep(1.0)
+    try:
+        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        rospy.logerr('Could not look up TF transformation from "' +
+                     source_frame_id + '" to "' + target_frame_id + '".')
+        return None
+
+    transformed_position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
+    transformed_orientation = quaternion_multiply(rotation, orientation)
+    return (transformed_position, transformed_orientation)
 
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
