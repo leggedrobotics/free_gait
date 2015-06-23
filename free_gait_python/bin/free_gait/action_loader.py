@@ -11,9 +11,11 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
 import locomotion_controller_msgs.srv
+import traceback
 from free_gait import *
 from os import listdir
 from os.path import *
+
 global client
 
 class ActionLoader:
@@ -43,7 +45,7 @@ class ActionLoader:
             rospy.logerr('Action with name "' + request.name + '" does not exists.')
             response.status = response.STATUS_NOTFOUND
         else:
-            #try:
+            try:
                 if file_type == '.yaml':
                     goal = self.load_yaml_action(file_path)
                 elif file_type == '.py':
@@ -56,9 +58,10 @@ class ActionLoader:
                 rospy.loginfo('Result:')
                 rospy.loginfo(result)
                 response.status = response.STATUS_SWITCHED
-            #except:
-            #    rospy.logerr('An unknown error occured.')
-            #    response.status = response.STATUS_ERROR
+            except:
+                rospy.logerr('A parser error occurred.')
+                response.status = response.STATUS_ERROR
+                traceback.print_exc()
             
         return response
 
