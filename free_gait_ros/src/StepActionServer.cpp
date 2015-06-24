@@ -88,6 +88,7 @@ void StepActionServer::publishFeedback()
   if (stepQueue_->empty()) return;
   auto& step = stepQueue_->getCurrentStep();
   feedback.step_number = step.getStepNumber();
+  feedback.queue_size = stepQueue_->size();
 
   if (step.checkStatus() == false) {
     feedback.status = quadruped_msgs::StepFeedback::PROGRESS_PAUSED;

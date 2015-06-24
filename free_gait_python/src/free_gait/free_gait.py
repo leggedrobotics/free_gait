@@ -41,7 +41,6 @@ def load_from_file_and_transform(file_path, position = [0, 0, 0], orientation = 
 
     return get_from_yaml(load_file(file_path), position, orientation)
 
-
 def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
     goal = quadruped_msgs.msg.StepGoal()
     step_number = 0
@@ -271,3 +270,17 @@ def check_if_pose_valid(pose):
         return True
     else:
         return False
+    
+class TriggerOnFeedback:
+    
+    def __init__(self, n_steps_in_queue, phase_of_step):
+        self.n_steps_in_queue = n_steps_in_queue
+        self.phase_of_step = phase_of_step
+        self.feedback = None
+        
+    def check(self, feedback):
+        self.feedback = feedback
+        if self.feedback.queue_size <= self.n_steps_in_queue and self.feedback.phase >= self.phase_of_step:
+            return True
+        else:
+            return False

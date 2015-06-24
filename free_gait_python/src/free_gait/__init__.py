@@ -2,3 +2,4 @@ from free_gait import load_from_file
 from free_gait import get_from_yaml
 from free_gait import adapt_coordinates
 from free_gait import transform_coordinates
+from free_gait import TriggerOnFeedback
