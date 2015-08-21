@@ -1,0 +1,17 @@
+adapt_coordinates:
+  frame: footprint
+
+steps:
+
+ - step:
+    base_shift_data:
+     - name: pre_step
+       trajectory:
+        frame: map
+        knots:
+         - time: 0.0
+           position: [0.0, 0.0, 0.47]
+           orientation: [0.0, 0.0, 0.0]
+         - time: 4.0
+           position: [0.0, 0.0, 0.47]
+           orientation: [-0.1, -0.2, 0.05]

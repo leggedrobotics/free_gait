@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import roslib
-from math import cos, sin
 roslib.load_manifest('free_gait_python')
+from math import cos, sin
 import rospy
 import tf
 import actionlib
@@ -12,6 +12,7 @@ import trajectory_msgs.msg
 import std_msgs.msg
 import locomotion_controller_msgs.srv
 import traceback
+from actionlib_msgs.msg import *
 from free_gait import *
 from os import listdir
 from os.path import *
@@ -59,13 +60,16 @@ class ActionLoader:
                     response.status = response.STATUS_ERROR
                     return response
                 result = self._send_goal(goal)
+                if result == None:
+                    response.status = response.STATUS_ERROR
+                    return response
                 rospy.loginfo('Result:')
                 rospy.loginfo(result)
                 response.status = response.STATUS_SWITCHED
             except:
                 rospy.logerr('An error occurred while reading the action.')
                 response.status = response.STATUS_ERROR
-                traceback.print_exc()
+                rospy.logerr(traceback.print_exc())
             
         return response
     
@@ -94,37 +98,42 @@ class ActionLoader:
         action_globals = {'feedback' : feedback}
         execfile(file_path, action_globals, action_locals)
         goal = action_locals['goal']
-        trigger = action_locals['trigger']
+        if 'trigger' in action_locals:
+            trigger = action_locals['trigger']
+        else:
+            trigger = None
         if goal == None:
             rospy.logerr('Could not load action from Python script.')
         return (goal, trigger)
     
     def _send_goal(self, goal):
-        
+        self.client.stop_tracking_goal()
         self.client.wait_for_server()
 #         print goal
     
         # Send action.
+        print "Koprof222"
         self.client.send_goal(goal, feedback_cb=self.feedback_callback)
-        rospy.loginfo('Goal sent. Waiting for result.')
+        rospy.loginfo('Goal sent. Waiting for result.' + self.client.get_goal_status_text())
+        print "Koprof333"
         self.client.wait_for_result()
-        return self.get_result()
+        print "Koprof444"
+        return self.client.get_result()
     
     def feedback_callback(self, feedback):
         print feedback
         if self.feedback_trigger != None:
             if self.feedback_trigger.check(feedback):
-                print "YAY"
                 self.send_action(self.request)
                 
     
     def preempt(self):
         try:
             if self.client.get_state() == GoalStatus.ACTIVE or self.client.get_state() == GoalStatus.PENDING:
-                self.client.cancel_goal()
+                self.client.cancel_all_goals()
                 rospy.logwarn('Canceling action.')
         except NameError:
-            pass
+            rospy.logerr(traceback.print_exc())
 
 
 if __name__ == '__main__':
