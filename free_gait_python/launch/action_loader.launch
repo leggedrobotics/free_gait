@@ -1,7 +1,7 @@
 <launch>
   <!-- Action to load, can be set through command line with "file:=example") -->
   <arg name="file" default="" />
-  <arg name="directory" default="$(find free_gait_python)/actions" />
+  <arg name="directory" default="$(find free_gait_actions_starleth)/actions" />
   
   <node pkg="free_gait_python" type="action_loader.py" name="free_gait_action_loader" output="screen">
   	<param name="directory" value="$(arg directory)" />

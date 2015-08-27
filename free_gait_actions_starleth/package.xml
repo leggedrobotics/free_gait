@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>free_gait_actions_starleth</name>
+  <version>0.1.0</version>
+  <description>Free Gait python actions for StarlETH.</description>
+  <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
+  <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
+  <license>BSD</license>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>free_gait_python</depend>
+
+</package>

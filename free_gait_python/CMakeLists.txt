@@ -34,6 +34,6 @@ catkin_python_setup()
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-  bin/free_gait/action_from_file.py
+  bin/free_gait/action_loader.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
