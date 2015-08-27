@@ -15,7 +15,7 @@
 #include "loco/common/LegGroup.hpp"
 
 // ROS
-#include <quadruped_msgs/Step.h>
+#include <free_gait_msgs/Step.h>
 
 // STD
 #include <string>
@@ -32,7 +32,7 @@ class StepRosWrapper : public Step
    * Populate step from ROS step data message.
    * @param message the step data ROS message.
    */
-  bool fromMessage(const quadruped_msgs::Step& message);
+  bool fromMessage(const free_gait_msgs::Step& message);
 };
 
 } /* namespace */

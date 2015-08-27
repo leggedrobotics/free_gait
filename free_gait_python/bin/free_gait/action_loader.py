@@ -6,7 +6,7 @@ from math import cos, sin
 import rospy
 import tf
 import actionlib
-import quadruped_msgs.msg
+import free_gait_msgs.msg
 import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
@@ -27,7 +27,7 @@ class ActionLoader:
         self.feedback_trigger = None
         self.request = None
         self._load_parameters()
-        self.client = actionlib.SimpleActionClient(self.action_server_topic, quadruped_msgs.msg.StepAction)
+        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.StepAction)
         
     def _load_parameters(self):
         self.default_frame_id = rospy.get_param('~default_frame_id')

@@ -28,7 +28,7 @@ BaseShiftProfileRosWrapper::~BaseShiftProfileRosWrapper()
 
 }
 
-bool BaseShiftProfileRosWrapper::fromMessage(const quadruped_msgs::BaseShiftProfile& message)
+bool BaseShiftProfileRosWrapper::fromMessage(const free_gait_msgs::BaseShiftProfile& message)
 {
   // Target frame.
   setFrameId(message.target.header.frame_id);

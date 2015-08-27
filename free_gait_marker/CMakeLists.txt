@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   visualization_msgs
   geometry_msgs
-  quadruped_msgs
+  free_gait_msgs
   curves
   robot_utils
 )
@@ -35,7 +35,7 @@ catkin_package(
     roscpp
     visualization_msgs
     geometry_msgs
-    quadruped_msgs
+    free_gait_msgs
     curves
     robot_utils
   DEPENDS

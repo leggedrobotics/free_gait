@@ -1,4 +1,4 @@
-import quadruped_msgs.msg
+import free_gait_msgs.msg
 from free_gait import *
     
 def get_foot_position_for_angle(foot_name, angle):
@@ -25,13 +25,13 @@ def get_foot_position_for_angle(foot_name, angle):
     return position;
 
 
-goal = quadruped_msgs.msg.StepGoal()
+goal = free_gait_msgs.msg.StepGoal()
 angle = 0.35
     
 for cycle in range(0, 30):
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 4 * cycle + 1
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = 'rightFore';
     swingData.profile.target.header.frame_id = 'map'
     swingData.profile.target.point = get_foot_position_for_angle(swingData.name, cycle * angle)
@@ -39,9 +39,9 @@ for cycle in range(0, 30):
     goal.steps.append(step)
     del step, swingData
     
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 4 * cycle + 2
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = 'leftFore';
     swingData.profile.target.header.frame_id = 'map'
     swingData.profile.target.point = get_foot_position_for_angle(swingData.name, cycle * angle)
@@ -49,9 +49,9 @@ for cycle in range(0, 30):
     goal.steps.append(step)
     del step, swingData
     
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 4 * cycle + 3
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = 'leftHind';
     swingData.profile.target.header.frame_id = 'map'
     swingData.profile.target.point = get_foot_position_for_angle(swingData.name, cycle * angle)
@@ -59,9 +59,9 @@ for cycle in range(0, 30):
     goal.steps.append(step)
     del step, swingData
     
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 4 * cycle + 4
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = 'rightHind';
     swingData.profile.target.header.frame_id = 'map'
     swingData.profile.target.point = get_foot_position_for_angle(swingData.name, cycle * angle)

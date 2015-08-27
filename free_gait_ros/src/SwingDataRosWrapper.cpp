@@ -30,7 +30,7 @@ SwingDataRosWrapper::~SwingDataRosWrapper()
 {
 }
 
-bool SwingDataRosWrapper::fromMessage(const quadruped_msgs::SwingData& message)
+bool SwingDataRosWrapper::fromMessage(const free_gait_msgs::SwingData& message)
 {
   // Name.
   name_ = message.name;

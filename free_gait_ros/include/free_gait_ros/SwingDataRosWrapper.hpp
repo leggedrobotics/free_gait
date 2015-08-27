@@ -12,7 +12,7 @@
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
-#include <quadruped_msgs/SwingData.h>
+#include <free_gait_msgs/SwingData.h>
 
 // STD
 #include <string>
@@ -29,7 +29,7 @@ class SwingDataRosWrapper : public SwingData
    * Populate swing data from ROS swing data message.
    * @param message the swing data ROS message.
    */
-  bool fromMessage(const quadruped_msgs::SwingData& message);
+  bool fromMessage(const free_gait_msgs::SwingData& message);
 };
 
 } /* namespace */

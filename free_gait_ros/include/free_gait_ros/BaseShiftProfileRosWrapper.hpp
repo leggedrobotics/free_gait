@@ -12,7 +12,7 @@
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
-#include <quadruped_msgs/BaseShiftProfile.h>
+#include <free_gait_msgs/BaseShiftProfile.h>
 
 // STD
 #include <string>
@@ -25,7 +25,7 @@ class BaseShiftProfileRosWrapper : public BaseShiftProfile
   BaseShiftProfileRosWrapper();
   virtual ~BaseShiftProfileRosWrapper();
 
-  bool fromMessage(const quadruped_msgs::BaseShiftProfile& message);
+  bool fromMessage(const free_gait_msgs::BaseShiftProfile& message);
 };
 
 } /* namespace */

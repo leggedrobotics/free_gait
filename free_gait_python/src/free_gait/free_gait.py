@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import rospy
-import quadruped_msgs.msg
+import free_gait_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 import trajectory_msgs.msg
@@ -42,7 +42,7 @@ def load_from_file_and_transform(file_path, position = [0, 0, 0], orientation = 
     return get_from_yaml(load_file(file_path), position, orientation)
 
 def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
-    goal = quadruped_msgs.msg.StepGoal()
+    goal = free_gait_msgs.msg.StepGoal()
     step_number = 0
     
     # For each step.
@@ -50,7 +50,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
 
         step_parameter = step_parameter['step']
         # Step.
-        step = quadruped_msgs.msg.Step()
+        step = free_gait_msgs.msg.Step()
         
         # Step number
         step_number = step_number + 1
@@ -59,7 +59,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
         # Swing data.
         if 'swing_data' in step_parameter:
             for swing_data_parameter in step_parameter['swing_data']:
-                swing_data = quadruped_msgs.msg.SwingData()
+                swing_data = free_gait_msgs.msg.SwingData()
                 
                 # Name.
                 swing_data.name = swing_data_parameter['name']
@@ -104,7 +104,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
         if 'base_shift_data' in step_parameter:
             for base_shift_data_parameter in step_parameter['base_shift_data']:
                 
-                base_shift_data = quadruped_msgs.msg.BaseShiftData()
+                base_shift_data = free_gait_msgs.msg.BaseShiftData()
                 
                 # Name.
                 base_shift_data.name = base_shift_data_parameter['name']

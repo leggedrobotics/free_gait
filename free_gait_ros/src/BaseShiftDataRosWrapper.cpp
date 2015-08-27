@@ -29,7 +29,7 @@ BaseShiftDataRosWrapper::~BaseShiftDataRosWrapper()
 
 }
 
-bool BaseShiftDataRosWrapper::fromMessage(const quadruped_msgs::BaseShiftData& message)
+bool BaseShiftDataRosWrapper::fromMessage(const free_gait_msgs::BaseShiftData& message)
 {
   name_ = message.name;
 

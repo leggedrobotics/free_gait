@@ -17,7 +17,7 @@
 // ROS
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <quadruped_msgs/StepAction.h>
+#include <free_gait_msgs/StepAction.h>
 
 // STD
 #include <string>
@@ -61,8 +61,8 @@ class StepActionServer
   std::shared_ptr<loco::LegGroup> legs_;
 
   std::string name_;
-  actionlib::SimpleActionServer<quadruped_msgs::StepAction> server_;
-  quadruped_msgs::StepActionResult result_;
+  actionlib::SimpleActionServer<free_gait_msgs::StepAction> server_;
+  free_gait_msgs::StepActionResult result_;
 
   //! True if in process of preempting.
   bool isPreempting_;

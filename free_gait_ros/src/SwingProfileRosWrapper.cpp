@@ -25,7 +25,7 @@ SwingProfileRosWrapper::~SwingProfileRosWrapper()
 
 }
 
-bool SwingProfileRosWrapper::fromMessage(const quadruped_msgs::SwingProfile& message)
+bool SwingProfileRosWrapper::fromMessage(const free_gait_msgs::SwingProfile& message)
 {
   // Target frame.
   setFrameId(message.target.header.frame_id);
