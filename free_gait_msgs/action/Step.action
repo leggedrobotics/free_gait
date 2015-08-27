@@ -1,0 +1,44 @@
+## Goal
+
+free_gait_msgs/Step[] steps
+
+---
+
+## Result
+
+# Status
+int8 RESULT_FAILED=-1
+int8 RESULT_UNKNOWN=0
+int8 RESULT_REACHED=1
+int8 status
+
+---
+
+## Feedback
+
+# The step number starting from 1, monotonically increasing during
+# action, resets to 1 if robot leaves action.
+uint8 step_number
+
+# Number of steps in the queue including the current step.
+uint8 queue_size
+
+# Current state of the step.
+int8 PROGRESS_PAUSED=-1
+int8 PROGRESS_UNKNOWN=0
+int8 PROGRESS_EXECUTING=1
+int8 status
+
+# Status description ('Preparing for step.', 'Regaining contact.', etc.)
+# for human interpretation.
+string description
+
+# Duration of the current step.
+duration duration
+
+# Phase (0-1) of the current step.
+float64 phase
+
+# Leg type identifiers of the swing legs of the current
+# step ('leftFore', 'rightHind', etc.).
+string[] swing_leg_names
