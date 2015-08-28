@@ -270,17 +270,3 @@ def check_if_pose_valid(pose):
         return True
     else:
         return False
-    
-class TriggerOnFeedback:
-    
-    def __init__(self, n_steps_in_queue, phase_of_step):
-        self.n_steps_in_queue = n_steps_in_queue
-        self.phase_of_step = phase_of_step
-        self.feedback = None
-        
-    def check(self, feedback):
-        self.feedback = feedback
-        if self.feedback.queue_size <= self.n_steps_in_queue and self.feedback.phase >= self.phase_of_step:
-            return True
-        else:
-            return False

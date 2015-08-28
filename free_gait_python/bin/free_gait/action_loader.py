@@ -24,10 +24,10 @@ class ActionLoader:
     def __init__(self):
         self.default_frame_id = 'map'
         self.action_server_topic = '/locomotion_controller/step'
-        self.feedback_trigger = None
         self.request = None
         self._load_parameters()
         self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.StepAction)
+        self.action = None
         
     def _load_parameters(self):
         self.default_frame_id = rospy.get_param('~default_frame_id')
@@ -54,12 +54,17 @@ class ActionLoader:
                     goal = self._load_yaml_action(file_path)
                     self.feedback_trigger = None
                 elif file_type == '.py':
-                    (goal, self.feedback_trigger) = self._load_python_action(file_path)
+                    self._load_python_action(file_path)
                     
-                if goal == None:
+                if self.action.goal == None:
                     response.status = response.STATUS_ERROR
                     return response
-                result = self._send_goal(goal)
+                
+                self.action.send_goal()
+                rospy.loginfo('Goal sent. Waiting for result.' + self.client.get_goal_status_text())
+                self.action.wait_for_result()
+                result = self.action.get_result()
+                                
                 if result == None:
                     response.status = response.STATUS_ERROR
                     return response
@@ -70,7 +75,7 @@ class ActionLoader:
                 rospy.logerr('An error occurred while reading the action.')
                 response.status = response.STATUS_ERROR
                 rospy.logerr(traceback.print_exc())
-            
+                
         return response
     
     def _get_path(self, file):
@@ -83,50 +88,20 @@ class ActionLoader:
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
-        goal = load_from_file(file_path, self.default_frame_id)
-        if goal == None:
+        self.action = SimpleAction(self.client, load_from_file(file_path, self.default_frame_id))
+        if self.action.goal == None:
             rospy.logerr('Could not load action from YAML file.')
-        return goal
     
     def _load_python_action(self, file_path):
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
         action_locals = dict()
-        feedback = None
-        if self.feedback_trigger != None:
-            feedback = self.feedback_trigger.feedback
-        action_globals = {'feedback' : feedback}
-        execfile(file_path, action_globals, action_locals)
-        goal = action_locals['goal']
-        if 'trigger' in action_locals:
-            trigger = action_locals['trigger']
-        else:
-            trigger = None
-        if goal == None:
+#         action_globals = {'feedback' : feedback, 'rospy' : rospy}
+        execfile(file_path, globals(), action_locals)
+        self.action = action_locals['action']
+        if self.action.goal == None:
             rospy.logerr('Could not load action from Python script.')
-        return (goal, trigger)
-    
-    def _send_goal(self, goal):
-        self.client.stop_tracking_goal()
-        self.client.wait_for_server()
-#         print goal
-    
-        # Send action.
-        print "Koprof222"
-        self.client.send_goal(goal, feedback_cb=self.feedback_callback)
-        rospy.loginfo('Goal sent. Waiting for result.' + self.client.get_goal_status_text())
-        print "Koprof333"
-        self.client.wait_for_result()
-        print "Koprof444"
-        return self.client.get_result()
-    
-    def feedback_callback(self, feedback):
-        print feedback
-        if self.feedback_trigger != None:
-            if self.feedback_trigger.check(feedback):
-                self.send_action(self.request)
                 
-    
     def preempt(self):
         try:
             if self.client.get_state() == GoalStatus.ACTIVE or self.client.get_state() == GoalStatus.PENDING:
