@@ -1,21 +1,28 @@
-import free_gait_msgs.msg
-import geometry_msgs.msg
-from free_gait import *
+#! /usr/bin/env python
 
-goal = free_gait_msgs.msg.StepGoal()
-    
-step = free_gait_msgs.msg.Step()
-step.step_number = 1
-swingData = free_gait_msgs.msg.SwingData()
-swingData.name = 'rightFore';
-swingData.profile.target.header.frame_id = 'map'
-swingData.profile.target.point = geometry_msgs.msg.Point(0.279204123175, -0.2189, 0.0)
-step.swing_data.append(swingData)
-goal.steps.append(step)
-del step, swingData
+class Action(ActionBase):
 
+    def __init__(self, client):
+        ActionBase.__init__(self, client)
+        self._generate_goal()
+        self.trigger = TriggerOnFeedback(1, 0.3)
+        self.timeout = rospy.Duration(10)
 
-    
-(translation, rotation) = transform_coordinates('map', 'footprint')
-adapt_coordinates(goal, translation, rotation)
-trigger = TriggerOnFeedback(1, 0.3)
+    def _generate_goal(self):
+        self.goal = load_from_file('/home/peter/catkin_ws/src/free_gait/free_gait_actions_starleth/actions/trot_once.yaml', 'map')
+        
+    def _feedback_callback(self, feedback):
+        ActionBase._feedback_callback(self, feedback)
+        if self.trigger.check(self.feedback):
+            self.client.stop_tracking_goal()
+            self.client.send_goal(self.goal, feedback_cb=self._feedback_callback)
+            
+    def _done_callback(self, status, result):
+        pass
+            
+    def wait_for_result(self):
+        wait_for_done = WaitForDone(self, self.timeout)
+        wait_for_done.wait();
+
+        
+action = Action(action_loader.client)
