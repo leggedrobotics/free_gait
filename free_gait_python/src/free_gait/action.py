@@ -19,6 +19,8 @@ class ActionBase(object):
         self.feedback = None
         self.result = None
         self.timeout = rospy.Duration()
+        # If true, action can run in background after state DONE.
+        self.keep_alive = False
     
     def send_goal(self):
         self.state = ActionState.PENDING

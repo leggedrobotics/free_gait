@@ -61,15 +61,14 @@ class ActionLoader:
                     return response
                 
                 self.action.send_goal()
-                rospy.loginfo('Goal sent. Waiting for result.' + self.client.get_goal_status_text())
+                rospy.loginfo('Goal sent. Waiting for result: ' + self.client.get_goal_status_text())
                 self.action.wait_for_result()
                 result = self.action.get_result()
                                 
-                if result == None:
+                if result == None or result.status == result.RESULT_FAILED:
                     response.status = response.STATUS_ERROR
                     return response
-                rospy.loginfo('Result:')
-                rospy.loginfo(result)
+                rospy.loginfo('Action successfully executed: ' + self.client.get_goal_status_text())
                 response.status = response.STATUS_SWITCHED
             except:
                 rospy.logerr('An error occurred while reading the action.')
@@ -96,7 +95,6 @@ class ActionLoader:
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
         action_locals = dict()
-#         action_globals = {'feedback' : feedback, 'rospy' : rospy}
         execfile(file_path, globals(), action_locals)
         self.action = action_locals['action']
         if self.action.goal == None:
@@ -128,7 +126,12 @@ if __name__ == '__main__':
         if load_file:
             request = locomotion_controller_msgs.srv.SwitchControllerRequest(file)
             action_loader.send_action(request)
-            rospy.signal_shutdown("Action sent, shutting down.")
+            if action_loader.action.keep_alive:
+                rospy.loginfo("Action sent, keeping node alive due to actions request.")
+                rospy.spin()
+            else:
+                rospy.signal_shutdown("Action sent, shutting down.")
+                
         else:
             rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
             rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions)

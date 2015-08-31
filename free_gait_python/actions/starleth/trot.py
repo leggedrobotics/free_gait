@@ -6,10 +6,10 @@ class Action(ActionBase):
         ActionBase.__init__(self, client)
         self._generate_goal()
         self.trigger = TriggerOnFeedback(1, 0.3)
-        self.timeout = rospy.Duration(10)
+        self.timeout = rospy.Duration()
 
     def _generate_goal(self):
-        self.goal = load_from_file('/home/peter/catkin_ws/src/free_gait/free_gait_actions_starleth/actions/trot_once.yaml', 'map')
+        self.goal = load_from_file('/home/peter/catkin_ws/src/free_gait/free_gait_python/actions/starleth/trot_once.yaml', 'map')
         
     def _feedback_callback(self, feedback):
         ActionBase._feedback_callback(self, feedback)
