@@ -95,16 +95,18 @@ class ActionLoader:
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
         action_locals = dict()
-        execfile(file_path, globals(), action_locals)
-        self.action = action_locals['action']
+        # Kind of nasty, but currently only way to make external imports work
+        execfile(file_path, globals(), globals())
+        self.action = action
         if self.action.goal == None:
             rospy.logerr('Could not load action from Python script.')
                 
     def preempt(self):
         try:
-            if self.client.get_state() == GoalStatus.ACTIVE or self.client.get_state() == GoalStatus.PENDING:
-                self.client.cancel_all_goals()
-                rospy.logwarn('Canceling action.')
+            if self.client.gh:
+                if self.client.get_state() == GoalStatus.ACTIVE or self.client.get_state() == GoalStatus.PENDING:
+                    self.client.cancel_all_goals()
+                    rospy.logwarn('Canceling action.')
         except NameError:
             rospy.logerr(traceback.print_exc())
 
@@ -125,8 +127,8 @@ if __name__ == '__main__':
             
         if load_file:
             request = locomotion_controller_msgs.srv.SwitchControllerRequest(file)
-            action_loader.send_action(request)
-            if action_loader.action.keep_alive:
+            response = action_loader.send_action(request)
+            if response.status == response.STATUS_SWITCHED and action_loader.action.keep_alive:
                 rospy.loginfo("Action sent, keeping node alive due to actions request.")
                 rospy.spin()
             else:

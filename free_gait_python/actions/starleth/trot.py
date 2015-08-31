@@ -14,8 +14,7 @@ class Action(ActionBase):
     def _feedback_callback(self, feedback):
         ActionBase._feedback_callback(self, feedback)
         if self.trigger.check(self.feedback):
-            self.client.stop_tracking_goal()
-            self.client.send_goal(self.goal, feedback_cb=self._feedback_callback)
+            self.send_goal()
             
     def _done_callback(self, status, result):
         pass

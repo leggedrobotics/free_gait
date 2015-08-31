@@ -5,6 +5,7 @@ import free_gait_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 import trajectory_msgs.msg
+import tf
 
 def load_from_file(file_path, source_frame_id):
     import os
@@ -216,12 +217,14 @@ def adapt_coordinates(goal, position, orientation):
                 transformation = transform_transformation(transform, point.transforms[0])
                 point.transforms[0] = transformation
 
-def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
-    import tf
-    listener = tf.TransformListener()
-    # Not working in current version of tf/tf2.
-    #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-    rospy.sleep(1.0)
+def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
+    
+    if not listener:
+        listener = tf.TransformListener()
+        # Not working in current version of tf/tf2.
+        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        rospy.sleep(1.0)
+
     try:
         (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
