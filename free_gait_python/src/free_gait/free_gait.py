@@ -219,7 +219,7 @@ def adapt_coordinates(goal, position, orientation):
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
     
-    if not listener:
+    if listener is None:
         listener = tf.TransformListener()
         # Not working in current version of tf/tf2.
         #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
