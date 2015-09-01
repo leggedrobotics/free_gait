@@ -41,6 +41,7 @@ class ActionLoader:
         return response
         
     def send_action(self, request):
+        self.reset()
         self.request = request
         response = locomotion_controller_msgs.srv.SwitchControllerResponse()
         file_path = self._get_path(request.name)
@@ -51,24 +52,19 @@ class ActionLoader:
         else:
             try:
                 if file_type == '.yaml':
-                    goal = self._load_yaml_action(file_path)
-                    self.feedback_trigger = None
+                    self._load_yaml_action(file_path)
                 elif file_type == '.py':
                     self._load_python_action(file_path)
-                    
-                if self.action.goal == None:
-                    response.status = response.STATUS_ERROR
-                    return response
                 
-                self.action.send_goal()
-                rospy.loginfo('Goal sent. Waiting for result: ' + self.client.get_goal_status_text())
+                self.action.start()
+                rospy.loginfo('Action started. Waiting for result.')
                 self.action.wait_for_result()
                 result = self.action.get_result()
                                 
                 if result == None or result.status == result.RESULT_FAILED:
                     response.status = response.STATUS_ERROR
                     return response
-                rospy.loginfo('Action successfully executed: ' + self.client.get_goal_status_text())
+                rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
             except:
                 rospy.logerr('An error occurred while reading the action.')
@@ -87,9 +83,10 @@ class ActionLoader:
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
-        self.action = SimpleAction(self.client, load_from_file(file_path, self.default_frame_id))
-        if self.action.goal == None:
+        goal = load_from_file(file_path, self.default_frame_id)
+        if goal == None:
             rospy.logerr('Could not load action from YAML file.')
+        self.action = SimpleAction(self.client, goal)
     
     def _load_python_action(self, file_path):
         # Load action from Python script.
@@ -98,9 +95,13 @@ class ActionLoader:
         # Kind of nasty, but currently only way to make external imports work
         execfile(file_path, globals(), globals())
         self.action = action
-        if self.action.goal == None:
-            rospy.logerr('Could not load action from Python script.')
                 
+    def reset(self):
+        del(self.action)
+        self.action = None
+        if self.client.gh:
+            self.client.stop_tracking_goal()
+            
     def preempt(self):
         try:
             if self.client.gh:
@@ -129,7 +130,7 @@ if __name__ == '__main__':
             request = locomotion_controller_msgs.srv.SwitchControllerRequest(file)
             response = action_loader.send_action(request)
             if response.status == response.STATUS_SWITCHED and action_loader.action.keep_alive:
-                rospy.loginfo("Action sent, keeping node alive due to actions request.")
+                rospy.loginfo("Action sent, keeping node alive due to action's request.")
                 rospy.spin()
             else:
                 rospy.signal_shutdown("Action sent, shutting down.")

@@ -22,20 +22,29 @@ class ActionBase(object):
         # If true, action can run in background after state DONE.
         self.keep_alive = False
     
-    def send_goal(self):
-        self.state = ActionState.PENDING
-        self.client.stop_tracking_goal()
-        self.client.wait_for_server()
-        self.client.send_goal(self.goal,
-                              done_cb = self._done_callback,
-                              active_cb = self._active_callback,
-                              feedback_cb = self._feedback_callback)
+    def start(self):
+        self._send_goal()
         
     def wait_for_result(self):
         self.client.wait_for_result(self.timeout)
         
     def get_result(self):
         return self.result
+    
+    def _send_goal(self):
+        if self.goal == None:
+            self.result = self.result.RESULT_FAILED
+            self.state = ActionState.DONE
+            return
+        
+        self.state = ActionState.PENDING
+        if self.client.gh:
+            self.client.stop_tracking_goal()
+        self.client.wait_for_server()
+        self.client.send_goal(self.goal,
+                              done_cb = self._done_callback,
+                              active_cb = self._active_callback,
+                              feedback_cb = self._feedback_callback)
 
     def _active_callback(self):
         self.state = ActionState.ACTIVE
