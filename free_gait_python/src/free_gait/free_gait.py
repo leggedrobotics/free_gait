@@ -236,6 +236,25 @@ def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0]
     transformed_orientation = quaternion_multiply(rotation, orientation)
     return (transformed_position, transformed_orientation)
 
+def get_transform(source_frame_id, target_frame_id, listener = None):
+    
+    if listener is None:
+        listener = tf.TransformListener()
+        # Not working in current version of tf/tf2.
+        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        rospy.sleep(1.0)
+
+    try:
+        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        rospy.logerr('Could not look up TF transformation from "' +
+                     source_frame_id + '" to "' + target_frame_id + '".')
+        return None
+
+    translation_matrix_form = translation_matrix(translation)
+    rotation_matrix_form = quaternion_matrix(rotation)
+    return concatenate_matrices(translation_matrix_form, rotation_matrix_form)
+
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
     return geometry_msgs.msg.Point(transformed_point[0], transformed_point[1], transformed_point[2])
