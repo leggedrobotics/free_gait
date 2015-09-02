@@ -9,5 +9,4 @@ steps:
        no_touchdown: false
        profile:
         target: [0.29, -0.22, 0.0]
-        height: 0.01
         type: straight
