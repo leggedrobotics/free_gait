@@ -119,6 +119,7 @@ bool Step::checkStatus()
       case (loco::StateSwitcher::States::SwingLateLiftOff):
       case (loco::StateSwitcher::States::SwingBumpedIntoObstacle):
       case (loco::StateSwitcher::States::SwingEarlyTouchDown):
+      case (loco::StateSwitcher::States::Init):
         break;
 
       default:
