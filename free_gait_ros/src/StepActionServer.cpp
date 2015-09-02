@@ -13,8 +13,8 @@
 #include <free_gait_core/free_gait_core.hpp>
 
 // ROS
-#include <quadruped_msgs/StepFeedback.h>
-#include <quadruped_msgs/StepResult.h>
+#include <free_gait_msgs/StepFeedback.h>
+#include <free_gait_msgs/StepResult.h>
 
 #include <iostream>
 
@@ -84,17 +84,18 @@ void StepActionServer::preemptCallback()
 
 void StepActionServer::publishFeedback()
 {
-  quadruped_msgs::StepFeedback feedback;
+  free_gait_msgs::StepFeedback feedback;
   if (stepQueue_->empty()) return;
   auto& step = stepQueue_->getCurrentStep();
   feedback.step_number = step.getStepNumber();
+  feedback.queue_size = stepQueue_->size();
 
   if (step.checkStatus() == false) {
-    feedback.status = quadruped_msgs::StepFeedback::PROGRESS_PAUSED;
+    feedback.status = free_gait_msgs::StepFeedback::PROGRESS_PAUSED;
     feedback.description = "Paused.";
   } else {
     switch (step.getState()) {
-      feedback.status = quadruped_msgs::StepFeedback::PROGRESS_EXECUTING;
+      feedback.status = free_gait_msgs::StepFeedback::PROGRESS_EXECUTING;
       case Step::State::PreStep:
         feedback.description = "Pre step.";
         break;
@@ -105,7 +106,7 @@ void StepActionServer::publishFeedback()
         feedback.description = "Post step.";
         break;
       default:
-        feedback.status = quadruped_msgs::StepFeedback::PROGRESS_UNKNOWN;
+        feedback.status = free_gait_msgs::StepFeedback::PROGRESS_UNKNOWN;
         feedback.description = "Unknown.";
         break;
     }
@@ -122,16 +123,16 @@ void StepActionServer::publishFeedback()
 void StepActionServer::setSucceeded()
 {
   ROS_INFO("StepAction succeeded.");
-  quadruped_msgs::StepResult result;
-  result.status = quadruped_msgs::StepResult::RESULT_REACHED;
+  free_gait_msgs::StepResult result;
+  result.status = free_gait_msgs::StepResult::RESULT_REACHED;
   server_.setSucceeded(result, "Step action has been reached.");
 }
 
 void StepActionServer::setPreempted()
 {
   ROS_INFO("StepAction preempted.");
-  quadruped_msgs::StepResult result;
-  result.status = quadruped_msgs::StepResult::RESULT_FAILED;
+  free_gait_msgs::StepResult result;
+  result.status = free_gait_msgs::StepResult::RESULT_FAILED;
   server_.setPreempted(result, "Step action has been preempted.");
   isPreempting_ = false;
 }
@@ -139,8 +140,8 @@ void StepActionServer::setPreempted()
 void StepActionServer::setAborted()
 {
   ROS_INFO("StepAction aborted.");
-  quadruped_msgs::StepResult result;
-  result.status = quadruped_msgs::StepResult::RESULT_FAILED;
+  free_gait_msgs::StepResult result;
+  result.status = free_gait_msgs::StepResult::RESULT_FAILED;
   server_.setAborted(result, "Step action has failed.");
 }
 

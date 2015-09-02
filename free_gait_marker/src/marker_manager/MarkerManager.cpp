@@ -11,7 +11,7 @@
 // ROS
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
-#include <quadruped_msgs/Step.h>
+#include <free_gait_msgs/Step.h>
 
 // STD
 #include <algorithm>
@@ -45,8 +45,8 @@ MarkerManager::MarkerManager(ros::NodeHandle& nodeHandle)
   loadManagerParameters();
 
   stepActionClient_ = std::unique_ptr<
-      actionlib::SimpleActionClient<quadruped_msgs::StepAction>>(
-      new actionlib::SimpleActionClient<quadruped_msgs::StepAction>(
+      actionlib::SimpleActionClient<free_gait_msgs::StepAction>>(
+      new actionlib::SimpleActionClient<free_gait_msgs::StepAction>(
           actionServerTopic_, true));
 
   setupMenus();
@@ -519,7 +519,7 @@ bool MarkerManager::sendStepGoal()
   }
 
   std::sort(footholdList_.begin(), footholdList_.end());
-  quadruped_msgs::StepGoal goal;
+  free_gait_msgs::StepGoal goal;
 
   for (const auto& foothold : footholdList_) {
     markers::MarkerFoot marker;
@@ -530,9 +530,9 @@ bool MarkerManager::sendStepGoal()
 
     if (!foothold.isActive)
       continue;
-    quadruped_msgs::Step step;
+    free_gait_msgs::Step step;
     step.step_number = foothold.stepNumber;
-    quadruped_msgs::SwingData swingData;
+    free_gait_msgs::SwingData swingData;
     swingData.name = foothold.legName;
     swingData.profile.target.header.frame_id = footholdFrameId_;
     swingData.profile.target.point = marker.pose.position;

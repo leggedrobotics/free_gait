@@ -12,7 +12,7 @@
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
-#include <quadruped_msgs/SwingProfile.h>
+#include <free_gait_msgs/SwingProfile.h>
 
 // STD
 #include <string>
@@ -29,7 +29,7 @@ class SwingProfileRosWrapper : public SwingProfile
    * Populate swing profile from ROS swing profile message.
    * @param message the swing profile ROS message.
    */
-  bool fromMessage(const quadruped_msgs::SwingProfile& message);
+  bool fromMessage(const free_gait_msgs::SwingProfile& message);
 };
 
 } /* namespace */

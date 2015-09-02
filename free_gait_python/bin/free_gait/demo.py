@@ -5,21 +5,21 @@ from copy import deepcopy
 roslib.load_manifest('free_gait_scripts')
 import rospy
 import actionlib
-import quadruped_msgs.msg
+import free_gait_msgs.msg
 import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
 
 def step_client():
-    client = actionlib.SimpleActionClient('/locomotion_controller/step', quadruped_msgs.msg.StepAction)
+    client = actionlib.SimpleActionClient('/locomotion_controller/step', free_gait_msgs.msg.StepAction)
     client.wait_for_server()
     
-    goal = quadruped_msgs.msg.StepGoal()
+    goal = free_gait_msgs.msg.StepGoal()
     
     # Base shift up
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 1
-    baseShiftData = quadruped_msgs.msg.BaseShiftData()
+    baseShiftData = free_gait_msgs.msg.BaseShiftData()
     baseShiftData.name = "at_step";
     baseShiftData.profile.height = 0.35
     step.base_shift_data.append(baseShiftData)
@@ -27,13 +27,13 @@ def step_client():
     del step, baseShiftData
     
     # Default step in place
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 2
-    baseShiftData = quadruped_msgs.msg.BaseShiftData()
+    baseShiftData = free_gait_msgs.msg.BaseShiftData()
     baseShiftData.name = "pre_step";
     baseShiftData.profile.height = 0.35
     step.base_shift_data.append(baseShiftData)
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = "rightFore";
     swingData.profile.target.header.frame_id = "map"
     swingData.profile.target.point = geometry_msgs.msg.Point(0.279204123175, -0.2189, 0.02491)
@@ -42,9 +42,9 @@ def step_client():
     del step, swingData, baseShiftData
     
     # High, slow step
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 3
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = "rightHind";
     swingData.profile.target.header.frame_id = "map"
     swingData.profile.target.point = geometry_msgs.msg.Point(-0.279204123175, -0.2189, 0.02491)
@@ -55,9 +55,9 @@ def step_client():
     del step, swingData
     
     # Foot trajectory
-    step = quadruped_msgs.msg.Step()
+    step = free_gait_msgs.msg.Step()
     step.step_number = 4
-    swingData = quadruped_msgs.msg.SwingData()
+    swingData = free_gait_msgs.msg.SwingData()
     swingData.name = "leftFore";
     swingData.trajectory.header.frame_id = "map"
     swingData.trajectory.joint_names.append(swingData.name)
@@ -82,7 +82,7 @@ def step_client():
     del step, swingData, point1, point2, point3, point4
     
 #     # High, slow step
-#     step2 = quadruped_msgs.msg.StepData()
+#     step2 = free_gait_msgs.msg.StepData()
 #     step2.step_number = 2
 #     step2.leg_names.append("rightHind")
 #     step2.swing_durations.append(rospy.Duration(3.5))
@@ -92,7 +92,7 @@ def step_client():
 #     goal.steps.append(step2)
 #     
 #     # Slow and fast shift
-#     step3 = quadruped_msgs.msg.StepData()
+#     step3 = free_gait_msgs.msg.StepData()
 #     step3.step_number = 3
 #     step3.leg_names.append("leftFore")
 #     step3.swing_durations.append(rospy.Duration(1.5))
@@ -106,7 +106,7 @@ def step_client():
 #     goal.steps.append(step3)
 #     
 #     # Trot
-#     step4 = quadruped_msgs.msg.StepData()
+#     step4 = free_gait_msgs.msg.StepData()
 #     step4.step_number = 1
 #     step4.leg_names.append("rightHind")
 #     step4.leg_names.append("leftFore")
@@ -125,7 +125,7 @@ def step_client():
 #     goal.steps.append(step4)
 #     
 #     # Asymmetric trot
-#     step4 = quadruped_msgs.msg.StepData()
+#     step4 = free_gait_msgs.msg.StepData()
 #     step4.step_number = 1
 #     step4.leg_names.append("leftHind")
 #     step4.leg_names.append("rightFore")

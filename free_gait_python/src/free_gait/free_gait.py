@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 
 import rospy
-import quadruped_msgs.msg
+import free_gait_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 import trajectory_msgs.msg
+import tf
 
 def load_from_file(file_path, source_frame_id):
     import os
-    import tf
     from rosparam import load_file
     if not os.path.isfile(file_path):
         rospy.logerr('File with path "' + file_path + '" does not exists.')
@@ -28,19 +28,7 @@ def load_from_file(file_path, source_frame_id):
             orientation = adapt_parameters['pose']['orientation']
 
     if is_adapt:
-        listener = tf.TransformListener()
-        # Not working in current version of tf/tf2.
-        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-        rospy.sleep(1.0)
-        try:
-            (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            rospy.logerr('Could not look up TF transformation from "' +
-                         source_frame_id + '" to "' + target_frame_id + '".')
-            return None
-
-        position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
-        orientation = quaternion_multiply(rotation, orientation)
+        (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
 
     return get_from_yaml(parameters, position, orientation)
 
@@ -54,9 +42,8 @@ def load_from_file_and_transform(file_path, position = [0, 0, 0], orientation = 
 
     return get_from_yaml(load_file(file_path), position, orientation)
 
-
 def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1]):
-    goal = quadruped_msgs.msg.StepGoal()
+    goal = free_gait_msgs.msg.StepGoal()
     step_number = 0
     
     # For each step.
@@ -64,7 +51,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
 
         step_parameter = step_parameter['step']
         # Step.
-        step = quadruped_msgs.msg.Step()
+        step = free_gait_msgs.msg.Step()
         
         # Step number
         step_number = step_number + 1
@@ -73,7 +60,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
         # Swing data.
         if 'swing_data' in step_parameter:
             for swing_data_parameter in step_parameter['swing_data']:
-                swing_data = quadruped_msgs.msg.SwingData()
+                swing_data = free_gait_msgs.msg.SwingData()
                 
                 # Name.
                 swing_data.name = swing_data_parameter['name']
@@ -118,7 +105,7 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
         if 'base_shift_data' in step_parameter:
             for base_shift_data_parameter in step_parameter['base_shift_data']:
                 
-                base_shift_data = quadruped_msgs.msg.BaseShiftData()
+                base_shift_data = free_gait_msgs.msg.BaseShiftData()
                 
                 # Name.
                 base_shift_data.name = base_shift_data_parameter['name']
@@ -229,6 +216,44 @@ def adapt_coordinates(goal, position, orientation):
             for point in base_shift_data.trajectory.points:
                 transformation = transform_transformation(transform, point.transforms[0])
                 point.transforms[0] = transformation
+
+def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
+    
+    if listener is None:
+        listener = tf.TransformListener()
+        # Not working in current version of tf/tf2.
+        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        rospy.sleep(1.0)
+
+    try:
+        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        rospy.logerr('Could not look up TF transformation from "' +
+                     source_frame_id + '" to "' + target_frame_id + '".')
+        return None
+
+    transformed_position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
+    transformed_orientation = quaternion_multiply(rotation, orientation)
+    return (transformed_position, transformed_orientation)
+
+def get_transform(source_frame_id, target_frame_id, listener = None):
+    
+    if listener is None:
+        listener = tf.TransformListener()
+        # Not working in current version of tf/tf2.
+        #listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        rospy.sleep(1.0)
+
+    try:
+        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        rospy.logerr('Could not look up TF transformation from "' +
+                     source_frame_id + '" to "' + target_frame_id + '".')
+        return None
+
+    translation_matrix_form = translation_matrix(translation)
+    rotation_matrix_form = quaternion_matrix(rotation)
+    return concatenate_matrices(translation_matrix_form, rotation_matrix_form)
 
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])

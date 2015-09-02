@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-  quadruped_msgs
+  free_gait_msgs
   free_gait_core
   curves_ros
 )
@@ -28,7 +28,7 @@ catkin_package(
     LIBRARIES
       ${PROJECT_NAME}
     CATKIN_DEPENDS
-      quadruped_msgs
+      free_gait_msgs
       free_gait_core
       curves_ros
     DEPENDS

@@ -26,7 +26,7 @@ StepRosWrapper::~StepRosWrapper()
 
 }
 
-bool StepRosWrapper::fromMessage(const quadruped_msgs::Step& message)
+bool StepRosWrapper::fromMessage(const free_gait_msgs::Step& message)
 {
   setStepNumber(message.step_number);
 
