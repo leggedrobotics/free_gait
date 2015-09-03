@@ -7,10 +7,8 @@
  */
 
 #include <free_gait_ros/SwingDataRosWrapper.hpp>
+#include <free_gait_ros/SwingFootTrajectoryRosWrapper.hpp>
 #include <free_gait_ros/SwingProfileRosWrapper.hpp>
-#include <free_gait_ros/SwingSplineTrajectoryRosWrapper.hpp>
-
-// Free Gait
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
@@ -47,20 +45,18 @@ bool SwingDataRosWrapper::fromMessage(const free_gait_msgs::SwingData& message)
   // No touchdown.
   setNoTouchdown(message.no_touchdown);
 
-  if (message.trajectory.joint_names.size() > 0) {
+  if (message.foot_trajectory.joint_names.size() > 0) {
     // Trajectory.
-    SwingSplineTrajectoryRosWrapper trajectory;
-    if (!trajectory.fromMessage(message.trajectory, name_))
+    SwingFootTrajectoryRosWrapper trajectory;
+    if (!trajectory.fromMessage(message.foot_trajectory, name_))
       return false;
     setTrajectory(trajectory);
-    setUseProfile(false);
   } else {
     // Profile.
     SwingProfileRosWrapper profile;
     if (!profile.fromMessage(message.profile))
       return false;
     setTrajectory(profile);
-    setUseProfile(true);
   }
 
   return true;

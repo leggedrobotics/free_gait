@@ -1,7 +1,7 @@
 /*
- * SwingSplineTrajectory.hpp
+ * SwingJointTrajectory.hpp
  *
- *  Created on: Mar 10, 2015
+ *  Created on: Sep 2, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
@@ -12,7 +12,7 @@
 #include "free_gait_core/SwingTrajectoryBase.hpp"
 
 // Curves
-#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
+#include <curves/PolynomialSplineScalarCurve.hpp>
 
 // STD
 #include <memory>
@@ -20,23 +20,23 @@
 namespace free_gait {
 
 /*!
- * Implementation of a foot swing trajectory as polynomial spline.
+ * Implementation of a joint trajectory as polynomial spline.
  */
-class SwingSplineTrajectory : public SwingTrajectoryBase
+class SwingJointTrajectory : public SwingTrajectoryBase
 {
  public:
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
+  typedef typename curves::PolynomialSplineQuinticScalarCurve::ValueType ValueType;
   typedef typename curves::Time Time;
 
   /*!
    * Constructor.
    */
-  SwingSplineTrajectory();
+  SwingJointTrajectory();
 
   /*!
    * Destructor.
    */
-  virtual ~SwingSplineTrajectory();
+  virtual ~SwingJointTrajectory();
 
   /*!
    * Deep copy clone.
@@ -77,7 +77,7 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
    * @param baseShiftTrajectory the base shift trajectory to debug.
    * @return the resulting output stream.
    */
-  friend std::ostream& operator << (std::ostream& out, const SwingSplineTrajectory& swingSplineTrajectory);
+  friend std::ostream& operator << (std::ostream& out, const SwingJointTrajectory& swingJointTrajectory);
 
  protected:
 
@@ -95,8 +95,8 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
   //! If trajectory is updated.
   bool trajectoryUpdated_;
 
-  //! Foot trajectory, updated based on knots.
-  curves::PolynomialSplineQuinticVector3Curve trajectory_;
+  //! Joint trajectories, updated based on knots.
+  curves::PolynomialSplineQuinticScalarCurve trajectory_;
 };
 
 } /* namespace */

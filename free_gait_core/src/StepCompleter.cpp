@@ -38,11 +38,11 @@ bool StepCompleter::complete(Step& step) const
     if (normal == Vector::Zero()) swingData.second.setSurfaceNormal(surfaceNormal_);
 
     // Profile.
-    if (swingData.second.isUsingProfile()) {
+    if (swingData.second.getTrajectory()->getType() == SwingTrajectoryType::Profile) {
       auto profile = std::static_pointer_cast<SwingProfile>(swingData.second.getTrajectory());
       if (profile->getDuration() == 0.0) profile->setDuration(swingProfileDuration_);
       if (profile->getHeight() == 0.0) profile->setHeight(swingProfileHeight_);
-      if (profile->getType().empty()) profile->setType(swingProfileType_);
+      if (profile->getProfileType().empty()) profile->setProfileType(swingProfileType_);
     }
   }
 

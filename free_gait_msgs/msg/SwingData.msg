@@ -3,15 +3,17 @@
 # Leg type identifiers ('leftFore', 'rightHind' etc.).
 string name
 
-# Either: Set a mode for the foot/leg ('freeze', 'gravity_compensation' etc.)
+# Either: Set a mode for the foot/leg ('block', 'gravity_compensation' etc.)
 string mode
 
 # Or: Define a profile for the foot.
 free_gait_msgs/SwingProfile profile
 
 # Or: Define the entire swing trajectory for the foot.
-# The trajectory is used if it contains data, otherwise the profile is used.
-trajectory_msgs/MultiDOFJointTrajectory trajectory
+trajectory_msgs/MultiDOFJointTrajectory foot_trajectory
+
+# Or: Define the entire swing trajectory for the joints.
+trajectory_msgs/JointTrajectory joint_trajectory
 
 # If a touchdown of the foot at the end of the swing is not expected.
 bool no_touchdown

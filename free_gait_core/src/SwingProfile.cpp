@@ -14,7 +14,7 @@
 namespace free_gait {
 
 SwingProfile::SwingProfile()
-    : SwingTrajectoryBase(),
+    : SwingTrajectoryBase(SwingTrajectoryType::Profile),
       height_(0.0),
       duration_(0.0),
       trajectoryUpdated_(false)
@@ -78,14 +78,14 @@ void SwingProfile::setTarget(const Position& target)
   trajectoryUpdated_ = false;
 }
 
-const std::string& SwingProfile::getType() const
+const std::string& SwingProfile::getProfileType() const
 {
-  return type_;
+  return profileType_;
 }
 
-void SwingProfile::setType(const std::string& type)
+void SwingProfile::setProfileType(const std::string& type)
 {
-  type_ = type;
+  profileType_ = type;
   trajectoryUpdated_ = false;
 }
 
@@ -94,7 +94,7 @@ std::ostream& operator<<(std::ostream& out, const SwingProfile& swingProfile)
   out << "Target: " << swingProfile.target_ << std::endl;
   out << "Height: " << swingProfile.height_ << std::endl;
   out << "Duration: " << swingProfile.duration_ << std::endl;
-  out << "Type: " << swingProfile.type_;
+  out << "Type: " << swingProfile.profileType_;
   return out;
 }
 
@@ -103,14 +103,14 @@ bool SwingProfile::computeTrajectory()
   std::vector<Time> times;
   std::vector<ValueType> values;
 
-  if (type_ == "triangle") {
+  if (profileType_ == "triangle") {
     generateTriangleKnots(times, values);
-  } else if (type_ == "square") {
+  } else if (profileType_ == "square") {
     generateSquareKnots(times, values);
-  } else if (type_ == "straight") {
+  } else if (profileType_ == "straight") {
     generateStraightKnots(times, values);
   } else {
-    ROCO_ERROR_STREAM("Swing profile of type '" << type_ << "' not supported.");
+    ROCO_ERROR_STREAM("Swing profile of type '" << profileType_ << "' not supported.");
     return false;
   }
 

@@ -19,12 +19,11 @@
 
 namespace free_gait {
 
-class SwingSplineTrajectoryRosWrapper :
-    public SwingSplineTrajectory
+class SwingFootTrajectoryRosWrapper : public SwingFootTrajectory
 {
  public:
-  SwingSplineTrajectoryRosWrapper();
-  virtual ~SwingSplineTrajectoryRosWrapper();
+  SwingFootTrajectoryRosWrapper();
+  virtual ~SwingFootTrajectoryRosWrapper();
 
   bool fromMessage(const trajectory_msgs::MultiDOFJointTrajectory& message, const std::string& jointName);
 };

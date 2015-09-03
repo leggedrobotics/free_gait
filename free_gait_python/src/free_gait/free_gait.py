@@ -86,8 +86,12 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                         swing_data.profile.type = swing_data_parameter['profile']['type']
                         
                 # Trajectory.
-                if 'trajectory' in swing_data_parameter:
-                    swing_data.trajectory = parse_multi_dof_trajectory(swing_data.name, swing_data_parameter['trajectory'])
+                if 'foot_trajectory' in swing_data_parameter:
+                    swing_data.foot_trajectory = parse_multi_dof_trajectory(swing_data.name, swing_data_parameter['foot_trajectory'])
+                    
+                # Trajectory.
+                if 'joint_trajectory' in swing_data_parameter:
+                    swing_data.joint_trajectory = parse_joint_trajectory(swing_data_parameter['joint_trajectory'])
                 
                 # Expect touchdown.
                 if 'no_touchdown' in swing_data_parameter:
@@ -191,6 +195,19 @@ def parse_multi_dof_trajectory(joint_name, trajectory):
     
     return output
 
+def parse_joint_trajectory(trajectory):
+    output = trajectory_msgs.msg.JointTrajectory()
+    for joint_name in trajectory['joint_names']:
+        output.joint_names.append(joint_name)
+    for knot in trajectory['knots']:
+        point = trajectory_msgs.msg.JointTrajectoryPoint()
+        point.time_from_start = rospy.Time(knot['time'])
+        for position in knot['positions']:
+            point.positions.append(position)
+        output.points.append(point)
+    
+    return output
+
 def adapt_coordinates(goal, position, orientation):
     # For each steps.
     translation = translation_matrix(position)
@@ -205,7 +222,7 @@ def adapt_coordinates(goal, position, orientation):
             if check_if_position_valid(position):
                 position = transform_position(transform, position)
                 swing_data.profile.target.point = position
-            for point in swing_data.trajectory.points:
+            for point in swing_data.foot_trajectory.points:
                 position = transform_position(transform, point.transforms[0].translation)
                 point.transforms[0].translation = position
         for base_shift_data in step.base_shift_data:

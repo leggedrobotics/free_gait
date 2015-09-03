@@ -9,15 +9,18 @@
 
 namespace free_gait {
 
-SwingTrajectoryBase::SwingTrajectoryBase()
+SwingTrajectoryBase::SwingTrajectoryBase(SwingTrajectoryType type)
+    : type_(type)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 SwingTrajectoryBase::~SwingTrajectoryBase()
 {
-  // TODO Auto-generated destructor stub
+}
+
+SwingTrajectoryType SwingTrajectoryBase::getType() const
+{
+  return type_;
 }
 
 const std::string& SwingTrajectoryBase::getFrameId() const

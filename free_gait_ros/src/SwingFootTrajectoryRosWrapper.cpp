@@ -1,12 +1,12 @@
 /*
- * SwingSplineTrajectoryRosWrapper.cpp
+ * SwingFootTrajectoryRosWrapper.cpp
  *
  *  Created on: Mar 6, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_ros/SwingSplineTrajectoryRosWrapper.hpp>
+#include <free_gait_ros/SwingFootTrajectoryRosWrapper.hpp>
 #include <ros/ros.h>
 
 // STD
@@ -17,18 +17,18 @@
 
 namespace free_gait {
 
-SwingSplineTrajectoryRosWrapper::SwingSplineTrajectoryRosWrapper() :
-    SwingSplineTrajectory()
+SwingFootTrajectoryRosWrapper::SwingFootTrajectoryRosWrapper() :
+    SwingFootTrajectory()
 {
 
 }
 
-SwingSplineTrajectoryRosWrapper::~SwingSplineTrajectoryRosWrapper()
+SwingFootTrajectoryRosWrapper::~SwingFootTrajectoryRosWrapper()
 {
 
 }
 
-bool SwingSplineTrajectoryRosWrapper::fromMessage(
+bool SwingFootTrajectoryRosWrapper::fromMessage(
     const trajectory_msgs::MultiDOFJointTrajectory& message, const std::string& jointName)
 {
   setFrameId(message.header.frame_id);
