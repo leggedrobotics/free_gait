@@ -9,6 +9,7 @@ from numpy import *
 from copy import deepcopy
 from collections import *
 from sensor_msgs.msg import Joy
+from geometry_msgs.msg import TwistStamped
 
 class Leg:
     LF = 0
@@ -69,6 +70,7 @@ class Action(ActionBase):
         self.gait_pattern[Direction.LEFT].reverse()
         
         rospy.Subscriber("/joy", Joy, self._joy_callback)
+        rospy.Subscriber("/navigation_safety_checker/command_velocity", TwistStamped, self._twist_callback)
         rospy.Timer(rospy.Duration(2.0), self._timer_callback)
         
         self.tf_listener = tf.TransformListener()
@@ -200,5 +202,9 @@ class Action(ActionBase):
                 value[...] = 0.0
   
         self.velocity = array([0.3, 0.1, 0.4]) * joy_values
+        
+    def _twist_callback(self, twist):
+        twist_values = array([twist.twist.linear.x, twist.twist.linear.y, twist.twist.angular.z])  
+        self.velocity = array([7.0, 7.0, 0.7]) * twist_values
 
 action = Action(action_loader.client)
