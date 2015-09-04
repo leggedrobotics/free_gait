@@ -205,6 +205,6 @@ class Action(ActionBase):
         
     def _twist_callback(self, twist):
         twist_values = array([twist.twist.linear.x, twist.twist.linear.y, twist.twist.angular.z])  
-        self.velocity = array([7.0, 7.0, 0.7]) * twist_values
+        self.velocity = array([7.0, 7.0, 1.2]) * twist_values
 
 action = Action(action_loader.client)

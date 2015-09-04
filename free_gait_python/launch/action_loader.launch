@@ -11,6 +11,7 @@
   	<!-- Hack to make it compatible with Locomotion Controller user interface -->
   	<remap from="/free_gait_action_loader/list_actions" to="/FreeGaitRos/get_available_modes"/>
   	<remap from="/free_gait_action_loader/send_action" to="/FreeGaitRos/go_to_mode"/>
+    <remap from="/free_gait_action_loader/set_is_externally_controlled" to="/FreeGaitRos/set_is_externally_controlled"/>
   	
   </node>
 </launch>
