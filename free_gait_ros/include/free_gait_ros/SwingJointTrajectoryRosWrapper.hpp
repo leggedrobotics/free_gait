@@ -20,14 +20,13 @@
 namespace free_gait {
 
 class SwingJointTrajectoryRosWrapper :
-    public SwingJointTrajectory,
-    public curves::RosJointTrajectoryInterface
+    public SwingJointTrajectory
 {
  public:
   SwingJointTrajectoryRosWrapper();
   virtual ~SwingJointTrajectoryRosWrapper();
 
-  bool fromMessage(const trajectory_msgs::JointTrajectory& message, const std::string& jointName);
+  bool fromMessage(const trajectory_msgs::JointTrajectory& message);
 };
 
 } /* namespace */

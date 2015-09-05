@@ -7,7 +7,7 @@ steps:
     swing_data:
      - name: rightFore
        no_touchdown: true
-       trajectory:
+       foot_trajectory:
         frame: map
         knots:
          - time: 4.0

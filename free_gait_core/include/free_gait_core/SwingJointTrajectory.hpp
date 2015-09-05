@@ -14,10 +14,15 @@
 // Curves
 #include <curves/PolynomialSplineScalarCurve.hpp>
 
+// Loco // TODO Replace with robot model
+#include <loco/common/LegBase.hpp>
+
 // STD
 #include <memory>
 
 namespace free_gait {
+
+// TODO Make this class nice based on new containers for joints.
 
 /*!
  * Implementation of a joint trajectory as polynomial spline.
@@ -45,19 +50,22 @@ class SwingJointTrajectory : public SwingTrajectoryBase
   virtual std::unique_ptr<SwingTrajectoryBase> clone() const;
 
   /*!
-   * Update the trajectory with the foot start position.
+   * Update the trajectory with the joint start positions.
    * Do this to avoid jumps of the swing leg.
-   * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
+   * @param startPosition the start position of the joints frame.
    * @return true if successful, false otherwise.
    */
-  bool updateStartPosition(const Position& startPosition);
+  // TODO This is a nasty overload, that shoudn't work if we'd use type safe data.
+  bool updateStartPosition(const loco::LegBase::JointPositions& startPositions);
 
   /*!
-   * Evaluate the swing foot position at a given swing phase value.
+   * Evaluate the swing joint positions at a given swing phase value.
    * @param phase the swing phase value.
-   * @return the position of the foot on the swing trajectory.
+   * @return the joint positions.
    */
-  const Position evaluate(const double phase);
+  // TODO This is a nasty overload, that shoudn't work if we'd use type safe data.
+//  const Position evaluate(const double phase);
+  const loco::LegBase::JointPositions evaluate(const double phase);
 
   /*!
    * Returns the total duration of the trajectory.
@@ -66,10 +74,12 @@ class SwingJointTrajectory : public SwingTrajectoryBase
   double getDuration() const;
 
   /*!
-   * Return the target (end position) of the swing trajectory.
+   * Return the target (end position) of the swing joint trajectories.
    * @return the target.
    */
-  const Position getTarget() const;
+  // TODO This is a nasty overload, that shoudn't work if we'd use type safe data.
+//  const Position getTarget() const;
+  const loco::LegBase::JointPositions getTarget() const;
 
   /*!
    * Print the contents to console for debugging.
@@ -83,7 +93,7 @@ class SwingJointTrajectory : public SwingTrajectoryBase
 
   //! Knots.
   std::vector<Time> times_;
-  std::vector<ValueType> values_;
+  std::vector<std::vector<ValueType>> values_;
 
  private:
 
@@ -96,7 +106,7 @@ class SwingJointTrajectory : public SwingTrajectoryBase
   bool trajectoryUpdated_;
 
   //! Joint trajectories, updated based on knots.
-  curves::PolynomialSplineQuinticScalarCurve trajectory_;
+  std::vector<curves::PolynomialSplineQuinticScalarCurve> trajectories_;
 };
 
 } /* namespace */

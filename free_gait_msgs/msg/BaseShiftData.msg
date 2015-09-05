@@ -3,10 +3,7 @@
 # State type identifier (e.g. 'pre_step', 'at_step', 'post_step').
 string name
 
-# Either: Set a mode for the base ('reactive', 'float', etc.)
-string mode
-
-# Or: Define a simple profile for the base trajectory.
+# Either: Define a simple profile for the base trajectory.
 free_gait_msgs/BaseShiftProfile profile
 
 # Or: Define the entire trajectory for the base.

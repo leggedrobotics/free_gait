@@ -9,6 +9,7 @@
 #include <free_gait_ros/SwingDataRosWrapper.hpp>
 #include <free_gait_ros/SwingFootTrajectoryRosWrapper.hpp>
 #include <free_gait_ros/SwingProfileRosWrapper.hpp>
+#include <free_gait_ros/SwingJointTrajectoryRosWrapper.hpp>
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
@@ -46,9 +47,15 @@ bool SwingDataRosWrapper::fromMessage(const free_gait_msgs::SwingData& message)
   setNoTouchdown(message.no_touchdown);
 
   if (message.foot_trajectory.joint_names.size() > 0) {
-    // Trajectory.
+    // Foot trajectory.
     SwingFootTrajectoryRosWrapper trajectory;
     if (!trajectory.fromMessage(message.foot_trajectory, name_))
+      return false;
+    setTrajectory(trajectory);
+  } else if (message.joint_trajectory.joint_names.size() > 0) {
+    // Joint trajectory.
+    SwingJointTrajectoryRosWrapper trajectory;
+    if (!trajectory.fromMessage(message.joint_trajectory))
       return false;
     setTrajectory(trajectory);
   } else {

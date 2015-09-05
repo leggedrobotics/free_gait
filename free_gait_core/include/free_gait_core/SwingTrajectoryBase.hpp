@@ -19,7 +19,6 @@ namespace free_gait {
 
 enum class SwingTrajectoryType
 {
-  Mode,
   Profile,
   FootTrajectory,
   JointTrajectory

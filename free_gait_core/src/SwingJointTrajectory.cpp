@@ -7,6 +7,9 @@
  */
 #include <free_gait_core/SwingJointTrajectory.hpp>
 
+// Roco
+#include <roco/log/log_messages.hpp>
+
 namespace free_gait {
 
 SwingJointTrajectory::SwingJointTrajectory()
@@ -25,23 +28,31 @@ std::unique_ptr<SwingTrajectoryBase> SwingJointTrajectory::clone() const
   return pointer;
 }
 
-bool SwingJointTrajectory::updateStartPosition(const Position& startPosition)
+bool SwingJointTrajectory::updateStartPosition(const loco::LegBase::JointPositions& startPositions)
 {
-//  if (times_[0] == 0.0) {
-//    values_[0] = startPosition.vector();
-//  } else {
-//    times_.insert(times_.begin(), 0.0);
-//    values_.insert(values_.begin(), startPosition.vector());
-//  }
-//  trajectoryUpdated_ = false;
-//  return computeTrajectory();
+  if (times_[0] == 0.0) {
+    for (size_t i = 0; i < values_.size(); ++i) {
+      values_[i][0] = startPositions(i);
+    }
+  } else {
+    times_.insert(times_.begin(), 0.0);
+    for (size_t i = 0; i < values_.size(); ++i) {
+      values_[i].insert(values_[i].begin(), startPositions(i));
+    }
+  }
+  trajectoryUpdated_ = false;
+  return computeTrajectory();
 }
 
-const Position SwingJointTrajectory::evaluate(const double phase)
+const loco::LegBase::JointPositions SwingJointTrajectory::evaluate(const double phase)
 {
-//  if (!trajectoryUpdated_) computeTrajectory();
-//  const double time = phase * getDuration();
-//  return Position(trajectory_.evaluate(time));
+  if (!trajectoryUpdated_) computeTrajectory();
+  const double time = phase * getDuration();
+  loco::LegBase::JointPositions jointPositions;
+  for (size_t i = 0; i < trajectories_.size(); ++i) {
+    jointPositions(i) = trajectories_[i].evaluate(time);
+  }
+  return jointPositions;
 }
 
 double SwingJointTrajectory::getDuration() const
@@ -51,15 +62,22 @@ double SwingJointTrajectory::getDuration() const
   return times_.back();
 }
 
-const Position SwingJointTrajectory::getTarget() const
+const loco::LegBase::JointPositions SwingJointTrajectory::getTarget() const
 {
-//  return Position(trajectory_.evaluate(trajectory_.getMaxTime()));
+  ROCO_ERROR_STREAM_FP("SwingJointTrajectory::getTarget() does not work yet.");
+  loco::LegBase::JointPositions jointPositions;
+  for (size_t i = 0; i < trajectories_.size(); ++i) {
+    jointPositions(i) = trajectories_[i].evaluate(trajectories_[i].getMaxTime());
+  }
+  return jointPositions;
 }
-
 
 bool SwingJointTrajectory::computeTrajectory()
 {
-  trajectory_.fitCurve(times_, values_);
+  trajectories_.resize(values_.size());
+  for (size_t i = 0; i < values_.size(); ++i) {
+    trajectories_[i].fitCurve(times_, values_[i]);
+  }
   trajectoryUpdated_ = true;
   return true;
 }

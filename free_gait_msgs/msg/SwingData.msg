@@ -3,10 +3,7 @@
 # Leg type identifiers ('leftFore', 'rightHind' etc.).
 string name
 
-# Either: Set a mode for the foot/leg ('block', 'gravity_compensation' etc.)
-string mode
-
-# Or: Define a profile for the foot.
+# Either: Define a profile for the foot.
 free_gait_msgs/SwingProfile profile
 
 # Or: Define the entire swing trajectory for the foot.
