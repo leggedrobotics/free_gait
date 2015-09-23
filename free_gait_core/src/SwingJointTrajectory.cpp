@@ -64,7 +64,6 @@ double SwingJointTrajectory::getDuration() const
 
 const loco::LegBase::JointPositions SwingJointTrajectory::getTarget() const
 {
-  ROCO_ERROR_STREAM_FP("SwingJointTrajectory::getTarget() does not work yet.");
   loco::LegBase::JointPositions jointPositions;
   for (size_t i = 0; i < trajectories_.size(); ++i) {
     jointPositions(i) = trajectories_[i].evaluate(trajectories_[i].getMaxTime());
