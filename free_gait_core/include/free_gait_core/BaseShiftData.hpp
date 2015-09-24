@@ -33,23 +33,20 @@ class BaseShiftData
 
   const std::string& getName() const;
   void setName(const std::string& name);
+  
+  bool isIgnore() const;
+  void setIgnore(bool ignore);
 
   std::shared_ptr<BaseShiftTrajectoryBase> getTrajectory();
   const BaseShiftTrajectoryBase& getTrajectory() const;
   void setTrajectory(const BaseShiftTrajectoryBase& trajectory);
 
-  bool isUsingProfile() const;
-  void setUseProfile(bool useProfile);
-
   friend std::ostream& operator << (std::ostream& out, const BaseShiftData& baseShiftData);
 
  protected:
   std::string name_;
-
+  bool ignore_;
   std::shared_ptr<BaseShiftTrajectoryBase> trajectory_;
-
- private:
-  bool useProfile_;
 };
 
 } /* namespace */
