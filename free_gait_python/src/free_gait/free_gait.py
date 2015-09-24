@@ -64,6 +64,9 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                 
                 # Name.
                 swing_data.name = swing_data_parameter['name']
+                # Type.
+                if 'type' in swing_data_parameter:
+                    swing_data.type = swing_data_parameter['type']
             
                 # Profile.
                 if 'profile' in swing_data_parameter:
@@ -93,18 +96,27 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                 if 'joint_trajectory' in swing_data_parameter:
                     swing_data.joint_trajectory = parse_joint_trajectory(swing_data_parameter['joint_trajectory'])
                 
-                # Expect touchdown.
+                # No touchdown.
                 if 'no_touchdown' in swing_data_parameter:
                     swing_data.no_touchdown = swing_data_parameter['no_touchdown']
+                    
                 # Surface normal.
                 if 'surface_normal' in swing_data_parameter:
                     normal_parameter = swing_data_parameter['surface_normal']
                     swing_data.surface_normal.vector.x = normal_parameter[0]
                     swing_data.surface_normal.vector.y = normal_parameter[1]
-                    swing_data.surface_normal.vector.z = normal_parameter[2] 
+                    swing_data.surface_normal.vector.z = normal_parameter[2]
+                    
+                # Ignore for pose adaptation.
+                if 'ignore_for_pose_adaptation' in swing_data_parameter:
+                    swing_data.ignore_for_pose_adaptation = swing_data_parameter['ignore_for_pose_adaptation']
                 
                 step.swing_data.append(swing_data)
     
+        # Ignore base shift.
+        if 'ignore_base_shift' in step_parameter:
+            step.ignore_base_shift = step_parameter['ignore_base_shift']
+        
         # Base shift data.
         if 'base_shift_data' in step_parameter:
             for base_shift_data_parameter in step_parameter['base_shift_data']:
@@ -113,6 +125,12 @@ def get_from_yaml(yaml_object, position = [0, 0, 0], orientation = [0, 0, 0, 1])
                 
                 # Name.
                 base_shift_data.name = base_shift_data_parameter['name']
+                # Ignore.
+                if 'ignore' in base_shift_data_parameter:
+                    base_shift_data.ignore = base_shift_data_parameter['ignore']
+                # Type.
+                if 'type' in base_shift_data_parameter:
+                    base_shift_data.type = base_shift_data_parameter['type']
             
                 # Profile.
                 if 'profile' in base_shift_data_parameter:

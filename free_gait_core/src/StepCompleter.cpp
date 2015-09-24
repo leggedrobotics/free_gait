@@ -48,11 +48,11 @@ bool StepCompleter::complete(Step& step) const
 
   for (auto& baseShiftData : step.baseShiftData_) {
     // Profile.
-    if (baseShiftData.second.isUsingProfile()) {
+    if (baseShiftData.second.getTrajectory()->getType() == BaseShiftTrajectoryType::Profile) {
       auto profile = std::static_pointer_cast<BaseShiftProfile>(baseShiftData.second.getTrajectory());
       if (profile->getDuration() == 0.0) profile->setDuration(standardBaseShiftProfileDuration_);
       if (profile->getHeight() == 0.0) profile->setHeight(baseShiftProfileHeight_);
-      if (profile->getType().empty()) profile->setType(baseShiftProfileType_);
+      if (profile->getProfileType().empty()) profile->setProfileType(baseShiftProfileType_);
     }
   }
 

@@ -46,24 +46,36 @@ bool SwingDataRosWrapper::fromMessage(const free_gait_msgs::SwingData& message)
   // No touchdown.
   setNoTouchdown(message.no_touchdown);
 
-  if (message.foot_trajectory.joint_names.size() > 0) {
-    // Foot trajectory.
+  // Type.
+  std::string type(message.type);
+  if (type.empty()) {
+    // Try to figure out what user meant.
+    if (message.foot_trajectory.joint_names.size() > 0) {
+      type = "foot_trajectory";
+    } else if (message.joint_trajectory.joint_names.size() > 0) {
+      type = "joint_trajectory";
+    } else {
+      type = "profile";
+    }
+  }
+
+  if (type == "foot_trajectory") {
     SwingFootTrajectoryRosWrapper trajectory;
     if (!trajectory.fromMessage(message.foot_trajectory, name_))
       return false;
     setTrajectory(trajectory);
-  } else if (message.joint_trajectory.joint_names.size() > 0) {
-    // Joint trajectory.
+  } else if (type == "joint_trajectory") {
     SwingJointTrajectoryRosWrapper trajectory;
     if (!trajectory.fromMessage(message.joint_trajectory))
       return false;
     setTrajectory(trajectory);
-  } else {
-    // Profile.
+  } else if (type == "profile") {
     SwingProfileRosWrapper profile;
     if (!profile.fromMessage(message.profile))
       return false;
     setTrajectory(profile);
+  } else {
+    return false;
   }
 
   return true;

@@ -13,7 +13,7 @@
 namespace free_gait {
 
 BaseShiftProfile::BaseShiftProfile()
-    : BaseShiftTrajectoryBase(),
+    : BaseShiftTrajectoryBase(BaseShiftTrajectoryType::Profile),
       hasTarget_(false),
       height_(0.0),
       duration_(0.0),
@@ -86,14 +86,14 @@ void BaseShiftProfile::setTarget(const Pose& target)
   hasTarget_ = true;
 }
 
-const std::string& BaseShiftProfile::getType() const
+const std::string& BaseShiftProfile::getProfileType() const
 {
-  return type_;
+  return profileType_;
 }
 
-void BaseShiftProfile::setType(const std::string& type)
+void BaseShiftProfile::setProfileType(const std::string& profileType)
 {
-  type_ = type;
+  profileType_ = profileType;
 }
 
 bool BaseShiftProfile::computeTrajectory()
@@ -124,7 +124,7 @@ std::ostream& operator<<(std::ostream& out, const BaseShiftProfile& baseShiftPro
   out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseShiftProfile.target_.getRotation()).getUnique().vector().transpose() << std::endl;
   out << "Height: " << baseShiftProfile.height_ << std::endl;
   out << "Duration: " << baseShiftProfile.duration_ << std::endl;
-  out << "Type: " << baseShiftProfile.type_;
+  out << "Type: " << baseShiftProfile.profileType_;
   return out;
 }
 

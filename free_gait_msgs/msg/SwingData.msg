@@ -3,6 +3,9 @@
 # Leg type identifiers ('leftFore', 'rightHind' etc.).
 string name
 
+# Type of the swing data (e.g. 'profile', 'foot_trajectory', 'joint_trajectory').
+string type
+
 # Either: Define a profile for the foot.
 free_gait_msgs/SwingProfile profile
 
@@ -17,3 +20,6 @@ bool no_touchdown
 
 # Target foothold surface normal (if [0, 0, 0] set to [0, 0, 1] in world frame).
 geometry_msgs/Vector3Stamped surface_normal
+
+# If pose adaptation should should ignore this swing data.
+bool ignore_for_pose_adaptation

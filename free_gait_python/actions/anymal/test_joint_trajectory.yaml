@@ -1,3 +1,6 @@
+adapt_coordinates:
+  frame: footprint
+  
 steps:
         
  - step:

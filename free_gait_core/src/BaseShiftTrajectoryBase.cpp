@@ -10,12 +10,18 @@
 
 namespace free_gait {
 
-BaseShiftTrajectoryBase::BaseShiftTrajectoryBase()
+BaseShiftTrajectoryBase::BaseShiftTrajectoryBase(BaseShiftTrajectoryType type)
+    : type_(type)
 {
 }
 
 BaseShiftTrajectoryBase::~BaseShiftTrajectoryBase()
 {
+}
+
+BaseShiftTrajectoryType BaseShiftTrajectoryBase::getType() const
+{
+  return type_;
 }
 
 const std::string& BaseShiftTrajectoryBase::getFrameId() const
