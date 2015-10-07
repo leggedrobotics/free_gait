@@ -9,9 +9,7 @@
 #pragma once
 
 // Free Gait
-#include "free_gait_core/BaseShiftTrajectoryBase.hpp"
-
-// Curves
+#include <free_gait_core/BaseMotionBase.hpp>
 #include "curves/CubicHermiteSE3Curve.hpp"
 
 // STD

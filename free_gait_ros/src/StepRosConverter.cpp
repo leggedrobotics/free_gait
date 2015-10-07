@@ -1,13 +1,13 @@
 /*
- * StepRosWrapper.cpp
+ * StepRosConverter.cpp
  *
  *  Created on: Feb 25, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
+#include <free_gait_ros/StepRosConverter.hpp>
 #include <free_gait_ros/BaseShiftDataRosWrapper.hpp>
-#include <free_gait_ros/StepRosWrapper.hpp>
 #include <free_gait_ros/SwingDataRosWrapper.hpp>
 #include <ros/ros.h>
 #include <string>
@@ -15,21 +15,18 @@
 
 namespace free_gait {
 
-StepRosWrapper::StepRosWrapper(std::shared_ptr<loco::LegGroup> legs)
-    : Step(legs)
+StepRosConverter::StepRosConverter()
 {
 
 }
 
-StepRosWrapper::~StepRosWrapper()
+StepRosConverter::~StepRosConverter()
 {
 
 }
 
-bool StepRosWrapper::fromMessage(const free_gait_msgs::Step& message)
+bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step)
 {
-  setStepNumber(message.step_number);
-
   const unsigned int nSwingLegs = message.swing_data.size();
 
   // Swing data.

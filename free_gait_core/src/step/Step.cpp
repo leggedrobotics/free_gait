@@ -5,7 +5,7 @@
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
-#include "free_gait_core/Step.hpp"
+#include "free_gait_core/step/Step.hpp"
 
 // Roco
 #include <roco/log/log_messages.hpp>

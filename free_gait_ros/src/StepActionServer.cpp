@@ -7,14 +7,12 @@
  */
 
 #include <free_gait_ros/StepActionServer.hpp>
-#include <free_gait_ros/StepRosWrapper.hpp>
-
-// Free Gait
 #include <free_gait_core/free_gait_core.hpp>
 
 // ROS
 #include <free_gait_msgs/StepFeedback.h>
 #include <free_gait_msgs/StepResult.h>
+#include <free_gait_ros/StepRosConverter.hpp>
 
 #include <iostream>
 

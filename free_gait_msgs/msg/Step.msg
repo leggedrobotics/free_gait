@@ -15,7 +15,7 @@ free_gait_msgs/FootTrajectory[] foot_trajectory
 free_gait_msgs/JointTrajectory[] joint_trajectory
 
 # Applies gravity compensation to a leg.
-free_gait_msgs/LegGravityCompensation[] leg_gravity_compensation
+free_gait_msgs/LegGravityCompensation[] leg_float
 
 ###################
 # Define the base motion. For each state of the step (e.g. preStep,
@@ -23,9 +23,6 @@ free_gait_msgs/LegGravityCompensation[] leg_gravity_compensation
 
 # Specify if base motion auto generation is desired or not.
 free_gait_msgs/BaseAuto[] base_auto
-
-# Defines the base height.
-free_gait_msgs/BaseHeight[] base_height
 
 # Move base to a target pose.
 free_gait_msgs/BaseTarget[] base_target

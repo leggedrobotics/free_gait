@@ -4,8 +4,11 @@
 # State type identifier (e.g. 'pre_step', 'at_step', 'post_step').
 string name
 
-# Add auto generated motion or ignore auto generation.
-bool active
+# Ignore any base motion from auto generation.
+bool ignore
+
+# Base height in control frame.
+float64 height
 
 # Average velocity of the base motion [m/s].
 # If 0, default is used.

@@ -56,19 +56,22 @@ include_directories(
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
-   src/BaseShiftData.cpp
-   src/BaseShiftProfile.cpp
-   src/BaseShiftSplineTrajectory.cpp
-   src/BaseShiftTrajectoryBase.cpp
-   src/Step.cpp
-   src/StepCompleter.cpp
-   src/StepQueue.cpp
-   src/SwingData.cpp
-   src/SwingTrajectoryBase.cpp
-   src/SwingProfile.cpp
-   src/SwingFootTrajectory.cpp
-   src/SwingJointTrajectory.cpp
-   src/PoseOptimization3d.cpp
+   src/base_motion/BaseMotionBase.cpp
+   src/base_motion/BaseAuto.cpp
+   src/leg_motion/LegMotionBase.cpp
+   src/leg_motion/FootTarget.cpp
+#   src/BaseShiftProfile.cpp
+#   src/BaseShiftSplineTrajectory.cpp
+#   src/BaseShiftTrajectoryBase.cpp
+   src/step/Step.cpp
+#   src/StepCompleter.cpp
+#   src/StepQueue.cpp
+#   src/SwingData.cpp
+#   src/SwingTrajectoryBase.cpp
+#   src/SwingProfile.cpp
+#   src/SwingFootTrajectory.cpp
+#   src/SwingJointTrajectory.cpp
+#   src/PoseOptimization3d.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

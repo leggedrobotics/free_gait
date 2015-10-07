@@ -1,5 +1,5 @@
 /*
- * BaseShiftProfile.hpp
+ * BaseAuto.hpp
  *
  *  Created on: Mar 7, 2015
  *      Author: Péter Fankhauser
@@ -18,20 +18,20 @@
 
 namespace free_gait {
 
-class BaseShiftProfile : public BaseShiftTrajectoryBase
+class BaseAuto : public BaseMotionBase
 {
  public:
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseShiftProfile();
-  virtual ~BaseShiftProfile();
+  BaseAuto();
+  virtual ~BaseAuto();
 
   /*!
    * Deep copy clone.
    * @return a clone of this class.
    */
-  std::unique_ptr<BaseShiftTrajectoryBase> clone() const;
+  std::unique_ptr<BaseMotionBase> clone() const;
 
   /*!
    * Update the profile with the base start pose.
@@ -56,29 +56,24 @@ class BaseShiftProfile : public BaseShiftTrajectoryBase
 
   void setDuration(double duration);
 
-  bool hasTarget() const;
-
   double getHeight() const;
 
   void setHeight(double height);
+
+  bool hasTarget() const;
 
   const Pose& getTarget() const;
 
   void setTarget(const Pose& target);
 
-  const std::string& getProfileType() const;
-
-  void setProfileType(const std::string& profileType);
-
-  friend std::ostream& operator << (std::ostream& out, const BaseShiftProfile& baseShiftProfile);
+  friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
  protected:
   Pose start_; // In world frame.
   bool hasTarget_;
-  Pose target_; // In world frame.
   double height_; // In control frame.
+  Pose target_; // In world frame.
   double duration_;
-  std::string profileType_;
 
  private:
 

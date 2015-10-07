@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <free_gait_core/base_motion/BaseMotionBase.hpp>
+
 // STL
 #include <string>
 #include <iostream>
@@ -15,7 +17,6 @@
 
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/BaseShiftTrajectoryBase.hpp"
 
 namespace free_gait {
 

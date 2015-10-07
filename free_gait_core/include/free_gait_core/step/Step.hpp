@@ -21,8 +21,8 @@
 
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/SwingData.hpp"
-#include "free_gait_core/BaseShiftData.hpp"
+#include "free_gait_core/leg_motion/LegMotionBase.hpp"
+#include "free_gait_core/base_motion/BaseMotionBase.hpp"
 
 namespace free_gait {
 
@@ -56,14 +56,14 @@ class Step
    * @param legName the name of the leg.
    * @param data the step data.
    */
-  void addSwingData(const std::string& legName, const SwingData& data);
+  void addLegMotion(const std::string& legName, const LegMotionBase& legMotion);
 
   /*!
    * Add base shift data for a state.
    * @param state the corresponding state of the base shift data.
    * @param data the base shift data.
    */
-  void addBaseShiftData(const Step::State& state, const BaseShiftData& data);
+  void addBaseMotion(const Step::State& state, const BaseMotionBase& baseMotion);
 
   /*!
    * Checks if step has all data.
