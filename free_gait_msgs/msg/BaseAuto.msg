@@ -7,6 +7,6 @@ string name
 # Add auto generated motion or ignore auto generation.
 bool active
 
-# Velocity of the base motion [m/s].
+# Average velocity of the base motion [m/s].
 # If 0, default is used.
-float64 velocity
+float64 average_velocity

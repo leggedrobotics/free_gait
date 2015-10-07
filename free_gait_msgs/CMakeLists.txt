@@ -17,10 +17,16 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    Step.msg
-   SwingData.msg
-   SwingProfile.msg
-   BaseShiftData.msg
-   BaseShiftProfile.msg
+   BaseAuto.msg
+   BaseFloat.msg
+   BaseHeight.msg
+   BaseTarget.msg
+   BaseTrajectory.msg
+   FootTarget.msg
+   FootTrajectory.msg
+   JointTrajectory.msg
+   LegFreeze.msg
+   LegGravityCompensation.msg
 )
 
 ## Generate services in the 'srv' folder
