@@ -1,4 +1,4 @@
-# Representation of base shift data.
+# Definition of a base motion trajectory.
 
 # State type identifier (e.g. 'pre_step', 'at_step', 'post_step').
 string name

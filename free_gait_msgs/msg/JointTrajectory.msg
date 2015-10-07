@@ -1,10 +1,10 @@
-# Definition of a trajectory for the foot.
+# Definition of trajectories for each joint.
 
 # Leg identifier ('leftFore', 'rightHind' etc.).
 string name
 
-# Swing trajectory for the foot.
-trajectory_msgs/MultiDOFJointTrajectory trajectory
+# Joint trajectories.
+trajectory_msgs/JointTrajectory trajectory
 
 # If a touchdown of the foot at the end of the swing is not expected.
 # Default is false.

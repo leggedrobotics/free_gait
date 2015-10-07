@@ -1,14 +1,37 @@
-# Swing data for each swing leg.
-free_gait_msgs/SwingData[] leg_
+###################
+# Define leg swing motions. Each leg can be defined by one
+# of the following swing types:
+
+# Freezes all joint of a leg.
+free_gait_msgs/LegFreeze[] leg_freeze
+
+# Move the foot to a target point.
 free_gait_msgs/FootTarget[] foot_target
+
+# Move the foot along a specified trajectory.
 free_gait_msgs/FootTrajectory[] foot_trajectory
-free_gait_msgs/LegJointTrajectory[] joint_trajectory
 
-# Enforce that no automatic base shifting is added (all states).
-bool ignore_all_base_shift
+# Defines leg motion as trajectory for each joint.
+free_gait_msgs/JointTrajectory[] joint_trajectory
 
-# Base shift data for different states of the step.
-free_gait_msgs/BaseShiftIgnore[] base_shift_ignore
+# Applies gravity compensation to a leg.
+free_gait_msgs/LegGravityCompensation[] leg_gravity_compensation
+
+###################
+# Define the base motion. For each state of the step (e.g. preStep,
+# atStep, postStep), different base motion types can be defined. 
+
+# Specify if base motion auto generation is desired or not.
+free_gait_msgs/BaseAuto[] base_auto
+
+# Defines the base height.
 free_gait_msgs/BaseHeight[] base_height
+
+# Move base to a target pose.
 free_gait_msgs/BaseTarget[] base_target
+
+# Move base along a trajectory.
 free_gait_msgs/BaseTrajectory[] base_trajectory
+
+# Lets the base float within the stability margins.
+free_gait_msgs/BaseFloat[] base_float

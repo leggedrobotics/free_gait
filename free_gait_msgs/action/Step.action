@@ -3,14 +3,20 @@
 free_gait_msgs/Step[] steps
 bool ignore_state_estimator
 
+# How action reacts on preemption.
+int8 PREEMPT_IMMEDIATE = 0
+int8 PREEMPT_STEP      = 1
+int8 PREEMPT_NO        = 2
+int8 preempt
+
 ---
 
 ## Result
 
 # Status
-int8 RESULT_FAILED=-1
-int8 RESULT_UNKNOWN=0
-int8 RESULT_REACHED=1
+int8 RESULT_FAILED  = -1
+int8 RESULT_UNKNOWN =  0
+int8 RESULT_REACHED =  1
 int8 status
 
 ---
@@ -25,9 +31,9 @@ uint8 step_number
 uint8 queue_size
 
 # Current state of the step.
-int8 PROGRESS_PAUSED=-1
-int8 PROGRESS_UNKNOWN=0
-int8 PROGRESS_EXECUTING=1
+int8 PROGRESS_PAUSED    = -1
+int8 PROGRESS_UNKNOWN   =  0
+int8 PROGRESS_EXECUTING =  1
 int8 status
 
 # Status description ('Preparing for step.', 'Regaining contact.', etc.)
