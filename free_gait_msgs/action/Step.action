@@ -1,6 +1,7 @@
 ## Goal
 
 free_gait_msgs/Step[] steps
+bool ignore_state_estimator
 
 ---
 

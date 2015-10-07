@@ -1,4 +1,7 @@
-# Definition of a swing leg profile.
+# Definition of a swing leg foot target.
+
+# Leg type identifiers ('leftFore', 'rightHind' etc.).
+string name
 
 # Target position of the foot by the end of the profile.
 geometry_msgs/PointStamped target
