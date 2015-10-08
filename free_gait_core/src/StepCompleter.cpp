@@ -32,7 +32,7 @@ StepCompleter::~StepCompleter()
 
 bool StepCompleter::complete(Step& step) const
 {
-  for (auto& swingData : step.swingData_) {
+  for (auto& swingData : step.legMotion_) {
     // Surface normal.
     const auto& normal = swingData.second.getSurfaceNormal();
     if (normal == Vector::Zero()) swingData.second.setSurfaceNormal(surfaceNormal_);

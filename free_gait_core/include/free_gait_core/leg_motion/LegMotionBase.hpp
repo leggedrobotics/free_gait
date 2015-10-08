@@ -47,7 +47,7 @@ class LegMotionBase
    * Deep copy clone.
    * @return a clone of this class.
    */
-  virtual std::unique_ptr<LegMotionBase> clone() const = 0;
+  virtual std::unique_ptr<LegMotionBase> clone() const;
 
   /*!
    * Returns the type of the swing trajectory.

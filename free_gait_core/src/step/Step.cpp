@@ -35,33 +35,33 @@ Step::~Step()
 {
 }
 
-void Step::addSimpleStep(const int stepNumber, const std::string& legName,
-                       const loco::Position& target)
-{
-  stepNumber_ = stepNumber;
-  SwingData swingData;
-  swingData.setName(legName);
-  SwingProfile profile;
-  profile.setTarget(target);
-  swingData.setTrajectory(profile);
-  swingData_.insert(std::pair<std::string, SwingData>(legName, swingData));
-  isDurationComputed_ = false;
-}
+//void Step::addSimpleStep(const int stepNumber, const std::string& legName,
+//                       const loco::Position& target)
+//{
+//  stepNumber_ = stepNumber;
+//  SwingData swingData;
+//  swingData.setName(legName);
+//  SwingProfile profile;
+//  profile.setTarget(target);
+//  swingData.setTrajectory(profile);
+//  legMotion_.insert(std::pair<std::string, SwingData>(legName, swingData));
+//  isDurationComputed_ = false;
+//}
 
 void Step::setStepNumber(const int stepNumber)
 {
   stepNumber_ = stepNumber;
 }
 
-void Step::addSwingData(const std::string& legName, const SwingData& data)
+void Step::addLegMotion(const quadruped_model::LimbEnum& limb, const LegMotionBase& legMotion)
 {
-  swingData_.insert(std::pair<std::string, SwingData>(legName, data));
+  legMotions_.insert(std::pair<quadruped_model::LimbEnum, LegMotionBase>(limb, legMotion));
   isDurationComputed_ = false;
 }
 
-void Step::addBaseShiftData(const Step::State& state, const BaseShiftData& data)
+void Step::addBaseMotion(const Step::State& state, const BaseMotionBase& baseMotion)
 {
-  baseShiftData_.insert(std::pair<Step::State, BaseShiftData>(state, data));
+  baseMotions_.insert(std::pair<Step::State, BaseMotionBase>(state, baseMotion));
   isDurationComputed_ = false;
 }
 
@@ -145,20 +145,20 @@ bool Step::hasSwitchedState() const
   return (previousState_ != state_);
 }
 
-std::unordered_map<std::string, SwingData>& Step::getSwingData()
+Step::LegMotions& Step::getLegMotions()
 {
-  return swingData_;
+  return legMotions_;
 }
 
-BaseShiftData& Step::getCurrentBaseShiftData()
+BaseMotionBase& Step::getCurrentBaseMotion()
 {
   if (!hasBaseShiftData(state_)) throw std::out_of_range("No base shift data for current state!");
-  return baseShiftData_.at(state_);
+  return baseMotions_.at(state_);
 }
 
-std::map<Step::State, BaseShiftData>& Step::getBaseShiftData()
+Step::BaseMotions& Step::getBaseMotions()
 {
-  return baseShiftData_;
+  return baseMotions_;
 }
 
 double Step::getTime() const
@@ -168,12 +168,12 @@ double Step::getTime() const
 
 bool Step::hasSwingData() const
 {
-  return !swingData_.empty();
+  return !legMotions_.empty();
 }
 
 bool Step::hasSwingData(const std::string& legName) const
 {
-  return !(swingData_.find(legName) == swingData_.end());
+  return !(legMotion_.find(legName) == legMotion_.end());
 }
 
 bool Step::hasBaseShiftData(const Step::State& state) const
@@ -250,7 +250,7 @@ double Step::getAtStepDuration()
 double Step::getAtStepDuration(const std::string& legName) const
 {
   if (!hasSwingData(legName)) return 0.0;
-  return swingData_.at(legName).getTrajectory().getDuration();
+  return legMotion_.at(legName).getTrajectory().getDuration();
 }
 
 double Step::getAtStepPhase()
@@ -299,7 +299,7 @@ bool Step::computeDurations()
     return false;
 
   double maxAtStepDuration = 0.0;
-  for (const auto& swingData : swingData_) {
+  for (const auto& swingData : legMotion_) {
     if (swingData.second.getTrajectory().getDuration() > maxAtStepDuration)
       maxAtStepDuration = swingData.second.getTrajectory().getDuration();
   }
@@ -316,7 +316,7 @@ std::ostream& operator<<(std::ostream& out, const Step& step)
 {
   out << "Step number: " << step.stepNumber_ << ", " << step.state_ << std::endl;
   out << "Swing data: " << std::endl;
-  for (const auto& swingData : step.swingData_) out << swingData.second << std::endl;
+  for (const auto& swingData : step.legMotion_) out << swingData.second << std::endl;
   out << "Base shift data: " << std::endl;
   for (const auto& baseShiftData : step.baseShiftData_) out << baseShiftData.second << std::endl;
   return out;

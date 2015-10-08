@@ -46,7 +46,7 @@ class BaseMotionBase
    * Deep copy clone.
    * @return a clone of this class.
    */
-  virtual std::unique_ptr<BaseMotionBase> clone() const = 0;
+  virtual std::unique_ptr<BaseMotionBase> clone() const;
 
   /*!
    * Returns the type of the base motion.

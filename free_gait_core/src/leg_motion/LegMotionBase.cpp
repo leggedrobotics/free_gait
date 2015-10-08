@@ -18,6 +18,12 @@ LegMotionBase::~LegMotionBase()
 {
 }
 
+std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
+{
+  std::unique_ptr<LegMotionBase> pointer(new LegMotionBase(*this));
+  return pointer;
+}
+
 LegMotionBase::Type LegMotionBase::getType() const
 {
   return type_;

@@ -19,6 +19,12 @@ BaseMotionBase::~BaseMotionBase()
 {
 }
 
+std::unique_ptr<BaseMotionBase> BaseMotionBase::clone() const
+{
+  std::unique_ptr<BaseMotionBase> pointer(new BaseMotionBase(*this));
+  return pointer;
+}
+
 BaseMotionBase::Type BaseMotionBase::getType() const
 {
   return type_;

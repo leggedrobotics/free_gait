@@ -10,7 +10,6 @@
 
 // STL
 #include <string>
-#include <map>
 #include <unordered_map>
 #include <iostream>
 #include <memory>
@@ -23,6 +22,12 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
+
+// Robot Utils
+#include <robotUtils/containers/MultiKeyContainer.hpp>
+
+// Quadruped model.
+#include <quadruped_model/QuadrupedModel.hpp>
 
 namespace free_gait {
 
@@ -38,12 +43,18 @@ class Step
   enum class State {Undefined, PreStep, AtStep, PostStep};
 
   /*!
+   * Type definitions.
+   */
+  typedef std::unordered_map<quadruped_model::LimbEnum, LegMotionBase, robotUtils::EnumClassHash> LegMotions;
+  typedef std::unordered_map<Step::State, BaseMotionBase, robotUtils::EnumClassHash> BaseMotions;
+
+  /*!
    * Add step data (simplified input).
    * @param stepNumber the step number.
    * @param legName the name of the leg.
    * @param position the desired position of the step in world frame.
    */
-  void addSimpleStep(const int stepNumber, const std::string& legName, const free_gait::Position& position);
+//  void addSimpleStep(const int stepNumber, const std::string& legName, const free_gait::Position& position);
 
   /*!
    * Set the step number.
@@ -56,7 +67,7 @@ class Step
    * @param legName the name of the leg.
    * @param data the step data.
    */
-  void addLegMotion(const std::string& legName, const LegMotionBase& legMotion);
+  void addLegMotion(const quadruped_model::LimbEnum& limb, const LegMotionBase& legMotion);
 
   /*!
    * Add base shift data for a state.
@@ -107,11 +118,11 @@ class Step
    * Returns the swing data as a map between leg name and swing data.
    * @return the swing data map.
    */
-  std::unordered_map<std::string, SwingData>& getSwingData();
+  Step::LegMotions& getLegMotions();
 
-  BaseShiftData& getCurrentBaseShiftData();
+  BaseMotionBase& getCurrentBaseMotion();
 
-  std::map<Step::State, BaseShiftData>& getBaseShiftData();
+  Step::BaseMotions& getBaseMotions();
 
   /*!
    * Return the current time of the step, starting at 0.0 for each step.
@@ -168,8 +179,8 @@ class Step
 
  protected:
   bool isComplete_;
-  std::unordered_map<std::string, SwingData> swingData_;
-  std::map<State, BaseShiftData> baseShiftData_;
+  LegMotions legMotions_;
+  BaseMotions baseMotions_;
 
  private:
 
