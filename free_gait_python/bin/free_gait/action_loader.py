@@ -72,6 +72,9 @@ class ActionLoader:
                 rospy.logerr(traceback.print_exc())
                 
         return response
+        
+    def set_is_externally_controlled(self, request):
+        return locomotion_controller_msgs.srv.SetBooleanResponse()
     
     def _get_path(self, file):
         directory = rospy.get_param('~directory')
@@ -138,6 +141,7 @@ if __name__ == '__main__':
         else:
             rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
             rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions)
+            rospy.Service('~set_is_externally_controlled', locomotion_controller_msgs.srv.SetBoolean, action_loader.set_is_externally_controlled)
             rospy.loginfo("Ready to load actions from service call.")
             rospy.spin()
         
