@@ -39,6 +39,8 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
   // Base shift data.
   if (message.ignore_base_shift) {
     BaseShiftData baseShiftData;
+    BaseShiftProfile trajectory; // Hack to make clone() work.
+    baseShiftData.setTrajectory(trajectory);
     baseShiftData.setIgnore(true);
     addBaseShiftData(Step::State::PreStep, baseShiftData);
     addBaseShiftData(Step::State::AtStep, baseShiftData);

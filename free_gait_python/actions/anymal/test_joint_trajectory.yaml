@@ -4,6 +4,7 @@ adapt_coordinates:
 steps:
         
  - step:
+    ignore_base_shift: true
     swing_data:
      - name: rightFore
        no_touchdown: true
