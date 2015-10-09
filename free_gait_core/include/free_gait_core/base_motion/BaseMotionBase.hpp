@@ -69,11 +69,11 @@ class BaseMotionBase
 //   */
 //  virtual const Pose evaluate(const double time) = 0;
 //
-//  /*!
-//   * Returns the total duration of the trajectory.
-//   * @return the duration.
-//   */
-//  virtual double getDuration() const = 0;
+  /*!
+   * Returns the total duration of the motion.
+   * @return the duration.
+   */
+  virtual double getDuration() const;
 //
 //  /*!
 //   * Returns the frame id of the trajectory.

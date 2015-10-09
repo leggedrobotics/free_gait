@@ -28,6 +28,11 @@ LegMotionBase::Type LegMotionBase::getType() const
 {
   return type_;
 }
+
+double LegMotionBase::getDuration() const
+{
+  return 0.0;
+}
 //
 //const std::string& SwingTrajectoryBase::getFrameId() const
 //{

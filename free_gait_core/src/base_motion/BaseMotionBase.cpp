@@ -29,6 +29,12 @@ BaseMotionBase::Type BaseMotionBase::getType() const
 {
   return type_;
 }
+
+double BaseMotionBase::getDuration() const
+{
+  return 0.0;
+}
+
 //
 //const std::string& BaseMotionBase::getFrameId() const
 //{

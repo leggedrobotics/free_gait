@@ -91,9 +91,9 @@ bool Step::advance(double dt)
   time_ += dt;
   if (time_ >= getTotalDuration())
     return false;
-  if (time_ >= getPreStepDuration() + getAtStepDuration()) {
+  if (time_ >= getStateDuration(State::PreStep) + getStateDuration(State::AtStep)) {
     state_ = Step::State::PostStep;
-  } else if (time_ >= getPreStepDuration()) {
+  } else if (time_ >= getStateDuration(State::PreStep)) {
     state_ = Step::State::AtStep;
   } else {
     state_ = Step::State::PreStep;
@@ -152,7 +152,7 @@ Step::LegMotions& Step::getLegMotions()
 
 BaseMotionBase& Step::getCurrentBaseMotion()
 {
-  if (!hasBaseShiftData(state_)) throw std::out_of_range("No base shift data for current state!");
+  if (!hasBaseMotion(state_)) throw std::out_of_range("No base motion for current state!");
   return baseMotions_.at(state_);
 }
 
@@ -166,36 +166,22 @@ double Step::getTime() const
   return time_;
 }
 
-bool Step::hasSwingData() const
+bool Step::hasLegMotion() const
 {
   return !legMotions_.empty();
 }
 
-bool Step::hasSwingData(const std::string& legName) const
+bool Step::hasLegMotion(const quadruped_model::LimbEnum& limb) const
 {
-  return !(legMotion_.find(legName) == legMotion_.end());
+  return !(legMotions_.find(limb) == legMotions_.end());
 }
 
-bool Step::hasBaseShiftData(const Step::State& state) const
+bool Step::hasBaseMotion(const Step::State& state) const
 {
-  return !(baseShiftData_.find(state) == baseShiftData_.end());
+  return !(baseMotions_.find(state) == baseMotions_.end());
 }
 
-double Step::getStateDuration()
-{
-  switch (getState()) {
-    case Step::State::PreStep:
-      return getPreStepDuration();
-    case Step::State::AtStep:
-      return getAtStepDuration();
-    case Step::State::PostStep:
-      return getPostStepDuration();
-    default:
-      return 0.0;
-  }
-}
-
-double Step::getStateTime()
+double Step::getCurrentStateTime()
 {
   return getStateTime(getState());
 }
@@ -203,82 +189,74 @@ double Step::getStateTime()
 double Step::getStateTime(const Step::State& state)
 {
   switch (state) {
-    case Step::State::PreStep:
+    case State::PreStep:
       return getTime();
-    case Step::State::AtStep:
-      return getTime() - getPreStepDuration();
-    case Step::State::PostStep:
-      return getTime() - getPreStepDuration() - getAtStepDuration();
+    case State::AtStep:
+      return getTime() - getStateDuration(State::PreStep);
+    case State::PostStep:
+      return getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep);
     default:
       return 0.0;
   }
 }
 
-double Step::getStatePhase()
+double Step::getCurrentStateDuration()
 {
-  switch (getState()) {
+  return getStateDuration(getState());
+}
+
+double Step::getStateDuration(const Step::State& state)
+{
+  switch (state) {
     case Step::State::PreStep:
-      return getPreStepPhase();
+      return hasBaseMotion(State::PreStep) ? baseMotions_.at(State::PreStep).getDuration() : 0.0;
     case Step::State::AtStep:
-      return getAtStepPhase();
+      if (!isDurationComputed_) computeDurations();
+      return atStepDuration_;
     case Step::State::PostStep:
-      return getPostStepPhase();
+      return hasBaseMotion(State::PostStep) ? baseMotions_.at(State::PostStep).getDuration() : 0.0;
     default:
       return 0.0;
   }
 }
 
-// TODO Make this more pretty.
-
-double Step::getPreStepDuration() const
+double Step::getAtStepDurationForLeg(const quadruped_model::LimbEnum& limb) const
 {
-  return hasBaseShiftData(State::PreStep) ? baseShiftData_.at(State::PreStep).getTrajectory().getDuration() : 0.0;
+  if (!hasLegMotion(limb)) return 0.0;
+  return legMotions_.at(limb).getDuration();
 }
 
-double Step::getPreStepPhase() const
-{
-  return loco::mapTo01Range(getTime(), 0.0, getPreStepDuration());
-}
-
-double Step::getAtStepDuration()
-{
-  if (!isDurationComputed_)
-    computeDurations();
-  return atStepDuration_;
-}
-
-double Step::getAtStepDuration(const std::string& legName) const
-{
-  if (!hasSwingData(legName)) return 0.0;
-  return legMotion_.at(legName).getTrajectory().getDuration();
-}
-
-double Step::getAtStepPhase()
-{
-  return loco::mapTo01Range(getTime() - getPreStepDuration(), 0.0, getAtStepDuration());
-}
-
-double Step::getAtStepPhase(const std::string& legName)
-{
-  return loco::mapTo01Range(getTime() - getPreStepDuration(), 0.0, getAtStepDuration(legName));
-}
-
-double Step::getPostStepDuration() const
-{
-  return hasBaseShiftData(State::PostStep) ? baseShiftData_.at(State::PostStep).getTrajectory().getDuration() : 0.0;
-}
-
-double Step::getPostStepPhase()
-{
-  return loco::mapTo01Range(getTime() - getPreStepDuration() - getAtStepDuration(), 0.0,
-                      getPostStepDuration());
-}
 
 double Step::getTotalDuration()
 {
   if (!isDurationComputed_)
     computeDurations();
   return totalDuration_;
+}
+
+double Step::getCurrentStatePhase()
+{
+  return getStatePhase(getState());
+}
+
+double Step::getStatePhase(const Step::State& state)
+{
+  switch (state) {
+    case Step::State::PreStep:
+      return loco::mapTo01Range(getTime(), 0.0, getStateDuration(State::PreStep));
+    case Step::State::AtStep:
+      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getStateDuration(State::AtStep));
+    case Step::State::PostStep:
+      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep), 0.0,
+                                getStateDuration(State::PostStep));
+    default:
+      return 0.0;
+  }
+}
+
+double Step::getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb)
+{
+  return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getAtStepDurationForLeg(limb));
 }
 
 double Step::getTotalPhase()
@@ -289,7 +267,7 @@ double Step::getTotalPhase()
 bool Step::isApproachingEndOfState()
 {
   double tolerance = 0.01;
-  if (getStateTime() + tolerance >= getStateDuration()) return true;
+  if (getCurrentStateTime() + tolerance >= getCurrentStateDuration()) return true;
   return false;
 }
 
@@ -299,26 +277,26 @@ bool Step::computeDurations()
     return false;
 
   double maxAtStepDuration = 0.0;
-  for (const auto& swingData : legMotion_) {
-    if (swingData.second.getTrajectory().getDuration() > maxAtStepDuration)
-      maxAtStepDuration = swingData.second.getTrajectory().getDuration();
+  for (const auto& legMotion : legMotions_) {
+    if (legMotion.second.getDuration() > maxAtStepDuration)
+      maxAtStepDuration = legMotion.second.getDuration();
   }
-  if (hasBaseShiftData(State::AtStep)) {
-    if (baseShiftData_.at(State::AtStep).getTrajectory()->getDuration() > maxAtStepDuration)
-      maxAtStepDuration = baseShiftData_.at(State::AtStep).getTrajectory()->getDuration();
+  if (hasBaseMotion(State::AtStep)) {
+    if (baseMotions_.at(State::AtStep).getDuration() > maxAtStepDuration)
+      maxAtStepDuration = baseMotions_.at(State::AtStep).getDuration();
   }
   atStepDuration_ = maxAtStepDuration;
-  totalDuration_ = getPreStepDuration() + atStepDuration_ + getPostStepDuration();
+  totalDuration_ = getStateDuration(State::PreStep) + getStateDuration(State::AtStep) + getStateDuration(State::PostStep);
   return isDurationComputed_ = true;
 }
 
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
   out << "Step number: " << step.stepNumber_ << ", " << step.state_ << std::endl;
-  out << "Swing data: " << std::endl;
-  for (const auto& swingData : step.legMotion_) out << swingData.second << std::endl;
-  out << "Base shift data: " << std::endl;
-  for (const auto& baseShiftData : step.baseShiftData_) out << baseShiftData.second << std::endl;
+  out << "Leg motion: " << std::endl;
+  for (const auto& legMotion : step.legMotions_) out << legMotion.second << std::endl;
+  out << "Base motion: " << std::endl;
+  for (const auto& baseMotion : step.baseMotions_) out << baseMotion.second << std::endl;
   return out;
 }
 

@@ -130,44 +130,37 @@ class Step
    */
   double getTime() const;
 
-  bool hasSwingData() const;
+  bool hasLegMotion() const;
 
-  bool hasSwingData(const std::string& legName) const;
+  bool hasLegMotion(const quadruped_model::LimbEnum& limb) const;
 
-  bool hasBaseShiftData(const Step::State& state) const;
+  bool hasBaseMotion(const Step::State& state) const;
+
+  double getCurrentStateTime();
+
+  double getStateTime(const Step::State& state);
 
   /*!
    * Get the current state duration.
    * @return the current state duration.
    */
-  double getStateDuration();
+  double getCurrentStateDuration();
 
-  double getStateTime();
+  double getStateDuration(const Step::State& state);
 
-  double getStateTime(const Step::State& state);
+  double getAtStepDurationForLeg(const quadruped_model::LimbEnum& limb) const;
+
+  double getTotalDuration();
 
   /*!
    * Get the current state phase.
    * @return the current state phase.
    */
-  double getStatePhase();
+  double getCurrentStatePhase();
 
-  double getPreStepDuration() const;
+  double getStatePhase(const Step::State& state);
 
-  double getPreStepPhase() const;
-
-  double getAtStepDuration();
-
-  double getAtStepDuration(const std::string& legName) const;
-
-  double getAtStepPhase();
-  double getAtStepPhase(const std::string& legName);
-
-  double getPostStepDuration() const;
-
-  double getPostStepPhase();
-
-  double getTotalDuration();
+  double getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb);
 
   double getTotalPhase();
 
