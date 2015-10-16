@@ -32,15 +32,18 @@ StepActionServer::StepActionServer(ros::NodeHandle nodeHandle, const std::string
       legs_(legs),
       isPreempting_(false)
 {
-  server_.registerGoalCallback(boost::bind(&StepActionServer::goalCallback, this));
-  server_.registerPreemptCallback(boost::bind(&StepActionServer::preemptCallback, this));
-  server_.start();
-  ROS_INFO_STREAM("Started " << name_ << " action server.");
 }
 
 StepActionServer::~StepActionServer()
 {
+}
 
+void StepActionServer::initialize()
+{
+  server_.registerGoalCallback(boost::bind(&StepActionServer::goalCallback, this));
+  server_.registerPreemptCallback(boost::bind(&StepActionServer::preemptCallback, this));
+  server_.start();
+  ROS_INFO_STREAM("Started " << name_ << " action server.");
 }
 
 void StepActionServer::update()
@@ -60,12 +63,19 @@ void StepActionServer::update()
   }
 }
 
+void StepActionServer::shutdown()
+{
+  server_.shutdown();
+}
+
 void StepActionServer::goalCallback()
 {
   ROS_DEBUG("Received goal for StepAction.");
 //  if (server_.isActive()) server_.setRejected();
 
-  for (auto& stepMessage : server_.acceptNewGoal()->steps) {
+  const auto goal = server_.acceptNewGoal();
+
+  for (auto& stepMessage : goal->steps) {
     StepRosWrapper step(legs_);
     step.fromMessage(stepMessage);
     stepCompleter_->complete(step);

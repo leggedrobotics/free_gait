@@ -1,0 +1,35 @@
+ignore_state_estimator: true
+  
+steps:
+        
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: leftFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [deg(3), deg(70), deg(-140)]
+     - name: rightFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [deg(-3), deg(70), deg(-140)]
+     - name: leftHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [deg(3), deg(-70), deg(140)]
+     - name: rightHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [deg(-3), deg(-70), deg(140)]

@@ -7,7 +7,7 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf
 
-def load_from_file(file_path, source_frame_id):
+def load_from_file(file_path, source_frame_id = ''):
     import os
     from rosparam import load_file
     if not os.path.isfile(file_path):
