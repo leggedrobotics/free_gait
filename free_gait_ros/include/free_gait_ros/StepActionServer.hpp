@@ -32,9 +32,12 @@ class StepActionServer
                    std::shared_ptr<StepQueue> stepQueue,
                    std::shared_ptr<StepCompleter> stepCompleter,
                    std::shared_ptr<loco::LegGroup> legs);
+
   virtual ~StepActionServer();
 
+  void initialize();
   void update();
+  void shutdown();
 
   void goalCallback();
 

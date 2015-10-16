@@ -4,7 +4,6 @@ import roslib
 from free_gait import *
 import threading
 
-    
 class ActionState:
     PENDING = 0
     ACTIVE = 1
@@ -12,9 +11,10 @@ class ActionState:
 
 class ActionBase(object):
     
-    def __init__(self, client):
+    def __init__(self, client, directory = None):
         self.state = ActionState.DONE
         self.client = client
+        self.directory = directory
         self.goal = None
         self.feedback = None
         self.result = None
@@ -60,7 +60,7 @@ class ActionBase(object):
 class SimpleAction(ActionBase):
     
     def __init__(self, client, goal):
-        ActionBase.__init__(self, client)
+        ActionBase.__init__(self, client, None)
         self.goal = goal
         
     

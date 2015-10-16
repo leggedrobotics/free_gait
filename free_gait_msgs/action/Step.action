@@ -49,3 +49,6 @@ float64 phase
 # Leg type identifiers of the swing legs of the current
 # step ('leftFore', 'rightHind', etc.).
 string[] swing_leg_names
+
+# If action is ignoring state estimator or not.
+bool ignoring_state_estimator
