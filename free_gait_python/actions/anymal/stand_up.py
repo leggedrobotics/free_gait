@@ -38,14 +38,13 @@ class Action(ActionBase):
         if self.actions:
             if not self.actions[0]():
                 self.state = ActionState.DONE
-                self.result = self.result.RESULT_FAILED
+                self.result = actionlib_msgs.msg.GoalStatus.RESULT_FAILED
             self.actions.pop(0)
         else:
             self.state = ActionState.DONE
         
     # Actions.
     def _create_foot_contact(self):
-        rospy.loginfo('stand_up.py: Activating loco free gait.')
         service_name = '/locomotion_controller/get_active_controller'
         rospy.wait_for_service(service_name)
         try:
@@ -55,8 +54,22 @@ class Action(ActionBase):
             rospy.logerr("Service call failed: %s"%e)
             return False
         
-        print active_controller.active_controller_name
-        
+        controller_name = "FreeGaitRos"
+        if active_controller.active_controller_name != controller_name:
+            rospy.loginfo('stand_up.py: Activating loco free gait.')
+            service_name = '/locomotion_controller/switch_controller'
+            rospy.wait_for_service(service_name)
+            try:
+                switch_controller = rospy.ServiceProxy(service_name, locomotion_controller_msgs.srv.SwitchController)
+                switch = switch_controller(controller_name)
+            except rospy.ServiceException, e:
+                rospy.logerr("Service call failed: %s" % e)
+                return False
+            
+            if switch.status == switch.STATUS_ERROR or switch.status == switch.STATUS_NOTFOUND:
+                rospy.logerr('stand_up.py: Error when switching to loco free gait controller.')
+                return False
+                
         rospy.loginfo('stand_up.py: Deactivating checking for state estimator.')
         if not self._toggle_state_estimator(False):
             return False
