@@ -56,7 +56,7 @@ bool BaseShiftProfileRosWrapper::fromMessage(const free_gait_msgs::BaseShiftProf
 
   // Type.
   if (message.type != "") {
-    type_ = message.type;
+    profileType_ = message.type;
   }
 
   return true;

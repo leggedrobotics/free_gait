@@ -15,6 +15,13 @@
 
 namespace free_gait {
 
+enum class BaseShiftTrajectoryType
+{
+  Profile,
+  Trajectory,
+  ZMP
+};
+
 /*!
  * Base class for a generic base shift trajectory.
  */
@@ -25,7 +32,7 @@ class BaseShiftTrajectoryBase
   /*!
    * Constructor.
    */
-  BaseShiftTrajectoryBase();
+  BaseShiftTrajectoryBase(BaseShiftTrajectoryType type);
 
   /*!
    * Destructor.
@@ -37,6 +44,12 @@ class BaseShiftTrajectoryBase
    * @return a clone of this class.
    */
   virtual std::unique_ptr<BaseShiftTrajectoryBase> clone() const = 0;
+
+  /*!
+   * Returns the type of the base shift trajectory.
+   * @return the type of the base shift trajectory.
+   */
+  virtual BaseShiftTrajectoryType getType() const;
 
   /*!
    * Update the trajectory with the base start pose.
@@ -81,7 +94,10 @@ class BaseShiftTrajectoryBase
 
  protected:
 
-  //! Frame id of the trajecotry.
+  //! Type of the trajectory.
+  BaseShiftTrajectoryType type_;
+
+  //! Frame id of the trajectory.
   std::string frameId_;
 };
 

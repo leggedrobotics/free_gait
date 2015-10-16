@@ -22,7 +22,9 @@
 
 namespace free_gait {
 
-class BaseShiftSplineTrajectoryRosWrapper : public BaseShiftSplineTrajectory, public curves::RosMultiDOFJointTrajectoryInterface
+class BaseShiftSplineTrajectoryRosWrapper :
+    public BaseShiftSplineTrajectory,
+    public curves::RosMultiDOFJointTrajectoryInterface
 {
  public:
   BaseShiftSplineTrajectoryRosWrapper();

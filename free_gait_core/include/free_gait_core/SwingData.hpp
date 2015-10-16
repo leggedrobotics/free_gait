@@ -54,9 +54,6 @@ class SwingData
   const SwingTrajectoryBase& getTrajectory() const;
   void setTrajectory(const SwingTrajectoryBase& trajectory);
 
-  bool isUsingProfile() const;
-  void setUseProfile(bool useProfile);
-
   bool isNoTouchdown() const;
   void setNoTouchdown(bool noTouchdown);
 
@@ -71,9 +68,6 @@ class SwingData
   bool noTouchdown_;
 
   std::shared_ptr<SwingTrajectoryBase> trajectory_;
-
- private:
-  bool useProfile_;
 };
 
 } /* namespace */

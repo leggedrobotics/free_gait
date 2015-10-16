@@ -71,9 +71,9 @@ class SwingProfile : public SwingTrajectoryBase
 
   void setTarget(const Position& target);
 
-  const std::string& getType() const;
+  const std::string& getProfileType() const;
 
-  void setType(const std::string& type);
+  void setProfileType(const std::string& type);
 
   friend std::ostream& operator << (std::ostream& out, const SwingProfile& swingProfile);
 
@@ -82,7 +82,7 @@ class SwingProfile : public SwingTrajectoryBase
   Position target_;
   double height_;
   double duration_;
-  std::string type_;
+  std::string profileType_;
 
  private:
   /*!

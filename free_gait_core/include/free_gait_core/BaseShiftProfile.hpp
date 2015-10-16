@@ -68,9 +68,9 @@ class BaseShiftProfile : public BaseShiftTrajectoryBase
 
   void setTarget(const Pose& target);
 
-  const std::string& getType() const;
+  const std::string& getProfileType() const;
 
-  void setType(const std::string& type);
+  void setProfileType(const std::string& profileType);
 
   friend std::ostream& operator << (std::ostream& out, const BaseShiftProfile& baseShiftProfile);
 
@@ -80,7 +80,7 @@ class BaseShiftProfile : public BaseShiftTrajectoryBase
   Pose target_; // In world frame.
   double height_; // In control frame.
   double duration_;
-  std::string type_;
+  std::string profileType_;
 
  private:
 

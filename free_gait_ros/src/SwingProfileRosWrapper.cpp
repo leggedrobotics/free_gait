@@ -49,7 +49,7 @@ bool SwingProfileRosWrapper::fromMessage(const free_gait_msgs::SwingProfile& mes
 
   // Type.
   if (message.type != "") {
-    type_ = message.type;
+    profileType_ = message.type;
   }
 
   return true;

@@ -37,8 +37,20 @@ steps:
            orientation: [0.0, 0.0, 0.2]
     swing_data:
      - name: rightHind
-       trajectory:
+       foot_trajectory:
         frame: map
+        knots:
+         - time: 3.0
+           positions: [-0.4, -0.22, 0.3]
+         - time: 6.0
+           positions: [-0.4, -0.35, 0.3]
+         - time: 9.0
+           positions: [-0.29, -0.45, 0.0]
+
+    swing_data:
+     - name: rightHind
+       joint_trajectory:
+	joint_names['KFE', 'HFE']
         knots:
          - time: 3.0
            position: [-0.4, -0.22, 0.3]

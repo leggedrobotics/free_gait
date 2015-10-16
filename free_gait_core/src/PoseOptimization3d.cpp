@@ -25,13 +25,13 @@ PoseOptimization::~PoseOptimization()
 {
 }
 
-void PoseOptimization::setFeetPositions(const std::vector<Position>& feetPositions)
+void PoseOptimization::setFeetPositions(const FeetPositions& feetPositions)
 {
   feetPositions_ = feetPositions;
 }
 
 void PoseOptimization::setDesiredLegConfiguration(
-    const std::vector<Position>& desiredFeetPositionsInBase)
+    const FeetPositions& desiredFeetPositionsInBase)
 {
   desiredFeetPositionsInBase_ = desiredFeetPositionsInBase;
 }
@@ -46,7 +46,7 @@ bool PoseOptimization::optimize(Pose& pose)
   // If no support polygon provided, use positions.
   if (supportPolygon_.nVertices() == 0) {
     for (const auto& foot : feetPositions_)
-      supportPolygon_.addVertex(foot.vector().head<2>());
+      supportPolygon_.addVertex(foot.second.vector().head<2>());
   }
 
   // Problem definition:
@@ -60,9 +60,11 @@ bool PoseOptimization::optimize(Pose& pose)
            1,  0, 0,
            0,  0, 0;
 
-  for (unsigned int i = 0; i < nFeet; i++) {
-    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[i].vector());
-    b.segment(nDimensions_ * i, nDimensions_) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
+  unsigned int i = 0;
+  for (const auto& footPosition : feetPositions_) {
+    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[footPosition.first].vector());
+    b.segment(nDimensions_ * i, nDimensions_) << footPosition.second.vector() - R_0 * desiredFeetPositionsInBase_[footPosition.first].vector();
+    ++i;
   }
 
 //  std::cout << "R_0: " << std::endl << R_0 << std::endl;

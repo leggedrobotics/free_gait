@@ -64,9 +64,10 @@ add_library(${PROJECT_NAME}
    src/StepCompleter.cpp
    src/StepQueue.cpp
    src/SwingData.cpp
-   src/SwingProfile.cpp
-   src/SwingSplineTrajectory.cpp
    src/SwingTrajectoryBase.cpp
+   src/SwingProfile.cpp
+   src/SwingFootTrajectory.cpp
+   src/SwingJointTrajectory.cpp
    src/PoseOptimization3d.cpp
 )
 

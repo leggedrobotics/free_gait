@@ -44,7 +44,6 @@ void Step::addSimpleStep(const int stepNumber, const std::string& legName,
   SwingProfile profile;
   profile.setTarget(target);
   swingData.setTrajectory(profile);
-  swingData.setUseProfile(true);
   swingData_.insert(std::pair<std::string, SwingData>(legName, swingData));
   isDurationComputed_ = false;
 }

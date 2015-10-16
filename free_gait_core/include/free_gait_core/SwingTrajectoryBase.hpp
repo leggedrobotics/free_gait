@@ -17,6 +17,13 @@
 
 namespace free_gait {
 
+enum class SwingTrajectoryType
+{
+  Profile,
+  FootTrajectory,
+  JointTrajectory
+};
+
 /*!
  * Base class for a generic swing foot trajectory.
  */
@@ -27,7 +34,7 @@ class SwingTrajectoryBase
   /*!
    * Constructor.
    */
-  SwingTrajectoryBase();
+  SwingTrajectoryBase(SwingTrajectoryType type);
 
   /*!
    * Destructor.
@@ -39,6 +46,12 @@ class SwingTrajectoryBase
    * @return a clone of this class.
    */
   virtual std::unique_ptr<SwingTrajectoryBase> clone() const = 0;
+
+  /*!
+   * Returns the type of the swing trajectory.
+   * @return the type of the swing trajectory.
+   */
+  virtual SwingTrajectoryType getType() const;
 
   /*!
    * Update the trajectory with the foot start position.
@@ -60,7 +73,6 @@ class SwingTrajectoryBase
    * @return the duration.
    */
   virtual double getDuration() const = 0;
-
 
   /*!
    * Return the target (end position) of the swing trajectory.
@@ -90,7 +102,10 @@ class SwingTrajectoryBase
 
  protected:
 
-  //! Frame id of the trajecotry.
+  //! Type of the trajectory.
+  SwingTrajectoryType type_;
+
+  //! Frame id of the trajectory.
   std::string frameId_;
 };
 

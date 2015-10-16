@@ -1,5 +1,5 @@
 /*
- * SwingSplineTrajectory.hpp
+ * SwingFootTrajectory.hpp
  *
  *  Created on: Mar 10, 2015
  *      Author: Péter Fankhauser
@@ -22,7 +22,7 @@ namespace free_gait {
 /*!
  * Implementation of a foot swing trajectory as polynomial spline.
  */
-class SwingSplineTrajectory : public SwingTrajectoryBase
+class SwingFootTrajectory : public SwingTrajectoryBase
 {
  public:
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
@@ -31,12 +31,12 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
   /*!
    * Constructor.
    */
-  SwingSplineTrajectory();
+  SwingFootTrajectory();
 
   /*!
    * Destructor.
    */
-  virtual ~SwingSplineTrajectory();
+  virtual ~SwingFootTrajectory();
 
   /*!
    * Deep copy clone.
@@ -77,7 +77,7 @@ class SwingSplineTrajectory : public SwingTrajectoryBase
    * @param baseShiftTrajectory the base shift trajectory to debug.
    * @return the resulting output stream.
    */
-  friend std::ostream& operator << (std::ostream& out, const SwingSplineTrajectory& swingSplineTrajectory);
+  friend std::ostream& operator << (std::ostream& out, const SwingFootTrajectory& swingFootTrajectory);
 
  protected:
 

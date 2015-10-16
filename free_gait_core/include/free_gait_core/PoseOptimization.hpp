@@ -13,6 +13,13 @@
 // Grid map
 #include <grid_map_core/Polygon.hpp>
 
+// Quadruped model
+#include <quadruped_model/common/enums.hpp>
+#include <robotUtils/containers/MultiKeyContainer.hpp>
+
+// STD
+#include <unordered_map>
+
 namespace free_gait {
 
 class PoseOptimization
@@ -21,19 +28,20 @@ class PoseOptimization
   PoseOptimization();
   virtual ~PoseOptimization();
 
+  typedef std::unordered_map<quadruped_model::LimbEnum, Position, robotUtils::EnumClassHash> FeetPositions;
+
   /*!
    * Set the positions of the feet of the robot in world coordinate system.
    * @param feetPositions the feet positions.
    */
-  void setFeetPositions(const std::vector<Position>& feetPositions);
+  void setFeetPositions(const FeetPositions& feetPositions);
 
   /*!
    * Define the desired leg configuration by specifying the desired feet positions
    * relative to the base.
-   * Important: The number and order of the feet has to be the same as in `setFeetPositions`.
    * @param desiredFeetPositionsInBase the desired feet positions in base frame.
    */
-  void setDesiredLegConfiguration(const std::vector<Position>& desiredFeetPositionsInBase);
+  void setDesiredLegConfiguration(const FeetPositions& desiredFeetPositionsInBase);
 
   /*!
    * Set the support polygon for constraining the pose optimization.
@@ -52,10 +60,9 @@ class PoseOptimization
  private:
   unsigned int nStates_;
   unsigned int nDimensions_;
-  std::vector<Position> feetPositions_;
-  std::vector<Position> desiredFeetPositionsInBase_;
+  FeetPositions feetPositions_;
+  FeetPositions desiredFeetPositionsInBase_;
   grid_map::Polygon supportPolygon_;
-  double safetyMargin_;
 };
 
 } /* namespace loco */

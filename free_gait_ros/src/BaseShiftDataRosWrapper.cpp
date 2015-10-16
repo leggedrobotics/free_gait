@@ -32,18 +32,29 @@ BaseShiftDataRosWrapper::~BaseShiftDataRosWrapper()
 bool BaseShiftDataRosWrapper::fromMessage(const free_gait_msgs::BaseShiftData& message)
 {
   name_ = message.name;
+  ignore_ = message.ignore;
+  if (ignore_) return true;
 
-  if (message.trajectory.joint_names.size() > 0) {
-    // Trajectory.
-    setUseProfile(false);
+  std::string type(message.type);
+  if (type.empty()) {
+    // Try to figure out what user meant.
+    if (message.trajectory.joint_names.size() > 0) {
+      type = "trajectory";
+    } else {
+      type = "profile";
+    }
+  }
+
+  if (type == "trajectory") {
     BaseShiftSplineTrajectoryRosWrapper trajectory;
     if (!trajectory.fromMessage(message.trajectory)) return false;
     setTrajectory(trajectory);
-  } else {
-    setUseProfile(true);
+  } else if (type == "profile") {
     BaseShiftProfileRosWrapper profile;
     if (!profile.fromMessage(message.profile)) return false;
     setTrajectory(profile);
+  } else {
+    return false;
   }
 
   return true;

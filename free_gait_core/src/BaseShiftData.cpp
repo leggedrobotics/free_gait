@@ -15,14 +15,13 @@
 namespace free_gait {
 
 BaseShiftData::BaseShiftData()
-    : useProfile_(true)
 {
 }
 
 BaseShiftData::BaseShiftData(const BaseShiftData& other) :
     name_(other.name_),
-    trajectory_(other.trajectory_->clone()),
-    useProfile_(other.useProfile_)
+    ignore_(other.ignore_),
+    trajectory_(other.trajectory_->clone())
 {
 }
 
@@ -40,6 +39,16 @@ void BaseShiftData::setName(const std::string& name)
   name_ = name;
 }
 
+bool BaseShiftData::isIgnore() const
+{
+  return ignore_;
+}
+
+void BaseShiftData::setIgnore(bool ignore)
+{
+  ignore_ = ignore;
+}
+
 const BaseShiftTrajectoryBase& BaseShiftData::getTrajectory() const
 {
   return *trajectory_;
@@ -55,23 +64,13 @@ void BaseShiftData::setTrajectory(const BaseShiftTrajectoryBase& trajectory)
   trajectory_ = trajectory.clone();
 }
 
-bool BaseShiftData::isUsingProfile() const
-{
-  return useProfile_;
-}
-
-void BaseShiftData::setUseProfile(bool useProfile)
-{
-  useProfile_ = useProfile;
-}
-
 std::ostream& operator<<(std::ostream& out, const BaseShiftData& baseShiftData)
 {
   out << "Name: " << baseShiftData.name_ << std::endl;
-  if (baseShiftData.useProfile_) {
+  if (baseShiftData.getTrajectory().getType() == BaseShiftTrajectoryType::Profile) {
     const auto& trajectory = std::static_pointer_cast<BaseShiftProfile>(baseShiftData.trajectory_);
     out << *trajectory << std::endl;
-  } else {
+  } else if (baseShiftData.getTrajectory().getType() == BaseShiftTrajectoryType::Trajectory) {
     const auto& trajectory = std::static_pointer_cast<BaseShiftSplineTrajectory>(baseShiftData.trajectory_);
     out << *trajectory << std::endl;
   }

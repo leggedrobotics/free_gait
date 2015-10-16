@@ -1,31 +1,31 @@
 /*
- * SwingSplineTrajectory.cpp
+ * SwingFootTrajectory.cpp
  *
  *  Created on: Mar 10, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
-#include <free_gait_core/SwingSplineTrajectory.hpp>
+#include <free_gait_core/SwingFootTrajectory.hpp>
 
 namespace free_gait {
 
-SwingSplineTrajectory::SwingSplineTrajectory() :
-    trajectoryUpdated_(false),
-    SwingTrajectoryBase()
+SwingFootTrajectory::SwingFootTrajectory()
+    : SwingTrajectoryBase(SwingTrajectoryType::FootTrajectory),
+      trajectoryUpdated_(false)
 {
 }
 
-SwingSplineTrajectory::~SwingSplineTrajectory()
+SwingFootTrajectory::~SwingFootTrajectory()
 {
 }
 
-std::unique_ptr<SwingTrajectoryBase> SwingSplineTrajectory::clone() const
+std::unique_ptr<SwingTrajectoryBase> SwingFootTrajectory::clone() const
 {
-  std::unique_ptr<SwingTrajectoryBase> pointer(new SwingSplineTrajectory(*this));
+  std::unique_ptr<SwingTrajectoryBase> pointer(new SwingFootTrajectory(*this));
   return pointer;
 }
 
-bool SwingSplineTrajectory::updateStartPosition(const Position& startPosition)
+bool SwingFootTrajectory::updateStartPosition(const Position& startPosition)
 {
   if (times_[0] == 0.0) {
     values_[0] = startPosition.vector();
@@ -37,34 +37,34 @@ bool SwingSplineTrajectory::updateStartPosition(const Position& startPosition)
   return computeTrajectory();
 }
 
-const Position SwingSplineTrajectory::evaluate(const double phase)
+const Position SwingFootTrajectory::evaluate(const double phase)
 {
   if (!trajectoryUpdated_) computeTrajectory();
   const double time = phase * getDuration();
   return Position(trajectory_.evaluate(time));
 }
 
-double SwingSplineTrajectory::getDuration() const
+double SwingFootTrajectory::getDuration() const
 {
   //  return trajectory_.getMaxTime() - trajectory_.getMinTime();
   // We assume the swing spline trajectory always starts at time 0.0.
   return times_.back();
 }
 
-const Position SwingSplineTrajectory::getTarget() const
+const Position SwingFootTrajectory::getTarget() const
 {
   return Position(trajectory_.evaluate(trajectory_.getMaxTime()));
 }
 
 
-bool SwingSplineTrajectory::computeTrajectory()
+bool SwingFootTrajectory::computeTrajectory()
 {
   trajectory_.fitCurve(times_, values_);
   trajectoryUpdated_ = true;
   return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const SwingSplineTrajectory& swingSplineTrajectory)
+std::ostream& operator<<(std::ostream& out, const SwingFootTrajectory& swingFootTrajectory)
 {
   // TODO.
   return out;

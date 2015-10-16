@@ -10,7 +10,8 @@
 
 namespace free_gait {
 
-BaseShiftSplineTrajectory::BaseShiftSplineTrajectory() : BaseShiftTrajectoryBase()
+BaseShiftSplineTrajectory::BaseShiftSplineTrajectory()
+    : BaseShiftTrajectoryBase(BaseShiftTrajectoryType::Trajectory)
 {
 }
 
