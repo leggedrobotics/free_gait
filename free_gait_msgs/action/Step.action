@@ -1,12 +1,11 @@
 ## Goal
 
 free_gait_msgs/Step[] steps
-bool ignore_state_estimator
 
 # How action reacts on preemption.
-int8 PREEMPT_IMMEDIATE = 0
-int8 PREEMPT_STEP      = 1
-int8 PREEMPT_NO        = 2
+int8 PREEMPT_IMMEDIATE = -1
+int8 PREEMPT_STEP      =  0 # Default.
+int8 PREEMPT_NO        =  1
 int8 preempt
 
 ---

@@ -19,7 +19,7 @@ free_gait_msgs/LegFloat[] leg_float
 
 ###################
 # Define the base motion. For each state of the step (e.g. preStep,
-# atStep, postStep), different base motion types can be defined. 
+# atStep, postStep), different base motion types can be defined:
 
 # Specify if base motion auto generation is desired or not.
 free_gait_msgs/BaseAuto[] base_auto

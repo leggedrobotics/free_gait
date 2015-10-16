@@ -14,7 +14,7 @@
 
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/Step.hpp"
+#include "free_gait_core/step/Step.hpp"
 
 namespace free_gait {
 

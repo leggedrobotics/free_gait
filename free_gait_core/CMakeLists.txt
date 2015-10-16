@@ -64,8 +64,9 @@ add_library(${PROJECT_NAME}
 #   src/BaseShiftSplineTrajectory.cpp
 #   src/BaseShiftTrajectoryBase.cpp
    src/step/Step.cpp
-#   src/StepCompleter.cpp
-#   src/StepQueue.cpp
+   src/step/StepQueue.cpp
+   src/completer/StepCompleter.cpp
+   #src/completer/FootTargetCompleter.cpp
 #   src/SwingData.cpp
 #   src/SwingTrajectoryBase.cpp
 #   src/SwingProfile.cpp

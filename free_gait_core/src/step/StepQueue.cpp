@@ -6,7 +6,7 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "free_gait_core/StepQueue.hpp"
+#include "free_gait_core/step/StepQueue.hpp"
 
 // STD
 #include <stdexcept>

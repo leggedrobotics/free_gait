@@ -6,7 +6,7 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "free_gait_core/StepCompleter.hpp"
+#include "free_gait_core/completer/FootTargetCompleter.hpp"
 #include "free_gait_core/SwingProfile.hpp"
 #include "free_gait_core/BaseShiftProfile.hpp"
 
@@ -15,7 +15,7 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter()
+FootTargetCompleter::FootTargetCompleter()
     : swingProfileDuration_(2.0),
       swingProfileHeight_(0.06),
       swingProfileType_("triangle"),
@@ -26,11 +26,11 @@ StepCompleter::StepCompleter()
 {
 }
 
-StepCompleter::~StepCompleter()
+FootTargetCompleter::~FootTargetCompleter()
 {
 }
 
-bool StepCompleter::complete(Step& step) const
+bool FootTargetCompleter::complete(Step& step) const
 {
   for (auto& swingData : step.legMotion_) {
     // Surface normal.
