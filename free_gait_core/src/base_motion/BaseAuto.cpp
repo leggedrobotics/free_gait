@@ -16,6 +16,7 @@ namespace free_gait {
 BaseAuto::BaseAuto()
     : BaseMotionBase(BaseMotionBase::Type::Auto),
       hasTarget_(false),
+      averageVelocity_(0.0),
       duration_(0.0),
       trajectoryUpdated_(false)
 {
@@ -51,9 +52,15 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
-void BaseAuto::setDuration(double duration)
+double BaseAuto::getAverageVelocity() const
 {
-  duration_ = duration;
+  return averageVelocity_;
+}
+
+void BaseAuto::setAverageVelocity(double averageVelocity)
+{
+  averageVelocity_ = averageVelocity;
+  trajectoryUpdated_ = false;
 }
 
 bool BaseAuto::hasTarget() const

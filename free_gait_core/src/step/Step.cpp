@@ -16,10 +16,8 @@
 
 namespace free_gait {
 
-Step::Step(std::shared_ptr<loco::LegGroup> legs)
-    : legs_(legs),
-      stepNumber_(0),
-      time_(0.0),
+Step::Step()
+    : time_(0.0),
       state_(Step::State::Undefined),
       previousState_(Step::State::Undefined),
       previousStatus_(false),
@@ -47,11 +45,6 @@ Step::~Step()
 //  legMotion_.insert(std::pair<std::string, SwingData>(legName, swingData));
 //  isDurationComputed_ = false;
 //}
-
-void Step::setStepNumber(const int stepNumber)
-{
-  stepNumber_ = stepNumber;
-}
 
 void Step::addLegMotion(const quadruped_model::LimbEnum& limb, const LegMotionBase& legMotion)
 {
@@ -104,35 +97,30 @@ bool Step::advance(double dt)
 
 bool Step::checkStatus()
 {
-  for (auto leg : *legs_) {
-    loco::StateSwitcher* stateSwitcher = leg->getStateSwitcher();
-    switch (stateSwitcher->getState()) {
-      case (loco::StateSwitcher::States::StanceSlipping):
-      case (loco::StateSwitcher::States::StanceLostContact):
-      case (loco::StateSwitcher::States::SwingExpectingContact):
-        ROCO_WARN_THROTTLE_STREAM(1.0, "Leg " << leg->getName() << " should be grounded but it is not.");
-        return false;
-
-      case (loco::StateSwitcher::States::StanceNormal):
-      case (loco::StateSwitcher::States::SwingNormal):
-      case (loco::StateSwitcher::States::SwingLateLiftOff):
-      case (loco::StateSwitcher::States::SwingBumpedIntoObstacle):
-      case (loco::StateSwitcher::States::SwingEarlyTouchDown):
-      case (loco::StateSwitcher::States::Init):
-        break;
-
-      default:
-        ROCO_ERROR_STREAM_FP("Unhandled state: " << stateSwitcher->getStateName(stateSwitcher->getState()) << std::endl);
-        return false;
-    }
-  }
+//  for (auto leg : *legs_) {
+//    loco::StateSwitcher* stateSwitcher = leg->getStateSwitcher();
+//    switch (stateSwitcher->getState()) {
+//      case (loco::StateSwitcher::States::StanceSlipping):
+//      case (loco::StateSwitcher::States::StanceLostContact):
+//      case (loco::StateSwitcher::States::SwingExpectingContact):
+//        ROCO_WARN_THROTTLE_STREAM(1.0, "Leg " << leg->getName() << " should be grounded but it is not.");
+//        return false;
+//
+//      case (loco::StateSwitcher::States::StanceNormal):
+//      case (loco::StateSwitcher::States::SwingNormal):
+//      case (loco::StateSwitcher::States::SwingLateLiftOff):
+//      case (loco::StateSwitcher::States::SwingBumpedIntoObstacle):
+//      case (loco::StateSwitcher::States::SwingEarlyTouchDown):
+//      case (loco::StateSwitcher::States::Init):
+//        break;
+//
+//      default:
+//        ROCO_ERROR_STREAM_FP("Unhandled state: " << stateSwitcher->getStateName(stateSwitcher->getState()) << std::endl);
+//        return false;
+//    }
+//  }
 
   return true;
-}
-
-unsigned int Step::getStepNumber() const
-{
-  return stepNumber_;
 }
 
 const Step::State& Step::getState() const
@@ -292,7 +280,6 @@ bool Step::computeDurations()
 
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
-  out << "Step number: " << step.stepNumber_ << ", " << step.state_ << std::endl;
   out << "Leg motion: " << std::endl;
   for (const auto& legMotion : step.legMotions_) out << legMotion.second << std::endl;
   out << "Base motion: " << std::endl;

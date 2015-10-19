@@ -54,7 +54,9 @@ class BaseAuto : public BaseMotionBase
    */
   double getDuration() const;
 
-  void setDuration(double duration);
+  double getAverageVelocity() const;
+
+  void setAverageVelocity(double averageVelocity);
 
   double getHeight() const;
 
@@ -68,19 +70,19 @@ class BaseAuto : public BaseMotionBase
 
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
- protected:
-  Pose start_; // In world frame.
-  bool hasTarget_;
-  double height_; // In control frame.
-  Pose target_; // In world frame.
-  double duration_;
-
  private:
 
   /*!
    * Computes the internal trajectory based on the profile type.
    */
   bool computeTrajectory();
+
+  Pose start_; // In world frame.
+  bool hasTarget_;
+  double height_; // In control frame.
+  Pose target_; // In world frame.
+  double averageVelocity_;
+  double duration_;
 
   //! Base trajectory.
   curves::CubicHermiteSE3Curve trajectory_;

@@ -1,5 +1,5 @@
 /*
- * StepActionServer.hpp
+ * FreeGaitActionServer.hpp
  *
  *  Created on: Feb 6, 2015
  *      Author: Péter Fankhauser
@@ -10,9 +10,10 @@
 
 // Free Gait
 #include "free_gait_core/free_gait_core.hpp"
+#include "free_gait_ros/StepRosConverter.hpp"
 
-// Loco
-#include "loco/common/LegGroup.hpp"
+// Quadruped model
+#include "quadruped_model/QuadrupedModel.hpp"
 
 // ROS
 #include <ros/ros.h>
@@ -25,15 +26,15 @@
 
 namespace free_gait {
 
-class StepActionServer
+class FreeGaitActionServer
 {
  public:
-  StepActionServer(ros::NodeHandle nodeHandle, const std::string& name,
+  FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
                    std::shared_ptr<StepQueue> stepQueue,
                    std::shared_ptr<StepCompleter> stepCompleter,
-                   std::shared_ptr<loco::LegGroup> legs);
+                   std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel);
 
-  virtual ~StepActionServer();
+  virtual ~FreeGaitActionServer();
 
   void initialize();
   void update();
@@ -57,12 +58,16 @@ class StepActionServer
   ros::NodeHandle nodeHandle_;
   std::shared_ptr<free_gait::StepQueue> stepQueue_;
 
+  //! Robot model.
+  std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel_;
+
+  //! ROS converter.
+  StepRosConverter rosConverter_;
+
   //! Step completion.
-  std::shared_ptr<free_gait::StepCompleter> stepCompleter_;
+  std::shared_ptr<free_gait::StepCompleter> completer_;
 
-  //! Common loco leg group class.
-  std::shared_ptr<loco::LegGroup> legs_;
-
+  //! Action server.
   std::string name_;
   actionlib::SimpleActionServer<free_gait_msgs::StepAction> server_;
   free_gait_msgs::StepActionResult result_;

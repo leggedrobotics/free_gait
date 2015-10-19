@@ -8,7 +8,7 @@ geometry_msgs/PointStamped target
 
 # Step apex swing heights in control frame.
 # If 0, default is used.
-float64 height
+float64 profile_height
 
 # Average velocity of the foot motion [m/s].
 # If 0, default is used.
@@ -16,7 +16,7 @@ float64 average_velocity
 
 # Type of the swing trajectory ('line', 'triangle', 'square', etc.).
 # If empty, default is used.
-string type
+string profile_type
 
 # If a touchdown of the foot at the end of the swing is not expected.
 # Default is false.

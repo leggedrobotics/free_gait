@@ -11,21 +11,18 @@
 // Free Gait
 #include "free_gait_core/free_gait_core.hpp"
 
-// Loco
-#include "loco/common/LegGroup.hpp"
-
 // ROS
 #include <free_gait_msgs/Step.h>
 
-// STD
-#include <string>
+// Quadruped model
+#include "quadruped_model/QuadrupedModel.hpp"
 
 namespace free_gait {
 
 class StepRosConverter
 {
  public:
-  StepRosConverter();
+  StepRosConverter(std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel);
   virtual ~StepRosConverter();
 
   /*!
@@ -34,7 +31,16 @@ class StepRosConverter
    * @param[out] gridMap the step object to be initialized.
    * @return true if successful, false otherwise.
    */
-  static bool fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step);
+  bool fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step);
+
+  bool fromMessage(const free_gait_msgs::FootTarget& message, FootTarget& footTarget);
+
+ private:
+  Step::State getStepStateFromString(const std::string& state);
+
+  //! Robot model.
+  std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel_;
 };
 
-} /* namespace */
+}
+/* namespace */

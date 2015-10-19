@@ -34,7 +34,7 @@ namespace free_gait {
 class Step
 {
  public:
-  Step(std::shared_ptr<loco::LegGroup> legs);
+  Step();
   virtual ~Step();
 
   /*!
@@ -178,12 +178,6 @@ class Step
  private:
 
   bool computeDurations();
-
-  //! Common loco leg group class.
-  std::shared_ptr<loco::LegGroup> legs_;
-
-  //! Step number.
-  unsigned int stepNumber_;
 
   //! Current time, starts at 0.0 at each step.
   double time_;

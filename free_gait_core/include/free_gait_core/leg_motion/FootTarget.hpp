@@ -57,11 +57,13 @@ class FootTarget : public LegMotionBase
    */
   double getDuration() const;
 
-  void setDuration(double duration);
+  double getAverageVelocity() const;
 
-  double getHeight() const;
+  void setAverageVelocity(double averageVelocity);
 
-  void setHeight(double height);
+  double getProfileHeight() const;
+
+  void setProfileHeight(double profileHeight);
 
   /*!
    * Return the target (end position) of the swing profile.
@@ -71,18 +73,29 @@ class FootTarget : public LegMotionBase
 
   void setTarget(const Position& target);
 
+  const std::string& getFrameId() const;
+
+  void setFrameId(const std::string& frameId);
+
   const std::string& getProfileType() const;
 
   void setProfileType(const std::string& type);
 
+  const Vector& getSurfaceNormal() const;
+
+  void setSurfaceNormal(const Vector& surfaceNormal);
+
+  bool isNoTouchdown() const;
+
+  void setNoTouchdown(bool noTouchdown);
+
+  bool isIgnoreForPoseAdaptation() const;
+
+  void setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation);
+
   friend std::ostream& operator << (std::ostream& out, const FootTarget& footTarget);
 
- protected:
-  Position start_;
-  Position target_;
-  double height_;
-  double duration_;
-  std::string profileType_;
+  friend class FootTargetCompleter;
 
  private:
   /*!
@@ -95,6 +108,16 @@ class FootTarget : public LegMotionBase
   void generateTriangleKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
 
   void generateSquareKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
+
+  Position start_;
+  Position target_;
+  std::string frameId_;
+  double profileHeight_;
+  double averageVelocity_;
+  std::string profileType_;
+  Vector surfaceNormal_;
+  bool noTouchdown_;
+  bool ignoreForPoseAdaptation_;
 
   //! Foot trajectory.
   curves::PolynomialSplineQuinticVector3Curve trajectory_;

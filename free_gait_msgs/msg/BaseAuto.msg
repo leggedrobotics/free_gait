@@ -2,7 +2,7 @@
 # for stability and reachability of footsteps.
 
 # State type identifier (e.g. 'pre_step', 'at_step', 'post_step').
-string name
+string state
 
 # Ignore any base motion from auto generation.
 bool ignore

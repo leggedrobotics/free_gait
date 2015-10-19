@@ -1,50 +1,50 @@
 /*
- * StepActionServer.cpp
+ * FreeGaitActionServer.cpp
  *
  *  Created on: Feb 6, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_ros/StepActionServer.hpp>
+#include <free_gait_ros/FreeGaitActionServer.hpp>
 #include <free_gait_core/free_gait_core.hpp>
 
 // ROS
 #include <free_gait_msgs/StepFeedback.h>
 #include <free_gait_msgs/StepResult.h>
-#include <free_gait_ros/StepRosConverter.hpp>
 
 #include <iostream>
 
 namespace free_gait {
 
-StepActionServer::StepActionServer(ros::NodeHandle nodeHandle, const std::string& name,
+FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
                                    std::shared_ptr<free_gait::StepQueue> stepQueue,
                                    std::shared_ptr<free_gait::StepCompleter> stepCompleter,
-                                   std::shared_ptr<loco::LegGroup> legs)
+                                   std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel)
     : nodeHandle_(nodeHandle),
       name_(name),
       stepQueue_(stepQueue),
-      stepCompleter_(stepCompleter),
+      completer_(stepCompleter),
+      rosConverter_(quadrupedModel),
       server_(nodeHandle_, name_, false),
-      legs_(legs),
+      quadrupedModel_(quadrupedModel),
       isPreempting_(false)
 {
 }
 
-StepActionServer::~StepActionServer()
+FreeGaitActionServer::~FreeGaitActionServer()
 {
 }
 
-void StepActionServer::initialize()
+void FreeGaitActionServer::initialize()
 {
-  server_.registerGoalCallback(boost::bind(&StepActionServer::goalCallback, this));
-  server_.registerPreemptCallback(boost::bind(&StepActionServer::preemptCallback, this));
+  server_.registerGoalCallback(boost::bind(&FreeGaitActionServer::goalCallback, this));
+  server_.registerPreemptCallback(boost::bind(&FreeGaitActionServer::preemptCallback, this));
   server_.start();
   ROS_INFO_STREAM("Started " << name_ << " action server.");
 }
 
-void StepActionServer::update()
+void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
   if (stepQueue_->empty()) {
@@ -61,12 +61,12 @@ void StepActionServer::update()
   }
 }
 
-void StepActionServer::shutdown()
+void FreeGaitActionServer::shutdown()
 {
   server_.shutdown();
 }
 
-void StepActionServer::goalCallback()
+void FreeGaitActionServer::goalCallback()
 {
   ROS_DEBUG("Received goal for StepAction.");
 //  if (server_.isActive()) server_.setRejected();
@@ -74,14 +74,14 @@ void StepActionServer::goalCallback()
   const auto goal = server_.acceptNewGoal();
 
   for (auto& stepMessage : goal->steps) {
-    StepRosWrapper step(legs_);
-    step.fromMessage(stepMessage);
-    stepCompleter_->complete(step);
+    Step step;
+    rosConverter_.fromMessage(stepMessage, step);
+    completer_->complete(step);
     stepQueue_->add(step);
   }
 }
 
-void StepActionServer::preemptCallback()
+void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
   if (stepQueue_->empty()) return;
@@ -90,7 +90,7 @@ void StepActionServer::preemptCallback()
   isPreempting_ = true;
 }
 
-void StepActionServer::publishFeedback()
+void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::StepFeedback feedback;
   if (stepQueue_->empty()) return;
@@ -122,13 +122,13 @@ void StepActionServer::publishFeedback()
 
   feedback.duration = ros::Duration(step.getTotalDuration());
   feedback.phase = step.getTotalPhase();
-  for (const auto& stepData : step.getSwingData())
-    feedback.swing_leg_names.push_back(stepData.first);
+//  for (const auto& stepData : step.getSwingData())
+//    feedback.swing_leg_names.push_back(stepData.first);
 
   server_.publishFeedback(feedback);
 }
 
-void StepActionServer::setSucceeded()
+void FreeGaitActionServer::setSucceeded()
 {
   ROS_INFO("StepAction succeeded.");
   free_gait_msgs::StepResult result;
@@ -136,7 +136,7 @@ void StepActionServer::setSucceeded()
   server_.setSucceeded(result, "Step action has been reached.");
 }
 
-void StepActionServer::setPreempted()
+void FreeGaitActionServer::setPreempted()
 {
   ROS_INFO("StepAction preempted.");
   free_gait_msgs::StepResult result;
@@ -145,7 +145,7 @@ void StepActionServer::setPreempted()
   isPreempting_ = false;
 }
 
-void StepActionServer::setAborted()
+void FreeGaitActionServer::setAborted()
 {
   ROS_INFO("StepAction aborted.");
   free_gait_msgs::StepResult result;

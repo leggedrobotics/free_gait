@@ -16,8 +16,8 @@ namespace free_gait {
 
 FootTarget::FootTarget()
     : LegMotionBase(LegMotionBase::Type::FootTarget),
-      height_(0.0),
-      duration_(0.0),
+      profileHeight_(0.0),
+      averageVelocity_(0.0),
       trajectoryUpdated_(false)
 {
 }
@@ -48,23 +48,28 @@ const Position FootTarget::evaluate(const double phase)
 
 double FootTarget::getDuration() const
 {
-  return duration_;
+  return averageVelocity_;
 }
 
-void FootTarget::setDuration(double duration)
+double FootTarget::getAverageVelocity() const
 {
-  duration_ = duration;
+  return averageVelocity_;
+}
+
+void FootTarget::setAverageVelocity(double averageVelocity)
+{
+  averageVelocity_ = averageVelocity;
   trajectoryUpdated_ = false;
 }
 
-double FootTarget::getHeight() const
+double FootTarget::getProfileHeight() const
 {
-  return height_;
+  return profileHeight_;
 }
 
-void FootTarget::setHeight(double height)
+void FootTarget::setProfileHeight(double profileHeight)
 {
-  height_ = height;
+  profileHeight_ = profileHeight;
   trajectoryUpdated_ = false;
 }
 
@@ -79,6 +84,16 @@ void FootTarget::setTarget(const Position& target)
   trajectoryUpdated_ = false;
 }
 
+const std::string& FootTarget::getFrameId() const
+{
+  return frameId_;
+}
+
+void FootTarget::setFrameId(const std::string& frameId)
+{
+  frameId_ = frameId;
+}
+
 const std::string& FootTarget::getProfileType() const
 {
   return profileType_;
@@ -90,11 +105,42 @@ void FootTarget::setProfileType(const std::string& type)
   trajectoryUpdated_ = false;
 }
 
+const Vector& FootTarget::getSurfaceNormal() const
+{
+  return surfaceNormal_;
+}
+
+void FootTarget::setSurfaceNormal(const Vector& surfaceNormal)
+{
+  surfaceNormal_ = surfaceNormal;
+}
+
+bool FootTarget::isNoTouchdown() const
+{
+  return noTouchdown_;
+}
+
+void FootTarget::setNoTouchdown(bool noTouchdown)
+{
+  noTouchdown_ = noTouchdown;
+}
+
+
+bool FootTarget::isIgnoreForPoseAdaptation() const
+{
+  return ignoreForPoseAdaptation_;
+}
+
+void FootTarget::setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation)
+{
+  ignoreForPoseAdaptation_ = ignoreForPoseAdaptation;
+}
+
 std::ostream& operator<<(std::ostream& out, const FootTarget& footTarget)
 {
   out << "Target: " << footTarget.target_ << std::endl;
-  out << "Height: " << footTarget.height_ << std::endl;
-  out << "Duration: " << footTarget.duration_ << std::endl;
+  out << "Height: " << footTarget.profileHeight_ << std::endl;
+  out << "Duration: " << footTarget.averageVelocity_ << std::endl;
   out << "Type: " << footTarget.profileType_;
   return out;
 }
@@ -128,7 +174,7 @@ void FootTarget::generateStraightKnots(std::vector<Time>& times,
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(duration_);
+  times.push_back(averageVelocity_);
   values.push_back(target_.vector());
 }
 
@@ -140,16 +186,16 @@ void FootTarget::generateTriangleKnots(std::vector<Time>& times,
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(0.5 * duration_);
+  times.push_back(0.5 * averageVelocity_);
   // Interpolate on the xy-plane.
   Position knot2 = start_ + 0.5 * (target_ - start_);
   // Apex height.
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
-  knot2.z() = basis + height_;
+  knot2.z() = basis + profileHeight_;
   values.push_back(knot2.vector());
 
   // Knot 3.
-  times.push_back(duration_);
+  times.push_back(averageVelocity_);
   values.push_back(target_.vector());
 }
 
@@ -157,24 +203,24 @@ void FootTarget::generateSquareKnots(std::vector<Time>& times,
                                        std::vector<ValueType>& values) const
 {
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
-  double height = basis + height_;
+  double height = basis + profileHeight_;
 
   // Knot 1.
   times.push_back(0.0);
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(1.0/3.0 * duration_);
+  times.push_back(1.0/3.0 * averageVelocity_);
   Position knot2(start_.x(), start_.y(), height);
   values.push_back(knot2.vector());
 
   // Knot 3.
-  times.push_back(2.0/3.0 * duration_);
+  times.push_back(2.0/3.0 * averageVelocity_);
   Position knot3(target_.x(), target_.y(), height);
   values.push_back(knot3.vector());
 
   // Knot 4.
-  times.push_back(duration_);
+  times.push_back(averageVelocity_);
   values.push_back(target_.vector());
 }
 
