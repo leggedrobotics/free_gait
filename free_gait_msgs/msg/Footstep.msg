@@ -1,6 +1,6 @@
-# Definition of a swing leg foot target.
+# Step defined by foothold position and swing profile.
 
-# Leg identifier ('leftFore', 'rightHind' etc.).
+# Leg name ('leftFore', 'rightHind' etc.).
 string name
 
 # Target position of the foot by the end of the motion.
@@ -18,14 +18,14 @@ float64 average_velocity
 # If empty, default is used.
 string profile_type
 
-# If a touchdown of the foot at the end of the swing is not expected.
+# If a contact (touchdown) of the foot at the end of the swing is not expected.
 # Default is false.
-bool no_touchdown
+bool ignore_contact
 
 # Target foothold surface normal.
-# If empty, default is used.
+# Leave empty of no contact is expected or not known.
 geometry_msgs/Vector3Stamped surface_normal
 
-# If pose adaptation should ignore this swing data.
+# If pose adaptation should ignore this leg motion.
 # Default is false.
 bool ignore_for_pose_adaptation

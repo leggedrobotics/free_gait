@@ -32,16 +32,6 @@ std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
   return pointer;
 }
 
-bool BaseAuto::isIgnore() const
-{
-  return ignore_;
-}
-
-void BaseAuto::setIgnore(bool ignore)
-{
-  ignore_ = ignore;
-}
-
 bool BaseAuto::updateStartPose(const Pose& startPose)
 {
   start_.getPosition() = startPose.getPosition();
@@ -133,4 +123,3 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 }
 
 } /* namespace */
-

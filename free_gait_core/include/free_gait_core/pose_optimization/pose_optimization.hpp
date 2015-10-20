@@ -1,5 +1,5 @@
 /*
- * completers.hpp
+ * pose_optimization.hpp
  *
  *  Created on: Oct 19, 2015
  *      Author: Péter Fankhauser
@@ -8,5 +8,4 @@
 
 #pragma once
 
-#include "free_gait_core/completers/StepCompleter.hpp"
-#include "free_gait_core/completers/FootTargetCompleter.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimization.hpp"

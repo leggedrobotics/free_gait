@@ -1,5 +1,5 @@
 /*
- * FootTarget.hpp
+ * Footstep.hpp
  *
  *  Created on: Mar 6, 2015
  *      Author: Péter Fankhauser
@@ -21,14 +21,14 @@
 
 namespace free_gait {
 
-class FootTarget : public LegMotionBase
+class Footstep : public LegMotionBase
 {
  public:
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  FootTarget();
-  virtual ~FootTarget();
+  Footstep();
+  virtual ~Footstep();
 
   /*!
    * Deep copy clone.
@@ -85,15 +85,15 @@ class FootTarget : public LegMotionBase
 
   void setSurfaceNormal(const Vector& surfaceNormal);
 
-  bool isNoTouchdown() const;
+  bool isIgnoreContact() const;
 
-  void setNoTouchdown(bool noTouchdown);
+  void setIgnoreContact(bool ignoreContact);
 
   bool isIgnoreForPoseAdaptation() const;
 
   void setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation);
 
-  friend std::ostream& operator << (std::ostream& out, const FootTarget& footTarget);
+  friend std::ostream& operator << (std::ostream& out, const Footstep& footTarget);
 
   friend class FootTargetCompleter;
 
@@ -116,7 +116,7 @@ class FootTarget : public LegMotionBase
   double averageVelocity_;
   std::string profileType_;
   Vector surfaceNormal_;
-  bool noTouchdown_;
+  bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
 
   //! Foot trajectory.

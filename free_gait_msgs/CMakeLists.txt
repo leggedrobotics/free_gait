@@ -18,14 +18,13 @@ add_message_files(
    FILES
    Step.msg
    BaseAuto.msg
-   BaseFloat.msg
    BaseTarget.msg
    BaseTrajectory.msg
-   FootTarget.msg
-   FootTrajectory.msg
+   Footstep.msg
+   EndEffectorTarget.msg
+   EndEffectorTrajectory.msg
+   JointTarget.msg
    JointTrajectory.msg
-   LegFloat.msg
-   LegFreeze.msg
 )
 
 ## Generate services in the 'srv' folder

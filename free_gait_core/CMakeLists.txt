@@ -65,15 +65,14 @@ add_library(${PROJECT_NAME}
 #   src/BaseShiftTrajectoryBase.cpp
    src/step/Step.cpp
    src/step/StepQueue.cpp
-   src/completers/StepCompleter.cpp
-   src/completers/FootTargetCompleter.cpp
-   src/completers/BaseAutoCompleter.cpp
+   src/step/StepExecutor.cpp
+   src/step/StepCompleter.cpp
 #   src/SwingData.cpp
 #   src/SwingTrajectoryBase.cpp
 #   src/SwingProfile.cpp
 #   src/SwingFootTrajectory.cpp
 #   src/SwingJointTrajectory.cpp
-#   src/PoseOptimization3d.cpp
+   src/pose_optimization/PoseOptimization3d.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -82,7 +81,7 @@ target_link_libraries(${PROJECT_NAME}
 
 # This is required because loco's test don't work.
 add_library(free_gait_to_test
-  src/PoseOptimization3d.cpp
+  src/pose_optimization/PoseOptimization3d.cpp
 )
 
 target_link_libraries(free_gait_to_test

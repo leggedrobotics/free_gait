@@ -10,3 +10,4 @@
 
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
+#include "free_gait_core/step/StepCompleter.hpp"

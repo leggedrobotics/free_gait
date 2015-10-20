@@ -25,10 +25,8 @@ class BaseMotionBase
   enum class Type
   {
     Auto,
-    Height,
     Target,
-    Trajectory,
-    Float
+    Trajectory
   };
 
   /*!

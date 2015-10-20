@@ -1,12 +1,12 @@
 /*
- * FootTarget.cpp
+ * Footstep.cpp
  *
  *  Created on: Mar 6, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "free_gait_core/leg_motion/FootTarget.hpp"
+#include <free_gait_core/leg_motion/Footstep.hpp>
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
 
 // Roco
@@ -14,129 +14,129 @@
 
 namespace free_gait {
 
-FootTarget::FootTarget()
-    : LegMotionBase(LegMotionBase::Type::FootTarget),
+Footstep::Footstep()
+    : LegMotionBase(LegMotionBase::Type::Footstep),
       profileHeight_(0.0),
       averageVelocity_(0.0),
       trajectoryUpdated_(false)
 {
 }
 
-FootTarget::~FootTarget()
+Footstep::~Footstep()
 {
 }
 
-std::unique_ptr<LegMotionBase> FootTarget::clone() const
+std::unique_ptr<LegMotionBase> Footstep::clone() const
 {
-  std::unique_ptr<LegMotionBase> pointer(new FootTarget(*this));
+  std::unique_ptr<LegMotionBase> pointer(new Footstep(*this));
   return pointer;
 }
 
-bool FootTarget::updateStartPosition(const Position& startPosition)
+bool Footstep::updateStartPosition(const Position& startPosition)
 {
   start_ = startPosition;
   trajectoryUpdated_ = false;
   return computeTrajectory();
 }
 
-const Position FootTarget::evaluate(const double phase)
+const Position Footstep::evaluate(const double phase)
 {
   if (!trajectoryUpdated_) computeTrajectory();
   const double time = phase * getDuration();
   return Position(trajectory_.evaluate(time));
 }
 
-double FootTarget::getDuration() const
+double Footstep::getDuration() const
 {
   return averageVelocity_;
 }
 
-double FootTarget::getAverageVelocity() const
+double Footstep::getAverageVelocity() const
 {
   return averageVelocity_;
 }
 
-void FootTarget::setAverageVelocity(double averageVelocity)
+void Footstep::setAverageVelocity(double averageVelocity)
 {
   averageVelocity_ = averageVelocity;
   trajectoryUpdated_ = false;
 }
 
-double FootTarget::getProfileHeight() const
+double Footstep::getProfileHeight() const
 {
   return profileHeight_;
 }
 
-void FootTarget::setProfileHeight(double profileHeight)
+void Footstep::setProfileHeight(double profileHeight)
 {
   profileHeight_ = profileHeight;
   trajectoryUpdated_ = false;
 }
 
-const Position FootTarget::getTarget() const
+const Position Footstep::getTarget() const
 {
   return target_;
 }
 
-void FootTarget::setTarget(const Position& target)
+void Footstep::setTarget(const Position& target)
 {
   target_ = target;
   trajectoryUpdated_ = false;
 }
 
-const std::string& FootTarget::getFrameId() const
+const std::string& Footstep::getFrameId() const
 {
   return frameId_;
 }
 
-void FootTarget::setFrameId(const std::string& frameId)
+void Footstep::setFrameId(const std::string& frameId)
 {
   frameId_ = frameId;
 }
 
-const std::string& FootTarget::getProfileType() const
+const std::string& Footstep::getProfileType() const
 {
   return profileType_;
 }
 
-void FootTarget::setProfileType(const std::string& type)
+void Footstep::setProfileType(const std::string& type)
 {
   profileType_ = type;
   trajectoryUpdated_ = false;
 }
 
-const Vector& FootTarget::getSurfaceNormal() const
+const Vector& Footstep::getSurfaceNormal() const
 {
   return surfaceNormal_;
 }
 
-void FootTarget::setSurfaceNormal(const Vector& surfaceNormal)
+void Footstep::setSurfaceNormal(const Vector& surfaceNormal)
 {
   surfaceNormal_ = surfaceNormal;
 }
 
-bool FootTarget::isNoTouchdown() const
+bool Footstep::isIgnoreContact() const
 {
-  return noTouchdown_;
+  return ignoreContact_;
 }
 
-void FootTarget::setNoTouchdown(bool noTouchdown)
+void Footstep::setIgnoreContact(bool ignoreContact)
 {
-  noTouchdown_ = noTouchdown;
+  ignoreContact_ = ignoreContact;
 }
 
 
-bool FootTarget::isIgnoreForPoseAdaptation() const
+bool Footstep::isIgnoreForPoseAdaptation() const
 {
   return ignoreForPoseAdaptation_;
 }
 
-void FootTarget::setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation)
+void Footstep::setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation)
 {
   ignoreForPoseAdaptation_ = ignoreForPoseAdaptation;
 }
 
-std::ostream& operator<<(std::ostream& out, const FootTarget& footTarget)
+std::ostream& operator<<(std::ostream& out, const Footstep& footTarget)
 {
   out << "Target: " << footTarget.target_ << std::endl;
   out << "Height: " << footTarget.profileHeight_ << std::endl;
@@ -145,7 +145,7 @@ std::ostream& operator<<(std::ostream& out, const FootTarget& footTarget)
   return out;
 }
 
-bool FootTarget::computeTrajectory()
+bool Footstep::computeTrajectory()
 {
   std::vector<Time> times;
   std::vector<ValueType> values;
@@ -166,7 +166,7 @@ bool FootTarget::computeTrajectory()
   return true;
 }
 
-void FootTarget::generateStraightKnots(std::vector<Time>& times,
+void Footstep::generateStraightKnots(std::vector<Time>& times,
                                          std::vector<ValueType>& values) const
 {
   // Knot 1.
@@ -178,7 +178,7 @@ void FootTarget::generateStraightKnots(std::vector<Time>& times,
   values.push_back(target_.vector());
 }
 
-void FootTarget::generateTriangleKnots(std::vector<Time>& times,
+void Footstep::generateTriangleKnots(std::vector<Time>& times,
                                          std::vector<ValueType>& values) const
 {
   // Knot 1.
@@ -199,7 +199,7 @@ void FootTarget::generateTriangleKnots(std::vector<Time>& times,
   values.push_back(target_.vector());
 }
 
-void FootTarget::generateSquareKnots(std::vector<Time>& times,
+void Footstep::generateSquareKnots(std::vector<Time>& times,
                                        std::vector<ValueType>& values) const
 {
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();

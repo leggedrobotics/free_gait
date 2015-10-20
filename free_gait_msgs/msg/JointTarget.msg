@@ -3,8 +3,8 @@
 # Leg name ('leftFore', 'rightHind' etc.).
 string name
 
-# Joint trajectories.
-trajectory_msgs/JointTrajectory trajectory
+# Joint target.
+trajectory_msgs/JointTrajectoryPoint target
 
 # Target surface normal.
 # Leave empty of no contact is expected or not known.

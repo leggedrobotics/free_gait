@@ -8,5 +8,5 @@
 
 #pragma once
 
+#include <free_gait_core/leg_motion/Footstep.hpp>
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
-#include "free_gait_core/leg_motion/FootTarget.hpp"

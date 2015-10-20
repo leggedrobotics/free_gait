@@ -47,83 +47,60 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
 {
 
   // Leg motion.
-  for (const auto& footTargetMessage : message.foot_target) {
-    FootTarget footTarget;
-    if (!fromMessage(footTargetMessage, footTarget)) return false;
-    const auto& limb = quadrupedModel_->getLimbEnumFromLimbString(footTargetMessage.name);
-    step.addLegMotion(limb, footTarget);
+  for (const auto& footstepMessage : message.footstep) {
+    Footstep footstep;
+    if (!fromMessage(footstepMessage, footstep)) return false;
+    const auto& limb = quadrupedModel_->getLimbEnumFromLimbString(footstepMessage.name);
+    step.addLegMotion(limb, footstep);
   }
 
   // Base motion.
   for (const auto& baseAutoMessage : message.base_auto) {
     BaseAuto baseAuto;
-//    if (!fromMessage(baseAutoMessage, baseAuto)) return false;
-//    const auto& limb = quadrupedModel_->getLimbEnumFromLimbString(footTargetMessage.name);
-//    step.addLegMotion(limb, footTarget);
+    if (!fromMessage(baseAutoMessage, baseAuto)) return false;
+    const auto& state = getStepStateFromString(baseAutoMessage.state);
+    step.addBaseMotion(state, baseAuto);
   }
-
-
-//
-//  // Base shift data.
-//  if (message.ignore_base_shift) {
-//    BaseShiftData baseShiftData;
-//    BaseShiftProfile trajectory; // Hack to make clone() work.
-//    baseShiftData.setTrajectory(trajectory);
-//    baseShiftData.setIgnore(true);
-//    addBaseShiftData(Step::State::PreStep, baseShiftData);
-//    addBaseShiftData(Step::State::AtStep, baseShiftData);
-//    addBaseShiftData(Step::State::PostStep, baseShiftData);
-//  } else {
-//    for (const auto& baseShiftMessage : message.base_shift_data) {
-//      BaseShiftDataRosWrapper baseShiftData;
-//      if (!baseShiftData.fromMessage(baseShiftMessage)) return false;
-//
-//      // State type.
-//      Step::State state;
-//      if (baseShiftMessage.name == "pre_step")
-//        state = Step::State::PreStep;
-//      else if (baseShiftMessage.name == "at_step")
-//        state = Step::State::AtStep;
-//      else if (baseShiftMessage.name == "post_step")
-//        state = Step::State::PostStep;
-//      else {
-//        ROS_ERROR_STREAM("Invalid base shift state name: " << baseShiftMessage.name << ".");
-//        return false;
-//      }
-//      addBaseShiftData(state, baseShiftData);
-//    }
-//  }
 
   return true;
 }
 
-bool StepRosConverter::fromMessage(const free_gait_msgs::FootTarget& message,
-                                   FootTarget& footTarget)
+bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
+                                   Footstep& foostep)
 {
   // Target.
-  footTarget.setFrameId(message.target.header.frame_id);
+  foostep.setFrameId(message.target.header.frame_id);
   Position target;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target.point, target);
-  footTarget.setTarget(target);
+  foostep.setTarget(target);
 
   // Profile.
-  footTarget.setProfileHeight(message.profile_height);
-  footTarget.setProfileType(message.profile_type);
+  foostep.setProfileHeight(message.profile_height);
+  foostep.setProfileType(message.profile_type);
 
   // Average Velocity.
-  footTarget.setAverageVelocity(message.average_velocity);
+  foostep.setAverageVelocity(message.average_velocity);
 
   // Surface normal.
   Vector surfaceNormal;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
-  footTarget.setSurfaceNormal(surfaceNormal);
+  foostep.setSurfaceNormal(surfaceNormal);
 
-  // No touchdown.
-  footTarget.setNoTouchdown(message.no_touchdown);
+  // Ignore contact.
+  foostep.setIgnoreContact(message.ignore_contact);
 
   // Ignore for pose adaptation.
-  footTarget.setIgnoreForPoseAdaptation(message.ignore_for_pose_adaptation);
+  foostep.setIgnoreForPoseAdaptation(message.ignore_for_pose_adaptation);
 
+  return true;
+}
+
+bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
+                                   BaseAuto& baseAuto)
+{
+  baseAuto.setIgnore(message.ignore);
+  baseAuto.setHeight(message.height);
+  baseAuto.setAverageVelocity(message.average_velocity);
   return true;
 }
 

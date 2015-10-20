@@ -10,8 +10,8 @@
 #include <free_gait_core/free_gait_core.hpp>
 
 // ROS
-#include <free_gait_msgs/StepFeedback.h>
-#include <free_gait_msgs/StepResult.h>
+#include <free_gait_msgs/ExecuteStepsFeedback.h>
+#include <free_gait_msgs/ExecuteStepsResult.h>
 
 #include <iostream>
 
@@ -24,7 +24,6 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
     : nodeHandle_(nodeHandle),
       name_(name),
       stepQueue_(stepQueue),
-      completer_(stepCompleter),
       rosConverter_(quadrupedModel),
       server_(nodeHandle_, name_, false),
       quadrupedModel_(quadrupedModel),
@@ -76,7 +75,6 @@ void FreeGaitActionServer::goalCallback()
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
-    completer_->complete(step);
     stepQueue_->add(step);
   }
 }
@@ -92,18 +90,18 @@ void FreeGaitActionServer::preemptCallback()
 
 void FreeGaitActionServer::publishFeedback()
 {
-  free_gait_msgs::StepFeedback feedback;
+  free_gait_msgs::ExecuteStepsFeedback feedback;
   if (stepQueue_->empty()) return;
   auto& step = stepQueue_->getCurrentStep();
   feedback.step_number = step.getStepNumber();
   feedback.queue_size = stepQueue_->size();
 
   if (step.checkStatus() == false) {
-    feedback.status = free_gait_msgs::StepFeedback::PROGRESS_PAUSED;
+    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
     feedback.description = "Paused.";
   } else {
     switch (step.getState()) {
-      feedback.status = free_gait_msgs::StepFeedback::PROGRESS_EXECUTING;
+      feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
       case Step::State::PreStep:
         feedback.description = "Pre step.";
         break;
@@ -114,7 +112,7 @@ void FreeGaitActionServer::publishFeedback()
         feedback.description = "Post step.";
         break;
       default:
-        feedback.status = free_gait_msgs::StepFeedback::PROGRESS_UNKNOWN;
+        feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_UNKNOWN;
         feedback.description = "Unknown.";
         break;
     }
@@ -131,16 +129,16 @@ void FreeGaitActionServer::publishFeedback()
 void FreeGaitActionServer::setSucceeded()
 {
   ROS_INFO("StepAction succeeded.");
-  free_gait_msgs::StepResult result;
-  result.status = free_gait_msgs::StepResult::RESULT_REACHED;
+  free_gait_msgs::ExecuteStepsResult result;
+  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_REACHED;
   server_.setSucceeded(result, "Step action has been reached.");
 }
 
 void FreeGaitActionServer::setPreempted()
 {
   ROS_INFO("StepAction preempted.");
-  free_gait_msgs::StepResult result;
-  result.status = free_gait_msgs::StepResult::RESULT_FAILED;
+  free_gait_msgs::ExecuteStepsResult result;
+  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
   server_.setPreempted(result, "Step action has been preempted.");
   isPreempting_ = false;
 }
@@ -148,8 +146,8 @@ void FreeGaitActionServer::setPreempted()
 void FreeGaitActionServer::setAborted()
 {
   ROS_INFO("StepAction aborted.");
-  free_gait_msgs::StepResult result;
-  result.status = free_gait_msgs::StepResult::RESULT_FAILED;
+  free_gait_msgs::ExecuteStepsResult result;
+  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
   server_.setAborted(result, "Step action has failed.");
 }
 

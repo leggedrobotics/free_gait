@@ -13,6 +13,8 @@
 
 // ROS
 #include <free_gait_msgs/Step.h>
+#include <free_gait_msgs/Footstep.h>
+#include <free_gait_msgs/BaseAuto.h>
 
 // Quadruped model
 #include "quadruped_model/QuadrupedModel.hpp"
@@ -31,9 +33,11 @@ class StepRosConverter
    * @param[out] gridMap the step object to be initialized.
    * @return true if successful, false otherwise.
    */
-  bool fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step);
+  bool fromMessage(const free_gait_msgs::Step& message, Step& step);
 
-  bool fromMessage(const free_gait_msgs::FootTarget& message, FootTarget& footTarget);
+  bool fromMessage(const free_gait_msgs::Footstep& message, Footstep& footstep);
+
+  bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
 
  private:
   Step::State getStepStateFromString(const std::string& state);

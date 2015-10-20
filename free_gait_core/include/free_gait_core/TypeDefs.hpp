@@ -36,4 +36,8 @@ typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
 
 typedef kindr::phys_quant::eigen_impl::VectorTypeless3D Vector;
 
+typedef kindr::phys_quant::eigen_impl::Position<double, Eigen::Dynamic> JointPositions;
+typedef kindr::phys_quant::eigen_impl::Velocity<double, Eigen::Dynamic> JointVelocities;
+typedef kindr::phys_quant::eigen_impl::Torque<double, Eigen::Dynamic> JointTorques;
+
 } // namespace

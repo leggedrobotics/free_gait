@@ -17,7 +17,7 @@
 namespace free_gait {
 
 StepQueue::StepQueue()
-    : previousStepNumber_(-1)
+    : hasSwitchedStep_(false)
 {
 }
 
@@ -34,13 +34,13 @@ bool StepQueue::advance(double dt)
 {
   if (queue_.empty()) return true;
 
-  previousStepNumber_ = getCurrentStep().getStepNumber();
-
   bool dequeue = true;
+  hasSwitchedStep_ = false;
   while (dequeue) {
     if (!queue_.front().advance(dt)) {
       queue_.pop_front();
       if (queue_.empty()) return true;
+      hasSwitchedStep_ = true;
     } else {
       dequeue = false;
     }
@@ -90,7 +90,7 @@ std::deque<Step>::size_type StepQueue::size() const
 
 bool StepQueue::hasSwitchedStep() const
 {
-  return (previousStepNumber_ != queue_.front().getStepNumber());
+  return hasSwitchedStep_;
 }
 
 } /* namespace */

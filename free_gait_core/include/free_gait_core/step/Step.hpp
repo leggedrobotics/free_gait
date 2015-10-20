@@ -166,6 +166,8 @@ class Step
 
   bool isApproachingEndOfState();
 
+  bool isApproachingEndOfStep();
+
   friend std::ostream& operator << (std::ostream& out, const Step& step);
 
   friend class StepCompleter;

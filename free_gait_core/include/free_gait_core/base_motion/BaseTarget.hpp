@@ -33,9 +33,6 @@ class BaseAuto : public BaseMotionBase
    */
   std::unique_ptr<BaseMotionBase> clone() const;
 
-  bool isIgnore() const;
-  void setIgnore(bool ignore);
-
   /*!
    * Update the profile with the base start pose.
    * Do this to avoid jumps of the base.
@@ -79,8 +76,6 @@ class BaseAuto : public BaseMotionBase
    * Computes the internal trajectory based on the profile type.
    */
   bool computeTrajectory();
-
-  bool ignore_;
 
   Pose start_; // In world frame.
   bool hasTarget_;

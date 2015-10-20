@@ -214,7 +214,6 @@ double Step::getAtStepDurationForLeg(const quadruped_model::LimbEnum& limb) cons
   return legMotions_.at(limb).getDuration();
 }
 
-
 double Step::getTotalDuration()
 {
   if (!isDurationComputed_)
@@ -250,6 +249,13 @@ double Step::getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb)
 double Step::getTotalPhase()
 {
   return loco::mapTo01Range(getTime(), 0.0, getTotalDuration());
+}
+
+bool Step::isApproachingEndOfStep()
+{
+  double tolerance = 0.01;
+  if (getTime() + tolerance >= getTotalDuration()) return true;
+  return false;
 }
 
 bool Step::isApproachingEndOfState()

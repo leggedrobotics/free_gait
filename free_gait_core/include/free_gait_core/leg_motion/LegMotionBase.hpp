@@ -26,11 +26,11 @@ class LegMotionBase
 
   enum class Type
   {
-    Freeze,
-    FootTarget,
-    FootTrajectory,
-    JointTrajectory,
-    Float
+    Footstep,
+    EndEffectorTarget,
+    EndEffectorTrajectory,
+    JointTarget,
+    JointTrajectory
   };
 
   /*!

@@ -82,8 +82,7 @@ class StepQueue
   //! Queue of step data.
   std::deque<Step> queue_;
 
-  //! Information from the previously executed step.
-  int previousStepNumber_;
+  bool hasSwitchedStep_;
 };
 
 } /* namespace */

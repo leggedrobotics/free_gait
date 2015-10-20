@@ -18,7 +18,7 @@
 // ROS
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
-#include <free_gait_msgs/StepAction.h>
+#include <free_gait_msgs/ExecuteStepsAction.h>
 
 // STD
 #include <string>
@@ -64,13 +64,10 @@ class FreeGaitActionServer
   //! ROS converter.
   StepRosConverter rosConverter_;
 
-  //! Step completion.
-  std::shared_ptr<free_gait::StepCompleter> completer_;
-
   //! Action server.
   std::string name_;
-  actionlib::SimpleActionServer<free_gait_msgs::StepAction> server_;
-  free_gait_msgs::StepActionResult result_;
+  actionlib::SimpleActionServer<free_gait_msgs::ExecuteStepsAction> server_;
+  free_gait_msgs::ExecuteStepsActionResult result_;
 
   //! True if in process of preempting.
   bool isPreempting_;
