@@ -40,33 +40,38 @@ class StepExecutor
 
   StepQueue& getQueue();
 
-  void initializeBasePose(const Pose& pose);
+
+  const ControlSetup& getBaseControlSetup() const;
   const Pose& getBasePose();
 
-  void initializeJointPositions(LimbEnum limb, const JointPositions& jointPositions);
-  bool isJointPositionsAvailable(LimbEnum limb) const;
+  const ControlSetup& getLegControlSetup(LimbEnum limb) const;
   const JointPositions& getJointPositions(LimbEnum limb) const;
-
-  void initializeJointVelocities(LimbEnum limb, const JointVelocities& jointVelocities);
-  bool isJointVelocitiesAvailable(LimbEnum limb) const;
   const JointVelocities& getJointVelocities(LimbEnum limb) const;
+  const JointEfforts& getJointEfforts(LimbEnum limb) const;
 
-  void initializeJointTorques(LimbEnum limb, const JointTorques& jointTorques);
-  bool isJointTorquesAvailable(LimbEnum limb) const;
-  const JointTorques& getJointTorques(LimbEnum limb) const;
-
-  void initializeSupportLeg(LimbEnum limb, bool support);
   bool isSupportLeg(LimbEnum limb) const;
+  bool isIgnoreContact(LimbEnum limb) const;
+
+ protected:
+  void virtual updateWithMeasuredBasePose() = 0;
+  void virtual updateWithMeasuredBaseTwist() = 0;
+  void virtual updateWithMeasuredJointPositions(LimbEnum limb) = 0;
+  void virtual updateWithMeasuredJointVelocities(LimbEnum limb) = 0;
+  void virtual updateWithMeasuredJointEfforts(LimbEnum limb) = 0;
+  void virtual updateWithActualSupportLeg(LimbEnum limb) = 0;
 
  private:
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
-  Pose basePose_;
 
+  Pose basePose_;
+  ControlSetup baseControlSetup_;
+  std::unordered_map<quadruped_model::LimbEnum, ControlSetup, robotUtils::EnumClassHash> legControlSetups_; // TODO Maybe summarize this in a leg class.
   std::unordered_map<quadruped_model::LimbEnum, JointPositions, robotUtils::EnumClassHash> jointPositions_;
   std::unordered_map<quadruped_model::LimbEnum, JointVelocities, robotUtils::EnumClassHash> jointVelocities_;
-  std::unordered_map<quadruped_model::LimbEnum, JointTorques, robotUtils::EnumClassHash> jointTorques_;
+  std::unordered_map<quadruped_model::LimbEnum, JointEfforts, robotUtils::EnumClassHash> jointEfforts_;
   std::unordered_map<quadruped_model::LimbEnum, bool, robotUtils::EnumClassHash> isSupportLegs_;
+  std::unordered_map<quadruped_model::LimbEnum, bool, robotUtils::EnumClassHash> ignoreContact_;
 };
 
 } /* namespace free_gait */

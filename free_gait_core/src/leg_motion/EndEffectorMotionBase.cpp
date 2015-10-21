@@ -1,0 +1,82 @@
+/*
+ * EndEffectorMotionBase.cpp
+ *
+ *  Created on: Mar 10, 2015
+ *      Author: Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
+ */
+#include <free_gait_core/leg_motion/EndEffectorMotionBase.hpp>
+
+namespace free_gait {
+
+EndEffectorMotionBase::EndEffectorMotionBase(LegMotionBase::Type type)
+    : LegMotionBase(type)
+{
+}
+
+EndEffectorMotionBase::~EndEffectorMotionBase()
+{
+}
+
+std::unique_ptr<LegMotionBase> EndEffectorMotionBase::clone() const
+{
+  std::unique_ptr<LegMotionBase> pointer(new EndEffectorMotionBase(*this));
+  return pointer;
+}
+
+LegMotionBase::TrajectoryType EndEffectorMotionBase::getTrajectoryType() const
+{
+  return LegMotionBase::TrajectoryType::EndEffector;
+}
+
+void EndEffectorMotionBase::updateStartPosition(const Position& startPosition)
+{
+  throw std::runtime_error("EndEffectorMotionBase::updateStartPose() not implemented.");
+}
+
+void EndEffectorMotionBase::updateStartVelocity(const LinearVelocity& startVelocity)
+{
+  throw std::runtime_error("EndEffectorMotionBase::updateStartVelocity() not implemented.");
+}
+
+void EndEffectorMotionBase::updateStartAcceleration(const LinearAcceleration& startAcceleration)
+{
+  throw std::runtime_error("EndEffectorMotionBase::updateStartAcceleration() not implemented.");
+}
+
+void EndEffectorMotionBase::updateStartForce(const Force& startForce)
+{
+  throw std::runtime_error("EndEffectorMotionBase::updateStartForce() not implemented.");
+}
+
+const Position EndEffectorMotionBase::evaluatePosition(const double time)
+{
+  throw std::runtime_error("EndEffectorMotionBase::evaluatePosition() not implemented.");
+}
+
+const LinearVelocity EndEffectorMotionBase::evaluateVelocity(const double time)
+{
+  throw std::runtime_error("EndEffectorMotionBase::evaluateVelocity() not implemented.");
+}
+
+const LinearAcceleration EndEffectorMotionBase::evaluateAcceleration(const double time)
+{
+  throw std::runtime_error("EndEffectorMotionBase::evaluateAcceleration() not implemented.");
+}
+
+const Force EndEffectorMotionBase::evaluateForce(const double time)
+{
+  throw std::runtime_error("EndEffectorMotionBase::evaluateForce() not implemented.");
+}
+
+const Position EndEffectorMotionBase::getTargetPosition() const
+{
+  throw std::runtime_error("EndEffectorMotionBase::getTargetPosition() not implemented.");
+}
+
+const std::string& EndEffectorMotionBase::getFrameId() const
+{
+  throw std::runtime_error("EndEffectorMotionBase::getFrameId() not implemented.");
+}
+
+} /* namespace */

@@ -23,19 +23,46 @@ StepExecutor::~StepExecutor()
 
 bool StepExecutor::advance(double dt)
 {
-  if (queue_.empty()) {
-    return true;
-  }
+  if (!queue_.advance(dt)) return false;
+  if (queue_.empty()) return true;
 
   // TODO How about first step?
-  // TODO Update start position.
-  if (queue_.getCurrentStep().isApproachingEndOfStep() && queue_.size() > 1) {
-    if (!queue_.getNextStep().isComplete()) {
-      completer_->complete(queue_.getNextStep());
+  // TODO Instead, do this for each state.
+  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
+    completer_->complete(*queue_.getCurrentStep());
+    // Update actuation type and robot state.
+    if (!queue_.getPreviousStep()) {
+      updateWithMeasuredBasePose();
+      updateWithMeasuredBaseTwist();
+      for (const auto& legControlSetup : legControlSetups_) {
+        updateWithMeasuredJointPositions(legControlSetup.first);
+        updateWithMeasuredJointVelocities(legControlSetup.first);
+        updateWithMeasuredJointEfforts(legControlSetup.first);
+        updateWithActualSupportLeg(legControlSetup.first);
+      }
+    } else {
+      auto& previousBaseSetup = queue_.getPreviousStep()->getCurrentBaseMotion().getControlSetup();
+      if (!previousBaseSetup.at(ControlLevel::Position)) updateWithMeasuredBasePose();
+      if (!previousBaseSetup.at(ControlLevel::Velocity)) updateWithMeasuredBaseTwist();
+
+      for (const auto& legControlSetup : legControlSetups_) {
+        // TODO: Special treatment for non-specified legs.
+        auto& previousLegSetup = queue_.getPreviousStep()->getLegMotions().at(legControlSetup.first).getControlSetup();
+        if (!previousBaseSetup.at(ControlLevel::Position)) updateWithMeasuredJointPositions(legControlSetup.first);
+        if (!previousBaseSetup.at(ControlLevel::Velocity)) updateWithMeasuredJointVelocities(legControlSetup.first);
+        // TODO etc.!!!
+      }
+    }
+
+    baseControlSetup_ = queue_.getCurrentStep()->getCurrentBaseMotion().getControlSetup();
+    for (const auto& legMotion : queue_.getCurrentStep()->getLegMotions()) {
+      legControlSetups_.at(legMotion.first) = legMotion.second.getControlSetup();
     }
   }
 
-  queue_.advance(dt);
+  auto step = queue_.getCurrentStep();
+  // TODO Do this with all frame handling.
+  if (baseControlSetup_.at(ControlLevel::Position)) basePose_ = step->getCurrentBaseMotion().evaluatePose(step->getCurrentStateTime());
   return true;
 }
 
@@ -44,9 +71,9 @@ StepQueue& StepExecutor::getQueue()
   return queue_;
 }
 
-void StepExecutor::initializeBasePose(const Pose& pose)
+const ControlSetup& StepExecutor::getBaseControlSetup() const
 {
-  basePose_ = pose;
+  return baseControlSetup_;
 }
 
 const Pose& StepExecutor::getBasePose()
@@ -54,18 +81,9 @@ const Pose& StepExecutor::getBasePose()
   return basePose_;
 }
 
-void StepExecutor::initializeJointPositions(LimbEnum limb, const JointPositions& jointPositions)
+const ControlSetup& StepExecutor::getLegControlSetup(LimbEnum limb) const
 {
-  jointPositions_[limb] = jointPositions;
-}
-
-bool StepExecutor::isJointPositionsAvailable(LimbEnum limb) const
-{
-  std::unordered_map<quadruped_model::LimbEnum, JointPositions, robotUtils::EnumClassHash>::const_iterator it =
-      jointPositions_.find(limb);
-
-  if (it == jointPositions_.end()) return false;
-  return true;
+  return legControlSetups_.at(limb);
 }
 
 const JointPositions& StepExecutor::getJointPositions(LimbEnum limb) const
@@ -73,52 +91,24 @@ const JointPositions& StepExecutor::getJointPositions(LimbEnum limb) const
   return jointPositions_.at(limb);
 }
 
-void StepExecutor::initializeJointVelocities(LimbEnum limb, const JointVelocities& jointVelocities)
-{
-  jointVelocities_[limb] = jointVelocities;
-}
-
-bool StepExecutor::isJointVelocitiesAvailable(LimbEnum limb) const
-{
-  std::unordered_map<quadruped_model::LimbEnum, JointVelocities, robotUtils::EnumClassHash>::const_iterator it =
-      jointVelocities_.find(limb);
-
-  if (it == jointVelocities_.end()) return false;
-  return true;
-}
-
 const JointVelocities& StepExecutor::getJointVelocities(LimbEnum limb) const
 {
   return jointVelocities_.at(limb);
 }
 
-void StepExecutor::initializeJointTorques(LimbEnum limb, const JointTorques& jointTorques)
+const JointEfforts& StepExecutor::getJointEfforts(LimbEnum limb) const
 {
-  jointTorques_[limb] = jointTorques;
-}
-
-bool StepExecutor::isJointTorquesAvailable(LimbEnum limb) const
-{
-  std::unordered_map<quadruped_model::LimbEnum, JointTorques, robotUtils::EnumClassHash>::const_iterator it =
-      jointTorques_.find(limb);
-
-  if (it == jointTorques_.end()) return false;
-  return true;
-}
-
-const JointTorques& StepExecutor::getJointTorques(LimbEnum limb) const
-{
-  return jointTorques_.at(limb);
-}
-
-void StepExecutor::initializeSupportLeg(LimbEnum limb, bool support)
-{
-  isSupportLegs_[limb] = support;
+  return jointEfforts_.at(limb);
 }
 
 bool StepExecutor::isSupportLeg(LimbEnum limb) const
 {
   return isSupportLegs_.at(limb);
+}
+
+bool StepExecutor::isIgnoreContact(LimbEnum limb) const
+{
+  return ignoreContact_.at(limb);
 }
 
 } /* namespace free_gait */

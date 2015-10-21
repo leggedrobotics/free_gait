@@ -10,7 +10,7 @@
 
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/leg_motion/LegMotionBase.hpp"
+#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
 // Curves
 #include <curves/PolynomialSplineVectorSpaceCurve.hpp>
@@ -21,7 +21,7 @@
 
 namespace free_gait {
 
-class Footstep : public LegMotionBase
+class Footstep : public EndEffectorMotionBase
 {
  public:
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
@@ -42,7 +42,7 @@ class Footstep : public LegMotionBase
    * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  virtual bool updateStartPosition(const Position& startPosition);
+  virtual void updateStartPosition(const Position& startPosition);
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.

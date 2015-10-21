@@ -15,7 +15,7 @@
 namespace free_gait {
 
 Footstep::Footstep()
-    : LegMotionBase(LegMotionBase::Type::Footstep),
+    : EndEffectorMotionBase(LegMotionBase::Type::Footstep),
       profileHeight_(0.0),
       averageVelocity_(0.0),
       trajectoryUpdated_(false)
@@ -32,11 +32,11 @@ std::unique_ptr<LegMotionBase> Footstep::clone() const
   return pointer;
 }
 
-bool Footstep::updateStartPosition(const Position& startPosition)
+void Footstep::updateStartPosition(const Position& startPosition)
 {
   start_ = startPosition;
   trajectoryUpdated_ = false;
-  return computeTrajectory();
+  computeTrajectory();
 }
 
 const Position Footstep::evaluate(const double phase)

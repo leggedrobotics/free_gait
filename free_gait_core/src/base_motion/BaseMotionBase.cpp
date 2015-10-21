@@ -30,20 +30,64 @@ BaseMotionBase::Type BaseMotionBase::getType() const
   return type_;
 }
 
-double BaseMotionBase::getDuration() const
+const ControlSetup BaseMotionBase::getControlSetup() const
 {
-  return 0.0;
+  throw std::runtime_error("BaseMotionBase::getControlSetup() not implemented.");
 }
 
-//
-//const std::string& BaseMotionBase::getFrameId() const
-//{
-//  return frameId_;
-//}
-//
-//void BaseMotionBase::setFrameId(const std::string& frameId)
-//{
-//  frameId_ = frameId;
-//}
+double BaseMotionBase::getDuration() const
+{
+  throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");
+}
+
+const std::string& BaseMotionBase::getFrameId() const
+{
+  throw std::runtime_error("BaseMotionBase::getFrameId() not implemented.");
+}
+
+void BaseMotionBase::updateStartPose(const Pose& startPose)
+{
+  throw std::runtime_error("BaseMotionBase::updateStartPose() not implemented.");
+}
+
+void BaseMotionBase::updateStartTwist(const Twist& startTwist)
+{
+  throw std::runtime_error("BaseMotionBase::updateStartTwist() not implemented.");
+}
+
+void BaseMotionBase::updateStartAcceleration(const Twist& startAcceleration)
+{
+  throw std::runtime_error("BaseMotionBase::updateStartAcceleration() not implemented.");
+}
+
+void BaseMotionBase::updateStartForce(const Force& startForce, const Torque& startTorque)
+{
+  throw std::runtime_error("BaseMotionBase::updateStartForce() not implemented.");
+}
+
+Pose BaseMotionBase::evaluatePose(const double time)
+{
+  throw std::runtime_error("BaseMotionBase::evaluatePose() not implemented.");
+}
+
+Twist BaseMotionBase::evaluateTwist(const double time)
+{
+  throw std::runtime_error("BaseMotionBase::evaluateTwist() not implemented.");
+}
+
+Twist BaseMotionBase::evaluateAcceleration(const double time)
+{
+  throw std::runtime_error("BaseMotionBase::evaluateAcceleration() not implemented.");
+}
+
+Force BaseMotionBase::evaluateForce(const double time)
+{
+  throw std::runtime_error("BaseMotionBase::evaluateForce() not implemented.");
+}
+
+Torque BaseMotionBase::evaluateTorque(const double time)
+{
+  throw std::runtime_error("BaseMotionBase::evaluateTorque() not implemented.");
+}
 
 } /* namespace */

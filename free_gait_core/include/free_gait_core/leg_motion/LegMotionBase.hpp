@@ -33,6 +33,12 @@ class LegMotionBase
     JointTrajectory
   };
 
+  enum class TrajectoryType
+  {
+    EndEffector,
+    Joints
+  };
+
   /*!
    * Constructor.
    */
@@ -50,49 +56,24 @@ class LegMotionBase
   virtual std::unique_ptr<LegMotionBase> clone() const;
 
   /*!
-   * Returns the type of the swing trajectory.
-   * @return the type of the swing trajectory.
+   * Returns the type of the leg motion trajectory.
+   * @return the type of the leg motion trajectory.
    */
-  virtual LegMotionBase::Type getType() const;
+  LegMotionBase::Type getType() const;
+  virtual LegMotionBase::TrajectoryType getTrajectoryType() const;
+  virtual const ControlSetup getControlSetup() const;
 
-//  /*!
-//   * Update the trajectory with the foot start position.
-//   * Do this to avoid jumps of the swing leg.
-//   * @param footStartPosition the start position of the foot in the trajectoryFrameId_ frame.
-//   * @return true if successful, false otherwise.
-//   */
-//  virtual bool updateStartPosition(const Position& startPosition) = 0;
-//
-//  /*!
-//   * Evaluate the swing foot position at a given swing phase value.
-//   * @param phase the swing phase value.
-//   * @return the position of the foot on the swing trajectory.
-//   */
-//  virtual const Position evaluate(const double phase) = 0;
-//
   /*!
    * Returns the total duration of the motion.
    * @return the duration.
    */
   virtual double getDuration() const;
-//
-//  /*!
-//   * Return the target (end position) of the swing trajectory.
-//   * @return the target.
-//   */
-//  virtual const Position getTarget() const = 0;
-//
-//  /*!
-//   * Returns the frame id of the trajectory.
-//   * @return the frame id.
-//   */
-//  const std::string& getFrameId() const;
-//
-//  /*!
-//   * Set the frame id of the trajectory.
-//   * @param frameId the frame id.
-//   */
-//  void setFrameId(const std::string& frameId);
+
+  const Vector& getSurfaceNormal() const;
+
+  bool isIgnoreContact() const;
+
+  bool isIgnoreForPoseAdaptation() const;
 
   /*!
    * Print the contents to console for debugging.

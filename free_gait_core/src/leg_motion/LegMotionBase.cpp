@@ -29,19 +29,34 @@ LegMotionBase::Type LegMotionBase::getType() const
   return type_;
 }
 
+LegMotionBase::TrajectoryType LegMotionBase::getTrajectoryType() const
+{
+  throw std::runtime_error("LegMotionBase::getTrajectoryType() not implemented.");
+}
+
+const ControlSetup LegMotionBase::getControlSetup() const
+{
+  throw std::runtime_error("LegMotionBase::getControlSetup() not implemented.");
+}
+
 double LegMotionBase::getDuration() const
 {
-  return 0.0;
+  throw std::runtime_error("LegMotionBase::getDuration() not implemented.");
 }
-//
-//const std::string& SwingTrajectoryBase::getFrameId() const
-//{
-//  return frameId_;
-//}
-//
-//void SwingTrajectoryBase::setFrameId(const std::string& frameId)
-//{
-//  frameId_ = frameId;
-//}
+
+const Vector& LegMotionBase::getSurfaceNormal() const
+{
+  throw std::runtime_error("LegMotionBase::getSurfaceNormal() not implemented.");
+}
+
+bool LegMotionBase::isIgnoreContact() const
+{
+  throw std::runtime_error("LegMotionBase::isIgnoreContact() not implemented.");
+}
+
+bool LegMotionBase::isIgnoreForPoseAdaptation() const
+{
+  throw std::runtime_error("LegMotionBase::isIgnoreForPoseAdaptation() not implemented.");
+}
 
 } /* namespace */

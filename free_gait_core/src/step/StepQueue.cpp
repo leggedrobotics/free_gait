@@ -25,28 +25,29 @@ StepQueue::~StepQueue()
 {
 }
 
-void StepQueue::add(const Step& step)
+void StepQueue::add(std::shared_ptr<Step> step)
 {
   queue_.push_back(step);
 }
 
 bool StepQueue::advance(double dt)
 {
+  hasSwitchedStep_ = false;
   if (queue_.empty()) return true;
 
   bool dequeue = true;
-  hasSwitchedStep_ = false;
   while (dequeue) {
-    if (!queue_.front().advance(dt)) {
+    if (!queue_.front()->advance(dt)) {
+      previousStep_ = getCurrentStep();
       queue_.pop_front();
-      if (queue_.empty()) return true;
+      if (queue_.empty()) return true; // End reached.
       hasSwitchedStep_ = true;
     } else {
       dequeue = false;
     }
   }
 
-  if (hasSwitchedStep() || getCurrentStep().hasSwitchedState()) {
+  if (hasSwitchedStep() || getCurrentStep()->hasSwitchedState()) {
     ROCO_DEBUG_STREAM("Switched step state to:");
     ROCO_DEBUG_STREAM(getCurrentStep());
   }
@@ -67,20 +68,26 @@ void StepQueue::clearNextSteps()
 
 void StepQueue::clear()
 {
+  previousStep_.reset();
   queue_.clear();
 }
 
-Step& StepQueue::getCurrentStep()
+std::shared_ptr<Step> StepQueue::getCurrentStep()
 {
-  if (empty()) throw std::out_of_range("No footsteps in queue!");
+  if (empty()) throw std::out_of_range("No steps in queue!");
   return queue_.front();
 }
 
-Step& StepQueue::getNextStep()
+std::shared_ptr<Step> StepQueue::getNextStep()
 {
-  if (size() <= 1) throw std::out_of_range("No next footstep in queue!");
+  if (size() <= 1) throw std::out_of_range("No next step in queue!");
   auto itertator = queue_.begin() + 1;
   return *itertator;
+}
+
+std::shared_ptr<Step> StepQueue::getPreviousStep()
+{
+  return previousStep_;
 }
 
 std::deque<Step>::size_type StepQueue::size() const

@@ -42,14 +42,14 @@ class BaseAuto : public BaseMotionBase
    * @param startPose the start pose of the base in the frameId_ frame.
    * @return true if successful, false otherwise.
    */
-  virtual bool updateStartPose(const Pose& startPose);
+  void updateStartPose(const Pose& startPose);
 
   /*!
    * Evaluate the base shift pose at a given time.
    * @param time the time value.
    * @return the pose of the base shift trajectory.
    */
-  virtual const Pose evaluate(const double time);
+  Pose evaluatePose(const double time);
 
   /*!
    * Returns the total duration of the trajectory.

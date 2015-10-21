@@ -42,15 +42,14 @@ void BaseAuto::setIgnore(bool ignore)
   ignore_ = ignore;
 }
 
-bool BaseAuto::updateStartPose(const Pose& startPose)
+void BaseAuto::updateStartPose(const Pose& startPose)
 {
   start_.getPosition() = startPose.getPosition();
   start_.getRotation() = startPose.getRotation().getUnique();
   trajectoryUpdated_ = false;
-  return true;
 }
 
-const Pose BaseAuto::evaluate(const double time)
+Pose BaseAuto::evaluatePose(const double time)
 {
   if (!trajectoryUpdated_) computeTrajectory();
   double timeInRange = time <= duration_ ? time : duration_;

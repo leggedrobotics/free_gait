@@ -59,6 +59,8 @@ add_library(${PROJECT_NAME}
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp
    src/leg_motion/LegMotionBase.cpp
+   src/leg_motion/EndEffectorMotionBase.cpp
+   src/leg_motion/JointMotionBase.cpp
    src/leg_motion/FootTarget.cpp
 #   src/BaseShiftProfile.cpp
 #   src/BaseShiftSplineTrajectory.cpp

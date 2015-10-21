@@ -52,38 +52,41 @@ class BaseMotionBase
    */
   BaseMotionBase::Type getType() const;
 
-//  /*!
-//   * Update the trajectory with the base start pose.
-//   * Do this to avoid jumps of the base.
-//   * @param startPose the start pose of the base in the frameId_ frame.
-//   * @return true if successful, false otherwise.
-//   */
-//  virtual bool updateStartPose(const Pose& startPose) = 0;
-//
-//  /*!
-//   * Evaluate the base shift pose at a given time.
-//   * @param time the time value.
-//   * @return the pose of the base.
-//   */
-//  virtual const Pose evaluate(const double time) = 0;
-//
+  virtual const ControlSetup getControlSetup() const;
+
   /*!
    * Returns the total duration of the motion.
    * @return the duration.
    */
   virtual double getDuration() const;
-//
-//  /*!
-//   * Returns the frame id of the trajectory.
-//   * @return the frame id.
-//   */
-//  const std::string& getFrameId() const;
-//
-//  /*!
-//   * Set the frame id of the trajectory.
-//   * @param frameId the frame id.
-//   */
-//  void setFrameId(const std::string& frameId);
+
+  /*!
+   * Returns the frame id base motion.
+   * @return the frame id.
+   */
+  virtual const std::string& getFrameId() const;
+
+  /*!
+   * Update the trajectory with the base start pose.
+   * Do this to avoid jumps of the base.
+   * @param startPose the start pose of the base in the frameId_ frame.
+   * @return true if successful, false otherwise.
+   */
+  virtual void updateStartPose(const Pose& startPose);
+  virtual void updateStartTwist(const Twist& startTwist);
+  virtual void updateStartAcceleration(const Twist& startAcceleration);
+  virtual void updateStartForce(const Force& startForce, const Torque& startTorque);
+
+  /*!
+   * Evaluate the base motion at a given time.
+   * @param time the time value.
+   * @return the pose of the base.
+   */
+  virtual Pose evaluatePose(const double time);
+  virtual Twist evaluateTwist(const double time);
+  virtual Twist evaluateAcceleration(const double time);
+  virtual Force evaluateForce(const double time);
+  virtual Torque evaluateTorque(const double time);
 
   /*!
    * Print the contents to console for debugging.
