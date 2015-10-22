@@ -1,8 +1,5 @@
 # Definition of a base target pose.
 
-# State name (e.g. 'pre_step', 'at_step', 'post_step').
-string state
-
 # Target pose of the base by the end of the motion.
 geometry_msgs/PoseStamped target
 

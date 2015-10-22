@@ -40,8 +40,6 @@ class StepRosConverter
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
 
  private:
-  Step::State getStepStateFromString(const std::string& state);
-
   //! Robot model.
   std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel_;
 };

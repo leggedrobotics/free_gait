@@ -9,6 +9,8 @@
 #pragma once
 
 #include "free_gait_core/TypeDefs.hpp"
+#include "free_gait_core/executor/executor.hpp"
 #include "free_gait_core/step/step.hpp"
 #include "free_gait_core/base_motion/base_motion.hpp"
 #include "free_gait_core/leg_motion/leg_motion.hpp"
+#include "free_gait_core/pose_optimization/pose_optimization.hpp"

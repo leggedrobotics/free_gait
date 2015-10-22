@@ -9,7 +9,8 @@
   <url type="bugtracker">https://bitbucket.org/ethz-asl-lr/free_gait/issues</url>
   <author email="pfankhauser@ethz.ch">Péter Fankhauser</author>
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>loco</depend>
+  <depend>quadruped_model</depend>
+  <depend>ooqp_eigen_interface</depend>
   <depend>curves</depend>
   <depend>grid_map_core</depend>
 </package>

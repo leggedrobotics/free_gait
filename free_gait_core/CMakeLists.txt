@@ -5,7 +5,8 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-  loco
+  quadruped_model
+  ooqp_eigen_interface
   curves
   grid_map_core
 )
@@ -28,7 +29,8 @@ catkin_package(
     LIBRARIES
       ${PROJECT_NAME}
     CATKIN_DEPENDS
-      loco
+      quadruped_model
+      ooqp_eigen_interface
       curves
       grid_map_core
     DEPENDS
@@ -67,8 +69,10 @@ add_library(${PROJECT_NAME}
 #   src/BaseShiftTrajectoryBase.cpp
    src/step/Step.cpp
    src/step/StepQueue.cpp
-   src/step/StepExecutor.cpp
    src/step/StepCompleter.cpp
+   src/executor/Executor.cpp
+   src/executor/ExecutorState.cpp
+   src/executor/ExecutorAdapterBase.cpp
 #   src/SwingData.cpp
 #   src/SwingTrajectoryBase.cpp
 #   src/SwingProfile.cpp

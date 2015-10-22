@@ -18,8 +18,7 @@ free_gait_msgs/JointTarget[] joint_target
 free_gait_msgs/JointTrajectory[] joint_trajectory
 
 ###################
-# Define the base motion. For each state of the step (e.g. preStep,
-# atStep, postStep), different base motion types can be defined:
+# Define the base motion by one of the base motion types:
 
 # Specify if base motion auto generation is desired or not.
 free_gait_msgs/BaseAuto[] base_auto

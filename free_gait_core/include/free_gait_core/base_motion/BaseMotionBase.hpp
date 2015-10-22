@@ -33,6 +33,7 @@ class BaseMotionBase
    * Constructor.
    */
   BaseMotionBase(BaseMotionBase::Type type);
+//  BaseMotionBase(const BaseMotionBase& other);
 
   /*!
    * Destructor.
@@ -44,7 +45,7 @@ class BaseMotionBase
    * Deep copy clone.
    * @return a clone of this class.
    */
-  virtual std::unique_ptr<BaseMotionBase> clone() const;
+//  virtual std::unique_ptr<BaseMotionBase> clone() const;
 
   /*!
    * Returns the type of the base motion.

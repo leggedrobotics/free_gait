@@ -63,5 +63,6 @@ enum class ControlLevel
 
 typedef std::unordered_map<ControlLevel, bool, EnumClassHash> ControlSetup;
 typedef quadruped_model::LimbEnum LimbEnum;
+typedef quadruped_model::BranchEnum BranchEnum;
 
 } // namespace

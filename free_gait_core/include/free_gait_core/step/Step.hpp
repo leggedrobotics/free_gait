@@ -15,16 +15,10 @@
 #include <memory>
 #include <string>
 
-// Loco
-#include "loco/common/LegGroup.hpp"
-
 // Free Gait
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
-
-// Robot Utils
-#include <robotUtils/containers/MultiKeyContainer.hpp>
 
 // Quadruped model.
 #include <quadruped_model/QuadrupedModel.hpp>
@@ -36,17 +30,13 @@ class Step
  public:
   Step();
   virtual ~Step();
-
-  /*!
-   * Definition of the step states.
-   */
-  enum class State {Undefined, PreStep, AtStep, PostStep};
+  Step(const Step& other);
+  Step& operator=(const Step& other);
 
   /*!
    * Type definitions.
    */
-  typedef std::unordered_map<quadruped_model::LimbEnum, LegMotionBase, robotUtils::EnumClassHash> LegMotions;
-  typedef std::unordered_map<Step::State, BaseMotionBase, robotUtils::EnumClassHash> BaseMotions;
+  typedef std::unordered_map<LimbEnum, LegMotionBase, EnumClassHash> LegMotions;
 
   /*!
    * Add step data (simplified input).
@@ -57,24 +47,21 @@ class Step
 //  void addSimpleStep(const int stepNumber, const std::string& legName, const free_gait::Position& position);
 
   /*!
-   * Set the step number.
-   * @param stepNumber the step number.
-   */
-  void setStepNumber(const int stepNumber);
-
-  /*!
    * Add swing data for a leg.
    * @param legName the name of the leg.
    * @param data the step data.
    */
-  void addLegMotion(const quadruped_model::LimbEnum& limb, const LegMotionBase& legMotion);
+  void addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion);
 
   /*!
    * Add base shift data for a state.
    * @param state the corresponding state of the base shift data.
    * @param data the base shift data.
    */
-  void addBaseMotion(const Step::State& state, const BaseMotionBase& baseMotion);
+  void addBaseMotion(const BaseMotionBase& baseMotion);
+
+  bool update();
+  bool isUpdated() const;
 
   /*!
    * Checks if step has all data.
@@ -97,76 +84,30 @@ class Step
   bool checkStatus();
 
   /*!
-   * Get step number.
-   * @return the step number.
-   */
-  unsigned int getStepNumber() const;
-
-  /*!
-   * Returns the current state (preStep, atStep, postStep) of the step.
-   * @return the current state.
-   */
-  const Step::State& getState() const;
-
-  /*!
-   * Returns true if the state was switched in the last advancement update.
-   * @return true if the state has switched, false otherwise.
-   */
-  bool hasSwitchedState() const;
-
-  /*!
    * Returns the swing data as a map between leg name and swing data.
    * @return the swing data map.
    */
-  Step::LegMotions& getLegMotions();
+  bool hasLegMotion() const;
+  bool hasLegMotion(const LimbEnum& limb) const;
+  const LegMotionBase& getLegMotion(const LimbEnum& limb) const;
+  const LegMotions& getLegMotions() const;
 
-  BaseMotionBase& getCurrentBaseMotion();
-
-  Step::BaseMotions& getBaseMotions();
+  bool hasBaseMotion() const;
+  const BaseMotionBase& getBaseMotion() const;
 
   /*!
    * Return the current time of the step, starting at 0.0 for each step.
    * @return the current time.
    */
   double getTime() const;
+  double getTotalDuration() const;
+  double getTotalPhase() const;
+  double getLegMotionDuration(const LimbEnum& limb) const;
+  double getLegMotionPhase(const LimbEnum& limb) const;
+  double getBaseMotionDuration() const;
+  double getBaseMotionPhase() const;
 
-  bool hasLegMotion() const;
-
-  bool hasLegMotion(const quadruped_model::LimbEnum& limb) const;
-
-  bool hasBaseMotion(const Step::State& state) const;
-
-  double getCurrentStateTime();
-
-  double getStateTime(const Step::State& state);
-
-  /*!
-   * Get the current state duration.
-   * @return the current state duration.
-   */
-  double getCurrentStateDuration();
-
-  double getStateDuration(const Step::State& state);
-
-  double getAtStepDurationForLeg(const quadruped_model::LimbEnum& limb) const;
-
-  double getTotalDuration();
-
-  /*!
-   * Get the current state phase.
-   * @return the current state phase.
-   */
-  double getCurrentStatePhase();
-
-  double getStatePhase(const Step::State& state);
-
-  double getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb);
-
-  double getTotalPhase();
-
-  bool isApproachingEndOfState();
-
-  bool isApproachingEndOfStep();
+  bool isApproachingEnd(double tolerance) const;
 
   friend std::ostream& operator << (std::ostream& out, const Step& step);
 
@@ -175,31 +116,14 @@ class Step
  protected:
   bool isComplete_;
   LegMotions legMotions_;
-  BaseMotions baseMotions_;
+  std::unique_ptr<BaseMotionBase> baseMotion_;
 
  private:
-
-  bool computeDurations();
-
   //! Current time, starts at 0.0 at each step.
   double time_;
-
-  //! Current phase, starts at PreStep for each step.
-  Step::State state_;
-
-  //! State from the previous advancement.
-  Step::State previousState_;
-
-  //! Status from previous advancement.
-  bool previousStatus_;
-
   double totalDuration_;
-  double atStepDuration_;
-  bool isDurationComputed_;
+  bool isUpdated_;
 
 };
-
-Step::State& operator++(Step::State& phase);
-std::ostream& operator<<(std::ostream& os, const Step::State& phase);
 
 } /* namespace */

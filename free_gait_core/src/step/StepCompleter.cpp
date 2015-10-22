@@ -21,26 +21,26 @@ StepCompleter::~StepCompleter()
 
 bool StepCompleter::complete(Step& step) const
 {
-  for (auto& legMotion : step.legMotions_) {
-    switch (legMotion.second.getType()) {
-      case LegMotionBase::Type::Footstep:
-        if (!complete(dynamic_cast<Footstep&>(legMotion.second))) return false;
-        break;
-      default:
-        break;
-    }
-
-  }
-
-  for (auto& baseMotion : step.baseMotions_) {
-    switch (baseMotion.second.getType()) {
-      case BaseMotionBase::Type::Auto:
-        if (!complete(dynamic_cast<BaseAuto&>(baseMotion.second))) return false;
-        break;
-      default:
-        break;
-    }
-  }
+//  for (auto& legMotion : step.legMotions_) {
+//    switch (legMotion.second.getType()) {
+//      case LegMotionBase::Type::Footstep:
+//        if (!complete(dynamic_cast<Footstep&>(legMotion.second))) return false;
+//        break;
+//      default:
+//        break;
+//    }
+//
+//  }
+//
+//  for (auto& baseMotion : step.baseMotions_) {
+//    switch (baseMotion.second.getType()) {
+//      case BaseMotionBase::Type::Auto:
+//        if (!complete(dynamic_cast<BaseAuto&>(baseMotion.second))) return false;
+//        break;
+//      default:
+//        break;
+//    }
+//  }
 
   return step.isComplete_ = true;
 }

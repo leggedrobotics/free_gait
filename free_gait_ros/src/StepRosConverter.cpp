@@ -27,22 +27,6 @@ StepRosConverter::~StepRosConverter()
 
 }
 
-Step::State StepRosConverter::getStepStateFromString(const std::string& stateName)
-{
-  Step::State state;
-  if (stateName == "pre_step")
-    state = Step::State::PreStep;
-  else if (stateName == "at_step")
-    state = Step::State::AtStep;
-  else if (stateName == "post_step")
-    state = Step::State::PostStep;
-  else {
-    ROS_ERROR_STREAM("Invalid step state name: " << stateName << ".");
-    return Step::State::Undefined;
-  }
-}
-
-
 bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step)
 {
 
@@ -58,8 +42,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
   for (const auto& baseAutoMessage : message.base_auto) {
     BaseAuto baseAuto;
     if (!fromMessage(baseAutoMessage, baseAuto)) return false;
-    const auto& state = getStepStateFromString(baseAutoMessage.state);
-    step.addBaseMotion(state, baseAuto);
+    step.addBaseMotion(baseAuto);
   }
 
   return true;
@@ -98,7 +81,6 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
                                    BaseAuto& baseAuto)
 {
-  baseAuto.setIgnore(message.ignore);
   baseAuto.setHeight(message.height);
   baseAuto.setAverageVelocity(message.average_velocity);
   return true;

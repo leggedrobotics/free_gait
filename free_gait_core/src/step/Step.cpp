@@ -6,32 +6,64 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 #include "free_gait_core/step/Step.hpp"
+#include "free_gait_core/TypeDefs.hpp"
 
 // Roco
 #include <roco/log/log_messages.hpp>
 
-// Loco
-#include "loco/state_switcher/StateSwitcher.hpp"
-#include "loco/utils/math.hpp"
-
 namespace free_gait {
+
+inline void boundToRange(double* v, double min, double max){
+  if (*v < min) *v = min;
+  if (*v > max) *v = max;
+}
+
+inline double mapTo01Range(double v, double min, double max){
+  double t = v;
+  if (fabs(min - max) < 0.000000001) return 1;
+  boundToRange(&t, min, max);
+  t = (t-min)/(max-min);
+  return t;
+}
 
 Step::Step()
     : time_(0.0),
-      state_(Step::State::Undefined),
-      previousState_(Step::State::Undefined),
-      previousStatus_(false),
       isComplete_(false),
       totalDuration_(NAN),
-      atStepDuration_(NAN),
-      isDurationComputed_(false)
+      isUpdated_(false)
 {
-
 }
 
 Step::~Step()
 {
 }
+
+Step::Step(const Step& other) :
+    isComplete_(other.isComplete_),
+    legMotions_(other.legMotions_),
+    time_(other.time_),
+    totalDuration_(other.totalDuration_),
+    isUpdated_(other.isUpdated_)
+{
+  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(*other.baseMotion_)));
+}
+
+Step& Step::operator=(const Step& other)
+{
+  isComplete_ = other.isComplete_;
+  legMotions_ = other.legMotions_;
+  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(*other.baseMotion_)));
+  time_ = other.time_;
+  totalDuration_ = other.time_;
+  isUpdated_ = other.isUpdated_;
+  return *this;
+}
+
+//std::unique_ptr<Step> Step::clone() const
+//{
+//  std::unique_ptr<Step> pointer(new Step(*this));
+//  return pointer;
+//}
 
 //void Step::addSimpleStep(const int stepNumber, const std::string& legName,
 //                       const loco::Position& target)
@@ -46,16 +78,36 @@ Step::~Step()
 //  isDurationComputed_ = false;
 //}
 
-void Step::addLegMotion(const quadruped_model::LimbEnum& limb, const LegMotionBase& legMotion)
+void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
 {
-  legMotions_.insert(std::pair<quadruped_model::LimbEnum, LegMotionBase>(limb, legMotion));
-  isDurationComputed_ = false;
+  legMotions_.insert(std::pair<LimbEnum, LegMotionBase>(limb, legMotion));
+  isUpdated_ = false;
 }
 
-void Step::addBaseMotion(const Step::State& state, const BaseMotionBase& baseMotion)
+void Step::addBaseMotion(const BaseMotionBase& baseMotion)
 {
-  baseMotions_.insert(std::pair<Step::State, BaseMotionBase>(state, baseMotion));
-  isDurationComputed_ = false;
+  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(baseMotion)));
+  isUpdated_ = false;
+}
+
+bool Step::isUpdated() const
+{
+  return isUpdated_;
+}
+
+bool Step::update()
+{
+  if (!isComplete_) throw std::runtime_error("Step::update() cannot be called if step is not complete.");
+
+  for (const auto& legMotion : legMotions_) {
+    if (legMotion.second.getDuration() > totalDuration_)
+      totalDuration_ = legMotion.second.getDuration();
+  }
+  if (hasBaseMotion()) {
+    if (baseMotion_->getDuration() > totalDuration_)
+      totalDuration_ = baseMotion_->getDuration();
+  }
+  return isUpdated_ = true;
 }
 
 bool Step::isComplete() const
@@ -65,8 +117,7 @@ bool Step::isComplete() const
 
 bool Step::advance(double dt)
 {
-  if (!isComplete())
-    return false;  // TODO This is not ok.
+  if (!isUpdated_) throw std::runtime_error("Step::advance() cannot be called if step is not updated.");
 
   bool status = checkStatus();
   if (!status) {
@@ -74,24 +125,8 @@ bool Step::advance(double dt)
     return true;
   }
 
-  if (status && !previousStatus_) {
-    ROCO_DEBUG_STREAM("Continuing with step.");
-  }
-
-  previousStatus_ = status;
-  previousState_ = state_;
-
   time_ += dt;
-  if (time_ >= getTotalDuration())
-    return false;
-  if (time_ >= getStateDuration(State::PreStep) + getStateDuration(State::AtStep)) {
-    state_ = Step::State::PostStep;
-  } else if (time_ >= getStateDuration(State::PreStep)) {
-    state_ = Step::State::AtStep;
-  } else {
-    state_ = Step::State::PreStep;
-  }
-
+  if (time_ >= getTotalDuration()) return false;
   return true;
 }
 
@@ -123,30 +158,37 @@ bool Step::checkStatus()
   return true;
 }
 
-const Step::State& Step::getState() const
+
+bool Step::hasLegMotion() const
 {
-  return state_;
+  return !legMotions_.empty();
 }
 
-bool Step::hasSwitchedState() const
+bool Step::hasLegMotion(const LimbEnum& limb) const
 {
-  return (previousState_ != state_);
+  return !(legMotions_.find(limb) == legMotions_.end());
 }
 
-Step::LegMotions& Step::getLegMotions()
+const LegMotionBase& Step::getLegMotion(const LimbEnum& limb) const
+{
+  if (!hasLegMotion(limb)) throw std::out_of_range("No leg motion for this limb in this step!");
+  return legMotions_.at(limb);
+}
+
+const Step::LegMotions& Step::getLegMotions() const
 {
   return legMotions_;
 }
 
-BaseMotionBase& Step::getCurrentBaseMotion()
+bool Step::hasBaseMotion() const
 {
-  if (!hasBaseMotion(state_)) throw std::out_of_range("No base motion for current state!");
-  return baseMotions_.at(state_);
+  return (bool)(baseMotion_);
 }
 
-Step::BaseMotions& Step::getBaseMotions()
+const BaseMotionBase& Step::getBaseMotion() const
 {
-  return baseMotions_;
+  if (!hasBaseMotion()) throw std::out_of_range("No base motion in this step!");
+  return *baseMotion_;
 }
 
 double Step::getTime() const
@@ -154,173 +196,143 @@ double Step::getTime() const
   return time_;
 }
 
-bool Step::hasLegMotion() const
+//double Step::getStateTime(const Step::State& state)
+//{
+//  switch (state) {
+//    case State::PreStep:
+//      return getTime();
+//    case State::AtStep:
+//      return getTime() - getStateDuration(State::PreStep);
+//    case State::PostStep:
+//      return getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep);
+//    default:
+//      return 0.0;
+//  }
+//}
+
+double Step::getTotalDuration() const
 {
-  return !legMotions_.empty();
+  if (!isUpdated_) throw std::runtime_error("Step::getTotalDuration() cannot be called if step is not updated.");
+  return totalDuration_;
 }
 
-bool Step::hasLegMotion(const quadruped_model::LimbEnum& limb) const
+double Step::getTotalPhase() const
 {
-  return !(legMotions_.find(limb) == legMotions_.end());
+  if (!isUpdated_) throw std::runtime_error("Step::getTotalPhase() cannot be called if step is not updated.");
+  return mapTo01Range(time_, 0.0, getTotalDuration());
 }
 
-bool Step::hasBaseMotion(const Step::State& state) const
-{
-  return !(baseMotions_.find(state) == baseMotions_.end());
-}
+//double Step::getTotalDuration()
+//{
+////  switch (state) {
+////    case Step::State::PreStep:
+////      return hasBaseMotion(State::PreStep) ? baseMotions_.at(State::PreStep).getDuration() : 0.0;
+////    case Step::State::AtStep:
+////      if (!isDurationComputed_) computeDurations();
+////      return atStepDuration_;
+////    case Step::State::PostStep:
+////      return hasBaseMotion(State::PostStep) ? baseMotions_.at(State::PostStep).getDuration() : 0.0;
+////    default:
+////      return 0.0;
+////  }
+//}
 
-double Step::getCurrentStateTime()
+double Step::getLegMotionDuration(const LimbEnum& limb) const
 {
-  return getStateTime(getState());
-}
-
-double Step::getStateTime(const Step::State& state)
-{
-  switch (state) {
-    case State::PreStep:
-      return getTime();
-    case State::AtStep:
-      return getTime() - getStateDuration(State::PreStep);
-    case State::PostStep:
-      return getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep);
-    default:
-      return 0.0;
-  }
-}
-
-double Step::getCurrentStateDuration()
-{
-  return getStateDuration(getState());
-}
-
-double Step::getStateDuration(const Step::State& state)
-{
-  switch (state) {
-    case Step::State::PreStep:
-      return hasBaseMotion(State::PreStep) ? baseMotions_.at(State::PreStep).getDuration() : 0.0;
-    case Step::State::AtStep:
-      if (!isDurationComputed_) computeDurations();
-      return atStepDuration_;
-    case Step::State::PostStep:
-      return hasBaseMotion(State::PostStep) ? baseMotions_.at(State::PostStep).getDuration() : 0.0;
-    default:
-      return 0.0;
-  }
-}
-
-double Step::getAtStepDurationForLeg(const quadruped_model::LimbEnum& limb) const
-{
+  if (!isUpdated_) throw std::runtime_error("Step::getLegMotionDuration() cannot be called if step is not updated.");
   if (!hasLegMotion(limb)) return 0.0;
   return legMotions_.at(limb).getDuration();
 }
 
-double Step::getTotalDuration()
+double Step::getLegMotionPhase(const LimbEnum& limb) const
 {
-  if (!isDurationComputed_)
-    computeDurations();
-  return totalDuration_;
+  if (!isUpdated_) throw std::runtime_error("Step::getLegMotionPhase() cannot be called if step is not updated.");
+  return mapTo01Range(time_, 0.0, getLegMotionDuration(limb));
 }
 
-double Step::getCurrentStatePhase()
+double Step::getBaseMotionDuration() const
 {
-  return getStatePhase(getState());
+  if (!isUpdated_) throw std::runtime_error("Step::getBaseMotionDuration() cannot be called if step is not updated.");
+  if (!hasBaseMotion()) return 0.0;
+  return baseMotion_->getDuration();
 }
 
-double Step::getStatePhase(const Step::State& state)
+double Step::getBaseMotionPhase() const
 {
-  switch (state) {
-    case Step::State::PreStep:
-      return loco::mapTo01Range(getTime(), 0.0, getStateDuration(State::PreStep));
-    case Step::State::AtStep:
-      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getStateDuration(State::AtStep));
-    case Step::State::PostStep:
-      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep), 0.0,
-                                getStateDuration(State::PostStep));
-    default:
-      return 0.0;
-  }
+  if (!isUpdated_) throw std::runtime_error("Step::getBaseMotionPhase() cannot be called if step is not updated.");
+  return mapTo01Range(time_, 0.0, getBaseMotionDuration());
 }
 
-double Step::getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb)
-{
-  return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getAtStepDurationForLeg(limb));
-}
+//
+//double Step::getStatePhase(const Step::State& state)
+//{
+//  switch (state) {
+//    case Step::State::PreStep:
+//      return loco::mapTo01Range(getTime(), 0.0, getStateDuration(State::PreStep));
+//    case Step::State::AtStep:
+//      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getStateDuration(State::AtStep));
+//    case Step::State::PostStep:
+//      return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep) - getStateDuration(State::AtStep), 0.0,
+//                                getStateDuration(State::PostStep));
+//    default:
+//      return 0.0;
+//  }
+//}
 
-double Step::getTotalPhase()
-{
-  return loco::mapTo01Range(getTime(), 0.0, getTotalDuration());
-}
+//double Step::getAtStepPhaseForLeg(const quadruped_model::LimbEnum& limb)
+//{
+//  return loco::mapTo01Range(getTime() - getStateDuration(State::PreStep), 0.0, getAtStepDurationForLeg(limb));
+//}
+//
+//double Step::getTotalPhase()
+//{
+//  return loco::mapTo01Range(getTime(), 0.0, getTotalDuration());
+//}
 
-bool Step::isApproachingEndOfStep()
+bool Step::isApproachingEnd(double tolerance) const
 {
-  double tolerance = 0.01;
+  if (!isUpdated_) throw std::runtime_error("Step::isApproachingEnd() cannot be called if step is not updated.");
   if (getTime() + tolerance >= getTotalDuration()) return true;
   return false;
 }
 
-bool Step::isApproachingEndOfState()
-{
-  double tolerance = 0.01;
-  if (getCurrentStateTime() + tolerance >= getCurrentStateDuration()) return true;
-  return false;
-}
-
-bool Step::computeDurations()
-{
-  if (!isComplete())
-    return false;
-
-  double maxAtStepDuration = 0.0;
-  for (const auto& legMotion : legMotions_) {
-    if (legMotion.second.getDuration() > maxAtStepDuration)
-      maxAtStepDuration = legMotion.second.getDuration();
-  }
-  if (hasBaseMotion(State::AtStep)) {
-    if (baseMotions_.at(State::AtStep).getDuration() > maxAtStepDuration)
-      maxAtStepDuration = baseMotions_.at(State::AtStep).getDuration();
-  }
-  atStepDuration_ = maxAtStepDuration;
-  totalDuration_ = getStateDuration(State::PreStep) + getStateDuration(State::AtStep) + getStateDuration(State::PostStep);
-  return isDurationComputed_ = true;
-}
-
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
-  out << "Leg motion: " << std::endl;
-  for (const auto& legMotion : step.legMotions_) out << legMotion.second << std::endl;
-  out << "Base motion: " << std::endl;
-  for (const auto& baseMotion : step.baseMotions_) out << baseMotion.second << std::endl;
-  return out;
+//  out << "Leg motion: " << std::endl;
+//  for (const auto& legMotion : step.legMotions_) out << legMotion.second << std::endl;
+//  out << "Base motion: " << std::endl;
+//  for (const auto& baseMotion : step.baseMotions_) out << baseMotion.second << std::endl;
+//  return out;
 }
 
-Step::State& operator++(Step::State& phase)
-{
-  switch (phase) {
-    case Step::State::PreStep:
-      return phase = Step::State::AtStep;
-    case Step::State::AtStep:
-      return phase = Step::State::PostStep;
-    case Step::State::PostStep:
-      return phase = Step::State::PostStep;
-  }
-}
-
-std::ostream& operator<<(std::ostream& os, const Step::State& phase)
-{
-  switch (phase) {
-    case Step::State::Undefined:
-          os << "State::Undefined";
-          return os;
-    case Step::State::PreStep:
-      os << "State::PreStep";
-      return os;
-    case Step::State::AtStep:
-      os << "State::AtStep";
-      return os;
-    case Step::State::PostStep:
-      os << "State::PostStep";
-      return os;
-  }
-}
+//Step::State& operator++(Step::State& phase)
+//{
+//  switch (phase) {
+//    case Step::State::PreStep:
+//      return phase = Step::State::AtStep;
+//    case Step::State::AtStep:
+//      return phase = Step::State::PostStep;
+//    case Step::State::PostStep:
+//      return phase = Step::State::PostStep;
+//  }
+//}
+//
+//std::ostream& operator<<(std::ostream& os, const Step::State& phase)
+//{
+//  switch (phase) {
+//    case Step::State::Undefined:
+//          os << "State::Undefined";
+//          return os;
+//    case Step::State::PreStep:
+//      os << "State::PreStep";
+//      return os;
+//    case Step::State::AtStep:
+//      os << "State::AtStep";
+//      return os;
+//    case Step::State::PostStep:
+//      os << "State::PostStep";
+//      return os;
+//  }
+//}
 
 } /* namespace */

@@ -93,30 +93,29 @@ void FreeGaitActionServer::publishFeedback()
   free_gait_msgs::ExecuteStepsFeedback feedback;
   if (stepQueue_->empty()) return;
   auto& step = stepQueue_->getCurrentStep();
-  feedback.step_number = step.getStepNumber();
   feedback.queue_size = stepQueue_->size();
 
-  if (step.checkStatus() == false) {
-    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
-    feedback.description = "Paused.";
-  } else {
-    switch (step.getState()) {
-      feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
-      case Step::State::PreStep:
-        feedback.description = "Pre step.";
-        break;
-      case Step::State::AtStep:
-        feedback.description = "At step.";
-        break;
-      case Step::State::PostStep:
-        feedback.description = "Post step.";
-        break;
-      default:
-        feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_UNKNOWN;
-        feedback.description = "Unknown.";
-        break;
-    }
-  }
+//  if (step.checkStatus() == false) {
+//    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
+//    feedback.description = "Paused.";
+//  } else {
+//    switch (step.getState()) {
+//      feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
+//      case Step::State::PreStep:
+//        feedback.description = "Pre step.";
+//        break;
+//      case Step::State::AtStep:
+//        feedback.description = "At step.";
+//        break;
+//      case Step::State::PostStep:
+//        feedback.description = "Post step.";
+//        break;
+//      default:
+//        feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_UNKNOWN;
+//        feedback.description = "Unknown.";
+//        break;
+//    }
+//  }
 
   feedback.duration = ros::Duration(step.getTotalDuration());
   feedback.phase = step.getTotalPhase();

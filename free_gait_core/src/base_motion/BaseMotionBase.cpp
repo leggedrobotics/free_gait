@@ -15,15 +15,25 @@ BaseMotionBase::BaseMotionBase(BaseMotionBase::Type type)
 {
 }
 
+//BaseMotionBase::BaseMotionBase(const BaseMotionBase& other) :
+//    isComplete_(other.isComplete_),
+//    legMotions_(other.legMotions_),
+//    baseMotion_(other.baseMotion_->clone()),
+//    time_(other.time_),
+//    totalDuration_(other.totalDuration_),
+//    isDurationComputed_(other.isDurationComputed_)
+//{
+//}
+
 BaseMotionBase::~BaseMotionBase()
 {
 }
-
-std::unique_ptr<BaseMotionBase> BaseMotionBase::clone() const
-{
-  std::unique_ptr<BaseMotionBase> pointer(new BaseMotionBase(*this));
-  return pointer;
-}
+//
+//std::unique_ptr<BaseMotionBase> BaseMotionBase::clone() const
+//{
+//  std::unique_ptr<BaseMotionBase> pointer(new BaseMotionBase(*this));
+//  return pointer;
+//}
 
 BaseMotionBase::Type BaseMotionBase::getType() const
 {

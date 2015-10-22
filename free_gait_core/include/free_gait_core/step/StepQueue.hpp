@@ -29,7 +29,7 @@ class StepQueue
    * Add a step to the queue.
    * @param step the step to be added.
    */
-  void add(std::shared_ptr<Step> step);
+  void add(const Step& step);
 
   /*!
    * Advance in time
@@ -58,26 +58,27 @@ class StepQueue
    * Returns the current step. Check empty() first!
    * @return the current step.
    */
-  std::shared_ptr<Step> getCurrentStep();
+  const Step& getCurrentStep() const;
 
   /*!
    * Returns the next step. Check if size() > 1 first!
    * @return the next step.
    */
-  std::shared_ptr<Step> getNextStep();
+  const Step& getNextStep() const;
 
   /*!
    * Returns the previous step. Returns null pointer
    * if no previous step is available.
    * @return the previous step.
    */
-  std::shared_ptr<Step> getPreviousStep();
+  bool previousStepExists() const;
+  const Step& getPreviousStep() const;
 
   /*!
    * Returns the number of steps in the queue.
    * @return the number of steps.
    */
-  std::deque<std::shared_ptr<Step>>::size_type size() const;
+  std::deque<Step>::size_type size() const;
 
   /*!
    * Return true if the step was changed in the last advance() update.
@@ -88,10 +89,11 @@ class StepQueue
  private:
 
   //! Queue of step data.
-  std::deque<std::shared_ptr<Step>> queue_;
+  std::deque<Step> queue_;
 
-  std::shared_ptr<Step> previousStep_;
+  std::unique_ptr<Step> previousStep_;
 
+  bool active_;
   bool hasSwitchedStep_;
 };
 

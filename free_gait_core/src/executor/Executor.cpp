@@ -1,0 +1,100 @@
+/*
+ * Executor.cpp
+ *
+ *  Created on: Oct 20, 2015
+ *      Author: Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
+ */
+
+#include "free_gait_core/executor/Executor.hpp"
+
+namespace free_gait {
+
+Executor::Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<ExecutorAdapterBase> adaptor)
+    : completer_(completer),
+      adaptor_(adaptor),
+      state_(adaptor->getState())
+{
+  // TODO Auto-generated constructor stub
+
+}
+
+Executor::~Executor()
+{
+  // TODO Auto-generated destructor stub
+}
+
+bool Executor::advance(double dt)
+{
+  if (!queue_.advance(dt)) return false;
+  if (queue_.empty()) return true;
+
+  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep().isComplete()) {
+    if (!queue_.previousStepExists()) adaptor_->updateFullRobotState();
+    else adaptor_->updateNonControlledRobotState(queue_.getPreviousStep());
+    // Complete!!!
+  }
+
+  adaptor_->update();
+
+//  if (stepQueue_->empty()) return -1.0;
+//  free_gait::Step& step = stepQueue_->getCurrentStep();
+//  if (step.getState() == free_gait::Step::State::PreStep || step.getState() == free_gait::Step::State::PostStep) return -1.0;
+//  const auto& limb = quadrupedModel_->getLimbEnumFromLimbUInt((uint) iLeg);
+//  if (!step.hasLegMotion(limb)) return -1.0;
+//  return step.getAtStepPhaseForLeg(limb);
+
+//  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
+//    completer_->complete(*queue_.getCurrentStep());
+//    // Update actuation type and robot state.
+//    if (!queue_.getPreviousStep()) {
+//      updateWithMeasuredBasePose();
+//      updateWithMeasuredBaseTwist();
+//      for (const auto& legControlSetup : legControlSetups_) {
+//        updateWithMeasuredJointPositions(legControlSetup.first);
+//        updateWithMeasuredJointVelocities(legControlSetup.first);
+//        updateWithMeasuredJointEfforts(legControlSetup.first);
+//        updateWithActualSupportLeg(legControlSetup.first);
+//      }
+//    } else {
+//      auto& previousBaseSetup = queue_.getPreviousStep()->getCurrentBaseMotion().getControlSetup();
+//      if (!previousBaseSetup.at(ControlLevel::Position)) updateWithMeasuredBasePose();
+//      if (!previousBaseSetup.at(ControlLevel::Velocity)) updateWithMeasuredBaseTwist();
+//
+//      for (const auto& legControlSetup : legControlSetups_) {
+//        // TODO: Special treatment for non-specified legs.
+//        auto& previousLegSetup = queue_.getPreviousStep()->getLegMotions().at(legControlSetup.first).getControlSetup();
+//        if (!previousBaseSetup.at(ControlLevel::Position)) updateWithMeasuredJointPositions(legControlSetup.first);
+//        if (!previousBaseSetup.at(ControlLevel::Velocity)) updateWithMeasuredJointVelocities(legControlSetup.first);
+//        // TODO etc.!!!
+//      }
+//    }
+//
+//    baseControlSetup_ = queue_.getCurrentStep()->getCurrentBaseMotion().getControlSetup();
+//    for (const auto& legMotion : queue_.getCurrentStep()->getLegMotions()) {
+//      legControlSetups_.at(legMotion.first) = legMotion.second.getControlSetup();
+//    }
+//  }
+//
+//  auto step = queue_.getCurrentStep();
+//  // TODO Do this with all frame handling.
+//  if (baseControlSetup_.at(ControlLevel::Position)) basePose_ = step->getCurrentBaseMotion().evaluatePose(step->getCurrentStateTime());
+//  return true;
+}
+
+void Executor::reset()
+{
+  queue_.clear();
+}
+
+const StepQueue& Executor::getQueue() const
+{
+  return queue_;
+}
+
+const ExecutorState& Executor::getState() const
+{
+  return *state_;
+}
+
+} /* namespace free_gait */

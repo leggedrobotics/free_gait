@@ -15,7 +15,6 @@
 
 // Quadruped model
 #include <quadruped_model/common/enums.hpp>
-#include <robotUtils/containers/MultiKeyContainer.hpp>
 
 // STD
 #include <unordered_map>
@@ -28,7 +27,7 @@ class PoseOptimization
   PoseOptimization();
   virtual ~PoseOptimization();
 
-  typedef std::unordered_map<quadruped_model::LimbEnum, Position, robotUtils::EnumClassHash> FeetPositions;
+  typedef std::unordered_map<quadruped_model::LimbEnum, Position, EnumClassHash> FeetPositions;
 
   /*!
    * Set the positions of the feet of the robot in world coordinate system.
