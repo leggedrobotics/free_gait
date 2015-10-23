@@ -20,9 +20,6 @@
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 
-// Quadruped model.
-#include <quadruped_model/QuadrupedModel.hpp>
-
 namespace free_gait {
 
 class Step

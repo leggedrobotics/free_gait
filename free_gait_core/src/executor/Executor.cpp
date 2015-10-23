@@ -35,7 +35,7 @@ bool Executor::advance(double dt)
     updateStateWithMeasurements();
   }
 
-  adapter_->updateExtras(queue_);
+  adapter_->updateExtras(queue_, *state_);
 
 //  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
 //    completer_->complete(*queue_.getCurrentStep());
@@ -94,5 +94,31 @@ bool Executor::updateStateWithMeasurements()
 {
 
 }
+
+bool Executor::updateIgnoreContact()
+{
+  const Step& step = queue_.getCurrentStep();
+  for (const auto& leg : state_->getIsIgnoreContact()) {
+    if (step.hasLegMotion(leg.first)) {
+      bool ignoreContact = step.getLegMotion(leg.first).isIgnoreContact();
+      state_->setIgnoreContact(leg.first, ignoreContact);
+    }
+  }
+  return true;
+}
+
+bool Executor::updateSupportLegs()
+{
+  const Step& step = queue_.getCurrentStep();
+  for (const auto& leg : state_->getIsSupportLegs()) {
+    if (step.hasLegMotion(leg.first) || state_->isIgnoreContact(leg.first)) {
+      state_->setSupportLeg(leg.first, false);
+    } else {
+      state_->setSupportLeg(leg.first, true);
+    }
+  }
+  return true;
+}
+
 
 } /* namespace free_gait */

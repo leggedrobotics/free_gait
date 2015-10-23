@@ -18,4 +18,35 @@ ExecutorState::~ExecutorState()
 {
 }
 
+bool ExecutorState::isSupportLeg(const LimbEnum& limb) const
+{
+  return isSupportLegs_.at(limb);
+}
+
+const std::unordered_map<LimbEnum, bool, EnumClassHash>& ExecutorState::getIsSupportLegs() const
+{
+  return isSupportLegs_;
+}
+
+void ExecutorState::setSupportLeg(const LimbEnum& limb, bool isSupportLeg)
+{
+  isSupportLegs_[limb] = isSupportLeg;
+}
+
+bool ExecutorState::isIgnoreContact(const LimbEnum& limb) const
+{
+  return ignoreContact_.at(limb);
+}
+
+const std::unordered_map<LimbEnum, bool, EnumClassHash>& ExecutorState::getIsIgnoreContact() const
+{
+  return ignoreContact_;
+}
+
+void ExecutorState::setIgnoreContact(const LimbEnum& limb, bool ignoreContact)
+{
+  ignoreContact_[limb] = ignoreContact;
+}
+
 } /* namespace free_gait */
+

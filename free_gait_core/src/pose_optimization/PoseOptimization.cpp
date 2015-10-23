@@ -24,13 +24,13 @@ PoseOptimization::~PoseOptimization()
 {
 }
 
-void PoseOptimization::setFeetPositions(const std::unordered_map<quadruped_model::ContactEnum, Position, quadruped_model::EnumClassHash>& feetPositions)
+void PoseOptimization::setFeetPositions(const std::unordered_map<ContactEnum, Position, EnumClassHash>& feetPositions)
 {
   feetPositions_ = feetPositions;
 }
 
 void PoseOptimization::setDesiredLegConfiguration(
-    const std::unordered_map<quadruped_model::ContactEnum, Position, quadruped_model::EnumClassHash>& desiredFeetPositionsInBase)
+    const std::unordered_map<ContactEnum, Position, EnumClassHash>& desiredFeetPositionsInBase)
 {
   desiredFeetPositionsInBase_ = desiredFeetPositionsInBase;
 }

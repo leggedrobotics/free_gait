@@ -11,7 +11,7 @@
 #include "kindr/poses/PoseEigen.hpp"
 #include "kindr/poses/PoseDiffEigen.hpp"
 #include "kindr/phys_quant/PhysicalQuantitiesEigen.hpp"
-#include "quadruped_model/quadruped_model.hpp"
+#include <quadruped_model/common/enums.hpp>
 #include <unordered_map>
 
 namespace free_gait {
@@ -52,6 +52,10 @@ typedef kindr::phys_quant::eigen_impl::Velocity<double, Eigen::Dynamic> JointVel
 typedef kindr::phys_quant::eigen_impl::Acceleration<double, Eigen::Dynamic> JointAccelerations;
 typedef kindr::phys_quant::eigen_impl::Torque<double, Eigen::Dynamic> JointEfforts;
 
+typedef quadruped_model::LimbEnum LimbEnum;
+typedef quadruped_model::BranchEnum BranchEnum;
+typedef quadruped_model::ContactEnum ContactEnum;
+
 
 enum class ControlLevel
 {
@@ -62,7 +66,5 @@ enum class ControlLevel
 };
 
 typedef std::unordered_map<ControlLevel, bool, EnumClassHash> ControlSetup;
-typedef quadruped_model::LimbEnum LimbEnum;
-typedef quadruped_model::BranchEnum BranchEnum;
 
 } // namespace

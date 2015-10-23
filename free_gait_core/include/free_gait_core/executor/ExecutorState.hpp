@@ -20,8 +20,17 @@ class ExecutorState : quadruped_model::QuadrupedState
   virtual ~ExecutorState();
   friend std::ostream& operator<<(std::ostream& out, const ExecutorState& state);
 
+  bool isSupportLeg(const LimbEnum& limb) const;
+  const std::unordered_map<LimbEnum, bool, EnumClassHash>& getIsSupportLegs() const;
+  void setSupportLeg(const LimbEnum& limb, bool isSupportLeg);
+
+  bool isIgnoreContact(const LimbEnum& limb) const;
+  const std::unordered_map<LimbEnum, bool, EnumClassHash>& getIsIgnoreContact() const;
+  void setIgnoreContact(const LimbEnum& limb, bool ignoreContact);
+
  private:
   // TODO Extend QuadrupedState class with:
+  std::vector<LimbEnum> limbs_;
   JointEfforts jointTorques_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
 

@@ -13,9 +13,6 @@
 // Grid map
 #include <grid_map_core/Polygon.hpp>
 
-// Quadruped model
-#include <quadruped_model/common/enums.hpp>
-
 // STD
 #include <unordered_map>
 
@@ -27,7 +24,7 @@ class PoseOptimization
   PoseOptimization();
   virtual ~PoseOptimization();
 
-  typedef std::unordered_map<quadruped_model::LimbEnum, Position, EnumClassHash> FeetPositions;
+  typedef std::unordered_map<LimbEnum, Position, EnumClassHash> FeetPositions;
 
   /*!
    * Set the positions of the feet of the robot in world coordinate system.

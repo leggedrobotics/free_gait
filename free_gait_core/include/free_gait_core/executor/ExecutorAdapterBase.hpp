@@ -19,8 +19,8 @@ class ExecutorAdapterBase
  public:
   ExecutorAdapterBase();
   virtual ~ExecutorAdapterBase();
-  virtual void updateStateWithMeasurements(ExecutorState& executorState) = 0;
-  virtual void updateExtras(const StepQueue& stepQueue) = 0;
+  virtual bool updateStateWithMeasurements(ExecutorState& executorState) = 0;
+  virtual bool updateExtras(const StepQueue& stepQueue, ExecutorState& executorState) = 0;
 };
 
 } /* namespace free_gait */
