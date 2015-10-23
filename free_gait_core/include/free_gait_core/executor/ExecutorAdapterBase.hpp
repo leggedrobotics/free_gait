@@ -9,7 +9,7 @@
 #pragma once
 
 #include "free_gait_core/executor/ExecutorState.hpp"
-#include "free_gait_core/step/Step.hpp"
+#include "free_gait_core/step/StepQueue.hpp"
 #include <memory>
 
 namespace free_gait {
@@ -17,17 +17,10 @@ namespace free_gait {
 class ExecutorAdapterBase
 {
  public:
-  ExecutorAdapterBase(std::shared_ptr<ExecutorState> state);
+  ExecutorAdapterBase();
   virtual ~ExecutorAdapterBase();
-
-  std::shared_ptr<ExecutorState> getState();
-
-  virtual void updateFullRobotState() = 0;
-  virtual void updateNonControlledRobotState(const Step& step) = 0;
-
- private:
-  std::shared_ptr<ExecutorState> state_;
-
+  virtual void updateStateWithMeasurements(ExecutorState& executorState) = 0;
+  virtual void updateExtras(const StepQueue& stepQueue) = 0;
 };
 
 } /* namespace free_gait */

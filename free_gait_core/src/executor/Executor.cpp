@@ -10,10 +10,12 @@
 
 namespace free_gait {
 
-Executor::Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<ExecutorAdapterBase> adaptor)
+Executor::Executor(std::shared_ptr<StepCompleter> completer,
+                   std::shared_ptr<ExecutorAdapterBase> adapter,
+                   std::shared_ptr<ExecutorState> state)
     : completer_(completer),
-      adaptor_(adaptor),
-      state_(adaptor->getState())
+      adapter_(adapter),
+      state_(state)
 {
   // TODO Auto-generated constructor stub
 
@@ -30,19 +32,10 @@ bool Executor::advance(double dt)
   if (queue_.empty()) return true;
 
   if (queue_.hasSwitchedStep() && !queue_.getCurrentStep().isComplete()) {
-    if (!queue_.previousStepExists()) adaptor_->updateFullRobotState();
-    else adaptor_->updateNonControlledRobotState(queue_.getPreviousStep());
-    // Complete!!!
+    updateStateWithMeasurements();
   }
 
-  adaptor_->update();
-
-//  if (stepQueue_->empty()) return -1.0;
-//  free_gait::Step& step = stepQueue_->getCurrentStep();
-//  if (step.getState() == free_gait::Step::State::PreStep || step.getState() == free_gait::Step::State::PostStep) return -1.0;
-//  const auto& limb = quadrupedModel_->getLimbEnumFromLimbUInt((uint) iLeg);
-//  if (!step.hasLegMotion(limb)) return -1.0;
-//  return step.getAtStepPhaseForLeg(limb);
+  adapter_->updateExtras(queue_);
 
 //  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
 //    completer_->complete(*queue_.getCurrentStep());
@@ -95,6 +88,11 @@ const StepQueue& Executor::getQueue() const
 const ExecutorState& Executor::getState() const
 {
   return *state_;
+}
+
+bool Executor::updateStateWithMeasurements()
+{
+
 }
 
 } /* namespace free_gait */

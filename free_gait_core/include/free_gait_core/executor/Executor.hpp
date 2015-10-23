@@ -22,8 +22,8 @@ namespace free_gait {
 class Executor
 {
  public:
-  Executor(std::shared_ptr<StepCompleter> completer,
-               std::shared_ptr<ExecutorAdapterBase> adaptor);
+  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<ExecutorAdapterBase> adapter,
+           std::shared_ptr<ExecutorState> state);
   virtual ~Executor();
 
   /*!
@@ -38,9 +38,11 @@ class Executor
   const ExecutorState& getState() const;
 
  private:
+  bool updateStateWithMeasurements();
+
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
-  std::shared_ptr<ExecutorAdapterBase> adaptor_;
+  std::shared_ptr<ExecutorAdapterBase> adapter_;
   std::shared_ptr<ExecutorState> state_;
 };
 

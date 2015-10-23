@@ -10,18 +10,12 @@
 
 namespace free_gait {
 
-ExecutorAdapterBase::ExecutorAdapterBase(std::shared_ptr<ExecutorState> state)
-    : state_(state)
+ExecutorAdapterBase::ExecutorAdapterBase()
 {
 }
 
 ExecutorAdapterBase::~ExecutorAdapterBase()
 {
-}
-
-std::shared_ptr<ExecutorState> ExecutorAdapterBase::getState()
-{
-  return state_;
 }
 
 } /* namespace free_gait */
