@@ -11,6 +11,9 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "quadruped_model/QuadrupedState.hpp"
 
+// STD
+#include <vector>
+
 namespace free_gait {
 
 class ExecutorState : quadruped_model::QuadrupedState
@@ -19,6 +22,8 @@ class ExecutorState : quadruped_model::QuadrupedState
   ExecutorState();
   virtual ~ExecutorState();
   friend std::ostream& operator<<(std::ostream& out, const ExecutorState& state);
+
+  virtual void initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches);
 
   bool isSupportLeg(const LimbEnum& limb) const;
   const std::unordered_map<LimbEnum, bool, EnumClassHash>& getIsSupportLegs() const;
@@ -30,7 +35,6 @@ class ExecutorState : quadruped_model::QuadrupedState
 
  private:
   // TODO Extend QuadrupedState class with:
-  std::vector<LimbEnum> limbs_;
   JointEfforts jointTorques_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
 

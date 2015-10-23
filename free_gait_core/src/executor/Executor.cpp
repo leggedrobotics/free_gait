@@ -33,9 +33,13 @@ bool Executor::advance(double dt)
 
   if (queue_.hasSwitchedStep() && !queue_.getCurrentStep().isComplete()) {
     updateStateWithMeasurements();
+    // TODO Complete step.
   }
 
+  writeIgnoreContact();
+  writeSupportLegs();
   adapter_->updateExtras(queue_, *state_);
+
 
 //  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
 //    completer_->complete(*queue_.getCurrentStep());
@@ -78,6 +82,8 @@ bool Executor::advance(double dt)
 void Executor::reset()
 {
   queue_.clear();
+  updateStateWithMeasurements();
+  adapter_->initializeState(*state_);
 }
 
 const StepQueue& Executor::getQueue() const
@@ -92,10 +98,16 @@ const ExecutorState& Executor::getState() const
 
 bool Executor::updateStateWithMeasurements()
 {
-
+  // Update states for new step.
+  if (!queue_.previousStepExists()) {
+    // Update all states.
+    adapter_->updateStateWithMeasurements(*state_);
+  } else {
+    // Update uncontrolled steps.
+  }
 }
 
-bool Executor::updateIgnoreContact()
+bool Executor::writeIgnoreContact()
 {
   const Step& step = queue_.getCurrentStep();
   for (const auto& leg : state_->getIsIgnoreContact()) {
@@ -107,7 +119,7 @@ bool Executor::updateIgnoreContact()
   return true;
 }
 
-bool Executor::updateSupportLegs()
+bool Executor::writeSupportLegs()
 {
   const Step& step = queue_.getCurrentStep();
   for (const auto& leg : state_->getIsSupportLegs()) {

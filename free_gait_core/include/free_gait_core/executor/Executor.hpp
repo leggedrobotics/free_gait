@@ -39,8 +39,8 @@ class Executor
 
  private:
   bool updateStateWithMeasurements();
-  bool updateIgnoreContact();
-  bool updateSupportLegs();
+  bool writeIgnoreContact();
+  bool writeSupportLegs();
 
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;

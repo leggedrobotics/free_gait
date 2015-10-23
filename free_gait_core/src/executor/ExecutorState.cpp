@@ -18,6 +18,15 @@ ExecutorState::~ExecutorState()
 {
 }
 
+void ExecutorState::initialize(const std::vector<LimbEnum>& limbs,
+                               const std::vector<BranchEnum>& branches)
+{
+  for (const auto& limb : limbs) {
+    isSupportLegs_[limb] = false;
+    ignoreContact_[limb] = false;
+  }
+}
+
 bool ExecutorState::isSupportLeg(const LimbEnum& limb) const
 {
   return isSupportLegs_.at(limb);
