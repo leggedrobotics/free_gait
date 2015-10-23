@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   free_gait_msgs
   free_gait_core
   curves_ros
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -65,6 +66,8 @@ add_library(${PROJECT_NAME}
    src/BaseShiftDataRosWrapper.cpp
    src/BaseShiftSplineTrajectoryRosWrapper.cpp
    src/BaseShiftProfileRosWrapper.cpp
+   src/ActionBase.cpp
+   src/YamlActionLoader.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
