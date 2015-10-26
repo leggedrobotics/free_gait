@@ -9,8 +9,12 @@
 #pragma once
 
 // Free Gait
-#include <free_gait_core/base_motion/BaseMotionBase.hpp>
+#include "free_gait_core/executor/AdapterBase.hpp"
+#include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/TypeDefs.hpp"
+#include "free_gait_core/step/Step.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimization.hpp"
+
 #include <string>
 
 // Curves
@@ -24,17 +28,10 @@ class BaseAuto : public BaseMotionBase
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseAuto();
+  BaseAuto(const State& state, const Step& step, const AdapterBase& adapter);
   virtual ~BaseAuto();
 
-  /*!
-   * Deep copy clone.
-   * @return a clone of this class.
-   */
-  std::unique_ptr<BaseMotionBase> clone() const;
-
-  bool isIgnore() const;
-  void setIgnore(bool ignore);
+  const ControlSetup getControlSetup() const;
 
   /*!
    * Update the profile with the base start pose.
@@ -44,12 +41,7 @@ class BaseAuto : public BaseMotionBase
    */
   void updateStartPose(const Pose& startPose);
 
-  /*!
-   * Evaluate the base shift pose at a given time.
-   * @param time the time value.
-   * @return the pose of the base shift trajectory.
-   */
-  Pose evaluatePose(const double time);
+  bool compute();
 
   /*!
    * Returns the total duration of the trajectory.
@@ -57,30 +49,26 @@ class BaseAuto : public BaseMotionBase
    */
   double getDuration() const;
 
-  double getAverageVelocity() const;
-
-  void setAverageVelocity(double averageVelocity);
-
-  double getHeight() const;
-
-  void setHeight(double height);
-
-  bool hasTarget() const;
-
-  const Pose& getTarget() const;
-
-  void setTarget(const Pose& target);
+  /*!
+   * Evaluate the base shift pose at a given time.
+   * @param time the time value.
+   * @return the pose of the base shift trajectory.
+   */
+  Pose evaluatePose(const double time) const;
 
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
  private:
 
+  bool generateFootholdLists();
+  void getAdaptiveHorizontalTargetPosition(Position& horizontalTargetPositionInWorldFrame);
+  void getAdaptiveTargetPose(const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld);
+  void optimizePose(Pose& pose);
+
   /*!
    * Computes the internal trajectory based on the profile type.
    */
   bool computeTrajectory();
-
-  bool ignore_;
 
   Pose start_; // In world frame.
   bool hasTarget_;
@@ -88,12 +76,20 @@ class BaseAuto : public BaseMotionBase
   Pose target_; // In world frame.
   double averageVelocity_;
   double duration_;
+  double supportSafetyMargin_;
 
   //! Base trajectory.
   curves::CubicHermiteSE3Curve trajectory_;
 
+  PoseOptimization::FeetPositions footholdsToReach_, footholdsInSupport_, desiredFeetPositionsInBase_;
+  PoseOptimization poseOptimization_;
+
   //! If trajectory is updated.
   bool trajectoryUpdated_;
+
+  const State& state_;
+  const Step& step_;
+  const AdapterBase& adapter_;
 };
 
 } /* namespace */

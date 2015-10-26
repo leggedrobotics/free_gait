@@ -13,4 +13,5 @@
   <depend>ooqp_eigen_interface</depend>
   <depend>curves</depend>
   <depend>grid_map_core</depend>
+  <depend>loco</depend>
 </package>

@@ -8,5 +8,5 @@
 
 #pragma once
 
+#include <free_gait_core/executor/AdapterBase.hpp>
 #include "free_gait_core/executor/Executor.hpp"
-#include "free_gait_core/executor/ExecutorAdapterBase.hpp"

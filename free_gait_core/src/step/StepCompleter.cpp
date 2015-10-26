@@ -60,10 +60,19 @@ bool StepCompleter::complete(Footstep& footstep) const
 
 bool StepCompleter::complete(BaseAuto& baseAuto) const
 {
-  if (baseAuto.getHeight() == 0.0)
-    baseAuto.setHeight(baseAutoParameters_.height);
-  if (baseAuto.getAverageVelocity() == 0.0)
-    baseAuto.setAverageVelocity(baseAutoParameters_.averageVelocity);
+//  if (baseAuto.getHeight() == 0.0)
+//    baseAuto.setHeight(baseAutoParameters_.height);
+//  if (baseAuto.getAverageVelocity() == 0.0)
+//    baseAuto.setAverageVelocity(baseAutoParameters_.averageVelocity);
+
+//  desiredFeetPositionsInBase.clear();
+//  Position footPosition;
+//  footPosition << desiredLeftFrontFootPositionInBase_.vector().head<2>(), -desiredHeight;
+//  desiredFeetPositionsInBase.emplace(LimbEnum::LF_LEG, footPosition);
+//  desiredFeetPositionsInBase.emplace(LimbEnum::RF_LEG, Position(footPosition.x(), -footPosition.y(), footPosition.z()));
+//  desiredFeetPositionsInBase.emplace(LimbEnum::LH_LEG, Position(-footPosition.x(), footPosition.y(), footPosition.z()));
+//  desiredFeetPositionsInBase.emplace(LimbEnum::RH_LEG, Position(-footPosition.x(), -footPosition.y(), footPosition.z()));
+
   return true;
 }
 

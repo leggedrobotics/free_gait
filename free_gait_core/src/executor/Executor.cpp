@@ -11,8 +11,8 @@
 namespace free_gait {
 
 Executor::Executor(std::shared_ptr<StepCompleter> completer,
-                   std::shared_ptr<ExecutorAdapterBase> adapter,
-                   std::shared_ptr<ExecutorState> state)
+                   std::shared_ptr<AdapterBase> adapter,
+                   std::shared_ptr<State> state)
     : completer_(completer),
       adapter_(adapter),
       state_(state)
@@ -36,9 +36,10 @@ bool Executor::advance(double dt)
     // TODO Complete step.
   }
 
-  writeIgnoreContact();
-  writeSupportLegs();
-  adapter_->updateExtras(queue_, *state_);
+  if (!writeIgnoreContact()) return false;
+  if (!writeSupportLegs()) return false;
+  if (!writeTorsoMotion()) return false;
+  if (!adapter_->updateExtras(queue_, *state_)) return false;
 
 
 //  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
@@ -91,9 +92,14 @@ const StepQueue& Executor::getQueue() const
   return queue_;
 }
 
-const ExecutorState& Executor::getState() const
+const State& Executor::getState() const
 {
   return *state_;
+}
+
+const AdapterBase& Executor::getAdapter() const
+{
+  return *adapter_;
 }
 
 bool Executor::updateStateWithMeasurements()
@@ -110,10 +116,10 @@ bool Executor::updateStateWithMeasurements()
 bool Executor::writeIgnoreContact()
 {
   const Step& step = queue_.getCurrentStep();
-  for (const auto& leg : state_->getIsIgnoreContact()) {
-    if (step.hasLegMotion(leg.first)) {
-      bool ignoreContact = step.getLegMotion(leg.first).isIgnoreContact();
-      state_->setIgnoreContact(leg.first, ignoreContact);
+  for (const auto& limb : state_->getLimbs()) {
+    if (step.hasLegMotion(limb)) {
+      bool ignoreContact = step.getLegMotion(limb).isIgnoreContact();
+      state_->setIgnoreContact(limb, ignoreContact);
     }
   }
   return true;
@@ -122,15 +128,29 @@ bool Executor::writeIgnoreContact()
 bool Executor::writeSupportLegs()
 {
   const Step& step = queue_.getCurrentStep();
-  for (const auto& leg : state_->getIsSupportLegs()) {
-    if (step.hasLegMotion(leg.first) || state_->isIgnoreContact(leg.first)) {
-      state_->setSupportLeg(leg.first, false);
+  for (const auto& limb : state_->getLimbs()) {
+    if (step.hasLegMotion(limb) || state_->isIgnoreContact(limb)) {
+      state_->setSupportLeg(limb, false);
     } else {
-      state_->setSupportLeg(leg.first, true);
+      state_->setSupportLeg(limb, true);
     }
   }
   return true;
 }
 
+bool Executor::writeTorsoMotion()
+{
+  const Step& step = queue_.getCurrentStep();
+  double time = step.getTime();
+  // TODO Add frame handling.
+  Pose pose = step.getBaseMotion().evaluatePose(time);
+  Twist twist = step.getBaseMotion().evaluateTwist(time);
+  state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
+  state_->setOrientationWorldToBase(pose.getRotation());
+  state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
+  state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());
+  // TODO Set more states.
+  return true;
+}
 
 } /* namespace free_gait */

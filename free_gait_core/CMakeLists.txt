@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   ooqp_eigen_interface
   curves
   grid_map_core
+  loco
 )
 
 ## System dependencies are found with CMake's conventions
@@ -33,6 +34,7 @@ catkin_package(
       ooqp_eigen_interface
       curves
       grid_map_core
+      loco
     DEPENDS
       Eigen3
 )
@@ -71,8 +73,8 @@ add_library(${PROJECT_NAME}
    src/step/StepQueue.cpp
    src/step/StepCompleter.cpp
    src/executor/Executor.cpp
-   src/executor/ExecutorState.cpp
-   src/executor/ExecutorAdapterBase.cpp
+   src/executor/State.cpp
+   src/executor/AdapterBase.cpp
 #   src/SwingData.cpp
 #   src/SwingTrajectoryBase.cpp
 #   src/SwingProfile.cpp

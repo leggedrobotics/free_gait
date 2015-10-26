@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <free_gait_core/executor/ExecutorAdapterBase.hpp>
+#include <free_gait_core/executor/AdapterBase.hpp>
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/executor/ExecutorState.hpp"
+#include "free_gait_core/executor/State.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/step/StepCompleter.hpp"
 
@@ -22,8 +22,8 @@ namespace free_gait {
 class Executor
 {
  public:
-  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<ExecutorAdapterBase> adapter,
-           std::shared_ptr<ExecutorState> state);
+  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<AdapterBase> adapter,
+           std::shared_ptr<State> state);
   virtual ~Executor();
 
   /*!
@@ -35,17 +35,19 @@ class Executor
   void reset();
 
   const StepQueue& getQueue() const;
-  const ExecutorState& getState() const;
+  const State& getState() const;
+  const AdapterBase& getAdapter() const;
 
  private:
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
   bool writeSupportLegs();
+  bool writeTorsoMotion();
 
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
-  std::shared_ptr<ExecutorAdapterBase> adapter_;
-  std::shared_ptr<ExecutorState> state_;
+  std::shared_ptr<AdapterBase> adapter_;
+  std::shared_ptr<State> state_;
 };
 
 } /* namespace free_gait */

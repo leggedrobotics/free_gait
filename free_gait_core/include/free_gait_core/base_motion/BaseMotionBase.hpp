@@ -33,19 +33,11 @@ class BaseMotionBase
    * Constructor.
    */
   BaseMotionBase(BaseMotionBase::Type type);
-//  BaseMotionBase(const BaseMotionBase& other);
 
   /*!
    * Destructor.
    */
   virtual ~BaseMotionBase();
-
-
-  /*!
-   * Deep copy clone.
-   * @return a clone of this class.
-   */
-//  virtual std::unique_ptr<BaseMotionBase> clone() const;
 
   /*!
    * Returns the type of the base motion.
@@ -54,6 +46,19 @@ class BaseMotionBase
   BaseMotionBase::Type getType() const;
 
   virtual const ControlSetup getControlSetup() const;
+
+  /*!
+   * Update the trajectory with the base start pose.
+   * Do this to avoid jumps of the base.
+   * @param startPose the start pose of the base in the frameId_ frame.
+   * @return true if successful, false otherwise.
+   */
+  virtual void updateStartPose(const Pose& startPose);
+  virtual void updateStartTwist(const Twist& startTwist);
+  virtual void updateStartAcceleration(const Twist& startAcceleration);
+  virtual void updateStartForceTorque(const Force& startForce, const Torque& startTorque);
+
+  virtual bool compute();
 
   /*!
    * Returns the total duration of the motion.
@@ -65,29 +70,21 @@ class BaseMotionBase
    * Returns the frame id base motion.
    * @return the frame id.
    */
-  virtual const std::string& getFrameId() const;
-
-  /*!
-   * Update the trajectory with the base start pose.
-   * Do this to avoid jumps of the base.
-   * @param startPose the start pose of the base in the frameId_ frame.
-   * @return true if successful, false otherwise.
-   */
-  virtual void updateStartPose(const Pose& startPose);
-  virtual void updateStartTwist(const Twist& startTwist);
-  virtual void updateStartAcceleration(const Twist& startAcceleration);
-  virtual void updateStartForce(const Force& startForce, const Torque& startTorque);
+  virtual const std::string& getPoseFrameId() const;
+  virtual const std::string& getTwistFrameId() const;
+  virtual const std::string& getAccelerationFrameId() const;
+  virtual const std::string& getForceTorqueFrameId() const;
 
   /*!
    * Evaluate the base motion at a given time.
    * @param time the time value.
    * @return the pose of the base.
    */
-  virtual Pose evaluatePose(const double time);
-  virtual Twist evaluateTwist(const double time);
-  virtual Twist evaluateAcceleration(const double time);
-  virtual Force evaluateForce(const double time);
-  virtual Torque evaluateTorque(const double time);
+  virtual Pose evaluatePose(const double time) const;
+  virtual Twist evaluateTwist(const double time) const;
+  virtual Twist evaluateAcceleration(const double time) const;
+  virtual Force evaluateForce(const double time) const;
+  virtual Torque evaluateTorque(const double time) const;
 
   /*!
    * Print the contents to console for debugging.
@@ -101,9 +98,6 @@ class BaseMotionBase
 
   //! Type of the base motion.
   Type type_;
-//
-//  //! Frame id of the base motion.
-//  std::string frameId_;
 };
 
 } /* namespace */

@@ -15,25 +15,9 @@ BaseMotionBase::BaseMotionBase(BaseMotionBase::Type type)
 {
 }
 
-//BaseMotionBase::BaseMotionBase(const BaseMotionBase& other) :
-//    isComplete_(other.isComplete_),
-//    legMotions_(other.legMotions_),
-//    baseMotion_(other.baseMotion_->clone()),
-//    time_(other.time_),
-//    totalDuration_(other.totalDuration_),
-//    isDurationComputed_(other.isDurationComputed_)
-//{
-//}
-
 BaseMotionBase::~BaseMotionBase()
 {
 }
-//
-//std::unique_ptr<BaseMotionBase> BaseMotionBase::clone() const
-//{
-//  std::unique_ptr<BaseMotionBase> pointer(new BaseMotionBase(*this));
-//  return pointer;
-//}
 
 BaseMotionBase::Type BaseMotionBase::getType() const
 {
@@ -45,15 +29,6 @@ const ControlSetup BaseMotionBase::getControlSetup() const
   throw std::runtime_error("BaseMotionBase::getControlSetup() not implemented.");
 }
 
-double BaseMotionBase::getDuration() const
-{
-  throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");
-}
-
-const std::string& BaseMotionBase::getFrameId() const
-{
-  throw std::runtime_error("BaseMotionBase::getFrameId() not implemented.");
-}
 
 void BaseMotionBase::updateStartPose(const Pose& startPose)
 {
@@ -70,32 +45,62 @@ void BaseMotionBase::updateStartAcceleration(const Twist& startAcceleration)
   throw std::runtime_error("BaseMotionBase::updateStartAcceleration() not implemented.");
 }
 
-void BaseMotionBase::updateStartForce(const Force& startForce, const Torque& startTorque)
+void BaseMotionBase::updateStartForceTorque(const Force& startForce, const Torque& startTorque)
 {
   throw std::runtime_error("BaseMotionBase::updateStartForce() not implemented.");
 }
 
-Pose BaseMotionBase::evaluatePose(const double time)
+bool BaseMotionBase::compute()
+{
+  throw std::runtime_error("BaseMotionBase::compute() not implemented.");
+}
+
+double BaseMotionBase::getDuration() const
+{
+  throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");
+}
+
+const std::string& BaseMotionBase::getPoseFrameId() const
+{
+  throw std::runtime_error("BaseMotionBase::getPoseFrameId() not implemented.");
+}
+
+const std::string& BaseMotionBase::getTwistFrameId() const
+{
+  throw std::runtime_error("BaseMotionBase::getTwistFrameId() not implemented.");
+}
+
+const std::string& BaseMotionBase::getAccelerationFrameId() const
+{
+  throw std::runtime_error("BaseMotionBase::getAccelerationFrameId() not implemented.");
+}
+
+const std::string& BaseMotionBase::getForceTorqueFrameId() const
+{
+  throw std::runtime_error("BaseMotionBase::getForceTorqueFrameId() not implemented.");
+}
+
+Pose BaseMotionBase::evaluatePose(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluatePose() not implemented.");
 }
 
-Twist BaseMotionBase::evaluateTwist(const double time)
+Twist BaseMotionBase::evaluateTwist(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluateTwist() not implemented.");
 }
 
-Twist BaseMotionBase::evaluateAcceleration(const double time)
+Twist BaseMotionBase::evaluateAcceleration(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluateAcceleration() not implemented.");
 }
 
-Force BaseMotionBase::evaluateForce(const double time)
+Force BaseMotionBase::evaluateForce(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluateForce() not implemented.");
 }
 
-Torque BaseMotionBase::evaluateTorque(const double time)
+Torque BaseMotionBase::evaluateTorque(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluateTorque() not implemented.");
 }
