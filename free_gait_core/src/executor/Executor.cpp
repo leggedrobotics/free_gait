@@ -26,8 +26,21 @@ Executor::~Executor()
   // TODO Auto-generated destructor stub
 }
 
+bool Executor::initialize()
+{
+  adapter_->initializeState(*state_);
+  reset();
+  return isInitialized_ = true;
+}
+
+bool Executor::isInitialized() const
+{
+  return isInitialized_;
+}
+
 bool Executor::advance(double dt)
 {
+  if (!isInitialized_) return false;
   if (!queue_.advance(dt)) return false;
   if (queue_.empty()) return true;
 
@@ -38,7 +51,7 @@ bool Executor::advance(double dt)
 
   if (!writeIgnoreContact()) return false;
   if (!writeSupportLegs()) return false;
-  if (!writeTorsoMotion()) return false;
+//  if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 
 
@@ -78,13 +91,14 @@ bool Executor::advance(double dt)
 //  // TODO Do this with all frame handling.
 //  if (baseControlSetup_.at(ControlLevel::Position)) basePose_ = step->getCurrentBaseMotion().evaluatePose(step->getCurrentStateTime());
 //  return true;
+
+  return true;
 }
 
 void Executor::reset()
 {
   queue_.clear();
   updateStateWithMeasurements();
-  adapter_->initializeState(*state_);
 }
 
 const StepQueue& Executor::getQueue() const

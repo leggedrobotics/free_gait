@@ -26,6 +26,8 @@ class Executor
            std::shared_ptr<State> state);
   virtual ~Executor();
 
+  bool initialize();
+  bool isInitialized() const;
   /*!
    * Advance in time
    * @param dt the time step to advance [s].
@@ -48,6 +50,7 @@ class Executor
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
+  bool isInitialized_;
 };
 
 } /* namespace free_gait */
