@@ -24,7 +24,7 @@ namespace free_gait {
 class StepRosConverter
 {
  public:
-  StepRosConverter(std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel);
+  StepRosConverter(std::shared_ptr<Executor> executor);
   virtual ~StepRosConverter();
 
   /*!
@@ -40,8 +40,7 @@ class StepRosConverter
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
 
  private:
-  //! Robot model.
-  std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel_;
+  std::shared_ptr<Executor> executor_;
 };
 
 }

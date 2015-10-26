@@ -37,6 +37,7 @@ class Executor
   void reset();
 
   const StepQueue& getQueue() const;
+  StepQueue& getQueue();
   const State& getState() const;
   const AdapterBase& getAdapter() const;
 

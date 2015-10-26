@@ -18,15 +18,12 @@
 namespace free_gait {
 
 FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                                   std::shared_ptr<free_gait::StepQueue> stepQueue,
-                                   std::shared_ptr<free_gait::StepCompleter> stepCompleter,
-                                   std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel)
+                                           std::shared_ptr<Executor> executor)
     : nodeHandle_(nodeHandle),
       name_(name),
-      stepQueue_(stepQueue),
-      rosConverter_(quadrupedModel),
+      executor_(executor),
+      rosConverter_(executor),
       server_(nodeHandle_, name_, false),
-      quadrupedModel_(quadrupedModel),
       isPreempting_(false)
 {
 }
@@ -46,7 +43,7 @@ void FreeGaitActionServer::initialize()
 void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
-  if (stepQueue_->empty()) {
+  if (executor_->getQueue().empty()) {
     // Succeeded.
     if (isPreempting_) {
       // Preempted.
@@ -75,25 +72,25 @@ void FreeGaitActionServer::goalCallback()
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
-    stepQueue_->add(step);
+    executor_->getQueue().add(step);
   }
 }
 
 void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
-  if (stepQueue_->empty()) return;
-  if (stepQueue_->size() <= 1) return;
-  stepQueue_->clearNextSteps();
+  if (executor_->getQueue().empty()) return;
+  if (executor_->getQueue().size() <= 1) return;
+  executor_->getQueue().clearNextSteps();
   isPreempting_ = true;
 }
 
 void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::ExecuteStepsFeedback feedback;
-  if (stepQueue_->empty()) return;
-  auto& step = stepQueue_->getCurrentStep();
-  feedback.queue_size = stepQueue_->size();
+  if (executor_->getQueue().empty()) return;
+  const auto& step = executor_->getQueue().getCurrentStep();
+  feedback.queue_size = executor_->getQueue().size();
 
 //  if (step.checkStatus() == false) {
 //    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;

@@ -16,8 +16,8 @@
 
 namespace free_gait {
 
-StepRosConverter::StepRosConverter(std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel)
-    : quadrupedModel_(quadrupedModel)
+StepRosConverter::StepRosConverter(std::shared_ptr<Executor> executor)
+    : executor_(executor)
 {
 
 }
@@ -34,13 +34,13 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
   for (const auto& footstepMessage : message.footstep) {
     Footstep footstep;
     if (!fromMessage(footstepMessage, footstep)) return false;
-    const auto& limb = quadrupedModel_->getLimbEnumFromLimbString(footstepMessage.name);
+    const auto& limb = executor_->getAdapter().getLimbEnumFromLimbString(footstepMessage.name);
     step.addLegMotion(limb, footstep);
   }
 
   // Base motion.
   for (const auto& baseAutoMessage : message.base_auto) {
-    BaseAuto baseAuto;
+    BaseAuto baseAuto(executor_->getState(), step, executor_->getAdapter());
     if (!fromMessage(baseAutoMessage, baseAuto)) return false;
     step.addBaseMotion(baseAuto);
   }
@@ -81,8 +81,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
                                    BaseAuto& baseAuto)
 {
-  baseAuto.setHeight(message.height);
-  baseAuto.setAverageVelocity(message.average_velocity);
+  baseAuto.height_ = message.height;
+  baseAuto.averageVelocity_ = message.average_velocity;
+  baseAuto.supportSafetyMargin_ = 0.0;
   return true;
 }
 

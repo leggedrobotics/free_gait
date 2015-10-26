@@ -22,7 +22,6 @@ BaseAuto::BaseAuto(const State& state, const Step& step, const AdapterBase& adap
       state_(state),
       step_(step),
       adapter_(adapter),
-      hasTarget_(false),
       averageVelocity_(0.0),
       duration_(0.0),
       height_(0.0),
@@ -193,8 +192,6 @@ void BaseAuto::optimizePose(Pose& pose)
 
 bool BaseAuto::computeTrajectory()
 {
-  if (!hasTarget_) return false;
-
   std::vector<Time> times;
   std::vector<ValueType> values;
 

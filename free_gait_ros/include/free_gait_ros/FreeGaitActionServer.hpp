@@ -30,9 +30,7 @@ class FreeGaitActionServer
 {
  public:
   FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                   std::shared_ptr<StepQueue> stepQueue,
-                   std::shared_ptr<StepCompleter> stepCompleter,
-                   std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel);
+                       std::shared_ptr<Executor> executor);
 
   virtual ~FreeGaitActionServer();
 
@@ -56,10 +54,7 @@ class FreeGaitActionServer
 
   //! ROS nodehandle.
   ros::NodeHandle nodeHandle_;
-  std::shared_ptr<free_gait::StepQueue> stepQueue_;
-
-  //! Robot model.
-  std::shared_ptr<quadruped_model::QuadrupedModel> quadrupedModel_;
+  std::shared_ptr<free_gait::Executor> executor_;
 
   //! ROS converter.
   StepRosConverter rosConverter_;

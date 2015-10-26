@@ -22,6 +22,8 @@
 
 namespace free_gait {
 
+class StepRosConverter;
+
 class BaseAuto : public BaseMotionBase
 {
  public:
@@ -57,6 +59,12 @@ class BaseAuto : public BaseMotionBase
   Pose evaluatePose(const double time) const;
 
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
+  friend class StepRosConverter;
+
+ protected:
+  double height_; // In control frame.
+  double averageVelocity_;
+  double supportSafetyMargin_;
 
  private:
 
@@ -71,12 +79,8 @@ class BaseAuto : public BaseMotionBase
   bool computeTrajectory();
 
   Pose start_; // In world frame.
-  bool hasTarget_;
-  double height_; // In control frame.
   Pose target_; // In world frame.
-  double averageVelocity_;
   double duration_;
-  double supportSafetyMargin_;
 
   ControlSetup controlSetup_;
 

@@ -107,6 +107,11 @@ const StepQueue& Executor::getQueue() const
   return queue_;
 }
 
+StepQueue& Executor::getQueue()
+{
+  return queue_;
+}
+
 const State& Executor::getState() const
 {
   return *state_;
