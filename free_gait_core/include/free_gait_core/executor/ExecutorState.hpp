@@ -16,7 +16,7 @@
 
 namespace free_gait {
 
-class ExecutorState : quadruped_model::QuadrupedState
+class ExecutorState : public quadruped_model::QuadrupedState
 {
  public:
   ExecutorState();
