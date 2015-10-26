@@ -15,7 +15,8 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
                    std::shared_ptr<State> state)
     : completer_(completer),
       adapter_(adapter),
-      state_(state)
+      state_(state),
+      isInitialized_(false)
 {
   // TODO Auto-generated constructor stub
 
@@ -51,7 +52,7 @@ bool Executor::advance(double dt)
 
   if (!writeIgnoreContact()) return false;
   if (!writeSupportLegs()) return false;
-//  if (!writeTorsoMotion()) return false;
+  if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 
 
