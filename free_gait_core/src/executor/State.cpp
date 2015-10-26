@@ -18,13 +18,13 @@ State::~State()
 {
 }
 
-void State::initialize(const std::vector<LimbEnum>& limbs,
-                               const std::vector<BranchEnum>& branches)
+void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches)
 {
   limbs_ = limbs;
-  for (const auto& limb : limbs) {
+  for (const auto& limb : limbs_) {
     isSupportLegs_[limb] = false;
     ignoreContact_[limb] = false;
+    ignoreForPoseAdaptation_[limb] = false;
   }
 }
 

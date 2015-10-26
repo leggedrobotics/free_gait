@@ -78,6 +78,8 @@ class BaseAuto : public BaseMotionBase
   double duration_;
   double supportSafetyMargin_;
 
+  ControlSetup controlSetup_;
+
   //! Base trajectory.
   curves::CubicHermiteSE3Curve trajectory_;
 

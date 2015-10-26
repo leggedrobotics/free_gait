@@ -56,7 +56,6 @@ typedef quadruped_model::LimbEnum LimbEnum;
 typedef quadruped_model::BranchEnum BranchEnum;
 typedef quadruped_model::ContactEnum ContactEnum;
 
-
 enum class ControlLevel
 {
   Position,

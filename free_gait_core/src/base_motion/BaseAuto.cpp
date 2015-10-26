@@ -27,17 +27,26 @@ BaseAuto::BaseAuto(const State& state, const Step& step, const AdapterBase& adap
       duration_(0.0),
       height_(0.0),
       supportSafetyMargin_(0.0),
-      trajectoryUpdated_(false)
+      trajectoryUpdated_(false),
+      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Force, false} }
 {
+
 }
 
 BaseAuto::~BaseAuto()
 {
 }
 
+const ControlSetup BaseAuto::getControlSetup() const
+{
+  return controlSetup_;
+}
+
 bool BaseAuto::compute()
 {
-
+  generateFootholdLists();
+  // TODO !!!
 }
 
 void BaseAuto::updateStartPose(const Pose& startPose)
