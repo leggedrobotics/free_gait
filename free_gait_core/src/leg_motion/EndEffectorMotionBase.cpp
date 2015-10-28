@@ -18,12 +18,6 @@ EndEffectorMotionBase::~EndEffectorMotionBase()
 {
 }
 
-//std::unique_ptr<LegMotionBase> EndEffectorMotionBase::clone() const
-//{
-//  std::unique_ptr<LegMotionBase> pointer(new EndEffectorMotionBase(*this));
-//  return pointer;
-//}
-
 LegMotionBase::TrajectoryType EndEffectorMotionBase::getTrajectoryType() const
 {
   return LegMotionBase::TrajectoryType::EndEffector;
@@ -49,22 +43,22 @@ void EndEffectorMotionBase::updateStartForce(const Force& startForce)
   throw std::runtime_error("EndEffectorMotionBase::updateStartForce() not implemented.");
 }
 
-const Position EndEffectorMotionBase::evaluatePosition(const double time)
+const Position EndEffectorMotionBase::evaluatePosition(const double time) const
 {
   throw std::runtime_error("EndEffectorMotionBase::evaluatePosition() not implemented.");
 }
 
-const LinearVelocity EndEffectorMotionBase::evaluateVelocity(const double time)
+const LinearVelocity EndEffectorMotionBase::evaluateVelocity(const double time) const
 {
   throw std::runtime_error("EndEffectorMotionBase::evaluateVelocity() not implemented.");
 }
 
-const LinearAcceleration EndEffectorMotionBase::evaluateAcceleration(const double time)
+const LinearAcceleration EndEffectorMotionBase::evaluateAcceleration(const double time) const
 {
   throw std::runtime_error("EndEffectorMotionBase::evaluateAcceleration() not implemented.");
 }
 
-const Force EndEffectorMotionBase::evaluateForce(const double time)
+const Force EndEffectorMotionBase::evaluateForce(const double time) const
 {
   throw std::runtime_error("EndEffectorMotionBase::evaluateForce() not implemented.");
 }

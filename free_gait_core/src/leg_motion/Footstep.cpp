@@ -18,8 +18,15 @@ Footstep::Footstep()
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep),
       profileHeight_(0.0),
       averageVelocity_(0.0),
-      trajectoryUpdated_(false)
+      ignoreContact_(false),
+      ignoreForPoseAdaptation_(false),
+      updated_(false)
 {
+  //! Foot trajectory.
+  curves::PolynomialSplineQuinticVector3Curve trajectory_;
+
+  //! If trajectory is updated.
+  bool updated_;
 }
 
 Footstep::~Footstep()
@@ -35,13 +42,17 @@ std::unique_ptr<LegMotionBase> Footstep::clone() const
 void Footstep::updateStartPosition(const Position& startPosition)
 {
   start_ = startPosition;
-  trajectoryUpdated_ = false;
-  computeTrajectory();
+  updated_ = false;
 }
 
-const Position Footstep::evaluate(const double phase)
+bool Footstep::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
-  if (!trajectoryUpdated_) computeTrajectory();
+  return false;
+}
+
+const Position Footstep::evaluatePosition(const double phase) const
+{
+//  if (!updated_) computeTrajectory();
   const double time = phase * getDuration();
   return Position(trajectory_.evaluate(time));
 }
@@ -51,37 +62,9 @@ double Footstep::getDuration() const
   return averageVelocity_;
 }
 
-double Footstep::getAverageVelocity() const
-{
-  return averageVelocity_;
-}
-
-void Footstep::setAverageVelocity(double averageVelocity)
-{
-  averageVelocity_ = averageVelocity;
-  trajectoryUpdated_ = false;
-}
-
-double Footstep::getProfileHeight() const
-{
-  return profileHeight_;
-}
-
-void Footstep::setProfileHeight(double profileHeight)
-{
-  profileHeight_ = profileHeight;
-  trajectoryUpdated_ = false;
-}
-
-const Position Footstep::getTarget() const
+const Position Footstep::getTargetPosition() const
 {
   return target_;
-}
-
-void Footstep::setTarget(const Position& target)
-{
-  target_ = target;
-  trajectoryUpdated_ = false;
 }
 
 const std::string& Footstep::getFrameId() const
@@ -89,30 +72,9 @@ const std::string& Footstep::getFrameId() const
   return frameId_;
 }
 
-void Footstep::setFrameId(const std::string& frameId)
-{
-  frameId_ = frameId;
-}
-
-const std::string& Footstep::getProfileType() const
-{
-  return profileType_;
-}
-
-void Footstep::setProfileType(const std::string& type)
-{
-  profileType_ = type;
-  trajectoryUpdated_ = false;
-}
-
 const Vector& Footstep::getSurfaceNormal() const
 {
   return surfaceNormal_;
-}
-
-void Footstep::setSurfaceNormal(const Vector& surfaceNormal)
-{
-  surfaceNormal_ = surfaceNormal;
 }
 
 bool Footstep::isIgnoreContact() const
@@ -120,28 +82,17 @@ bool Footstep::isIgnoreContact() const
   return ignoreContact_;
 }
 
-void Footstep::setIgnoreContact(bool ignoreContact)
-{
-  ignoreContact_ = ignoreContact;
-}
-
-
 bool Footstep::isIgnoreForPoseAdaptation() const
 {
   return ignoreForPoseAdaptation_;
 }
 
-void Footstep::setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation)
+std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
 {
-  ignoreForPoseAdaptation_ = ignoreForPoseAdaptation;
-}
-
-std::ostream& operator<<(std::ostream& out, const Footstep& footTarget)
-{
-  out << "Target: " << footTarget.target_ << std::endl;
-  out << "Height: " << footTarget.profileHeight_ << std::endl;
-  out << "Duration: " << footTarget.averageVelocity_ << std::endl;
-  out << "Type: " << footTarget.profileType_;
+  out << "Target: " << footstep.target_ << std::endl;
+  out << "Height: " << footstep.profileHeight_ << std::endl;
+  out << "Duration: " << footstep.averageVelocity_ << std::endl;
+  out << "Type: " << footstep.profileType_;
   return out;
 }
 
@@ -162,7 +113,7 @@ bool Footstep::computeTrajectory()
   }
 
   trajectory_.fitCurve(times, values);
-  trajectoryUpdated_ = true;
+  updated_ = true;
   return true;
 }
 

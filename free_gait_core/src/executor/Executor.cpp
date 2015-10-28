@@ -61,6 +61,7 @@ bool Executor::advance(double dt)
 
   if (!writeIgnoreContact()) return false;
   if (!writeSupportLegs()) return false;
+  if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 
@@ -163,6 +164,44 @@ bool Executor::writeSupportLegs()
     } else {
       state_->setSupportLeg(limb, true);
     }
+  }
+  return true;
+}
+
+bool Executor::writeLegMotion()
+{
+  const auto& step = queue_.getCurrentStep();
+  if (!step.hasLegMotion()) return true;
+  double time = queue_.getCurrentStep().getTime();
+  for (const auto& limb : state_->getLimbs()) {
+    if (!step.hasLegMotion(limb)) continue;
+    auto const& legMotion = step.getLegMotion(limb);
+    ControlSetup controlSetup = legMotion.getControlSetup();
+
+    switch (legMotion.getTrajectoryType()) {
+
+      case LegMotionBase::TrajectoryType::EndEffector:
+      {
+        const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
+        if (controlSetup[ControlLevel::Position]) {
+          Position position = endEffectorMotion.evaluatePosition(time);
+//          state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
+        }
+        break;
+      }
+
+      case LegMotionBase::TrajectoryType::Joints:
+      {
+        // TODO
+        break;
+      }
+
+      default:
+        throw std::runtime_error("Executor::writeLegMotion() could not write leg motion of this type.");
+        break;
+    }
+
+
   }
   return true;
 }

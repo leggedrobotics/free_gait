@@ -39,6 +39,11 @@ const ControlSetup LegMotionBase::getControlSetup() const
   throw std::runtime_error("LegMotionBase::getControlSetup() not implemented.");
 }
 
+bool LegMotionBase::compute(const State& state, const Step& step, const AdapterBase& adapter)
+{
+  throw std::runtime_error("LegMotionBase::compute() not implemented.");
+}
+
 double LegMotionBase::getDuration() const
 {
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");

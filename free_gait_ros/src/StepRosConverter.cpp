@@ -52,28 +52,28 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
                                    Footstep& foostep)
 {
   // Target.
-  foostep.setFrameId(message.target.header.frame_id);
+  foostep.frameId_ = message.target.header.frame_id;
   Position target;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target.point, target);
-  foostep.setTarget(target);
+  foostep.target_ = target;
 
   // Profile.
-  foostep.setProfileHeight(message.profile_height);
-  foostep.setProfileType(message.profile_type);
+  foostep.profileHeight_ = message.profile_height;
+  foostep.profileType_ =message.profile_type;
 
   // Average Velocity.
-  foostep.setAverageVelocity(message.average_velocity);
+  foostep.averageVelocity_ = message.average_velocity;
 
   // Surface normal.
   Vector surfaceNormal;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
-  foostep.setSurfaceNormal(surfaceNormal);
+  foostep.surfaceNormal_ = surfaceNormal;
 
   // Ignore contact.
-  foostep.setIgnoreContact(message.ignore_contact);
+  foostep.ignoreContact_ = message.ignore_contact;
 
   // Ignore for pose adaptation.
-  foostep.setIgnoreForPoseAdaptation(message.ignore_for_pose_adaptation);
+  foostep.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
 
   return true;
 }

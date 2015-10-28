@@ -13,8 +13,10 @@
 #include "free_gait_core/executor/State.hpp"
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/step/Step.hpp"
-#include "free_gait_core/leg_motion/Footstep.hpp"
 #include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
+#include "free_gait_core/leg_motion/JointMotionBase.hpp"
+#include "free_gait_core/leg_motion/Footstep.hpp"
 
 namespace free_gait {
 
@@ -24,6 +26,7 @@ class StepCompleter
   StepCompleter(std::shared_ptr<free_gait::AdapterBase> adapter);
   virtual ~StepCompleter();
   bool complete(const State& state, Step& step) const;
+  bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
   bool complete(const State& state, const Step& step, BaseMotionBase& baseMotion) const;
   void setParameters(Footstep& footTarget) const;
   void setParameters(BaseAuto& baseAuto) const;

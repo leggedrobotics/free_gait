@@ -42,14 +42,16 @@ class Footstep : public EndEffectorMotionBase
    * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  virtual void updateStartPosition(const Position& startPosition);
+  void updateStartPosition(const Position& startPosition);
+
+  bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  virtual const Position evaluate(const double phase);
+  const Position evaluatePosition(const double phase) const;
 
   /*!
    * Returns the total duration of the trajectory.
@@ -57,45 +59,23 @@ class Footstep : public EndEffectorMotionBase
    */
   double getDuration() const;
 
-  double getAverageVelocity() const;
-
-  void setAverageVelocity(double averageVelocity);
-
-  double getProfileHeight() const;
-
-  void setProfileHeight(double profileHeight);
-
   /*!
    * Return the target (end position) of the swing profile.
    * @return the target.
    */
-  const Position getTarget() const;
-
-  void setTarget(const Position& target);
+  virtual const Position getTargetPosition() const;
 
   const std::string& getFrameId() const;
 
-  void setFrameId(const std::string& frameId);
-
-  const std::string& getProfileType() const;
-
-  void setProfileType(const std::string& type);
-
   const Vector& getSurfaceNormal() const;
-
-  void setSurfaceNormal(const Vector& surfaceNormal);
 
   bool isIgnoreContact() const;
 
-  void setIgnoreContact(bool ignoreContact);
-
   bool isIgnoreForPoseAdaptation() const;
 
-  void setIgnoreForPoseAdaptation(bool ignoreForPoseAdaptation);
-
-  friend std::ostream& operator << (std::ostream& out, const Footstep& footTarget);
-
-  friend class FootTargetCompleter;
+  friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
+  friend class StepCompleter;
+  friend class StepRosConverter;
 
  private:
   /*!
@@ -123,7 +103,7 @@ class Footstep : public EndEffectorMotionBase
   curves::PolynomialSplineQuinticVector3Curve trajectory_;
 
   //! If trajectory is updated.
-  bool trajectoryUpdated_;
+  bool updated_;
 };
 
 } /* namespace */

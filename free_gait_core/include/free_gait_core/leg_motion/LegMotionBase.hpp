@@ -10,12 +10,19 @@
 
 // Free Gait
 #include <free_gait_core/TypeDefs.hpp>
+#include <free_gait_core/step/Step.hpp>
+#include <free_gait_core/executor/State.hpp>
+#include <free_gait_core/executor/AdapterBase.hpp>
 
 // STD
 #include <string>
 #include <memory>
 
 namespace free_gait {
+
+class State;
+class Step;
+class AdapterBase;
 
 /*!
  * Base class for a generic swing leg motion.
@@ -61,7 +68,10 @@ class LegMotionBase
    */
   LegMotionBase::Type getType() const;
   virtual LegMotionBase::TrajectoryType getTrajectoryType() const;
+
   virtual const ControlSetup getControlSetup() const;
+
+  virtual bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
   /*!
    * Returns the total duration of the motion.

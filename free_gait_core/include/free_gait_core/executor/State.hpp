@@ -40,12 +40,12 @@ class State : public quadruped_model::QuadrupedState
   // TODO Extend QuadrupedState class with:
   JointEfforts jointTorques_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
+  LinearAcceleration linearAccelerationBaseInWorldFrame_;
+  AngularAcceleration angularAccelerationBaseInBaseFrame_;
 
   // Free gait specific.
   std::vector<LimbEnum> limbs_;
   std::unordered_map<BranchEnum, ControlSetup, EnumClassHash> controlSetups_;
-  LinearAcceleration linearAccelerationBaseInWorldFrame_;
-  AngularAcceleration angularAccelerationBaseInBaseFrame_;
   Force netForceOnBaseInBaseFrame_;
   Torque netTorqueOnBaseInBaseFrame_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;

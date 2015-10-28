@@ -63,8 +63,8 @@ class BaseAuto : public BaseMotionBase
   Twist evaluateTwist(const double time) const;
 
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
-  friend class StepRosConverter;
   friend class StepCompleter;
+  friend class StepRosConverter;
 
  protected:
   double height_; // In control frame.

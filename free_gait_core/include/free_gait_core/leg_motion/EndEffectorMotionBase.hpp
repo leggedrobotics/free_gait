@@ -36,12 +36,6 @@ class EndEffectorMotionBase : public LegMotionBase
   virtual ~EndEffectorMotionBase();
 
   /*!
-   * Deep copy clone.
-   * @return a clone of this class.
-   */
-//  virtual std::unique_ptr<LegMotionBase> clone() const;
-
-  /*!
    * Returns the type of the leg motion trajectory.
    * @return the type of the leg motion trajectory.
    */
@@ -63,10 +57,10 @@ class EndEffectorMotionBase : public LegMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  virtual const Position evaluatePosition(const double time);
-  virtual const LinearVelocity evaluateVelocity(const double time);
-  virtual const LinearAcceleration evaluateAcceleration(const double time);
-  virtual const Force evaluateForce(const double time);
+  virtual const Position evaluatePosition(const double time) const;
+  virtual const LinearVelocity evaluateVelocity(const double time) const;
+  virtual const LinearAcceleration evaluateAcceleration(const double time) const;
+  virtual const Force evaluateForce(const double time) const;
 
   /*!
    * Return the target (end position) of the swing trajectory.

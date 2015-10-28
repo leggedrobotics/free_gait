@@ -45,6 +45,7 @@ class Executor
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
   bool writeSupportLegs();
+  bool writeLegMotion();
   bool writeTorsoMotion();
 
   StepQueue queue_;
