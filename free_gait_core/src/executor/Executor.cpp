@@ -49,6 +49,12 @@ bool Executor::advance(double dt)
   while (hasSwitchedStep) {
     updateStateWithMeasurements();
     completer_->complete(*state_, queue_.getCurrentStep());
+
+    if (hasSwitchedStep) {
+      std::cout << "Switched step state to:" << std::endl;
+      std::cout << queue_.getCurrentStep() << std::endl;
+    }
+
     if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
     if (queue_.empty()) return true;
   }

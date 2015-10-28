@@ -81,12 +81,14 @@ class LegMotionBase
    * @param swingTrajectory the swing trajectory to debug.
    * @return the resulting output stream.
    */
-  friend std::ostream& operator << (std::ostream& out, const LegMotionBase& legMotion);
+  friend std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion);
 
  private:
 
   //! Type of the leg motion.
   Type type_;
 };
+
+std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type);
 
 } /* namespace */

@@ -101,12 +101,14 @@ class BaseMotionBase
    * @param baseMotion the base motion to debug.
    * @return the resulting output stream.
    */
-  friend std::ostream& operator << (std::ostream& out, const BaseMotionBase& baseMotion);
+  friend std::ostream& operator<< (std::ostream& out, const BaseMotionBase& baseMotion);
 
  private:
 
   //! Type of the base motion.
   Type type_;
 };
+
+std::ostream& operator<<(std::ostream& out, const BaseMotionBase::Type& type);
 
 } /* namespace */

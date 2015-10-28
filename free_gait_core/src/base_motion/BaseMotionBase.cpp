@@ -6,7 +6,8 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_core/base_motion/BaseMotionBase.hpp>
+#include "free_gait_core/base_motion/BaseMotionBase.hpp"
+#include "free_gait_core/base_motion/BaseAuto.hpp"
 
 namespace free_gait {
 
@@ -107,6 +108,38 @@ Force BaseMotionBase::evaluateForce(const double time) const
 Torque BaseMotionBase::evaluateTorque(const double time) const
 {
   throw std::runtime_error("BaseMotionBase::evaluateTorque() not implemented.");
+}
+
+std::ostream& operator<< (std::ostream& out, const BaseMotionBase& baseMotion)
+{
+  out << "Type: " << baseMotion.getType() << std::endl;
+  switch (baseMotion.getType()) {
+    case BaseMotionBase::Type::Auto:
+      out << (dynamic_cast<const BaseAuto&>(baseMotion)) << std::endl;
+      break;
+    default:
+      throw std::runtime_error("BaseMotionBase::operator<< not implemented for this type.");
+      break;
+  }
+  return out;
+}
+
+std::ostream& operator<< (std::ostream& out, const BaseMotionBase::Type& type)
+{
+  switch (type) {
+    case BaseMotionBase::Type::Auto:
+      out << "Auto";
+      return out;
+    case BaseMotionBase::Type::Target:
+      out << "Target";
+      return out;
+    case BaseMotionBase::Type::Trajectory:
+      out << "Trajectory";
+      return out;
+    default:
+      out << "Undefined";
+      return out;
+  }
 }
 
 } /* namespace */

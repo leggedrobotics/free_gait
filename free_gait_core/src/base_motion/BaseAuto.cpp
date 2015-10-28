@@ -258,15 +258,17 @@ bool BaseAuto::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
-//  out << "Start Position: " << baseShiftProfile.start_.getPosition() << std::endl;
-//  out << "Start Orientation: " << baseShiftProfile.start_.getRotation() << std::endl;
-//  out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseShiftProfile.start_.getRotation()).getUnique().vector().transpose() << std::endl;
-//  out << "Target Position: " << baseShiftProfile.target_.getPosition() << std::endl;
-//  out << "Target Orientation: " << baseShiftProfile.target_.getRotation() << std::endl;
-//  out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseShiftProfile.target_.getRotation()).getUnique().vector().transpose() << std::endl;
-//  out << "Height: " << baseShiftProfile.height_ << std::endl;
-//  out << "Duration: " << baseShiftProfile.duration_ << std::endl;
-//  out << "Type: " << baseShiftProfile.profileType_;
+  out << "Height: " << baseAuto.height_ << std::endl;
+  out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;
+  out << "Average Angular Velocity: " << baseAuto.averageAngularVelocity_ << std::endl;
+  out << "Support Margin: " << baseAuto.supportMargin_ << std::endl;
+  out << "Duration: " << baseAuto.duration_ << std::endl;
+  out << "Start Position: " << baseAuto.start_.getPosition() << std::endl;
+  out << "Start Orientation: " << baseAuto.start_.getRotation() << std::endl;
+  out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.start_.getRotation()).getUnique().vector().transpose() << std::endl;
+  out << "Target Position: " << baseAuto.target_.getPosition() << std::endl;
+  out << "Target Orientation: " << baseAuto.target_.getRotation() << std::endl;
+  out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.target_.getRotation()).getUnique().vector().transpose() << std::endl;
   return out;
 }
 

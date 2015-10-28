@@ -6,6 +6,7 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
+#include <free_gait_core/leg_motion/Footstep.hpp>
 
 namespace free_gait {
 
@@ -58,10 +59,42 @@ bool LegMotionBase::isIgnoreForPoseAdaptation() const
   throw std::runtime_error("LegMotionBase::isIgnoreForPoseAdaptation() not implemented.");
 }
 
-std::ostream& operator << (std::ostream& out, const LegMotionBase& legMotion)
+std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
 {
-  out << "Type: " << legMotion.type_ << std::endl;
+  out << "Type: " << legMotion.getType() << std::endl;
+  switch (legMotion.getType()) {
+    case LegMotionBase::Type::Footstep:
+      out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      break;
+    default:
+      throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
+      break;
+  }
   return out;
+}
+
+std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type)
+{
+  switch (type) {
+    case LegMotionBase::Type::Footstep:
+      out << "Footstep";
+      return out;
+    case LegMotionBase::Type::EndEffectorTarget:
+      out << "EndEffectorTarget";
+      return out;
+    case LegMotionBase::Type::EndEffectorTrajectory:
+      out << "EndEffectorTrajectory";
+      return out;
+    case LegMotionBase::Type::JointTarget:
+      out << "JointTarget";
+      return out;
+    case LegMotionBase::Type::JointTrajectory:
+      out << "JointTrajectory";
+      return out;
+    default:
+      out << "Undefined";
+      return out;
+  }
 }
 
 } /* namespace */

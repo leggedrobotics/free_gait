@@ -303,10 +303,12 @@ bool Step::isApproachingEnd(double tolerance) const
 
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
+  out << "---" << std::endl;
   out << "Leg motions (" << step.legMotions_.size() << "):" << std::endl;
-  for (const auto& legMotion : step.legMotions_) out << *(legMotion.second) << std::endl;
-//  out << "Base motion: " << std::endl;
-//  for (const auto& baseMotion : step.baseMotions_) out << baseMotion.second << std::endl;
+  for (const auto& legMotion : step.legMotions_) out << "-" << std::endl << *(legMotion.second) << std::endl;
+  out << "---" << std::endl;
+  out << "Base motion: " << std::endl;
+  out << *(step.baseMotion_) << std::endl;
   return out;
 }
 
