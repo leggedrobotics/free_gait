@@ -49,18 +49,16 @@ const ControlSetup BaseAuto::getControlSetup() const
 bool BaseAuto::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
   if (!generateFootholdLists(state, step, adapter)) {
-    std::err << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
+    std::cerr << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
     return false;
   }
   Position horizontalTargetPositionInWorldFrame;
   getAdaptiveHorizontalTargetPosition(state, adapter, horizontalTargetPositionInWorldFrame);
   getAdaptiveTargetPose(state, adapter, horizontalTargetPositionInWorldFrame, target_);
-  std::cout << "target: " << target_ << std::endl;
   if (!optimizePose(target_)) {
-    std::err << "BaseAuto::compute(): Could not compute pose optimization." << std::endl;
+    std::cerr << "BaseAuto::compute(): Could not compute pose optimization." << std::endl;
     return false;
   }
-  std::cout << "After optimize pose " << std::endl;
   computeDuration();
   computeTrajectory();
   return computed_ = true;
@@ -102,7 +100,6 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
   footholdsInSupport_.clear();
   for (const auto& limb : state.getLimbs()) {
     if (state.isSupportLeg(limb)) {
-      std::cout << "is support leg" << std::endl;
       footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
     }
   }
@@ -175,7 +172,6 @@ void BaseAuto::getAdaptiveTargetPose(
   std::vector<Position> footholds; // TODO
   for (const auto& limb : state.getLimbs()) {
     footholds.push_back(adapter.getPositionWorldToFootInWorldFrame(limb));
-    std::cout << "foothold " << adapter.getPositionWorldToFootInWorldFrame(limb) << std::endl;
   }
   loco::TerrainPerceptionFreePlane::generateTerrainModelFromPointsInWorldFrame(footholds, terrain);
   loco::Vector terrainNormalInWorld;
