@@ -19,6 +19,8 @@
 
 namespace free_gait {
 
+class Step;
+
 class StepQueue
 {
  public:
@@ -34,9 +36,10 @@ class StepQueue
   /*!
    * Advance in time
    * @param dt the time step to advance [s].
+   * @param hasSwitchedStep, true if the step was changed in the last advance() update.
    * @return true if successful, false otherwise.
    */
-  bool advance(double dt);
+  bool advance(double dt, bool& hasSwitchedStep);
 
   /*!
    * Checks if queue contain steps.
@@ -59,6 +62,7 @@ class StepQueue
    * @return the current step.
    */
   const Step& getCurrentStep() const;
+  Step& getCurrentStep();
 
   /*!
    * Returns the next step. Check if size() > 1 first!
@@ -80,21 +84,12 @@ class StepQueue
    */
   std::deque<Step>::size_type size() const;
 
-  /*!
-   * Return true if the step was changed in the last advance() update.
-   * @return true if step was switched, false otherwise.
-   */
-  bool hasSwitchedStep() const;
-
  private:
 
   //! Queue of step data.
   std::deque<Step> queue_;
-
   std::unique_ptr<Step> previousStep_;
-
   bool active_;
-  bool hasSwitchedStep_;
 };
 
 } /* namespace */

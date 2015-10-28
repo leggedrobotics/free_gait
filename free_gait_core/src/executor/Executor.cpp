@@ -42,12 +42,15 @@ bool Executor::isInitialized() const
 bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
-  if (!queue_.advance(dt)) return false;
+  bool hasSwitchedStep;
+  if (!queue_.advance(dt, hasSwitchedStep)) return false;
   if (queue_.empty()) return true;
 
-  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep().isComplete()) {
+  while (hasSwitchedStep) {
     updateStateWithMeasurements();
-    // TODO Complete step.
+    completer_->complete(*state_, queue_.getCurrentStep());
+    if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
+    if (queue_.empty()) return true;
   }
 
   if (!writeIgnoreContact()) return false;
@@ -160,15 +163,21 @@ bool Executor::writeSupportLegs()
 
 bool Executor::writeTorsoMotion()
 {
-  const Step& step = queue_.getCurrentStep();
-  double time = step.getTime();
+  if (!queue_.getCurrentStep().hasBaseMotion()) return true;
+  double time = queue_.getCurrentStep().getTime();
   // TODO Add frame handling.
-  Pose pose = step.getBaseMotion().evaluatePose(time);
-  Twist twist = step.getBaseMotion().evaluateTwist(time);
-  state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
-  state_->setOrientationWorldToBase(pose.getRotation());
-  state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
-  state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());
+  const auto& baseMotion = queue_.getCurrentStep().getBaseMotion();
+  ControlSetup controlSetup = baseMotion.getControlSetup();
+  if (controlSetup[ControlLevel::Position]) {
+    Pose pose = baseMotion.evaluatePose(time);
+    state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
+    state_->setOrientationWorldToBase(pose.getRotation());
+  }
+  if (controlSetup[ControlLevel::Velocity]) {
+    Twist twist = baseMotion.evaluateTwist(time);
+    state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
+    state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());
+  }
   // TODO Set more states.
   return true;
 }

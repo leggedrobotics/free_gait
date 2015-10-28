@@ -6,6 +6,7 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 #include "free_gait_core/step/Step.hpp"
+#include "free_gait_core/base_motion/base_motion.hpp"
 #include "free_gait_core/TypeDefs.hpp"
 
 // Roco
@@ -29,9 +30,11 @@ inline double mapTo01Range(double v, double min, double max){
 Step::Step()
     : time_(0.0),
       isComplete_(false),
-      totalDuration_(NAN),
+      totalDuration_(0.0),
       isUpdated_(false)
 {
+  legMotions_.clear();
+  baseMotion_.reset();
 }
 
 Step::~Step()
@@ -39,23 +42,29 @@ Step::~Step()
 }
 
 Step::Step(const Step& other) :
-    isComplete_(other.isComplete_),
-    legMotions_(other.legMotions_),
     time_(other.time_),
+    isComplete_(other.isComplete_),
     totalDuration_(other.totalDuration_),
     isUpdated_(other.isUpdated_)
 {
-  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(*other.baseMotion_)));
+  if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
+  legMotions_.clear();
+  for (const auto& legMotion : other.legMotions_) {
+    legMotions_[legMotion.first] = std::move(legMotion.second->clone());
+  }
 }
 
 Step& Step::operator=(const Step& other)
 {
   isComplete_ = other.isComplete_;
-  legMotions_ = other.legMotions_;
-  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(*other.baseMotion_)));
   time_ = other.time_;
   totalDuration_ = other.time_;
   isUpdated_ = other.isUpdated_;
+  if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
+  legMotions_.clear();
+  for (const auto& legMotion : other.legMotions_) {
+    legMotions_[legMotion.first] = std::move(legMotion.second->clone());
+  }
   return *this;
 }
 
@@ -80,13 +89,13 @@ Step& Step::operator=(const Step& other)
 
 void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
 {
-  legMotions_.insert(std::pair<LimbEnum, LegMotionBase>(limb, legMotion));
+  legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(limb, std::move(legMotion.clone())));
   isUpdated_ = false;
 }
 
 void Step::addBaseMotion(const BaseMotionBase& baseMotion)
 {
-  baseMotion_ = std::move(std::unique_ptr<BaseMotionBase>(new BaseMotionBase(baseMotion)));
+  baseMotion_ = std::move(baseMotion.clone());
   isUpdated_ = false;
 }
 
@@ -99,9 +108,10 @@ bool Step::update()
 {
   if (!isComplete_) throw std::runtime_error("Step::update() cannot be called if step is not complete.");
 
+  totalDuration_ = 0.0;
   for (const auto& legMotion : legMotions_) {
-    if (legMotion.second.getDuration() > totalDuration_)
-      totalDuration_ = legMotion.second.getDuration();
+    if (legMotion.second->getDuration() > totalDuration_)
+      totalDuration_ = legMotion.second->getDuration();
   }
   if (hasBaseMotion()) {
     if (baseMotion_->getDuration() > totalDuration_)
@@ -172,12 +182,7 @@ bool Step::hasLegMotion(const LimbEnum& limb) const
 const LegMotionBase& Step::getLegMotion(const LimbEnum& limb) const
 {
   if (!hasLegMotion(limb)) throw std::out_of_range("No leg motion for this limb in this step!");
-  return legMotions_.at(limb);
-}
-
-const Step::LegMotions& Step::getLegMotions() const
-{
-  return legMotions_;
+  return *legMotions_.at(limb);
 }
 
 bool Step::hasBaseMotion() const
@@ -241,7 +246,7 @@ double Step::getLegMotionDuration(const LimbEnum& limb) const
 {
   if (!isUpdated_) throw std::runtime_error("Step::getLegMotionDuration() cannot be called if step is not updated.");
   if (!hasLegMotion(limb)) return 0.0;
-  return legMotions_.at(limb).getDuration();
+  return legMotions_.at(limb)->getDuration();
 }
 
 double Step::getLegMotionPhase(const LimbEnum& limb) const
@@ -298,11 +303,11 @@ bool Step::isApproachingEnd(double tolerance) const
 
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
-//  out << "Leg motion: " << std::endl;
-//  for (const auto& legMotion : step.legMotions_) out << legMotion.second << std::endl;
+  out << "Leg motions (" << step.legMotions_.size() << "):" << std::endl;
+  for (const auto& legMotion : step.legMotions_) out << *(legMotion.second) << std::endl;
 //  out << "Base motion: " << std::endl;
 //  for (const auto& baseMotion : step.baseMotions_) out << baseMotion.second << std::endl;
-//  return out;
+  return out;
 }
 
 //Step::State& operator++(Step::State& phase)

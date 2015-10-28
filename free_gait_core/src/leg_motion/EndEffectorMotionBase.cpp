@@ -18,11 +18,11 @@ EndEffectorMotionBase::~EndEffectorMotionBase()
 {
 }
 
-std::unique_ptr<LegMotionBase> EndEffectorMotionBase::clone() const
-{
-  std::unique_ptr<LegMotionBase> pointer(new EndEffectorMotionBase(*this));
-  return pointer;
-}
+//std::unique_ptr<LegMotionBase> EndEffectorMotionBase::clone() const
+//{
+//  std::unique_ptr<LegMotionBase> pointer(new EndEffectorMotionBase(*this));
+//  return pointer;
+//}
 
 LegMotionBase::TrajectoryType EndEffectorMotionBase::getTrajectoryType() const
 {

@@ -25,15 +25,15 @@ PoseOptimization::~PoseOptimization()
 {
 }
 
-void PoseOptimization::setFeetPositions(const FeetPositions& feetPositions)
+void PoseOptimization::setStance(const Stance& stance)
 {
-  feetPositions_ = feetPositions;
+  stance_ = stance;
 }
 
-void PoseOptimization::setDesiredLegConfiguration(
-    const FeetPositions& desiredFeetPositionsInBase)
+void PoseOptimization::setNominalStance(
+    const Stance& nominalStanceInBaseFrame)
 {
-  desiredFeetPositionsInBase_ = desiredFeetPositionsInBase;
+  nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
 }
 
 void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon)
@@ -45,13 +45,13 @@ bool PoseOptimization::optimize(Pose& pose)
 {
   // If no support polygon provided, use positions.
   if (supportPolygon_.nVertices() == 0) {
-    for (const auto& foot : feetPositions_)
+    for (const auto& foot : stance_)
       supportPolygon_.addVertex(foot.second.vector().head<2>());
   }
 
   // Problem definition:
   // min Ax - b, Gx <= h
-  unsigned int nFeet = feetPositions_.size();
+  unsigned int nFeet = stance_.size();
   MatrixXd A = MatrixXd::Zero(nDimensions_ * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(nDimensions_ * nFeet);
   Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
@@ -61,9 +61,9 @@ bool PoseOptimization::optimize(Pose& pose)
            0,  0, 0;
 
   unsigned int i = 0;
-  for (const auto& footPosition : feetPositions_) {
-    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[footPosition.first].vector());
-    b.segment(nDimensions_ * i, nDimensions_) << footPosition.second.vector() - R_0 * desiredFeetPositionsInBase_[footPosition.first].vector();
+  for (const auto& footPosition : stance_) {
+    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * nominalStanceInBaseFrame_[footPosition.first].vector());
+    b.segment(nDimensions_ * i, nDimensions_) << footPosition.second.vector() - R_0 * nominalStanceInBaseFrame_[footPosition.first].vector();
     ++i;
   }
 
@@ -97,7 +97,7 @@ bool PoseOptimization::optimize(Pose& pose)
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
-  pose.getPosition().vector() = x;
+  pose.getPosition().vector() = x.head<3>();
   const double yaw = x.tail<1>()[0];
   pose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
   pose.getRotation().fix();

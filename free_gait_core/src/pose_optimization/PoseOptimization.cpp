@@ -26,13 +26,13 @@ PoseOptimization::~PoseOptimization()
 
 void PoseOptimization::setFeetPositions(const std::unordered_map<ContactEnum, Position, EnumClassHash>& feetPositions)
 {
-  feetPositions_ = feetPositions;
+  stance_ = feetPositions;
 }
 
 void PoseOptimization::setDesiredLegConfiguration(
     const std::unordered_map<ContactEnum, Position, EnumClassHash>& desiredFeetPositionsInBase)
 {
-  desiredFeetPositionsInBase_ = desiredFeetPositionsInBase;
+  nominalStanceInBaseFrame_ = desiredFeetPositionsInBase;
 }
 
 void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon)
@@ -44,13 +44,13 @@ bool PoseOptimization::optimize(Pose& pose)
 {
   // If no support polygon provided, use positions.
   if (supportPolygon_.nVertices() == 0) {
-    for (const auto& foot : feetPositions_)
+    for (const auto& foot : stance_)
       supportPolygon_.addVertex(foot.vector().head<2>());
   }
 
   // Problem definition:
   // min Ax - b, Gx <= h
-  unsigned int nFeet = feetPositions_.size();
+  unsigned int nFeet = stance_.size();
   MatrixXd A = MatrixXd::Zero(2 * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(2 * nFeet);
   Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
@@ -60,8 +60,8 @@ bool PoseOptimization::optimize(Pose& pose)
            0,  0, 0;
 
   for (unsigned int i = 0; i < nFeet; i++) {
-    A.block(2 * i, 0, 2, A.cols()) << Matrix2d::Identity(), (R_0 * Rstar * desiredFeetPositionsInBase_[i].vector()).head<2>();
-    b.segment(2 * i, 2) << feetPositions_[i].vector() - R_0 * desiredFeetPositionsInBase_[i].vector();
+    A.block(2 * i, 0, 2, A.cols()) << Matrix2d::Identity(), (R_0 * Rstar * nominalStanceInBaseFrame_[i].vector()).head<2>();
+    b.segment(2 * i, 2) << stance_[i].vector() - R_0 * nominalStanceInBaseFrame_[i].vector();
   }
 
 //  std::cout << "R_0: " << std::endl << R_0 << std::endl;

@@ -26,7 +26,7 @@ class ActionLoader:
         self.action_server_topic = '/locomotion_controller/step'
         self.request = None
         self._load_parameters()
-        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.StepAction)
+        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.action = None
         
     def _load_parameters(self):

@@ -22,6 +22,9 @@
 
 namespace free_gait {
 
+class LegMotionBase;
+class BaseMotionBase;
+
 class Step
 {
  public:
@@ -33,7 +36,7 @@ class Step
   /*!
    * Type definitions.
    */
-  typedef std::unordered_map<LimbEnum, LegMotionBase, EnumClassHash> LegMotions;
+  typedef std::unordered_map<LimbEnum, std::unique_ptr<LegMotionBase>, EnumClassHash> LegMotions;
 
   /*!
    * Add step data (simplified input).
@@ -87,7 +90,6 @@ class Step
   bool hasLegMotion() const;
   bool hasLegMotion(const LimbEnum& limb) const;
   const LegMotionBase& getLegMotion(const LimbEnum& limb) const;
-  const LegMotions& getLegMotions() const;
 
   bool hasBaseMotion() const;
   const BaseMotionBase& getBaseMotion() const;

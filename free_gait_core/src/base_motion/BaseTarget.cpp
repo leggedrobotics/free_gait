@@ -13,7 +13,7 @@
 
 namespace free_gait {
 
-BaseAuto::BaseAuto()
+BaseTarget::BaseTarget()
     : BaseMotionBase(BaseMotionBase::Type::Auto),
       hasTarget_(false),
       averageVelocity_(0.0),
@@ -22,17 +22,17 @@ BaseAuto::BaseAuto()
 {
 }
 
-BaseAuto::~BaseAuto()
+BaseTarget::~BaseTarget()
 {
 }
 
-std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
+std::unique_ptr<BaseMotionBase> BaseTarget::clone() const
 {
   std::unique_ptr<BaseMotionBase> pointer(new BaseAuto(*this));
   return pointer;
 }
 
-bool BaseAuto::updateStartPose(const Pose& startPose)
+bool BaseTarget::updateStartPose(const Pose& startPose)
 {
   start_.getPosition() = startPose.getPosition();
   start_.getRotation() = startPose.getRotation().getUnique();
@@ -40,57 +40,57 @@ bool BaseAuto::updateStartPose(const Pose& startPose)
   return true;
 }
 
-const Pose BaseAuto::evaluate(const double time)
+const Pose BaseTarget::evaluate(const double time)
 {
   if (!trajectoryUpdated_) computeTrajectory();
   double timeInRange = time <= duration_ ? time : duration_;
   return Pose(trajectory_.evaluate(timeInRange));
 }
 
-double BaseAuto::getDuration() const
+double BaseTarget::getDuration() const
 {
   return duration_;
 }
 
-double BaseAuto::getAverageVelocity() const
+double BaseTarget::getAverageVelocity() const
 {
   return averageVelocity_;
 }
 
-void BaseAuto::setAverageVelocity(double averageVelocity)
+void BaseTarget::setAverageVelocity(double averageVelocity)
 {
   averageVelocity_ = averageVelocity;
   trajectoryUpdated_ = false;
 }
 
-bool BaseAuto::hasTarget() const
+bool BaseTarget::hasTarget() const
 {
   return hasTarget_;
 }
 
-double BaseAuto::getHeight() const
+double BaseTarget::getHeight() const
 {
   return height_;
 }
 
-void BaseAuto::setHeight(double height)
+void BaseTarget::setHeight(double height)
 {
   height_ = height;
 }
 
-const Pose& BaseAuto::getTarget() const
+const Pose& BaseTarget::getTarget() const
 {
   return target_;
 }
 
-void BaseAuto::setTarget(const Pose& target)
+void BaseTarget::setTarget(const Pose& target)
 {
   target_.getPosition() = target.getPosition();
   target_.getRotation() = target.getRotation().getUnique();
   hasTarget_ = true;
 }
 
-bool BaseAuto::computeTrajectory()
+bool BaseTarget::computeTrajectory()
 {
   if (!hasTarget_) return false;
 
@@ -108,7 +108,7 @@ bool BaseAuto::computeTrajectory()
   return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
+std::ostream& operator<<(std::ostream& out, const BaseTarget& baseAuto)
 {
 //  out << "Start Position: " << baseShiftProfile.start_.getPosition() << std::endl;
 //  out << "Start Orientation: " << baseShiftProfile.start_.getRotation() << std::endl;

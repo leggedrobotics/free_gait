@@ -19,6 +19,11 @@ BaseMotionBase::~BaseMotionBase()
 {
 }
 
+std::unique_ptr<BaseMotionBase> BaseMotionBase::clone() const
+{
+  throw std::runtime_error("BaseMotionBase::clone() not implemented.");
+}
+
 BaseMotionBase::Type BaseMotionBase::getType() const
 {
   return type_;
@@ -28,7 +33,6 @@ const ControlSetup BaseMotionBase::getControlSetup() const
 {
   throw std::runtime_error("BaseMotionBase::getControlSetup() not implemented.");
 }
-
 
 void BaseMotionBase::updateStartPose(const Pose& startPose)
 {
@@ -50,7 +54,7 @@ void BaseMotionBase::updateStartForceTorque(const Force& startForce, const Torqu
   throw std::runtime_error("BaseMotionBase::updateStartForce() not implemented.");
 }
 
-bool BaseMotionBase::compute()
+bool BaseMotionBase::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
   throw std::runtime_error("BaseMotionBase::compute() not implemented.");
 }

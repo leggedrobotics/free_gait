@@ -17,8 +17,7 @@
 namespace free_gait {
 
 StepQueue::StepQueue()
-    : active_(false),
-      hasSwitchedStep_(false)
+    : active_(false)
 {
 }
 
@@ -31,10 +30,10 @@ void StepQueue::add(const Step& step)
   queue_.push_back(step);
 }
 
-bool StepQueue::advance(double dt)
+bool StepQueue::advance(double dt, bool& hasSwitchedStep)
 {
   // Check if empty.
-  hasSwitchedStep_ = false;
+  hasSwitchedStep = false;
   if (queue_.empty()) {
     active_ = false;
     return true;
@@ -43,9 +42,11 @@ bool StepQueue::advance(double dt)
   // Special treatment of first step of queue.
   if (!active_) {
     active_ = true;
-    hasSwitchedStep_ = true;
+    hasSwitchedStep = true;
     return true;
   }
+
+  if (!queue_.front().isUpdated()) return false;
 
   // Advance current step.
   if (!queue_.front().advance(dt)) {
@@ -57,13 +58,8 @@ bool StepQueue::advance(double dt)
       active_ = false;
       return true;
     }
-    hasSwitchedStep_ = true;
+    hasSwitchedStep = true;
   }
-
-//  if (hasSwitchedStep_) {
-//    ROCO_DEBUG_STREAM("Switched step state to:");
-//    ROCO_DEBUG_STREAM(getCurrentStep());
-//  }
 
   return true;
 }
@@ -91,6 +87,12 @@ const Step& StepQueue::getCurrentStep() const
   return queue_.front();
 }
 
+Step& StepQueue::getCurrentStep()
+{
+  if (empty()) throw std::out_of_range("StepQueue::getCurrentStep(): No steps in queue!");
+  return queue_.front();
+}
+
 const Step& StepQueue::getNextStep() const
 {
   if (size() <= 1) throw std::out_of_range("StepQueue::getNextStep(): No next step in queue!");
@@ -112,11 +114,6 @@ const Step& StepQueue::getPreviousStep() const
 std::deque<Step>::size_type StepQueue::size() const
 {
   return queue_.size();
-}
-
-bool StepQueue::hasSwitchedStep() const
-{
-  return hasSwitchedStep_;
 }
 
 } /* namespace */

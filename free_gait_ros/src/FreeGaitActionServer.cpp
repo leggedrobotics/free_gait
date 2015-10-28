@@ -114,8 +114,8 @@ void FreeGaitActionServer::publishFeedback()
 //    }
 //  }
 
-  feedback.duration = ros::Duration(step.getTotalDuration());
-  feedback.phase = step.getTotalPhase();
+//  feedback.duration = ros::Duration(step.getTotalDuration());
+//  feedback.phase = step.getTotalPhase();
 //  for (const auto& stepData : step.getSwingData())
 //    feedback.swing_leg_names.push_back(stepData.first);
 

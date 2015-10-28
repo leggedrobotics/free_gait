@@ -89,7 +89,10 @@ target_link_libraries(${PROJECT_NAME}
 
 # This is required because loco's test don't work.
 add_library(free_gait_to_test
-  src/pose_optimization/PoseOptimization3d.cpp
+#  src/pose_optimization/PoseOptimization3d.cpp
+  src/step/Step.cpp
+  src/base_motion/BaseMotionBase.cpp
+  src/leg_motion/LegMotionBase.cpp
 )
 
 target_link_libraries(free_gait_to_test
@@ -117,7 +120,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 ## Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
-  test/PoseOptimization3dTest.cpp
+  #test/PoseOptimization3dTest.cpp
+  test/StepTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test

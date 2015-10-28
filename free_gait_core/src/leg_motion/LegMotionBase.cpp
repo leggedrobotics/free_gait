@@ -20,8 +20,7 @@ LegMotionBase::~LegMotionBase()
 
 std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
 {
-  std::unique_ptr<LegMotionBase> pointer(new LegMotionBase(*this));
-  return pointer;
+  throw std::runtime_error("LegMotionBase::clone() not implemented.");
 }
 
 LegMotionBase::Type LegMotionBase::getType() const
@@ -57,6 +56,12 @@ bool LegMotionBase::isIgnoreContact() const
 bool LegMotionBase::isIgnoreForPoseAdaptation() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreForPoseAdaptation() not implemented.");
+}
+
+std::ostream& operator << (std::ostream& out, const LegMotionBase& legMotion)
+{
+  out << "Type: " << legMotion.type_ << std::endl;
+  return out;
 }
 
 } /* namespace */

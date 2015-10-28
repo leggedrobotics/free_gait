@@ -24,20 +24,18 @@ class PoseOptimization
   PoseOptimization();
   virtual ~PoseOptimization();
 
-  typedef std::unordered_map<LimbEnum, Position, EnumClassHash> FeetPositions;
-
   /*!
    * Set the positions of the feet of the robot in world coordinate system.
    * @param feetPositions the feet positions.
    */
-  void setFeetPositions(const FeetPositions& feetPositions);
+  void setStance(const Stance& stance);
 
   /*!
    * Define the desired leg configuration by specifying the desired feet positions
    * relative to the base.
    * @param desiredFeetPositionsInBase the desired feet positions in base frame.
    */
-  void setDesiredLegConfiguration(const FeetPositions& desiredFeetPositionsInBase);
+  void setNominalStance(const Stance& nominalStanceInBaseFrame);
 
   /*!
    * Set the support polygon for constraining the pose optimization.
@@ -56,8 +54,8 @@ class PoseOptimization
  private:
   unsigned int nStates_;
   unsigned int nDimensions_;
-  FeetPositions feetPositions_;
-  FeetPositions desiredFeetPositionsInBase_;
+  Stance stance_;
+  Stance nominalStanceInBaseFrame_;
   grid_map::Polygon supportPolygon_;
 };
 

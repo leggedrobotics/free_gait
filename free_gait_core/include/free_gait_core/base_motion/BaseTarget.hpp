@@ -18,14 +18,14 @@
 
 namespace free_gait {
 
-class BaseAuto : public BaseMotionBase
+class BaseTarget : public BaseMotionBase
 {
  public:
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseAuto();
-  virtual ~BaseAuto();
+  BaseTarget();
+  virtual ~BaseTarget();
 
   /*!
    * Deep copy clone.
@@ -68,7 +68,7 @@ class BaseAuto : public BaseMotionBase
 
   void setTarget(const Pose& target);
 
-  friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
+  friend std::ostream& operator << (std::ostream& out, const BaseTarget& baseAuto);
 
  private:
 

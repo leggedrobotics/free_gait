@@ -15,12 +15,15 @@
 
 namespace free_gait {
 
+class State;
+class StepQueue;
+
 class AdapterBase
 {
  public:
   AdapterBase();
   virtual ~AdapterBase();
-  virtual void initializeState(State& state) const  = 0;
+  virtual void initializeState(State& state) const = 0;
   virtual bool updateStateWithMeasurements(State& state) const = 0;
   virtual bool updateExtras(const StepQueue& stepQueue, State& state) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;

@@ -9,11 +9,18 @@
 #pragma once
 
 #include <free_gait_core/TypeDefs.hpp>
+#include <free_gait_core/executor/State.hpp>
+#include <free_gait_core/executor/AdapterBase.hpp>
+#include <free_gait_core/step/Step.hpp>
 
 #include <string>
 #include <memory>
 
 namespace free_gait {
+
+class State;
+class AdapterBase;
+class Step;
 
 /*!
  * Base class for a generic base motions.
@@ -39,6 +46,8 @@ class BaseMotionBase
    */
   virtual ~BaseMotionBase();
 
+  virtual std::unique_ptr<BaseMotionBase> clone() const;
+
   /*!
    * Returns the type of the base motion.
    * @return the type of the base motion.
@@ -58,7 +67,7 @@ class BaseMotionBase
   virtual void updateStartAcceleration(const Twist& startAcceleration);
   virtual void updateStartForceTorque(const Force& startForce, const Torque& startTorque);
 
-  virtual bool compute();
+  virtual bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
   /*!
    * Returns the total duration of the motion.

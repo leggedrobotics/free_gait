@@ -8,6 +8,7 @@
 
 #include "free_gait_core/base_motion/BaseAuto.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
+#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
 // TODO Move.
 #include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
@@ -17,24 +18,27 @@
 
 namespace free_gait {
 
-BaseAuto::BaseAuto(const State& state, const Step& step, const AdapterBase& adapter)
+BaseAuto::BaseAuto()
     : BaseMotionBase(BaseMotionBase::Type::Auto),
-      state_(state),
-      step_(step),
-      adapter_(adapter),
-      averageVelocity_(0.0),
+      averageLinearVelocity_(0.0),
+      averageAngularVelocity_(0.0),
       duration_(0.0),
       height_(0.0),
-      supportSafetyMargin_(0.0),
-      trajectoryUpdated_(false),
+      supportMargin_(0.0),
+      computed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Force, false} }
 {
-
 }
 
 BaseAuto::~BaseAuto()
 {
+}
+
+std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
+{
+  std::unique_ptr<BaseMotionBase> pointer(new BaseAuto(*this));
+  return pointer;
 }
 
 const ControlSetup BaseAuto::getControlSetup() const
@@ -42,23 +46,43 @@ const ControlSetup BaseAuto::getControlSetup() const
   return controlSetup_;
 }
 
-bool BaseAuto::compute()
+bool BaseAuto::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
-  generateFootholdLists();
-  // TODO !!!
+  if (!generateFootholdLists(state, step, adapter)) {
+    std::err << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
+    return false;
+  }
+  Position horizontalTargetPositionInWorldFrame;
+  getAdaptiveHorizontalTargetPosition(state, adapter, horizontalTargetPositionInWorldFrame);
+  getAdaptiveTargetPose(state, adapter, horizontalTargetPositionInWorldFrame, target_);
+  std::cout << "target: " << target_ << std::endl;
+  if (!optimizePose(target_)) {
+    std::err << "BaseAuto::compute(): Could not compute pose optimization." << std::endl;
+    return false;
+  }
+  std::cout << "After optimize pose " << std::endl;
+  computeDuration();
+  computeTrajectory();
+  return computed_ = true;
 }
 
 void BaseAuto::updateStartPose(const Pose& startPose)
 {
+  computed_ = false;
   start_.getPosition() = startPose.getPosition();
   start_.getRotation() = startPose.getRotation().getUnique();
-  computeTrajectory();
 }
 
 Pose BaseAuto::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
-  return Pose(trajectory_.evaluate(timeInRange));
+  return trajectory_.evaluate(timeInRange);
+}
+
+Twist BaseAuto::evaluateTwist(const double time) const
+{
+  double timeInRange = time <= duration_ ? time : duration_;
+  return trajectory_.evaluateDerivative(timeInRange, 1);
 }
 
 double BaseAuto::getDuration() const
@@ -66,7 +90,7 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
-bool BaseAuto::generateFootholdLists()
+bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const AdapterBase& adapter)
 {
   // Footholds for orientation.
 //  footholdsForOrientation_.clear();
@@ -76,59 +100,82 @@ bool BaseAuto::generateFootholdLists()
 //  }
 
   footholdsInSupport_.clear();
-  for (const auto& limb : state_.getLimbs()) {
-    if (state_.isSupportLeg(limb))
-      footholdsInSupport_[limb] = adapter_.getPositionWorldToFootInWorldFrame(limb);
-    if (!state_.isIgnoreForPoseAdaptation(limb))
-      footholdsToReach_[limb] = adapter_.getPositionWorldToFootInWorldFrame(limb);
+  for (const auto& limb : state.getLimbs()) {
+    if (state.isSupportLeg(limb)) {
+      std::cout << "is support leg" << std::endl;
+      footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+    }
+  }
 
+  footholdsToReach_.clear();
+  for (const auto& limb : state.getLimbs()) {
+    if (!state.isIgnoreForPoseAdaptation(limb)) {
+      if (step.hasLegMotion(limb)) {
+        // Double check if right format.
+        if (step.getLegMotion(limb).getTrajectoryType() == LegMotionBase::TrajectoryType::EndEffector
+            && step.getLegMotion(limb).getControlSetup().at(ControlLevel::Position)) {
+          // Use target end effector position.
+          const auto& legMotion = dynamic_cast<const EndEffectorMotionBase&>(step.getLegMotion(limb));
+          footholdsToReach_[limb] = legMotion.getTargetPosition();
+        }
+      } else {
+        // Use current foot position.
+        footholdsToReach_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      }
+    }
+  }
+
+  nominalStanceInBaseFrame_.clear();
+  for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
+    nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -height_));
   }
 
   return true;
 }
 
-void BaseAuto::getAdaptiveHorizontalTargetPosition(Position& horizontalTargetPositionInWorldFrame)
+void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame)
 {
-  std::vector<double> legWeights(state_.getLimbs().size());
+  std::vector<double> legWeights(state.getLimbs().size());
   for (auto& weight : legWeights)
     weight = 1.0;
   double sumWeights = 0;
   int iLeg = 0;
 
-  for (const auto& limb : state_.getLimbs()) {
-    if (state_.isSupportLeg(limb)) legWeights[iLeg] = 0.2;
+  for (const auto& limb : state.getLimbs()) {
+    if (state.isSupportLeg(limb)) legWeights[iLeg] = 0.2;
     sumWeights += legWeights[iLeg];
     iLeg++;
   }
 
   if (sumWeights != 0) {
     iLeg = 0;
-    for (const auto& limb : state_.getLimbs()) {
-      horizontalTargetPositionInWorldFrame += adapter_.getPositionWorldToFootInWorldFrame(limb)
+    for (const auto& limb : state.getLimbs()) {
+      horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb)
           * legWeights[iLeg];
       iLeg++;
     }
     horizontalTargetPositionInWorldFrame /= sumWeights;
   } else {
-    for (const auto& limb : state_.getLimbs()) {
-      horizontalTargetPositionInWorldFrame += adapter_.getPositionWorldToFootInWorldFrame(limb);
+    for (const auto& limb : state.getLimbs()) {
+      horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb);
     }
-    horizontalTargetPositionInWorldFrame /= state_.getLimbs().size();
+    horizontalTargetPositionInWorldFrame /= state.getLimbs().size();
   }
 
   horizontalTargetPositionInWorldFrame.z() = 0.0;
 }
 
 void BaseAuto::getAdaptiveTargetPose(
-    const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld)
+    const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld)
 {
   // TODO Cleanup and move to pose optimizer.
 
   // Get terrain from target foot positions.
   loco::TerrainModelFreePlane terrain;
   std::vector<Position> footholds; // TODO
-  for (const auto& limb : state_.getLimbs()) {
-    footholds.push_back(adapter_.getPositionWorldToFootInWorldFrame(limb));
+  for (const auto& limb : state.getLimbs()) {
+    footholds.push_back(adapter.getPositionWorldToFootInWorldFrame(limb));
+    std::cout << "foothold " << adapter.getPositionWorldToFootInWorldFrame(limb) << std::endl;
   }
   loco::TerrainPerceptionFreePlane::generateTerrainModelFromPointsInWorldFrame(footholds, terrain);
   loco::Vector terrainNormalInWorld;
@@ -174,20 +221,28 @@ void BaseAuto::getAdaptiveTargetPose(
   targetPoseInWorld.getRotation() = desiredHeading * orientationWorldToTerrain;
 }
 
-void BaseAuto::optimizePose(Pose& pose)
+bool BaseAuto::optimizePose(Pose& pose)
 {
-  poseOptimization_.setFeetPositions(footholdsToReach_);
-  poseOptimization_.setDesiredLegConfiguration(desiredFeetPositionsInBase_);
+  poseOptimization_.setStance(footholdsToReach_);
+  poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
 
   grid_map::Polygon support;
   for (auto foothold : footholdsInSupport_) {
     support.addVertex(foothold.second.vector().head<2>());
   }
-  support.offsetInward(supportSafetyMargin_);
+  support.offsetInward(supportMargin_);
   poseOptimization_.setSupportPolygon(support);
 
-  if (!poseOptimization_.optimize(pose))
-    ROCO_WARN_STREAM("Could not compute free gait pose optimization.");
+  return poseOptimization_.optimize(pose);
+}
+
+void BaseAuto::computeDuration()
+{
+  double distance = (target_.getPosition() - start_.getPosition()).norm();
+  double translationDuration = distance / averageLinearVelocity_;
+  double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
+  double rotationDuration = angle / averageAngularVelocity_;
+  duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
 }
 
 bool BaseAuto::computeTrajectory()
@@ -202,7 +257,6 @@ bool BaseAuto::computeTrajectory()
   values.push_back(target_);
 
   trajectory_.fitCurve(times, values);
-  trajectoryUpdated_ = true;
   return true;
 }
 

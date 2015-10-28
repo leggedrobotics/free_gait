@@ -35,6 +35,7 @@ typedef kindr::rotations::eigen_impl::EulerAnglesZyxPD EulerAnglesZyx;
 typedef kindr::rotations::eigen_impl::RotationVectorPD RotationVector;
 
 typedef kindr::phys_quant::eigen_impl::Position3D Position;
+typedef kindr::phys_quant::eigen_impl::Position<double, 2> Position2;
 
 typedef kindr::phys_quant::eigen_impl::Velocity3D LinearVelocity;
 typedef kindr::rotations::eigen_impl::LocalAngularVelocityPD LocalAngularVelocity;
@@ -65,5 +66,7 @@ enum class ControlLevel
 };
 
 typedef std::unordered_map<ControlLevel, bool, EnumClassHash> ControlSetup;
+typedef std::unordered_map<LimbEnum, Position, EnumClassHash> Stance;
+typedef std::unordered_map<LimbEnum, Position2, EnumClassHash> PlanarStance;
 
 } // namespace

@@ -40,7 +40,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
 
   // Base motion.
   for (const auto& baseAutoMessage : message.base_auto) {
-    BaseAuto baseAuto(executor_->getState(), step, executor_->getAdapter());
+    BaseAuto baseAuto;
     if (!fromMessage(baseAutoMessage, baseAuto)) return false;
     step.addBaseMotion(baseAuto);
   }
@@ -81,9 +81,11 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
                                    BaseAuto& baseAuto)
 {
+  std::cout << "StepRosConverter::fromMessage" << std::endl;
   baseAuto.height_ = message.height;
-  baseAuto.averageVelocity_ = message.average_velocity;
-  baseAuto.supportSafetyMargin_ = 0.0;
+  baseAuto.averageLinearVelocity_ = message.average_linear_velocity;
+  baseAuto.averageAngularVelocity_ = message.average_angular_velocity;
+  baseAuto.supportMargin_ = message.support_margin;
   return true;
 }
 
