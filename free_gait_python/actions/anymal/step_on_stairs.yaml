@@ -1,0 +1,52 @@
+steps:
+# Front legs on the first step
+ - step:
+    swing_data:
+     - name: rightFore
+       profile:
+        target: [0.95, -0.27, 0.215]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [0.95, 0.27, 0.215]
+
+# Hind legs closer to staircase, lower the body to 0.4
+ - step:
+    base_shift_data:
+     - name: "pre_step"
+       profile:
+        height: 0.4
+    swing_data:
+     - name: rightHind
+       profile:
+        target: [0.35, -0.27, 0.0]
+ - step:
+    base_shift_data:
+     - name: "pre_step"
+       profile:
+        height: 0.4
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [0.35, 0.27, 0.0]
+
+# Front legs on second step, then lower the body to 0.35
+ - step:
+    base_shift_data:
+     - name: "pre_step"
+       profile:
+        height: 0.4
+    swing_data:
+     - name: rightFore
+       profile:
+        target: [1.147, -0.27, 0.43]
+ - step:
+    base_shift_data:
+     - name: "post_step"
+       profile:
+        height: 0.35
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [1.147, 0.27, 0.43]
