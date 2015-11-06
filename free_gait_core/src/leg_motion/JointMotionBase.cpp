@@ -9,8 +9,8 @@
 
 namespace free_gait {
 
-JointMotionBase::JointMotionBase(LegMotionBase::Type type)
-    : LegMotionBase(type)
+JointMotionBase::JointMotionBase(LegMotionBase::Type type, LimbEnum limb)
+    : LegMotionBase(type, limb)
 {
 }
 

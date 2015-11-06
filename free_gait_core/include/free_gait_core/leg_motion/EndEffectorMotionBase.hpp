@@ -28,7 +28,7 @@ class EndEffectorMotionBase : public LegMotionBase
   /*!
    * Constructor.
    */
-  EndEffectorMotionBase(LegMotionBase::Type type);
+  EndEffectorMotionBase(LegMotionBase::Type type, LimbEnum limb);
 
   /*!
    * Destructor.
@@ -72,7 +72,7 @@ class EndEffectorMotionBase : public LegMotionBase
    * Returns the frame id of the trajectory.
    * @return the frame id.
    */
-  const std::string& getFrameId() const;
+  virtual const std::string& getFrameId() const;
 
   /*!
    * Print the contents to console for debugging.

@@ -29,7 +29,7 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
-  adapter_->initializeState(*state_);
+  state_->initialize(adapter_->getLimbs());
   reset();
   return isInitialized_ = true;
 }
@@ -42,13 +42,15 @@ bool Executor::isInitialized() const
 bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
+  if (!checkRobotStatus()) return true;
+
   bool hasSwitchedStep;
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
   if (queue_.empty()) return true;
 
   while (hasSwitchedStep) {
     updateStateWithMeasurements();
-    completer_->complete(*state_, queue_.getCurrentStep());
+    completer_->complete(*state_, queue_, queue_.getCurrentStep());
 
     if (hasSwitchedStep) {
       std::cout << "Switched step state to:" << std::endl;
@@ -135,18 +137,30 @@ const AdapterBase& Executor::getAdapter() const
 bool Executor::updateStateWithMeasurements()
 {
   // Update states for new step.
-  if (!queue_.previousStepExists()) {
+//  if (!queue_.previousStepExists()) {
     // Update all states.
-    adapter_->updateStateWithMeasurements(*state_);
-  } else {
+    for (const auto& limb : adapter_->getLimbs()) {
+      state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
+    }
+    state_->setAllJointPositions(adapter_->getAllJointPositions());
+    state_->setAllJointVelocities(adapter_->getAllJointVelocities());
+    // TODO Copy also acceleraitons and torques.
+    state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
+    state_->setOrientationWorldToBase(adapter_->getOrientationWorldToBase());
+//    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
+//    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
+    return true;
+
+//  } else {
     // Update uncontrolled steps.
-  }
+//  }
+  return true;
 }
 
 bool Executor::writeIgnoreContact()
 {
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : state_->getLimbs()) {
+  for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
       bool ignoreContact = step.getLegMotion(limb).isIgnoreContact();
       state_->setIgnoreContact(limb, ignoreContact);
@@ -158,7 +172,7 @@ bool Executor::writeIgnoreContact()
 bool Executor::writeSupportLegs()
 {
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : state_->getLimbs()) {
+  for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb) || state_->isIgnoreContact(limb)) {
       state_->setSupportLeg(limb, false);
     } else {
@@ -173,7 +187,7 @@ bool Executor::writeLegMotion()
   const auto& step = queue_.getCurrentStep();
   if (!step.hasLegMotion()) return true;
   double time = queue_.getCurrentStep().getTime();
-  for (const auto& limb : state_->getLimbs()) {
+  for (const auto& limb : adapter_->getLimbs()) {
     if (!step.hasLegMotion(limb)) continue;
     auto const& legMotion = step.getLegMotion(limb);
     ControlSetup controlSetup = legMotion.getControlSetup();
@@ -184,8 +198,12 @@ bool Executor::writeLegMotion()
       {
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) {
-          Position position = endEffectorMotion.evaluatePosition(time);
-//          state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
+          // TODO Add frame handling.
+          Position positionInWorldFrame = endEffectorMotion.evaluatePosition(time);
+          Position positionInBaseFrame = adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame());
+          JointPositions jointPositions;
+          adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
+          state_->setJointPositions(limb, jointPositions);
         }
         break;
       }
@@ -200,8 +218,6 @@ bool Executor::writeLegMotion()
         throw std::runtime_error("Executor::writeLegMotion() could not write leg motion of this type.");
         break;
     }
-
-
   }
   return true;
 }

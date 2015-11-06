@@ -25,9 +25,9 @@ class StepCompleter
  public:
   StepCompleter(std::shared_ptr<free_gait::AdapterBase> adapter);
   virtual ~StepCompleter();
-  bool complete(const State& state, Step& step) const;
+  bool complete(const State& state, const StepQueue& queue, Step& step) const;
   bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
-  bool complete(const State& state, const Step& step, BaseMotionBase& baseMotion) const;
+  bool complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const;
   void setParameters(Footstep& footTarget) const;
   void setParameters(BaseAuto& baseAuto) const;
 
@@ -38,7 +38,7 @@ class StepCompleter
     std::string profileType = "triangle";
     Vector surfaceNormal = Vector::UnitZ();
     double profileHeight = 0.06;
-    double averageVelocity = 2.0;
+    double averageVelocity = 0.05;
   } footTargetParameters_;
 
   struct BaseAutoParameters

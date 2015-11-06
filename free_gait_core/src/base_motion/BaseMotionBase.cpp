@@ -55,7 +55,7 @@ void BaseMotionBase::updateStartForceTorque(const Force& startForce, const Torqu
   throw std::runtime_error("BaseMotionBase::updateStartForce() not implemented.");
 }
 
-bool BaseMotionBase::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool BaseMotionBase::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   throw std::runtime_error("BaseMotionBase::compute() not implemented.");
 }

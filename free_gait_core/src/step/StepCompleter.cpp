@@ -20,7 +20,7 @@ StepCompleter::~StepCompleter()
 {
 }
 
-bool StepCompleter::complete(const State& state, Step& step) const
+bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step) const
 {
   for (auto& legMotion : step.legMotions_) {
     switch ((legMotion.second)->getType()) {
@@ -51,7 +51,7 @@ bool StepCompleter::complete(const State& state, Step& step) const
       default:
         break;
     }
-    if (!complete(state, step, *(step.baseMotion_))) return false;
+    if (!complete(state, step, queue, *(step.baseMotion_))) return false;
   }
 
   step.isComplete_ = true;
@@ -62,16 +62,16 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
 {
   if (endEffectorMotion.getControlSetup().at(ControlLevel::Position)) {
     // TODO Check frame.
-    endEffectorMotion.updateStartPosition(state.getPositionWorldToBaseInWorldFrame());
+    Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
+    Position startPositionInWorldFrame = adapter_->getPositionWorldToBaseInWorldFrame() + adapter_->getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
+    Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
+    endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-//  if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
-//    // TODO
-//  }
   endEffectorMotion.compute(state, step, *adapter_);
   return true;
 }
 
-bool StepCompleter::complete(const State& state, const Step& step, BaseMotionBase& baseMotion) const
+bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
 {
   if (baseMotion.getControlSetup().at(ControlLevel::Position)) {
     // TODO Check frame.
@@ -81,7 +81,7 @@ bool StepCompleter::complete(const State& state, const Step& step, BaseMotionBas
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  baseMotion.compute(state, step, *adapter_);
+  baseMotion.compute(state, step, queue, *adapter_);
   return true;
 }
 

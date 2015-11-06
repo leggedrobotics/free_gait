@@ -49,7 +49,7 @@ class LegMotionBase
   /*!
    * Constructor.
    */
-  LegMotionBase(LegMotionBase::Type type);
+  LegMotionBase(LegMotionBase::Type type, LimbEnum limb);
 
   /*!
    * Destructor.
@@ -61,6 +61,8 @@ class LegMotionBase
    * @return a clone of this class.
    */
   virtual std::unique_ptr<LegMotionBase> clone() const;
+
+  LimbEnum getLimb() const;
 
   /*!
    * Returns the type of the leg motion trajectory.
@@ -79,11 +81,11 @@ class LegMotionBase
    */
   virtual double getDuration() const;
 
-  const Vector& getSurfaceNormal() const;
+  virtual const Vector& getSurfaceNormal() const;
 
-  bool isIgnoreContact() const;
+  virtual bool isIgnoreContact() const;
 
-  bool isIgnoreForPoseAdaptation() const;
+  virtual bool isIgnoreForPoseAdaptation() const;
 
   /*!
    * Print the contents to console for debugging.
@@ -93,8 +95,10 @@ class LegMotionBase
    */
   friend std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion);
 
- private:
+ protected:
+  LimbEnum limb_;
 
+ private:
   //! Type of the leg motion.
   Type type_;
 };

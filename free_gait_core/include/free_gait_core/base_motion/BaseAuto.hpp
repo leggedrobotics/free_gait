@@ -13,6 +13,7 @@
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
+#include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimization.hpp"
 
 #include <string>
@@ -46,7 +47,7 @@ class BaseAuto : public BaseMotionBase
    */
   void updateStartPose(const Pose& startPose);
 
-  bool compute(const State& state, const Step& step, const AdapterBase& adapter);
+  bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
 
   /*!
    * Returns the total duration of the trajectory.
@@ -74,7 +75,7 @@ class BaseAuto : public BaseMotionBase
 
  private:
 
-  bool generateFootholdLists(const State& state, const Step& step, const AdapterBase& adapter);
+  bool generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   void getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame);
   void getAdaptiveTargetPose(const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld);
   void computeDuration();

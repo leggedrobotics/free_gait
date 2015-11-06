@@ -32,9 +32,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
 
   // Leg motion.
   for (const auto& footstepMessage : message.footstep) {
-    Footstep footstep;
-    if (!fromMessage(footstepMessage, footstep)) return false;
     const auto& limb = executor_->getAdapter().getLimbEnumFromLimbString(footstepMessage.name);
+    Footstep footstep(limb);
+    if (!fromMessage(footstepMessage, footstep)) return false;
     step.addLegMotion(limb, footstep);
   }
 
@@ -51,6 +51,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
 bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
                                    Footstep& foostep)
 {
+  // Limb.
+  foostep.limb_ = executor_->getAdapter().getLimbEnumFromLimbString(message.name);
+
   // Target.
   foostep.frameId_ = message.target.header.frame_id;
   Position target;

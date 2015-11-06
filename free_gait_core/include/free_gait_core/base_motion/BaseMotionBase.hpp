@@ -12,6 +12,7 @@
 #include <free_gait_core/executor/State.hpp>
 #include <free_gait_core/executor/AdapterBase.hpp>
 #include <free_gait_core/step/Step.hpp>
+#include <free_gait_core/step/StepQueue.hpp>
 
 #include <string>
 #include <memory>
@@ -21,6 +22,7 @@ namespace free_gait {
 class State;
 class AdapterBase;
 class Step;
+class StepQueue;
 
 /*!
  * Base class for a generic base motions.
@@ -67,7 +69,7 @@ class BaseMotionBase
   virtual void updateStartAcceleration(const Twist& startAcceleration);
   virtual void updateStartForceTorque(const Force& startForce, const Torque& startTorque);
 
-  virtual bool compute(const State& state, const Step& step, const AdapterBase& adapter);
+  virtual bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
 
   /*!
    * Returns the total duration of the motion.

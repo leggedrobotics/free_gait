@@ -46,9 +46,16 @@ const ControlSetup BaseAuto::getControlSetup() const
   return controlSetup_;
 }
 
-bool BaseAuto::compute(const State& state, const Step& step, const AdapterBase& adapter)
+void BaseAuto::updateStartPose(const Pose& startPose)
 {
-  if (!generateFootholdLists(state, step, adapter)) {
+  computed_ = false;
+  start_.getPosition() = startPose.getPosition();
+  start_.getRotation() = startPose.getRotation().getUnique();
+}
+
+bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+{
+  if (!generateFootholdLists(state, step, queue, adapter)) {
     std::cerr << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
     return false;
   }
@@ -62,13 +69,6 @@ bool BaseAuto::compute(const State& state, const Step& step, const AdapterBase& 
   computeDuration();
   computeTrajectory();
   return computed_ = true;
-}
-
-void BaseAuto::updateStartPose(const Pose& startPose)
-{
-  computed_ = false;
-  start_.getPosition() = startPose.getPosition();
-  start_.getRotation() = startPose.getRotation().getUnique();
 }
 
 Pose BaseAuto::evaluatePose(const double time) const
@@ -88,7 +88,7 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
-bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const AdapterBase& adapter)
+bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   // Footholds for orientation.
 //  footholdsForOrientation_.clear();
@@ -98,14 +98,30 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 //  }
 
   footholdsInSupport_.clear();
-  for (const auto& limb : state.getLimbs()) {
-    if (state.isSupportLeg(limb)) {
-      footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+  bool prepareForNextStep = false;
+  if (!step.hasLegMotion() && queue.size() > 1) {
+    if (queue.getNextStep().hasLegMotion()) prepareForNextStep = true;
+  }
+
+  if (prepareForNextStep) {
+    // Auto motion for preparation of next step.
+    std::cout << "PREPPPPPPPPPPPPPP" << std::endl;
+    for (const auto& limb : adapter.getLimbs()) {
+      if (state.isSupportLeg(limb) && !queue.getNextStep().hasLegMotion(limb)) {
+        footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      }
+    }
+  } else {
+    // Auto motion for current step.
+    for (const auto& limb : adapter.getLimbs()) {
+      if (state.isSupportLeg(limb)) {
+        footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      }
     }
   }
 
   footholdsToReach_.clear();
-  for (const auto& limb : state.getLimbs()) {
+  for (const auto& limb : adapter.getLimbs()) {
     if (!state.isIgnoreForPoseAdaptation(limb)) {
       if (step.hasLegMotion(limb)) {
         // Double check if right format.
@@ -132,13 +148,13 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
 void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame)
 {
-  std::vector<double> legWeights(state.getLimbs().size());
+  std::vector<double> legWeights(adapter.getLimbs().size());
   for (auto& weight : legWeights)
     weight = 1.0;
   double sumWeights = 0;
   int iLeg = 0;
 
-  for (const auto& limb : state.getLimbs()) {
+  for (const auto& limb : adapter.getLimbs()) {
     if (state.isSupportLeg(limb)) legWeights[iLeg] = 0.2;
     sumWeights += legWeights[iLeg];
     iLeg++;
@@ -146,17 +162,17 @@ void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const Ada
 
   if (sumWeights != 0) {
     iLeg = 0;
-    for (const auto& limb : state.getLimbs()) {
+    for (const auto& limb : adapter.getLimbs()) {
       horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb)
           * legWeights[iLeg];
       iLeg++;
     }
     horizontalTargetPositionInWorldFrame /= sumWeights;
   } else {
-    for (const auto& limb : state.getLimbs()) {
+    for (const auto& limb : adapter.getLimbs()) {
       horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb);
     }
-    horizontalTargetPositionInWorldFrame /= state.getLimbs().size();
+    horizontalTargetPositionInWorldFrame /= adapter.getLimbs().size();
   }
 
   horizontalTargetPositionInWorldFrame.z() = 0.0;
@@ -170,7 +186,7 @@ void BaseAuto::getAdaptiveTargetPose(
   // Get terrain from target foot positions.
   loco::TerrainModelFreePlane terrain;
   std::vector<Position> footholds; // TODO
-  for (const auto& limb : state.getLimbs()) {
+  for (const auto& limb : adapter.getLimbs()) {
     footholds.push_back(adapter.getPositionWorldToFootInWorldFrame(limb));
   }
   loco::TerrainPerceptionFreePlane::generateTerrainModelFromPointsInWorldFrame(footholds, terrain);

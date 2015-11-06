@@ -56,9 +56,9 @@ bool PoseOptimization::optimize(Pose& pose)
   VectorXd b = VectorXd::Zero(nDimensions_ * nFeet);
   Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
   Matrix3d Rstar;
-  Rstar << 0, -1, 0,
-           1,  0, 0,
-           0,  0, 0;
+  Rstar << 0.0, -1.0, 0.0,
+           1.0,  0.0, 0.0,
+           0.0,  0.0, 0.0;
 
   unsigned int i = 0;
   for (const auto& footPosition : stance_) {
@@ -99,7 +99,10 @@ bool PoseOptimization::optimize(Pose& pose)
   // Return optimized pose.
   pose.getPosition().vector() = x.head<3>();
   const double yaw = x.tail<1>()[0];
-  pose.getRotation() = RotationMatrix(R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose();
+  RotationMatrix rotationMatrix;
+  rotationMatrix.setMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose());
+  rotationMatrix.fix();
+  pose.getRotation() = rotationMatrix;
   pose.getRotation().fix();
 
   return true;

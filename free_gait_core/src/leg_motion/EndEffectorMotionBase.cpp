@@ -9,8 +9,8 @@
 
 namespace free_gait {
 
-EndEffectorMotionBase::EndEffectorMotionBase(LegMotionBase::Type type)
-    : LegMotionBase(type)
+EndEffectorMotionBase::EndEffectorMotionBase(LegMotionBase::Type type, LimbEnum limb)
+    : LegMotionBase(type, limb)
 {
 }
 

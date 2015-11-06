@@ -5,12 +5,13 @@
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
-#include "free_gait_core/executor/State.hpp"
+#include <free_gait_core/executor/State.hpp>
+#include <quadruped_model/common/topology_conversions.hpp>
 
 namespace free_gait {
 
 State::State()
-: QuadrupedState()
+    : QuadrupedState()
 {
 }
 
@@ -18,19 +19,13 @@ State::~State()
 {
 }
 
-void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches)
+void State::initialize(const std::vector<LimbEnum>& limbs)
 {
-  limbs_ = limbs;
-  for (const auto& limb : limbs_) {
+  for (const auto& limb : limbs) {
     isSupportLegs_[limb] = false;
     ignoreContact_[limb] = false;
     ignoreForPoseAdaptation_[limb] = false;
   }
-}
-
-const std::vector<LimbEnum>& State::getLimbs() const
-{
- return limbs_;
 }
 
 bool State::isSupportLeg(const LimbEnum& limb) const
@@ -63,5 +58,31 @@ void State::setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdap
   ignoreForPoseAdaptation_[limb] = ignorePoseAdaptation;
 }
 
-} /* namespace free_gait */
+const JointPositions State::getJointPositions(const LimbEnum& limb) const
+{
+  // TODO This is not nice.
+  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointPositions(quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex));
+//  return quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex);
+}
 
+void State::setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions)
+{
+  // TODO This is not nice.
+  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  for (unsigned int i = 0; i < 3; ++i) {
+    quadruped_model::QuadrupedState::getJointPositions()(startIndex + i) = jointPositions(i);
+  }
+}
+
+void State::setAllJointPositions(const JointPositions& jointPositions)
+{
+  quadruped_model::QuadrupedState::setJointPositions(quadruped_model::JointPositions(jointPositions.vector()));
+}
+
+void State::setAllJointVelocities(const JointVelocities& jointVelocities)
+{
+  quadruped_model::QuadrupedState::setJointVelocities(quadruped_model::JointVelocities(jointVelocities.vector()));
+}
+
+} /* namespace free_gait */

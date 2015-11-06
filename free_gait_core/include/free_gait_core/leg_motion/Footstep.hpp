@@ -27,7 +27,7 @@ class Footstep : public EndEffectorMotionBase
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  Footstep();
+  Footstep(LimbEnum limb);
   virtual ~Footstep();
 
   /*!
@@ -43,6 +43,8 @@ class Footstep : public EndEffectorMotionBase
    * @return true if successful, false otherwise.
    */
   void updateStartPosition(const Position& startPosition);
+
+  const ControlSetup getControlSetup() const;
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
@@ -63,7 +65,7 @@ class Footstep : public EndEffectorMotionBase
    * Return the target (end position) of the swing profile.
    * @return the target.
    */
-  virtual const Position getTargetPosition() const;
+  const Position getTargetPosition() const;
 
   const std::string& getFrameId() const;
 
@@ -78,15 +80,8 @@ class Footstep : public EndEffectorMotionBase
   friend class StepRosConverter;
 
  private:
-  /*!
-   * Computes the internal trajectory based on the profile type.
-   */
-  bool computeTrajectory();
-
   void generateStraightKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
-
   void generateTriangleKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
-
   void generateSquareKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
 
   Position start_;
@@ -94,16 +89,19 @@ class Footstep : public EndEffectorMotionBase
   std::string frameId_;
   double profileHeight_;
   double averageVelocity_;
+  double duration_;
   std::string profileType_;
   Vector surfaceNormal_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
 
+  ControlSetup controlSetup_;
+
   //! Foot trajectory.
   curves::PolynomialSplineQuinticVector3Curve trajectory_;
 
   //! If trajectory is updated.
-  bool updated_;
+  bool computed_;
 };
 
 } /* namespace */

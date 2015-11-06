@@ -10,8 +10,9 @@
 
 namespace free_gait {
 
-LegMotionBase::LegMotionBase(LegMotionBase::Type type)
-    : type_(type)
+LegMotionBase::LegMotionBase(LegMotionBase::Type type, LimbEnum limb)
+    : type_(type),
+      limb_(limb)
 {
 }
 
@@ -27,6 +28,11 @@ std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
 LegMotionBase::Type LegMotionBase::getType() const
 {
   return type_;
+}
+
+LimbEnum LegMotionBase::getLimb() const
+{
+  return limb_;
 }
 
 LegMotionBase::TrajectoryType LegMotionBase::getTrajectoryType() const

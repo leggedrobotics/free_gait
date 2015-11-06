@@ -24,7 +24,7 @@ class JointMotionBase : public LegMotionBase
   /*!
    * Constructor.
    */
-  JointMotionBase(LegMotionBase::Type type);
+  JointMotionBase(LegMotionBase::Type type, LimbEnum limb);
 
   /*!
    * Destructor.
