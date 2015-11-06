@@ -42,9 +42,11 @@ class Executor
   const AdapterBase& getAdapter() const;
 
  private:
+  bool checkRobotStatus();
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
   bool writeSupportLegs();
+  bool writeSurfaceNormals();
   bool writeLegMotion();
   bool writeTorsoMotion();
 

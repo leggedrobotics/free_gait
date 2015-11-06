@@ -53,7 +53,7 @@ class Footstep : public EndEffectorMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  const Position evaluatePosition(const double phase) const;
+  const Position evaluatePosition(const double time) const;
 
   /*!
    * Returns the total duration of the trajectory.
@@ -68,8 +68,6 @@ class Footstep : public EndEffectorMotionBase
   const Position getTargetPosition() const;
 
   const std::string& getFrameId() const;
-
-  const Vector& getSurfaceNormal() const;
 
   bool isIgnoreContact() const;
 
@@ -91,7 +89,6 @@ class Footstep : public EndEffectorMotionBase
   double averageVelocity_;
   double duration_;
   std::string profileType_;
-  Vector surfaceNormal_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
 

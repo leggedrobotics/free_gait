@@ -11,7 +11,8 @@
 namespace free_gait {
 
 State::State()
-    : QuadrupedState()
+    : QuadrupedState(),
+      robotExecutionStatus_(false)
 {
 }
 
@@ -26,6 +27,16 @@ void State::initialize(const std::vector<LimbEnum>& limbs)
     ignoreContact_[limb] = false;
     ignoreForPoseAdaptation_[limb] = false;
   }
+}
+
+bool State::getRobotExecutionStatus() const
+{
+  return robotExecutionStatus_;
+}
+
+void State::setRobotExecutionStatus(bool robotExecutionStatus)
+{
+  robotExecutionStatus_ = robotExecutionStatus;
 }
 
 bool State::isSupportLeg(const LimbEnum& limb) const
@@ -46,6 +57,26 @@ bool State::isIgnoreContact(const LimbEnum& limb) const
 void State::setIgnoreContact(const LimbEnum& limb, bool ignoreContact)
 {
   ignoreContact_[limb] = ignoreContact;
+}
+
+bool State::hasSurfaceNormal(const LimbEnum& limb) const
+{
+  return (surfaceNormals_.count(limb) > 0);
+}
+
+const Vector& State::getSurfaceNormal(const LimbEnum& limb) const
+{
+  return surfaceNormals_.at(limb);
+}
+
+void State::setSurfaceNormal(const LimbEnum& limb, const Vector& surfaceNormal)
+{
+  surfaceNormals_[limb] = surfaceNormal;
+}
+
+void State::removeSurfaceNormal(const LimbEnum& limb)
+{
+  surfaceNormals_.erase(limb);
 }
 
 bool State::isIgnoreForPoseAdaptation(const LimbEnum& limb) const
@@ -86,3 +117,4 @@ void State::setAllJointVelocities(const JointVelocities& jointVelocities)
 }
 
 } /* namespace free_gait */
+

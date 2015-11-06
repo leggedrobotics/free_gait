@@ -25,11 +25,19 @@ class State : public quadruped_model::QuadrupedState
 
   virtual void initialize(const std::vector<LimbEnum>& limbs);
 
+  bool getRobotExecutionStatus() const;
+  void setRobotExecutionStatus(bool robotExecutionStatus);
+
   bool isSupportLeg(const LimbEnum& limb) const;
   void setSupportLeg(const LimbEnum& limb, bool isSupportLeg);
 
   bool isIgnoreContact(const LimbEnum& limb) const;
   void setIgnoreContact(const LimbEnum& limb, bool ignoreContact);
+
+  bool hasSurfaceNormal(const LimbEnum& limb) const;
+  const Vector& getSurfaceNormal(const LimbEnum& limb) const;
+  void setSurfaceNormal(const LimbEnum& limb, const Vector& surfaceNormal);
+  void removeSurfaceNormal(const LimbEnum& limb);
 
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
@@ -53,6 +61,8 @@ class State : public quadruped_model::QuadrupedState
   std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
+  std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
+  bool robotExecutionStatus_;
 };
 
 } /* namespace */

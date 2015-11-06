@@ -105,7 +105,6 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
   if (prepareForNextStep) {
     // Auto motion for preparation of next step.
-    std::cout << "PREPPPPPPPPPPPPPP" << std::endl;
     for (const auto& limb : adapter.getLimbs()) {
       if (state.isSupportLeg(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);

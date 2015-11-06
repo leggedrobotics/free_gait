@@ -62,7 +62,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 
   // Profile.
   foostep.profileHeight_ = message.profile_height;
-  foostep.profileType_ =message.profile_type;
+  foostep.profileType_ = message.profile_type;
 
   // Average Velocity.
   foostep.averageVelocity_ = message.average_velocity;
@@ -70,7 +70,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
   // Surface normal.
   Vector surfaceNormal;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
-  foostep.surfaceNormal_ = surfaceNormal;
+  foostep.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
   foostep.ignoreContact_ = message.ignore_contact;

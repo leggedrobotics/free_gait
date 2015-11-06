@@ -36,7 +36,6 @@ class StepCompleter
   struct FootstepParameters
   {
     std::string profileType = "triangle";
-    Vector surfaceNormal = Vector::UnitZ();
     double profileHeight = 0.06;
     double averageVelocity = 0.05;
   } footTargetParameters_;

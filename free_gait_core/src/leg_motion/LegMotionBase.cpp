@@ -20,6 +20,13 @@ LegMotionBase::~LegMotionBase()
 {
 }
 
+LegMotionBase::LegMotionBase(const LegMotionBase& other) :
+    type_(other.type_),
+    limb_(other.limb_)
+{
+  if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
+}
+
 std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
 {
   throw std::runtime_error("LegMotionBase::clone() not implemented.");
@@ -55,9 +62,15 @@ double LegMotionBase::getDuration() const
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");
 }
 
+bool LegMotionBase::hasSurfaceNormal() const
+{
+  return (bool)(surfaceNormal_);
+}
+
 const Vector& LegMotionBase::getSurfaceNormal() const
 {
-  throw std::runtime_error("LegMotionBase::getSurfaceNormal() not implemented.");
+  if (!hasSurfaceNormal()) throw std::runtime_error("LegMotionBase::getSurfaceNormal(): No surface normal available.");
+  else return (*surfaceNormal_);
 }
 
 bool LegMotionBase::isIgnoreContact() const

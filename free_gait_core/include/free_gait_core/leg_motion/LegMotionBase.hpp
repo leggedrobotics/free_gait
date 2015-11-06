@@ -56,6 +56,8 @@ class LegMotionBase
    */
   virtual ~LegMotionBase();
 
+  LegMotionBase(const LegMotionBase& other);
+
   /*!
    * Deep copy clone.
    * @return a clone of this class.
@@ -81,7 +83,8 @@ class LegMotionBase
    */
   virtual double getDuration() const;
 
-  virtual const Vector& getSurfaceNormal() const;
+  bool hasSurfaceNormal() const;
+  const Vector& getSurfaceNormal() const;
 
   virtual bool isIgnoreContact() const;
 
@@ -97,6 +100,7 @@ class LegMotionBase
 
  protected:
   LimbEnum limb_;
+  std::unique_ptr<Vector> surfaceNormal_;
 
  private:
   //! Type of the leg motion.

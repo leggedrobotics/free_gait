@@ -87,8 +87,10 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
 
 void StepCompleter::setParameters(Footstep& footstep) const
 {
-  if (footstep.surfaceNormal_ == Vector::Zero())
-    footstep.surfaceNormal_ = footTargetParameters_.surfaceNormal;
+  if (footstep.surfaceNormal_) {
+    if (*(footstep.surfaceNormal_) == Vector::Zero())
+      footstep.surfaceNormal_.reset(nullptr);
+  }
   if (footstep.profileHeight_ == 0.0)
     footstep.profileHeight_ = footTargetParameters_.profileHeight;
   if (footstep.profileType_.empty())

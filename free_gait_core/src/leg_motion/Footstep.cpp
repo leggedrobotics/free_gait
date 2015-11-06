@@ -71,9 +71,8 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
   return true;
 }
 
-const Position Footstep::evaluatePosition(const double phase) const
+const Position Footstep::evaluatePosition(const double time) const
 {
-  const double time = phase * getDuration();
   return Position(trajectory_.evaluate(time));
 }
 
@@ -90,11 +89,6 @@ const Position Footstep::getTargetPosition() const
 const std::string& Footstep::getFrameId() const
 {
   return frameId_;
-}
-
-const Vector& Footstep::getSurfaceNormal() const
-{
-  return surfaceNormal_;
 }
 
 bool Footstep::isIgnoreContact() const

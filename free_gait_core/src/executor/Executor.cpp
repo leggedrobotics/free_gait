@@ -42,7 +42,15 @@ bool Executor::isInitialized() const
 bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
-  if (!checkRobotStatus()) return true;
+
+  if (checkRobotStatus()) {
+    if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
+    state_->setRobotExecutionStatus(true);
+  } else {
+    if (state_->getRobotExecutionStatus()) std::cout << "Robot status is not OK, not continuing with free gait execution." << std::endl;
+    state_->setRobotExecutionStatus(false);
+    return true;
+  }
 
   bool hasSwitchedStep;
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
@@ -63,6 +71,7 @@ bool Executor::advance(double dt)
 
   if (!writeIgnoreContact()) return false;
   if (!writeSupportLegs()) return false;
+  if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
@@ -134,6 +143,14 @@ const AdapterBase& Executor::getAdapter() const
   return *adapter_;
 }
 
+bool Executor::checkRobotStatus()
+{
+  for (const auto& limb : adapter_->getLimbs()) {
+    if (state_->isSupportLeg(limb) && !adapter_->isLegGrounded(limb)) return false;
+  }
+  return true;
+}
+
 bool Executor::updateStateWithMeasurements()
 {
   // Update states for new step.
@@ -177,6 +194,19 @@ bool Executor::writeSupportLegs()
       state_->setSupportLeg(limb, false);
     } else {
       state_->setSupportLeg(limb, true);
+    }
+  }
+  return true;
+}
+
+bool Executor::writeSurfaceNormals()
+{
+  const Step& step = queue_.getCurrentStep();
+  for (const auto& limb : adapter_->getLimbs()) {
+    if (step.hasLegMotion(limb)) {
+      if (step.getLegMotion(limb).hasSurfaceNormal()) {
+        state_->setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
+      }
     }
   }
   return true;
