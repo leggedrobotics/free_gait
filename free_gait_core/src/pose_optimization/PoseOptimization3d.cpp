@@ -8,6 +8,7 @@
 
 #include <free_gait_core/pose_optimization/PoseOptimization.hpp>
 #include <Eigen/Core>
+#include <Eigen/SVD>
 #include <ooqp_eigen_interface/OoqpEigenInterface.hpp>
 #include <kindr/rotations/RotationEigen.hpp>
 
@@ -99,12 +100,22 @@ bool PoseOptimization::optimize(Pose& pose)
   // Return optimized pose.
   pose.getPosition().vector() = x.head<3>();
   const double yaw = x.tail<1>()[0];
-  RotationMatrix rotationMatrix;
-  rotationMatrix.setMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose());
-  rotationMatrix.fix();
-  pose.getRotation() = rotationMatrix;
-  pose.getRotation().fix();
+  Eigen::Matrix3d rotationMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose());
 
+  // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
+  // as discussed in https://github.com/ethz-asl/kindr/issues/55 ,
+  // code by Philipp Krüsi.
+  // TODO: Move to kindr.
+  Eigen::JacobiSVD<Eigen::Matrix3d> svd(rotationMatrix, Eigen::ComputeFullV);
+  Eigen::Matrix3d correction(
+      svd.matrixV().col(0) * svd.matrixV().col(0).transpose() /
+      svd.singularValues()(0) +
+      svd.matrixV().col(1) * svd.matrixV().col(1).transpose() /
+      svd.singularValues()(1) +
+      svd.matrixV().col(2) * svd.matrixV().col(2).transpose() /
+      svd.singularValues()(2));
+
+  pose.getRotation() = RotationMatrix(rotationMatrix * correction);
   return true;
 }
 

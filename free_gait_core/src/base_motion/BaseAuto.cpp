@@ -106,14 +106,14 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
   if (prepareForNextStep) {
     // Auto motion for preparation of next step.
     for (const auto& limb : adapter.getLimbs()) {
-      if (state.isSupportLeg(limb) && !queue.getNextStep().hasLegMotion(limb)) {
+      if (!state.isIgnoreContact(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
   } else {
     // Auto motion for current step.
     for (const auto& limb : adapter.getLimbs()) {
-      if (state.isSupportLeg(limb)) {
+      if (!step.hasLegMotion(limb) && !state.isIgnoreContact(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
@@ -121,19 +121,18 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
   footholdsToReach_.clear();
   for (const auto& limb : adapter.getLimbs()) {
-    if (!state.isIgnoreForPoseAdaptation(limb)) {
-      if (step.hasLegMotion(limb)) {
-        // Double check if right format.
-        if (step.getLegMotion(limb).getTrajectoryType() == LegMotionBase::TrajectoryType::EndEffector
-            && step.getLegMotion(limb).getControlSetup().at(ControlLevel::Position)) {
-          // Use target end effector position.
-          const auto& legMotion = dynamic_cast<const EndEffectorMotionBase&>(step.getLegMotion(limb));
-          footholdsToReach_[limb] = legMotion.getTargetPosition();
-        }
-      } else {
-        // Use current foot position.
-        footholdsToReach_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+    if (step.hasLegMotion(limb)) {
+      if (step.getLegMotion(limb).isIgnoreForPoseAdaptation()) continue;
+      // Double check if right format.
+      if (step.getLegMotion(limb).getTrajectoryType() == LegMotionBase::TrajectoryType::EndEffector
+          && step.getLegMotion(limb).getControlSetup().at(ControlLevel::Position)) {
+        // Use target end effector position.
+        const auto& legMotion = dynamic_cast<const EndEffectorMotionBase&>(step.getLegMotion(limb));
+        footholdsToReach_[limb] = legMotion.getTargetPosition();
       }
+    } else {
+      // Use current foot position.
+      footholdsToReach_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
     }
   }
 

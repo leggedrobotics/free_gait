@@ -64,9 +64,9 @@ bool PoseOptimization::optimize(Pose& pose)
     b.segment(2 * i, 2) << stance_[i].vector() - R_0 * nominalStanceInBaseFrame_[i].vector();
   }
 
-//  std::cout << "R_0: " << std::endl << R_0 << std::endl;
-//  std::cout << "A: " << std::endl << A << std::endl;
-//  std::cout << "b: " << std::endl << b << std::endl;
+  std::cout << "R_0: " << std::endl << R_0 << std::endl;
+  std::cout << "A: " << std::endl << A << std::endl;
+  std::cout << "b: " << std::endl << b << std::endl;
 
   // Inequality constraints.
   Eigen::MatrixXd Gp;
@@ -75,9 +75,9 @@ bool PoseOptimization::optimize(Pose& pose)
   Eigen::MatrixXd G(Gp.rows(), Gp.cols() + 1);
   G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), 1);
 
-//  std::cout << "Gp: " << std::endl << Gp << std::endl;
-//  std::cout << "G: " << std::endl << G << std::endl;
-//  std::cout << "h: " << std::endl << h << std::endl;
+  std::cout << "Gp: " << std::endl << Gp << std::endl;
+  std::cout << "G: " << std::endl << G << std::endl;
+  std::cout << "h: " << std::endl << h << std::endl;
 
   // Formulation as QP:
   // min 1/2 x'Px + q'x + r
@@ -91,7 +91,7 @@ bool PoseOptimization::optimize(Pose& pose)
   Eigen::VectorXd x;
   if (!ooqpei::OoqpEigenInterface::solve(P_sparse, q, G_sparse, h, x))
       return false;
-//  std::cout << "x: " << std::endl << x << std::endl;
+  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
   pose.getPosition().vector().head<2>() = x.head<2>();
