@@ -26,7 +26,7 @@ BaseAuto::BaseAuto()
       supportMargin_(0.0),
       computed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
-                      {ControlLevel::Acceleration, false}, {ControlLevel::Force, false} }
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 

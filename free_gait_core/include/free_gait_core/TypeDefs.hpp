@@ -62,7 +62,7 @@ enum class ControlLevel
   Position,
   Velocity,
   Acceleration,
-  Force
+  Effort
 };
 
 typedef std::unordered_map<ControlLevel, bool, EnumClassHash> ControlSetup;

@@ -7,6 +7,7 @@
  */
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 #include <free_gait_core/leg_motion/Footstep.hpp>
+#include <free_gait_core/leg_motion/JointTrajectory.hpp>
 
 namespace free_gait {
 
@@ -86,9 +87,17 @@ bool LegMotionBase::isIgnoreForPoseAdaptation() const
 std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
 {
   out << "Type: " << legMotion.getType() << std::endl;
+  out << "Control setup: ";
+  for (const auto& controlSetup : legMotion.getControlSetup()) {
+    if (controlSetup.second) out << controlSetup.first;
+  }
+  out << std::endl;
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
       out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      break;
+    case LegMotionBase::Type::JointTrajectory:
+      out << (dynamic_cast<const JointTrajectory&>(legMotion)) << std::endl;
       break;
     default:
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");

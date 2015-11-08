@@ -18,11 +18,12 @@ Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
       averageVelocity_(0.0),
+      duration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       computed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
-                      {ControlLevel::Acceleration, false}, {ControlLevel::Force, false} }
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 

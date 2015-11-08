@@ -35,7 +35,7 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
         if (!complete(state, step, dynamic_cast<EndEffectorMotionBase&>(*legMotion.second))) return false;
         break;
       case LegMotionBase::TrajectoryType::Joints:
-//        if (!complete(state, step, *(legMotion.second))) return false;
+        if (!complete(state, step, dynamic_cast<JointMotionBase&>(*legMotion.second))) return false;
         break;
       default:
         throw std::runtime_error("StepCompleter::complete() could not complete leg motion of this type.");
@@ -68,6 +68,16 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
   endEffectorMotion.compute(state, step, *adapter_);
+  return true;
+}
+
+bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
+{
+  if (jointMotion.getControlSetup().at(ControlLevel::Position)) {
+    JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
+    jointMotion.updateStartPosition(startPosition);
+  }
+  jointMotion.compute(state, step, *adapter_);
   return true;
 }
 

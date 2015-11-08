@@ -1,5 +1,5 @@
 /*
- * base_motion.hpp
+ * leg_motion.hpp
  *
  *  Created on: Oct 19, 2015
  *      Author: Péter Fankhauser
@@ -8,5 +8,8 @@
 
 #pragma once
 
-#include "free_gait_core/base_motion/BaseMotionBase.hpp"
-#include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/leg_motion/LegMotionBase.hpp"
+#include "free_gait_core/leg_motion/JointMotionBase.hpp"
+#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
+#include "free_gait_core/leg_motion/Footstep.hpp"
+#include "free_gait_core/leg_motion/JointTrajectory.hpp"

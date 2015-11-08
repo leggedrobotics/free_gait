@@ -59,10 +59,10 @@ class JointMotionBase : public LegMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  virtual const JointPositions evaluatePosition(const double time);
-  virtual const JointVelocities evaluateVelocity(const double time);
-  virtual const JointAccelerations evaluateAcceleration(const double time);
-  virtual const JointEfforts evaluateEffort(const double time);
+  virtual const JointPositions evaluatePosition(const double time) const;
+  virtual const JointVelocities evaluateVelocity(const double time) const;
+  virtual const JointAccelerations evaluateAcceleration(const double time) const;
+  virtual const JointEfforts evaluateEffort(const double time) const;
 
   /*!
    * Print the contents to console for debugging.

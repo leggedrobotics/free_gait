@@ -1,5 +1,5 @@
 /*
- * leg_motion.hpp
+ * base_motion.hpp
  *
  *  Created on: Oct 19, 2015
  *      Author: Péter Fankhauser

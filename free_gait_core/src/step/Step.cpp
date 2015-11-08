@@ -316,6 +316,27 @@ std::ostream& operator<<(std::ostream& out, const Step& step)
   return out;
 }
 
+std::ostream& operator<< (std::ostream& out, const ControlLevel& controlLevel)
+{
+  switch (controlLevel) {
+    case ControlLevel::Position:
+      out << "Position";
+      return out;
+    case ControlLevel::Velocity:
+      out << "Velocity";
+      return out;
+    case ControlLevel::Acceleration:
+      out << "Acceleration";
+      return out;
+    case ControlLevel::Effort:
+      out << "Effort";
+      return out;
+    default:
+      out << "Undefined";
+      return out;
+  }
+}
+
 //Step::State& operator++(Step::State& phase)
 //{
 //  switch (phase) {

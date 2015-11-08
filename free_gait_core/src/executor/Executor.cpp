@@ -229,8 +229,8 @@ bool Executor::writeLegMotion()
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) {
           // TODO Add frame handling.
-          Position positionInWorldFrame = endEffectorMotion.evaluatePosition(time);
-          Position positionInBaseFrame = adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame());
+          Position positionInWorldFrame(endEffectorMotion.evaluatePosition(time));
+          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
           JointPositions jointPositions;
           adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
           state_->setJointPositions(limb, jointPositions);
@@ -240,7 +240,10 @@ bool Executor::writeLegMotion()
 
       case LegMotionBase::TrajectoryType::Joints:
       {
-        // TODO
+        const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
+        if (controlSetup[ControlLevel::Position]) {
+          state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
+        }
         break;
       }
 

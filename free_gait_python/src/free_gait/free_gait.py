@@ -57,14 +57,12 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
             continue
 
         for motion_parameter in step_parameter:
-            if 'base_auto' in motion_parameter:
-                step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
             if 'footstep' in motion_parameter:
                 step.footstep.append(parse_footstep(motion_parameter['footstep']))
-
-
-
-        #
+            if 'joint_trajectory' in motion_parameter:
+                step.joint_trajectory.append(parse_joint_trajectory(motion_parameter['joint_trajectory']))
+            if 'base_auto' in motion_parameter:
+                step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
         # # Swing data.
         # if 'swing_data' in step_parameter:
         #     for swing_data_parameter in step_parameter['swing_data']:
@@ -193,21 +191,6 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     return goal
 
 
-def parse_base_auto(yaml_object):
-    base_auto = free_gait_msgs.msg.BaseAuto()
-    if not yaml_object:
-        return base_auto
-    if 'height' in yaml_object:
-        base_auto.height = yaml_object['height']
-    if 'average_linear_velocity' in yaml_object:
-        base_auto.average_linear_velocity = yaml_object['height']
-    if 'average_angular_velocity' in yaml_object:
-        base_auto.average_angular_velocity = yaml_object['average_angular_velocity']
-    if 'support_margin' in yaml_object:
-        base_auto.support_margin = yaml_object['support_margin']
-    return base_auto
-
-
 def parse_footstep(yaml_object):
     footstep = free_gait_msgs.msg.Footstep()
     if not yaml_object:
@@ -229,6 +212,36 @@ def parse_footstep(yaml_object):
     if 'ignore_for_pose_adaptation' in yaml_object:
         footstep.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
     return footstep
+
+
+def parse_joint_trajectory(yaml_object):
+    joint_trajectory = free_gait_msgs.msg.JointTrajectory()
+    if not yaml_object:
+        return joint_trajectory
+    if 'name' in yaml_object:
+        joint_trajectory.name = yaml_object['name']
+    if 'trajectory' in yaml_object:
+        joint_trajectory.trajectory = parse_joint_trajectories(yaml_object['trajectory'])
+    if 'ignore_contact' in yaml_object:
+        joint_trajectory.ignore_contact = yaml_object['ignore_contact']
+    if 'surface_normal' in yaml_object:
+        joint_trajectory.surface_normal = parse_vector(yaml_object['surface_normal'])
+    return joint_trajectory
+
+
+def parse_base_auto(yaml_object):
+    base_auto = free_gait_msgs.msg.BaseAuto()
+    if not yaml_object:
+        return base_auto
+    if 'height' in yaml_object:
+        base_auto.height = yaml_object['height']
+    if 'average_linear_velocity' in yaml_object:
+        base_auto.average_linear_velocity = yaml_object['height']
+    if 'average_angular_velocity' in yaml_object:
+        base_auto.average_angular_velocity = yaml_object['average_angular_velocity']
+    if 'support_margin' in yaml_object:
+        base_auto.support_margin = yaml_object['support_margin']
+    return base_auto
 
 
 def parse_point(yaml_object):
@@ -284,18 +297,18 @@ def parse_multi_dof_trajectory(joint_name, trajectory):
     return output
 
 
-def parse_joint_trajectory(trajectory):
-    output = trajectory_msgs.msg.JointTrajectory()
-    for joint_name in trajectory['joint_names']:
-        output.joint_names.append(joint_name)
-    for knot in trajectory['knots']:
+def parse_joint_trajectories(yaml_object):
+    joint_trajectory = trajectory_msgs.msg.JointTrajectory()
+    for joint_name in yaml_object['joint_names']:
+        joint_trajectory.joint_names.append(joint_name)
+    for knot in yaml_object['knots']:
         point = trajectory_msgs.msg.JointTrajectoryPoint()
         point.time_from_start = rospy.Time(knot['time'])
         for position in knot['positions']:
             point.positions.append(position)
-        output.points.append(point)
+        joint_trajectory.points.append(point)
     
-    return output
+    return joint_trajectory
 
 
 def adapt_coordinates(goal, position, orientation):

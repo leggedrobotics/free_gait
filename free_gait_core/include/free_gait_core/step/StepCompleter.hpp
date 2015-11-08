@@ -27,6 +27,7 @@ class StepCompleter
   virtual ~StepCompleter();
   bool complete(const State& state, const StepQueue& queue, Step& step) const;
   bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
+  bool complete(const State& state, const Step& step, JointMotionBase& jointMotion) const;
   bool complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const;
   void setParameters(Footstep& footTarget) const;
   void setParameters(BaseAuto& baseAuto) const;

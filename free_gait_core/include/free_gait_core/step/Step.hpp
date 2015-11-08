@@ -125,4 +125,6 @@ class Step
 
 };
 
+std::ostream& operator<< (std::ostream& out, const ControlLevel& controlLevel);
+
 } /* namespace */
