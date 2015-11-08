@@ -101,8 +101,10 @@ void StepCompleter::setParameters(Footstep& footstep) const
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
-  if (baseAuto.height_ == 0.0)
-    baseAuto.height_ = baseAutoParameters_.height;
+  if (baseAuto.height_) {
+    if (*(baseAuto.height_) == 0.0)
+      baseAuto.height_.reset(nullptr);
+  }
   if (baseAuto.averageLinearVelocity_ == 0.0)
     baseAuto.averageLinearVelocity_ = baseAutoParameters_.averageLinearVelocity;
   if (baseAuto.averageAngularVelocity_ == 0.0)

@@ -42,7 +42,6 @@ class StepCompleter
 
   struct BaseAutoParameters
   {
-    double height = 0.46;
     double averageLinearVelocity = 0.05;
     double averageAngularVelocity = 0.1;
     double supportMargin = 0.04;

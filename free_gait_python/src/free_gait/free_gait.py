@@ -305,24 +305,35 @@ def adapt_coordinates(goal, position, orientation):
     (roll, pitch, yaw) = euler_from_quaternion(orientation)
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
-    
+
     for step in goal.steps:
-        for swing_data in step.swing_data:
-            position = swing_data.profile.target.point;
+        for foostep in step.footstep:
+            position = foostep.target.point;
             if check_if_position_valid(position):
                 position = transform_position(transform, position)
-                swing_data.profile.target.point = position
-            for point in swing_data.foot_trajectory.points:
-                position = transform_position(transform, point.transforms[0].translation)
-                point.transforms[0].translation = position
-        for base_shift_data in step.base_shift_data:
-            pose = base_shift_data.profile.target.pose;
-            if check_if_pose_valid(pose):
-                pose = transform_pose(transform, pose)
-                base_shift_data.profile.target.pose = pose
-            for point in base_shift_data.trajectory.points:
-                transformation = transform_transformation(transform, point.transforms[0])
-                point.transforms[0] = transformation
+                foostep.target.point = position
+            # if 'base_auto' in motion_parameter:
+            #     step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
+            # if 'footstep' in motion_parameter:
+            #     step.footstep.append(parse_footstep(motion_parameter['footstep']))
+
+
+            # for swing_data in step.swing_data:
+            #     position = swing_data.profile.target.point;
+            #     if check_if_position_valid(position):
+            #         position = transform_position(transform, position)
+            #         swing_data.profile.target.point = position
+            #     for point in swing_data.foot_trajectory.points:
+            #         position = transform_position(transform, point.transforms[0].translation)
+            #         point.transforms[0].translation = position
+            # for base_shift_data in step.base_shift_data:
+            #     pose = base_shift_data.profile.target.pose;
+            #     if check_if_pose_valid(pose):
+            #         pose = transform_pose(transform, pose)
+            #         base_shift_data.profile.target.pose = pose
+            #     for point in base_shift_data.trajectory.points:
+            #         transformation = transform_transformation(transform, point.transforms[0])
+            #         point.transforms[0] = transformation
 
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):

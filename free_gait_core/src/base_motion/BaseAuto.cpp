@@ -23,7 +23,6 @@ BaseAuto::BaseAuto()
       averageLinearVelocity_(0.0),
       averageAngularVelocity_(0.0),
       duration_(0.0),
-      height_(0.0),
       supportMargin_(0.0),
       computed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
@@ -33,6 +32,27 @@ BaseAuto::BaseAuto()
 
 BaseAuto::~BaseAuto()
 {
+}
+
+BaseAuto::BaseAuto(const BaseAuto& other) :
+    BaseMotionBase(other),
+    averageLinearVelocity_(other.averageLinearVelocity_),
+    averageAngularVelocity_(other.averageAngularVelocity_),
+    supportMargin_(other.supportMargin_),
+    start_(other.start_),
+    target_(other.target_),
+    duration_(other.duration_),
+    nominalPlanarStanceInBaseFrame_(other.nominalPlanarStanceInBaseFrame_),
+    controlSetup_(other.controlSetup_),
+    trajectory_(other.trajectory_),
+    footholdsToReach_(other.footholdsToReach_),
+    footholdsInSupport_(other.footholdsInSupport_),
+    nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
+    footholdsForTerrain_(other.footholdsForTerrain_),
+    poseOptimization_(other.poseOptimization_),
+    computed_(other.computed_)
+{
+  if (other.height_) height_.reset(new double(*(other.height_)));
 }
 
 std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
@@ -55,6 +75,12 @@ void BaseAuto::updateStartPose(const Pose& startPose)
 
 bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
+  if (!height_) {
+    if (!computeHeight(state, adapter)) {
+      std::cerr << "BaseAuto::compute(): Could not compute height." << std::endl;
+      return false;
+    }
+  }
   if (!generateFootholdLists(state, step, queue, adapter)) {
     std::cerr << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
     return false;
@@ -86,6 +112,21 @@ Twist BaseAuto::evaluateTwist(const double time) const
 double BaseAuto::getDuration() const
 {
   return duration_;
+}
+
+bool BaseAuto::computeHeight(const State& state, const AdapterBase& adapter)
+{
+  unsigned n = 0;
+  double heightSum = 0;
+  for (const auto& limb : adapter.getLimbs()) {
+    if (!state.isIgnoreForPoseAdaptation(limb)) {
+      double legHeight = -adapter.getPositionBaseToFootInBaseFrame(limb, state.getJointPositions(limb)).z();
+      heightSum += legHeight;
+      ++n;
+    }
+  }
+  if (n == 0) return false;
+  height_.reset(new double(heightSum / (double)(n)));
 }
 
 bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
@@ -136,9 +177,15 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   }
 
+  // TODO: Delete as soon full pose optimization is done.
+  footholdsForTerrain_ = footholdsToReach_;
+  for (const auto& limb : adapter.getLimbs()) {
+    if (footholdsForTerrain_.count(limb) == 0) footholdsForTerrain_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+  }
+
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
-    nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -height_));
+    nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -*height_));
   }
 
   return true;
@@ -184,8 +231,8 @@ void BaseAuto::getAdaptiveTargetPose(
   // Get terrain from target foot positions.
   loco::TerrainModelFreePlane terrain;
   std::vector<Position> footholds; // TODO
-  for (const auto& limb : adapter.getLimbs()) {
-    footholds.push_back(adapter.getPositionWorldToFootInWorldFrame(limb));
+  for (const auto& foothold : footholdsForTerrain_) {
+    footholds.push_back(foothold.second);
   }
   loco::TerrainPerceptionFreePlane::generateTerrainModelFromPointsInWorldFrame(footholds, terrain);
   loco::Vector terrainNormalInWorld;
@@ -199,7 +246,7 @@ void BaseAuto::getAdaptiveTargetPose(
       * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
 
   // Compute target height over terrain and determine target position.
-  Position positionWorldToDesiredHeightAboveTerrainInTerrain(0.0, 0.0, height_);
+  Position positionWorldToDesiredHeightAboveTerrainInTerrain(0.0, 0.0, *height_);
   Position positionWorldToDesiredHeightAboveTerrainInWorld = orientationWorldToTerrain.inverseRotate(positionWorldToDesiredHeightAboveTerrainInTerrain);
   double heightOverTerrain = positionWorldToDesiredHeightAboveTerrainInWorld.dot(terrainNormalInWorld);
   heightOverTerrain /= terrainNormalInWorld.z();
@@ -218,8 +265,8 @@ void BaseAuto::getAdaptiveTargetPose(
 //  centerOfFeetInWorld.z() = 0.0;
 
   // Get desired heading direction with respect to the target feet.
-  const Position positionForeFeetMidPointInWorld = (footholds[0] + footholds[1]) * 0.5; // TODO
-  const Position positionHindFeetMidPointInWorld = (footholds[2] + footholds[3]) * 0.5; // TODO
+  const Position positionForeFeetMidPointInWorld = (footholdsForTerrain_[LimbEnum::LF_LEG] + footholdsForTerrain_[LimbEnum::RF_LEG]) * 0.5;
+  const Position positionHindFeetMidPointInWorld = (footholdsForTerrain_[LimbEnum::LH_LEG] + footholdsForTerrain_[LimbEnum::RH_LEG]) * 0.5;
   Vector desiredHeadingDirectionInWorld = Vector(
       positionForeFeetMidPointInWorld - positionHindFeetMidPointInWorld);
   desiredHeadingDirectionInWorld.z() = 0.0;
@@ -272,7 +319,7 @@ bool BaseAuto::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
-  out << "Height: " << baseAuto.height_ << std::endl;
+  out << "Height: " << *(baseAuto.height_) << std::endl;
   out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;
   out << "Average Angular Velocity: " << baseAuto.averageAngularVelocity_ << std::endl;
   out << "Support Margin: " << baseAuto.supportMargin_ << std::endl;

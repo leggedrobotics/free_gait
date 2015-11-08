@@ -16,7 +16,9 @@
 #include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimization.hpp"
 
+// STD
 #include <string>
+#include <memory>
 
 // Curves
 #include "curves/CubicHermiteSE3Curve.hpp"
@@ -34,6 +36,8 @@ class BaseAuto : public BaseMotionBase
 
   BaseAuto();
   virtual ~BaseAuto();
+
+  BaseAuto(const BaseAuto& other);
 
   std::unique_ptr<BaseMotionBase> clone() const;
 
@@ -68,13 +72,14 @@ class BaseAuto : public BaseMotionBase
   friend class StepRosConverter;
 
  protected:
-  double height_; // In control frame.
+  std::unique_ptr<double> height_; // In control frame.
   double averageLinearVelocity_;
   double averageAngularVelocity_;
   double supportMargin_;
 
  private:
 
+  bool computeHeight(const State& state, const AdapterBase& adapter);
   bool generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   void getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame);
   void getAdaptiveTargetPose(const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld);
@@ -97,6 +102,7 @@ class BaseAuto : public BaseMotionBase
   curves::CubicHermiteSE3Curve trajectory_;
 
   Stance footholdsToReach_, footholdsInSupport_, nominalStanceInBaseFrame_;
+  Stance footholdsForTerrain_; // TODO Replace with full optimization.
   PoseOptimization poseOptimization_;
 
   //! If trajectory is updated.
