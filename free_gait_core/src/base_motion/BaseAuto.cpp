@@ -105,8 +105,10 @@ Pose BaseAuto::evaluatePose(const double time) const
 
 Twist BaseAuto::evaluateTwist(const double time) const
 {
-  double timeInRange = time <= duration_ ? time : duration_;
-  return trajectory_.evaluateDerivative(timeInRange, 1);
+  // TODO
+//  double timeInRange = time <= duration_ ? time : duration_;
+//  return trajectory_.evaluateDerivative(timeInRange, 1);
+  return Twist();
 }
 
 double BaseAuto::getDuration() const
