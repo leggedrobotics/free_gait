@@ -1,6 +1,6 @@
 # Definition of a target for the end effector.
 
-# Leg name ('leftFore', 'rightHind' etc.).
+# Leg name ('LF_LEG', 'RH_LEG' etc.).
 string name
 
 # Target of the end effector ('time_from_start' is ignored).

@@ -1,6 +1,6 @@
 # Definition of trajectories for each joint of a leg.
 
-# Leg name ('leftFore', 'rightHind' etc.).
+# Leg name ('LF_LEG', 'RH_LEG' etc.).
 string name
 
 # Joint trajectories.

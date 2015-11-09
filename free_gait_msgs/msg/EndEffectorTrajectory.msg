@@ -1,6 +1,6 @@
 # Definition of a trajectory for the foot.
 
-# Leg name ('leftFore', 'rightHind' etc.).
+# Leg name ('LF_LEG', 'RH_LEG' etc.).
 string name
 
 # Trajectory for the end effector.

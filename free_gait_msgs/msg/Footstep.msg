@@ -1,6 +1,6 @@
 # Step defined by foothold position and swing profile.
 
-# Leg name ('leftFore', 'rightHind' etc.).
+# Leg name ('LF_LEG', 'RH_LEG' etc.).
 string name
 
 # Target position of the foot by the end of the motion.

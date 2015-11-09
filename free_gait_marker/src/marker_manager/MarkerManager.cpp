@@ -22,14 +22,14 @@ using namespace visualization_msgs;
 
 static const int NUMBER_OF_LEGS = 4;
 
-static const std::string LEFT_FORE_NAME = "leftFore";
+static const std::string LEFT_FORE_NAME = "LF_LEG";
 static const int LEFT_FORE_ID = 0;
-static const std::string RIGHT_FORE_NAME = "rightFore";
+static const std::string RIGHT_FORE_NAME = "RF_LEG";
 static const int RIGHT_FORE_ID = 1;
-static const std::string LEFT_HIND_NAME = "leftHind";
+static const std::string LEFT_HIND_NAME = "LH_LEG";
 static const int LEFT_HIND_ID = 2;
-static const std::string RIGHT_HIND_NAME = "rightHind";
-static const int RIGHT_HIND_ID = 3;
+static const std::string RH_LEG_NAME = "RH_LEG";
+static const int RH_LEG_ID = 3;
 
 namespace free_gait_marker {
 
@@ -64,7 +64,7 @@ MarkerManager::MarkerManager(ros::NodeHandle& nodeHandle)
   addFootholdMarker(LEFT_FORE_ID, LEFT_FORE_NAME);
   addFootholdMarker(RIGHT_FORE_ID, RIGHT_FORE_NAME);
   addFootholdMarker(LEFT_HIND_ID, LEFT_HIND_NAME);
-  addFootholdMarker(RIGHT_HIND_ID, RIGHT_HIND_NAME);
+  addFootholdMarker(RH_LEG_ID, RH_LEG_NAME);
   applyChanges();
 
   // By default, the foot markers are initially deactivated
@@ -223,9 +223,9 @@ void MarkerManager::getIdAndNameFromMarker(
   } else if (feedback->marker_name.find(LEFT_HIND_NAME) != std::string::npos) {
     legId = LEFT_HIND_ID;
     name = LEFT_HIND_NAME;
-  } else if (feedback->marker_name.find(RIGHT_HIND_NAME) != std::string::npos) {
-    legId = RIGHT_HIND_ID;
-    name = RIGHT_HIND_NAME;
+  } else if (feedback->marker_name.find(RH_LEG_NAME) != std::string::npos) {
+    legId = RH_LEG_ID;
+    name = RH_LEG_NAME;
   } else {
     ROS_INFO_STREAM(
         "[MarkerManager::getIdAndNameFromMarker] Could not find id and name.");
@@ -275,7 +275,7 @@ void MarkerManager::addFootholdMarker(const unsigned int stepNumber,
     footFrameId = "RF_FOOT";
   else if (legName == LEFT_HIND_NAME)
     footFrameId = "LH_FOOT";
-  else if (legName == RIGHT_HIND_NAME)
+  else if (legName == RH_LEG_NAME)
     footFrameId = "RH_FOOT";
   else {
     ROS_WARN_STREAM(
@@ -577,8 +577,8 @@ void MarkerManager::updateKnots() {
   if (showTrajectory_[LEFT_HIND_ID]) {
     updateTrajectory(LEFT_HIND_ID, LEFT_HIND_NAME);
   }
-  if (showTrajectory_[RIGHT_HIND_ID]) {
-    updateTrajectory(RIGHT_HIND_ID, RIGHT_HIND_NAME);
+  if (showTrajectory_[RH_LEG_ID]) {
+    updateTrajectory(RH_LEG_ID, RH_LEG_NAME);
   }
 }
 
