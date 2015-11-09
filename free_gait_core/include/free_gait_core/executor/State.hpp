@@ -23,13 +23,14 @@ class State : public quadruped_model::QuadrupedState
   virtual ~State();
   friend std::ostream& operator<<(std::ostream& out, const State& state);
 
-  virtual void initialize(const std::vector<LimbEnum>& limbs);
+  virtual void initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches);
 
   bool getRobotExecutionStatus() const;
   void setRobotExecutionStatus(bool robotExecutionStatus);
 
   bool isSupportLeg(const LimbEnum& limb) const;
   void setSupportLeg(const LimbEnum& limb, bool isSupportLeg);
+  unsigned int getNumberOfSupportLegs() const;
 
   bool isIgnoreContact(const LimbEnum& limb) const;
   void setIgnoreContact(const LimbEnum& limb, bool ignoreContact);
@@ -45,8 +46,14 @@ class State : public quadruped_model::QuadrupedState
   const JointPositions getJointPositions(const LimbEnum& limb) const;
   void setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
-
   void setAllJointVelocities(const JointVelocities& jointVelocities);
+
+  const ControlSetup& getControlSetup(const BranchEnum& branch) const;
+  const ControlSetup& getControlSetup(const LimbEnum& limb) const;
+  void setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup);
+  void setControlSetup(const LimbEnum& limb, const ControlSetup& controlSetup);
+  void setEmptySetup(const BranchEnum& branch);
+  void setEmptySetup(const LimbEnum& limb);
 
  private:
   // TODO Extend QuadrupedState class with:

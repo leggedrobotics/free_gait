@@ -29,7 +29,7 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
-  state_->initialize(adapter_->getLimbs());
+  state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
   reset();
   return isInitialized_ = true;
 }
@@ -119,7 +119,7 @@ bool Executor::advance(double dt)
 void Executor::reset()
 {
   queue_.clear();
-  updateStateWithMeasurements();
+  initializeStateWithRobot();
 }
 
 const StepQueue& Executor::getQueue() const
@@ -150,6 +150,44 @@ bool Executor::checkRobotStatus()
   return true;
 }
 
+bool Executor::initializeStateWithRobot()
+{
+  for (const auto& limb : adapter_->getLimbs()) {
+    state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
+    state_->setIgnoreContact(limb, !adapter_->isLegGrounded(limb));
+    state_->setIgnoreForPoseAdaptation(limb, !adapter_->isLegGrounded(limb));
+    state_->removeSurfaceNormal(limb);
+  }
+
+  if (state_->getNumberOfSupportLegs() > 0) {
+    state_->setControlSetup(BranchEnum::BASE, adapter_->getControlSetup(BranchEnum::BASE));
+  } else {
+    state_->setEmptySetup(BranchEnum::BASE);
+  }
+
+  for (const auto& limb : adapter_->getLimbs()) {
+    if (state_->isSupportLeg(limb)) {
+      state_->setEmptySetup(limb);
+    } else {
+      state_->setControlSetup(limb, adapter_->getControlSetup(limb));
+    }
+  }
+
+  state_->setAllJointPositions(adapter_->getAllJointPositions());
+  state_->setAllJointVelocities(adapter_->getAllJointVelocities());
+  state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
+  state_->setOrientationWorldToBase(adapter_->getOrientationWorldToBase());
+
+  for (const auto& limb : adapter_->getLimbs()) {
+    state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
+    state_->setIgnoreContact(limb, !adapter_->isLegGrounded(limb));
+  }
+
+  state_->setRobotExecutionStatus(true);
+
+  return true;
+}
+
 bool Executor::updateStateWithMeasurements()
 {
   // Update states for new step.
@@ -171,6 +209,27 @@ bool Executor::updateStateWithMeasurements()
 //  } else {
     // Update uncontrolled steps.
 //  }
+
+
+
+
+
+
+
+//    JointEfforts jointTorques_;
+//    LinearAcceleration linearAccelerationBaseInWorldFrame_;
+//    AngularAcceleration angularAccelerationBaseInBaseFrame_;
+//
+//    // Free gait specific.
+//    std::unordered_map<BranchEnum, ControlSetup, EnumClassHash> controlSetups_;
+//    Force netForceOnBaseInBaseFrame_;
+//    Torque netTorqueOnBaseInBaseFrame_;
+//    std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
+//    std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
+//    std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
+//    std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
+//    bool robotExecutionStatus_;
+
   return true;
 }
 
@@ -215,7 +274,12 @@ bool Executor::writeSurfaceNormals()
 bool Executor::writeLegMotion()
 {
   const auto& step = queue_.getCurrentStep();
-  if (!step.hasLegMotion()) return true;
+//  if (!step.hasLegMotion()) return true;
+
+  for (const auto& limb : adapter_->getLimbs()) {
+    state_->setControlSetup()
+  }
+
   double time = queue_.getCurrentStep().getTime();
   for (const auto& limb : adapter_->getLimbs()) {
     if (!step.hasLegMotion(limb)) continue;

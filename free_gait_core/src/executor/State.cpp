@@ -20,12 +20,21 @@ State::~State()
 {
 }
 
-void State::initialize(const std::vector<LimbEnum>& limbs)
+void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches)
 {
   for (const auto& limb : limbs) {
     isSupportLegs_[limb] = false;
     ignoreContact_[limb] = false;
     ignoreForPoseAdaptation_[limb] = false;
+  }
+
+  ControlSetup controlSetup;
+  controlSetup[ControlLevel::Position] = false;
+  controlSetup[ControlLevel::Velocity] = false;
+  controlSetup[ControlLevel::Acceleration] = false;
+  controlSetup[ControlLevel::Effort] = false;
+  for (const auto& branch : branches) {
+    controlSetups_[branch] = controlSetup;
   }
 }
 
@@ -47,6 +56,15 @@ bool State::isSupportLeg(const LimbEnum& limb) const
 void State::setSupportLeg(const LimbEnum& limb, bool isSupportLeg)
 {
   isSupportLegs_[limb] = isSupportLeg;
+}
+
+unsigned int State::getNumberOfSupportLegs() const
+{
+  unsigned int nLegs = 0;
+  for (const auto& supportLeg : isSupportLegs_) {
+    if (supportLeg.second) ++nLegs;
+  }
+  return nLegs;
 }
 
 bool State::isIgnoreContact(const LimbEnum& limb) const
@@ -114,6 +132,41 @@ void State::setAllJointPositions(const JointPositions& jointPositions)
 void State::setAllJointVelocities(const JointVelocities& jointVelocities)
 {
   quadruped_model::QuadrupedState::setJointVelocities(quadruped_model::JointVelocities(jointVelocities.vector()));
+}
+
+const ControlSetup& State::getControlSetup(const BranchEnum& branch) const
+{
+  return controlSetups_.at(branch);
+}
+
+const ControlSetup& State::getControlSetup(const LimbEnum& limb) const
+{
+  return controlSetups_.at(quadruped_model::getBranchEnumFromLimbEnum(limb));
+}
+
+void State::setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup)
+{
+  controlSetups_[branch] = controlSetup;
+}
+
+void State::setControlSetup(const LimbEnum& limb, const ControlSetup& controlSetup)
+{
+  controlSetups_[quadruped_model::getBranchEnumFromLimbEnum(limb)] = controlSetup;
+}
+
+void State::setEmptySetup(const BranchEnum& branch)
+{
+  ControlSetup emptyControlSetup;
+  emptyControlSetup[ControlLevel::Position] = false;
+  emptyControlSetup[ControlLevel::Velocity] = false;
+  emptyControlSetup[ControlLevel::Acceleration] = false;
+  emptyControlSetup[ControlLevel::Effort] = false;
+  controlSetups_[branch] = emptyControlSetup;
+}
+
+void State::setEmptySetup(const LimbEnum& limb)
+{
+  setEmptySetup(quadruped_model::getBranchEnumFromLimbEnum(limb));
 }
 
 } /* namespace free_gait */
