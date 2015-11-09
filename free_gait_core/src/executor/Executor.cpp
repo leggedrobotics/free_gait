@@ -76,7 +76,6 @@ bool Executor::advance(double dt)
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 
-
 //  if (queue_.hasSwitchedStep() && !queue_.getCurrentStep()->isComplete()) {
 //    completer_->complete(*queue_.getCurrentStep());
 //    // Update actuation type and robot state.
@@ -158,6 +157,7 @@ bool Executor::updateStateWithMeasurements()
     // Update all states.
     for (const auto& limb : adapter_->getLimbs()) {
       state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
+      state_->setIgnoreContact(limb, !adapter_->isLegGrounded(limb));
     }
     state_->setAllJointPositions(adapter_->getAllJointPositions());
     state_->setAllJointVelocities(adapter_->getAllJointVelocities());

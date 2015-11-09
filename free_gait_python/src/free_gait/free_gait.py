@@ -226,6 +226,8 @@ def parse_joint_trajectory(yaml_object):
         joint_trajectory.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
         joint_trajectory.surface_normal = parse_vector(yaml_object['surface_normal'])
+    print joint_trajectory
+
     return joint_trajectory
 
 
