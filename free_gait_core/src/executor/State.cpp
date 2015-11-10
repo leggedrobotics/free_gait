@@ -28,13 +28,8 @@ void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<Bra
     ignoreForPoseAdaptation_[limb] = false;
   }
 
-  ControlSetup controlSetup;
-  controlSetup[ControlLevel::Position] = false;
-  controlSetup[ControlLevel::Velocity] = false;
-  controlSetup[ControlLevel::Acceleration] = false;
-  controlSetup[ControlLevel::Effort] = false;
   for (const auto& branch : branches) {
-    controlSetups_[branch] = controlSetup;
+    setEmptyControlSetup(branch);
   }
 }
 
@@ -154,7 +149,7 @@ void State::setControlSetup(const LimbEnum& limb, const ControlSetup& controlSet
   controlSetups_[quadruped_model::getBranchEnumFromLimbEnum(limb)] = controlSetup;
 }
 
-void State::setEmptySetup(const BranchEnum& branch)
+void State::setEmptyControlSetup(const BranchEnum& branch)
 {
   ControlSetup emptyControlSetup;
   emptyControlSetup[ControlLevel::Position] = false;
@@ -164,9 +159,9 @@ void State::setEmptySetup(const BranchEnum& branch)
   controlSetups_[branch] = emptyControlSetup;
 }
 
-void State::setEmptySetup(const LimbEnum& limb)
+void State::setEmptyControlSetup(const LimbEnum& limb)
 {
-  setEmptySetup(quadruped_model::getBranchEnumFromLimbEnum(limb));
+  setEmptyControlSetup(quadruped_model::getBranchEnumFromLimbEnum(limb));
 }
 
 } /* namespace free_gait */

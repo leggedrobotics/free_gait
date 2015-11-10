@@ -39,6 +39,7 @@ class AdapterBase
 
   //! Reading state of real robot.
   virtual bool isLegGrounded(const LimbEnum& limb) const = 0;
+  virtual JointPositions getJointPositions(const LimbEnum& limb) const = 0;
   virtual JointPositions getAllJointPositions() const = 0;
   virtual JointVelocities getAllJointVelocities() const = 0;
   virtual JointAccelerations getAllJointAccelerations() const = 0;

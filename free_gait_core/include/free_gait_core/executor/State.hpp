@@ -52,8 +52,8 @@ class State : public quadruped_model::QuadrupedState
   const ControlSetup& getControlSetup(const LimbEnum& limb) const;
   void setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup);
   void setControlSetup(const LimbEnum& limb, const ControlSetup& controlSetup);
-  void setEmptySetup(const BranchEnum& branch);
-  void setEmptySetup(const LimbEnum& limb);
+  void setEmptyControlSetup(const BranchEnum& branch);
+  void setEmptyControlSetup(const LimbEnum& limb);
 
  private:
   // TODO Extend QuadrupedState class with:
