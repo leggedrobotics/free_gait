@@ -68,6 +68,7 @@ add_library(${PROJECT_NAME}
    src/BaseShiftProfileRosWrapper.cpp
    src/ActionBase.cpp
    src/YamlActionLoader.cpp
+   src/StepGoalTools.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

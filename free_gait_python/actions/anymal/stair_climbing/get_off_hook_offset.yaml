@@ -1,4 +1,38 @@
 steps:
+# move feet in starting position
+# this makes the trajectory reversable
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: leftFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [0.11, 3.73, 1.96]
+     - name: rightFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [-0.11, 3.73, 1.96]
+     - name: leftHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [0.09, 2.74, -2.05]
+     - name: rightHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [-0.09, 2.74, -2.05]
+
 # place feet on stairs
  - step:
     ignore_base_shift: true
@@ -137,7 +171,7 @@ steps:
          - time: 5.0
            positions: [0.11, 6.77, -1.11]
          - time: 10.0
-           positions: [0.11, 7.0, -1.47]
+           positions: [0.11, 7.07, -1.57]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
@@ -146,7 +180,7 @@ steps:
          - time: 5.0
            positions: [-0.11, 6.77, -1.11]
          - time: 10.0
-           positions: [-0.11, 7.0, -1.47]
+           positions: [-0.11, 7.07, -1.57]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
@@ -155,7 +189,7 @@ steps:
          - time: 5.0
            positions: [0.09, 5.0, -4.0]
          - time: 10.0
-           positions: [0.09, 5.58, -4.74]
+           positions: [0.09, 5.58, -4.71]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
@@ -164,4 +198,4 @@ steps:
          - time: 5.0
            positions: [-0.09, 5.0, -4.0]
          - time: 10.0
-           positions: [-0.09, 5.58, -4.74]
+           positions: [-0.09, 5.58, -4.71]
