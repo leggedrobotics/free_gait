@@ -20,7 +20,7 @@ steps:
     swing_data:
      - name: rightHind
        profile:
-        target: [0.35, -0.27, 0.0]
+        target: [0.43, -0.27, 0.0]
  - step:
     base_shift_data:
      - name: "pre_step"
@@ -29,7 +29,7 @@ steps:
     swing_data:
      - name: leftHind
        profile:
-        target: [0.35, 0.27, 0.0]
+        target: [0.43, 0.27, 0.0]
 
 # Front legs on second step, then lower the body to 0.35
  - step:

@@ -9,30 +9,60 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.11, 1.66, -1.74]
+           positions: [0.11, 1.41, -1.52]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.11, 1.66, -1.74]
+           positions: [-0.11, 1.41, -1.52]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.09, 1.2, 0.46]
+           positions: [0.09, 0.88, 0.28]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.09, 1.2, 0.46]
+           positions: [-0.09, 0.88, 0.28]
 
-# Lift legs to rest on belly
+# wind up hind legs for climbing
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: rightHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 3.0
+           positions: [-0.09, 0.5, 1.46]
+         - time: 8.0
+           positions: [-0.09, -2.5, 2.35]
+         - time: 15.0
+           positions: [-0.09, -5.4, 0.28]
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: leftHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 3.0
+           positions: [-0.09, 0.5, 1.46]
+         - time: 8.0
+           positions: [-0.09, -2.5, 2.35]
+         - time: 15.0
+           positions: [-0.09, -5.4, 0.28]
+
+# Rest on belly
  - step:
     ignore_base_shift: true
     swing_data:
@@ -41,29 +71,37 @@ steps:
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 5.0
-           positions: [0.11, 3.22, -2.99]
+         - time: 5.0 # liftoff
+           positions: [0.11, 1.71, -1.76]
+         - time: 10.0
+           positions: [0.11, 2.35, -2.29]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 5.0
-           positions: [-0.11, 3.22, -2.99]
+         - time: 5.0 # liftoff
+           positions: [-0.11, 1.71, -1.76]
+         - time: 10.0
+           positions: [-0.11, 2.35, -2.29]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.09, 2.3, -0.19]
+           positions: [0.09, -4.85, -0.39]
+         - time: 10.0 # liftoff
+           positions: [0.09, -3.81, -1.11]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.09, 2.3, -0.19]
+           positions: [-0.09, -4.85, -0.39]
+         - time: 10.0 # liftoff
+           positions: [-0.09, -3.81, -1.11]
 
 # Move legs in climbing position
  - step:
@@ -89,11 +127,11 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.09, 2.74, -2.05]
+           positions: [0.09, -3.54, -2.05]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.09, 2.74, -2.05]
+           positions: [-0.09, -3.54, -2.05]

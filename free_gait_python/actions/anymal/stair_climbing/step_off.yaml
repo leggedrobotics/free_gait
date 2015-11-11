@@ -1,0 +1,45 @@
+steps:
+# step in place with hind legs
+# this makes the trajectory reversable
+ - step:
+    swing_data:
+     - name: rightHind
+       profile:
+        target: [1.994, -0.27, 1.505]
+ - step:
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [1.994, 0.27, 1.505]
+
+# step up on platform
+ - step:
+    swing_data:
+     - name: leftHind
+       profile:
+        target: [2.2, 0.27, 1.72]
+    base_shift_data:
+     - name: "post_step"
+       profile:
+        height: 0.4
+ - step:
+    swing_data:
+     - name: rightHind
+       profile:
+        target: [2.2, -0.27, 1.72]
+
+# square up on top
+ - step:
+    swing_data:
+     - name: rightFore
+       profile:
+        target: [2.9, -0.27, 1.72]
+ - step:
+    swing_data:
+     - name: leftFore
+       profile:
+        target: [2.9, 0.27, 1.72]
+    base_shift_data:
+     - name: "post_step"
+       profile:
+        height: 0.4

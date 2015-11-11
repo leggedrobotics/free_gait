@@ -50,6 +50,12 @@ void StepGoalTools::invertGoal(free_gait_msgs::StepGoal& goal) {
 		}
 
 		for (free_gait_msgs::BaseShiftData& base_shift_data : step.base_shift_data) {
+			if (base_shift_data.name == "pre_step") {
+				base_shift_data.name = "post_step";
+			} else if (base_shift_data.name == "post_step"){
+				base_shift_data.name = "pre_step";
+			}
+
 			if (!base_shift_data.trajectory.points.empty()) {
 				ROS_WARN("inverting base shift trajectories is not implemented!");
 				goal.steps.clear();
@@ -57,6 +63,21 @@ void StepGoalTools::invertGoal(free_gait_msgs::StepGoal& goal) {
 			}
 		}
 	}
+
+	goal.steps.pop_back();
+
+//	int i = 0;
+//	for (free_gait_msgs::Step step : goal.steps) {
+//		std::cout << "Step #" << i << ":\n";
+//		for (free_gait_msgs::SwingData swing_data : step.swing_data) {
+//			std::cout << " " << swing_data.name << "\n";
+//			for (trajectory_msgs::JointTrajectoryPoint& point : swing_data.joint_trajectory.points) {
+//				std::cout << "  time: " << point.time_from_start << ", position: [";
+//				std::cout << point.positions[0] << " " << point.positions[1] << " " << point.positions[2] << "]\n";
+//			}
+//		}
+//		i++;
+//	}
 }
 
 } /* namespace free_gate */

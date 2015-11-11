@@ -10,14 +10,14 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 0.1
-           positions: [0.11, 3.73, 1.96]
+           positions: [0.11, -2.55, 1.96]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 0.1
-           positions: [-0.11, 3.73, 1.96]
+           positions: [-0.11, -2.55, 1.96]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
@@ -43,14 +43,14 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 3.0 # touchdown feet
-           positions: [0.11, 4.18, 1.9]
+           positions: [0.11, -1.42, 1.86]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 3.0 # touchdown feet
-           positions: [-0.11, 4.18, 1.9]
+           positions: [-0.11, -1.42, 1.86]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
@@ -80,46 +80,100 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.11, 4.43, 2.14]
+           positions: [0.11, -0.92, 1.61]
          - time: 10.0
-           positions: [0.11, 4.92, 2.2]
-         - time: 15.0 # lift feet
-           positions: [0.11, 4.72, 2.45]
+           positions: [0.11, -0.53, 1.47]
+         - time: 15.0 # liftoff
+           positions: [0.11, -0.57, 1.71]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.11, 4.43, 2.14]
+           positions: [-0.11, -0.92, 1.61]
          - time: 10.0
-           positions: [-0.11, 4.92, 2.2]
-         - time: 15.0 # lift feet
-           positions: [-0.11, 4.72, 2.45]
+           positions: [-0.11, -0.53, 1.47]
+         - time: 15.0 # liftoff
+           positions: [-0.11, -0.57, 1.71]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.09, 1.9, -1.52]
+           positions: [0.09, 1.76, -1.51]
          - time: 10.0
-           positions: [0.09, 1.37, -0.53]
-         - time: 15.0 # lift feet
-           positions: [0.09, 1.56, -0.58]
+           positions: [0.09, 1.47, -0.78]
+         - time: 15.0 # liftoff
+           positions: [0.09, 1.65, -0.83]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.09, 1.9, -1.52]
+           positions: [-0.09, 1.76, -1.51]
          - time: 10.0
-           positions: [-0.09, 1.37, -0.53]
-         - time: 15.0 # lift feet
-           positions: [-0.09, 1.56, -0.58]
+           positions: [-0.09, 1.47, -0.78]
+         - time: 15.0 # liftoff
+           positions: [-0.09, 1.65, -0.83]
 
-# move feet in starting position
+# unwind front hip
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: rightFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [-0.11, -0.78, 1.85]
+         - time: 17.0
+           positions: [-0.11, -4.07, -2.8]
+         - time: 25.0
+           positions: [-0.11, -6.28, -1.26]
+         - time: 30.0
+           positions: [-0.11, -6.28, -0.2]
+     - name: leftFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 2.0
+           positions: [0.11, -0.78, 1.85]
+         - time: 17.0
+           positions: [0.11, -4.07, -2.8]
+         - time: 25.0
+           positions: [0.11, -6.28, -1.26]
+         - time: 30.0
+           positions: [0.11, -6.28, -0.2]
+
+# hinds up on last step
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: rightHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 3.0
+           positions: [-0.09, 2.0, -1.2]
+         - time: 10.0 # touchdown
+           positions: [-0.09, 4.18, 2.63]
+     - name: leftHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 3.0
+           positions: [0.09, 2.0, -1.2]
+         - time: 10.0 # touchdown
+           positions: [0.09, 4.18, 2.63]
+           
+# lift body up one last time
  - step:
     ignore_base_shift: true
     swing_data:
@@ -129,33 +183,33 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.11, 3.24, 2.5]
+           positions: [0.11, -5.79, -1.11]
          - time: 10.0
-           positions: [0.11, 3.73, 1.96]
+           positions: [0.11, -5.49, -1.57]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.11, 3.24, 2.5]
+           positions: [-0.11, -5.79, -1.11]
          - time: 10.0
-           positions: [-0.11, 3.73, 1.96]
+           positions: [-0.11, -5.49, -1.57]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 5.0 # lift feet
-           positions: [0.09, 2.15, -1.46]
+         - time: 5.0
+           positions: [0.09, 5.0, 2.28]
          - time: 10.0
-           positions: [0.09, 2.74, -2.05]
+           positions: [0.09, 5.5, 1.57]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 5.0 # lift feet
-           positions: [-0.09, 2.15, -1.46]
+         - time: 5.0
+           positions: [-0.09, 5.0, 2.28]
          - time: 10.0
-           positions: [-0.09, 2.74, -2.05]
+           positions: [-0.09, 5.5, 1.57]
