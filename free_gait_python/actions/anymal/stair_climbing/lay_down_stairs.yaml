@@ -75,25 +75,25 @@ steps:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.11, 4.19, 0.79]
+           positions: [0.11, 3.73, 1.96]
      - name: rightFore
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.11, 4.19, 0.79]
+           positions: [-0.11, 3.73, 1.96]
      - name: leftHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [0.09, 2.99, -1.81]
+           positions: [0.09, 2.74, -2.05]
      - name: rightHind
        no_touchdown: true
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
          - time: 5.0
-           positions: [-0.09, 2.99, -1.81]
+           positions: [-0.09, 2.74, -2.05]
