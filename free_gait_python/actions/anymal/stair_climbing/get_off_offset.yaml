@@ -163,6 +163,9 @@ steps:
            positions: [-0.09, -4.28, -1.2]
          - time: 10.0 # touchdown
            positions: [-0.09, -2.10, 2.63]
+ - step:
+    ignore_base_shift: true
+    swing_data:
      - name: leftHind
        no_touchdown: true
        joint_trajectory:

@@ -1,4 +1,38 @@
 steps:
+# move feet in starting position
+# this makes the trajectory reversable
+ - step:
+    ignore_base_shift: true
+    swing_data:
+     - name: leftFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [0.127, 0.632, -1.646]
+     - name: rightFore
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [-0.127, 0.632, -1.646]
+     - name: leftHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [0.144, -0.623, 1.623]
+     - name: rightHind
+       no_touchdown: true
+       joint_trajectory:
+        joint_names: [HAA, HFE, KFE]
+        knots:
+         - time: 0.1
+           positions: [-0.144, -0.623, 1.623]
+
 # Whole body leaning in
  - step:
     ignore_base_shift: true
@@ -41,9 +75,9 @@ steps:
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 3.0
+         - time: 4.0
            positions: [-0.09, 0.5, 1.46]
-         - time: 8.0
+         - time: 10.0
            positions: [-0.09, -2.5, 2.35]
          - time: 15.0
            positions: [-0.09, -5.4, 0.28]
@@ -55,9 +89,9 @@ steps:
        joint_trajectory:
         joint_names: [HAA, HFE, KFE]
         knots:
-         - time: 3.0
+         - time: 4.0
            positions: [-0.09, 0.5, 1.46]
-         - time: 8.0
+         - time: 10.0
            positions: [-0.09, -2.5, 2.35]
          - time: 15.0
            positions: [-0.09, -5.4, 0.28]
