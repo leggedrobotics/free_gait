@@ -8,7 +8,7 @@
 #ifndef FREE_GAIT_FREE_GAIT_ROS_SRC_STEPGOALTOOLS_HPP_
 #define FREE_GAIT_FREE_GAIT_ROS_SRC_STEPGOALTOOLS_HPP_
 
-#include "free_gait_msgs/StepGoal.h"
+#include "free_gait_msgs/ExecuteStepsGoal.h"
 #include "ros/ros.h"
 
 namespace free_gait {
@@ -18,7 +18,7 @@ public:
 	StepGoalTools() {};
 	virtual ~StepGoalTools() {};
 
-	void invertGoal(free_gait_msgs::StepGoal& goal);
+	void invertGoal(free_gait_msgs::ExecuteStepsGoal& goal);
 };
 
 } /* namespace free_gate */
