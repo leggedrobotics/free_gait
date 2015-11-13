@@ -5,9 +5,11 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-  loco
+  quadruped_model
+  ooqp_eigen_interface
   curves
   grid_map_core
+  loco
 )
 
 ## System dependencies are found with CMake's conventions
@@ -28,9 +30,11 @@ catkin_package(
     LIBRARIES
       ${PROJECT_NAME}
     CATKIN_DEPENDS
-      loco
+      quadruped_model
+      ooqp_eigen_interface
       curves
       grid_map_core
+      loco
     DEPENDS
       Eigen3
 )
@@ -56,19 +60,28 @@ include_directories(
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
-   src/BaseShiftData.cpp
-   src/BaseShiftProfile.cpp
-   src/BaseShiftSplineTrajectory.cpp
-   src/BaseShiftTrajectoryBase.cpp
-   src/Step.cpp
-   src/StepCompleter.cpp
-   src/StepQueue.cpp
-   src/SwingData.cpp
-   src/SwingTrajectoryBase.cpp
-   src/SwingProfile.cpp
-   src/SwingFootTrajectory.cpp
-   src/SwingJointTrajectory.cpp
-   src/PoseOptimization3d.cpp
+   src/base_motion/BaseMotionBase.cpp
+   src/base_motion/BaseAuto.cpp
+   src/leg_motion/LegMotionBase.cpp
+   src/leg_motion/EndEffectorMotionBase.cpp
+   src/leg_motion/JointMotionBase.cpp
+   src/leg_motion/Footstep.cpp
+   src/leg_motion/JointTrajectory.cpp
+#   src/BaseShiftProfile.cpp
+#   src/BaseShiftSplineTrajectory.cpp
+#   src/BaseShiftTrajectoryBase.cpp
+   src/step/Step.cpp
+   src/step/StepQueue.cpp
+   src/step/StepCompleter.cpp
+   src/executor/Executor.cpp
+   src/executor/State.cpp
+   src/executor/AdapterBase.cpp
+#   src/SwingData.cpp
+#   src/SwingTrajectoryBase.cpp
+#   src/SwingProfile.cpp
+#   src/SwingFootTrajectory.cpp
+#   src/SwingJointTrajectory.cpp
+   src/pose_optimization/PoseOptimization3d.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -77,7 +90,10 @@ target_link_libraries(${PROJECT_NAME}
 
 # This is required because loco's test don't work.
 add_library(free_gait_to_test
-  src/PoseOptimization3d.cpp
+#  src/pose_optimization/PoseOptimization3d.cpp
+  src/step/Step.cpp
+  src/base_motion/BaseMotionBase.cpp
+  src/leg_motion/LegMotionBase.cpp
 )
 
 target_link_libraries(free_gait_to_test
@@ -105,7 +121,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 ## Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
-  test/PoseOptimization3dTest.cpp
+  #test/PoseOptimization3dTest.cpp
+  test/StepTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test

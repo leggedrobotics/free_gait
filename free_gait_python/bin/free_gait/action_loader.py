@@ -26,7 +26,7 @@ class ActionLoader:
         self.action_server_topic = '/locomotion_controller/step'
         self.request = None
         self._load_parameters()
-        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.StepAction)
+        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.action = None
         
     def _load_parameters(self):
@@ -86,7 +86,7 @@ class ActionLoader:
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
-        goal = load_from_file(file_path, self.default_frame_id)
+        goal = load_action_from_file(file_path, self.default_frame_id)
         if goal == None:
             rospy.logerr('Could not load action from YAML file.')
         self.action = SimpleAction(self.client, goal)

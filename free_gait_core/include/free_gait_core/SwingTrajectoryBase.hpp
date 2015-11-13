@@ -42,12 +42,6 @@ class SwingTrajectoryBase
   virtual ~SwingTrajectoryBase();
 
   /*!
-   * Deep copy clone.
-   * @return a clone of this class.
-   */
-  virtual std::unique_ptr<SwingTrajectoryBase> clone() const = 0;
-
-  /*!
    * Returns the type of the swing trajectory.
    * @return the type of the swing trajectory.
    */

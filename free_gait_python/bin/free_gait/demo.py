@@ -34,7 +34,7 @@ def step_client():
     baseShiftData.profile.height = 0.35
     step.base_shift_data.append(baseShiftData)
     swingData = free_gait_msgs.msg.SwingData()
-    swingData.name = "rightFore";
+    swingData.name = "RF_LEG";
     swingData.profile.target.header.frame_id = "map"
     swingData.profile.target.point = geometry_msgs.msg.Point(0.279204123175, -0.2189, 0.02491)
     step.swing_data.append(swingData)
@@ -45,7 +45,7 @@ def step_client():
     step = free_gait_msgs.msg.Step()
     step.step_number = 3
     swingData = free_gait_msgs.msg.SwingData()
-    swingData.name = "rightHind";
+    swingData.name = "RH_LEG";
     swingData.profile.target.header.frame_id = "map"
     swingData.profile.target.point = geometry_msgs.msg.Point(-0.279204123175, -0.2189, 0.02491)
     swingData.profile.height = 0.4
@@ -58,7 +58,7 @@ def step_client():
     step = free_gait_msgs.msg.Step()
     step.step_number = 4
     swingData = free_gait_msgs.msg.SwingData()
-    swingData.name = "leftFore";
+    swingData.name = "LF_LEG";
     swingData.trajectory.header.frame_id = "map"
     swingData.trajectory.joint_names.append(swingData.name)
     point1 = trajectory_msgs.msg.MultiDOFJointTrajectoryPoint()
@@ -84,7 +84,7 @@ def step_client():
 #     # High, slow step
 #     step2 = free_gait_msgs.msg.StepData()
 #     step2.step_number = 2
-#     step2.leg_names.append("rightHind")
+#     step2.leg_names.append("RH_LEG")
 #     step2.swing_durations.append(rospy.Duration(3.5))
 #     step2.positions.append(geometry_msgs.msg.Point(-0.279204123175, -0.2189, 0.02491))
 #     step2.normals.append(geometry_msgs.msg.Vector3(0.0, 0.0, 1.0))
@@ -94,7 +94,7 @@ def step_client():
 #     # Slow and fast shift
 #     step3 = free_gait_msgs.msg.StepData()
 #     step3.step_number = 3
-#     step3.leg_names.append("leftFore")
+#     step3.leg_names.append("LF_LEG")
 #     step3.swing_durations.append(rospy.Duration(1.5))
 #     step3.positions.append(geometry_msgs.msg.Point(0.279204123175, 0.2189, 0.02491))
 #     step3.normals.append(geometry_msgs.msg.Vector3(0.0, 0.0, 1.0))
@@ -108,8 +108,8 @@ def step_client():
 #     # Trot
 #     step4 = free_gait_msgs.msg.StepData()
 #     step4.step_number = 1
-#     step4.leg_names.append("rightHind")
-#     step4.leg_names.append("leftFore")
+#     step4.leg_names.append("RH_LEG")
+#     step4.leg_names.append("LF_LEG")
 #     step4.swing_durations.append(rospy.Duration(0.3))
 #     step4.swing_durations.append(step4.swing_durations[0])
 #     step4.positions.append(geometry_msgs.msg.Point(-0.279, -0.218, 0.0249))
@@ -127,8 +127,8 @@ def step_client():
 #     # Asymmetric trot
 #     step4 = free_gait_msgs.msg.StepData()
 #     step4.step_number = 1
-#     step4.leg_names.append("leftHind")
-#     step4.leg_names.append("rightFore")
+#     step4.leg_names.append("LH_LEG")
+#     step4.leg_names.append("RF_LEG")
 #     step4.swing_durations.append(rospy.Duration(0.2))
 #     step4.swing_durations.append(rospy.Duration(0.7))
 #     step4.positions.append(geometry_msgs.msg.Point(-0.279, 0.218, 0.0249))
