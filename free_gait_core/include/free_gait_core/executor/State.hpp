@@ -46,7 +46,20 @@ class State : public quadruped_model::QuadrupedState
   const JointPositions getJointPositions(const LimbEnum& limb) const;
   void setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
+
+  const JointVelocities getJointVelocities(const LimbEnum& limb) const;
+  void setJointVelocities(const LimbEnum& limb, const JointVelocities& jointVelocities);
   void setAllJointVelocities(const JointVelocities& jointVelocities);
+
+  const JointAccelerations getJointAccelerations(const LimbEnum& limb) const;
+  const JointAccelerations& getAllJointAccelerations() const;
+  void setJointAccelerations(const LimbEnum& limb, const JointAccelerations& jointAccelerations);
+  void setAllJointAccelerations(const JointAccelerations& jointAccelerations);
+
+  const JointEfforts getJointEfforts(const LimbEnum& limb) const;
+  const JointEfforts& getAllJointEfforts() const;
+  void setJointEfforts(const LimbEnum& limb, const JointEfforts& jointEfforts);
+  void setAllJointEfforts(const JointEfforts& jointEfforts);
 
   const ControlSetup& getControlSetup(const BranchEnum& branch) const;
   const ControlSetup& getControlSetup(const LimbEnum& limb) const;
@@ -57,7 +70,8 @@ class State : public quadruped_model::QuadrupedState
 
  private:
   // TODO Extend QuadrupedState class with:
-  JointEfforts jointTorques_;
+  JointEfforts jointEfforts_;
+  JointAccelerations jointAccelerations_;
   LinearAcceleration linearAccelerationBaseInWorldFrame_;
   AngularAcceleration angularAccelerationBaseInBaseFrame_;
 

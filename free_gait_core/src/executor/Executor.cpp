@@ -175,6 +175,8 @@ bool Executor::initializeStateWithRobot()
 
   state_->setAllJointPositions(adapter_->getAllJointPositions());
   state_->setAllJointVelocities(adapter_->getAllJointVelocities());
+//  state_->setAllJointAccelerations(adapter_->getAllJointAccelerations()); // TODO
+  state_->setAllJointEfforts(adapter_->getAllJointEfforts());
   state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
   state_->setOrientationWorldToBase(adapter_->getOrientationWorldToBase());
 
@@ -198,6 +200,12 @@ bool Executor::updateStateWithMeasurements()
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
       state_->setJointPositions(limb, adapter_->getJointPositions(limb));
+    } else if (!controlSetup.at(ControlLevel::Velocity)) {
+      state_->setJointVelocities(limb, adapter_->getJointVelocities(limb));
+    } else if (!controlSetup.at(ControlLevel::Acceleration)) {
+//      state_->setJointAccelerations(limb, adapter_->getJointAccelerations(limb));
+    } else if (!controlSetup.at(ControlLevel::Effort)) {
+      state_->setJointEfforts(limb, adapter_->getJointEfforts(limb));
     }
   }
 
@@ -288,9 +296,10 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::Joints:
       {
         const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
-        if (controlSetup[ControlLevel::Position]) {
-          state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
-        }
+        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
+//        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
+//        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
+        if (controlSetup[ControlLevel::Effort]) state_->setJointEfforts(limb, jointMotion.evaluateEffort(time));
         break;
       }
 

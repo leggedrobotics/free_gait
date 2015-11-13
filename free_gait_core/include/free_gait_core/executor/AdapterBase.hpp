@@ -41,8 +41,11 @@ class AdapterBase
   virtual bool isLegGrounded(const LimbEnum& limb) const = 0;
   virtual JointPositions getJointPositions(const LimbEnum& limb) const = 0;
   virtual JointPositions getAllJointPositions() const = 0;
+  virtual JointVelocities getJointVelocities(const LimbEnum& limb) const = 0;
   virtual JointVelocities getAllJointVelocities() const = 0;
+  virtual JointAccelerations getJointAccelerations(const LimbEnum& limb) const = 0;
   virtual JointAccelerations getAllJointAccelerations() const = 0;
+  virtual JointEfforts getJointEfforts(const LimbEnum& limb) const = 0;
   virtual JointEfforts getAllJointEfforts() const = 0;
   virtual const Position& getPositionWorldToBaseInWorldFrame() const = 0;
   virtual const RotationQuaternion& getOrientationWorldToBase() const = 0;
