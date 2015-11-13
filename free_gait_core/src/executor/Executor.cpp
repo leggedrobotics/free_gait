@@ -196,43 +196,23 @@ bool Executor::updateStateWithMeasurements()
 
   for (const auto& limb : adapter_->getLimbs()) {
     const auto& controlSetup = state_->getControlSetup(limb);
-    if (!controlSetup[ControlLevel::Position])
+    if (!controlSetup.at(ControlLevel::Position)) {
+      state_->setJointPositions(limb, adapter_->getJointPositions(limb));
+    }
   }
 
-    state_->setAllJointPositions(adapter_->getAllJointPositions());
-    state_->setAllJointVelocities(adapter_->getAllJointVelocities());
-    // TODO Copy also acceleraitons and torques.
+  const auto& controlSetup = state_->getControlSetup(BranchEnum::BASE);
+  if (!controlSetup.at(ControlLevel::Position)) {
     state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
     state_->setOrientationWorldToBase(adapter_->getOrientationWorldToBase());
+  }
+
+  state_->setAllJointVelocities(adapter_->getAllJointVelocities());
+  // TODO Copy also acceleraitons and torques.
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
-    return true;
-
-//  } else {
-    // Update uncontrolled steps.
-//  }
-
-
-
-
-
-
-
-//    JointEfforts jointTorques_;
-//    LinearAcceleration linearAccelerationBaseInWorldFrame_;
-//    AngularAcceleration angularAccelerationBaseInBaseFrame_;
-//
-//    // Free gait specific.
-//    std::unordered_map<BranchEnum, ControlSetup, EnumClassHash> controlSetups_;
-//    Force netForceOnBaseInBaseFrame_;
-//    Torque netTorqueOnBaseInBaseFrame_;
-//    std::unordered_map<LimbEnum, bool, EnumClassHash> isSupportLegs_;
-//    std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
-//    std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
-//    std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
-//    bool robotExecutionStatus_;
-
   return true;
+
 }
 
 bool Executor::writeIgnoreContact()

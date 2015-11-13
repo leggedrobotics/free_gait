@@ -107,7 +107,6 @@ const JointPositions State::getJointPositions(const LimbEnum& limb) const
   // TODO This is not nice.
   unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
   return JointPositions(quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex));
-//  return quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex);
 }
 
 void State::setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions)
