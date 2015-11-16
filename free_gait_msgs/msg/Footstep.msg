@@ -14,7 +14,7 @@ float64 profile_height
 # If 0, default is used.
 float64 average_velocity
 
-# Type of the swing trajectory ('line', 'triangle', 'square', etc.).
+# Type of the swing trajectory ('triangle', 'square', etc.).
 # If empty, default is used.
 string profile_type
 

@@ -14,6 +14,7 @@
 // ROS
 #include <free_gait_msgs/Step.h>
 #include <free_gait_msgs/Footstep.h>
+#include <free_gait_msgs/LegMode.h>
 #include <free_gait_msgs/JointTrajectory.h>
 #include <free_gait_msgs/BaseAuto.h>
 
@@ -36,6 +37,7 @@ class StepRosConverter
    */
   bool fromMessage(const free_gait_msgs::Step& message, Step& step);
   bool fromMessage(const free_gait_msgs::Footstep& message, Footstep& footstep);
+  bool fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode);
   bool fromMessage(const free_gait_msgs::JointTrajectory& message, JointTrajectory& jointTrajectory);
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
 

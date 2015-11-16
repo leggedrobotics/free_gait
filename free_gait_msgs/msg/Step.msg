@@ -5,6 +5,9 @@
 # Step defined by foothold position and swing profile.
 free_gait_msgs/Footstep[] footstep
 
+# Switch the leg mode between support leg and non-support leg mode.
+free_gait_msgs/LegMode[] leg_mode
+
 # Move end effector to a target point, with target velocity, or acceleration.
 free_gait_msgs/EndEffectorTarget[] end_effector_target
 
