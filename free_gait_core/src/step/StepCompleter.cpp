@@ -77,6 +77,18 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
     jointMotion.updateStartPosition(startPosition);
   }
+  if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
+    JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
+    jointMotion.updateStartVelocity(startVelocity);
+  }
+  if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
+    JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
+    jointMotion.updateStartAcceleration(startAcceleration);
+  }
+  if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
+    JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+    jointMotion.updateStartEfforts(startEffort);
+  }
   jointMotion.compute(state, step, *adapter_);
   return true;
 }
