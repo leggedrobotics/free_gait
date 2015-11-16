@@ -17,6 +17,7 @@
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 #include "free_gait_core/leg_motion/JointMotionBase.hpp"
 #include "free_gait_core/leg_motion/Footstep.hpp"
+#include "free_gait_core/leg_motion/LegMode.hpp"
 
 namespace free_gait {
 
@@ -30,6 +31,7 @@ class StepCompleter
   bool complete(const State& state, const Step& step, JointMotionBase& jointMotion) const;
   bool complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const;
   void setParameters(Footstep& footTarget) const;
+  void setParameters(LegMode& legMode) const;
   void setParameters(BaseAuto& baseAuto) const;
 
  protected:
@@ -40,6 +42,12 @@ class StepCompleter
     double profileHeight = 0.06;
     double averageVelocity = 0.05;
   } footTargetParameters_;
+
+  struct LegModeParameters
+  {
+    double duration = 0.3;
+    std::string frameId = "base";
+  } legModeParameters_;
 
   struct BaseAutoParameters
   {

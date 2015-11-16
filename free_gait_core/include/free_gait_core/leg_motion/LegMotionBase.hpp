@@ -34,6 +34,7 @@ class LegMotionBase
   enum class Type
   {
     Footstep,
+    LegMode,
     EndEffectorTarget,
     EndEffectorTrajectory,
     JointTarget,
