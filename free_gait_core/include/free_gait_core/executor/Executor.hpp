@@ -43,6 +43,7 @@ class Executor
 
  private:
   bool checkRobotStatus();
+  bool initializeStateWithRobot();
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
   bool writeSupportLegs();

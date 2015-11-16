@@ -23,13 +23,14 @@ class State : public quadruped_model::QuadrupedState
   virtual ~State();
   friend std::ostream& operator<<(std::ostream& out, const State& state);
 
-  virtual void initialize(const std::vector<LimbEnum>& limbs);
+  virtual void initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches);
 
   bool getRobotExecutionStatus() const;
   void setRobotExecutionStatus(bool robotExecutionStatus);
 
   bool isSupportLeg(const LimbEnum& limb) const;
   void setSupportLeg(const LimbEnum& limb, bool isSupportLeg);
+  unsigned int getNumberOfSupportLegs() const;
 
   bool isIgnoreContact(const LimbEnum& limb) const;
   void setIgnoreContact(const LimbEnum& limb, bool ignoreContact);
@@ -46,11 +47,31 @@ class State : public quadruped_model::QuadrupedState
   void setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
 
+  const JointVelocities getJointVelocities(const LimbEnum& limb) const;
+  void setJointVelocities(const LimbEnum& limb, const JointVelocities& jointVelocities);
   void setAllJointVelocities(const JointVelocities& jointVelocities);
+
+  const JointAccelerations getJointAccelerations(const LimbEnum& limb) const;
+  const JointAccelerations& getAllJointAccelerations() const;
+  void setJointAccelerations(const LimbEnum& limb, const JointAccelerations& jointAccelerations);
+  void setAllJointAccelerations(const JointAccelerations& jointAccelerations);
+
+  const JointEfforts getJointEfforts(const LimbEnum& limb) const;
+  const JointEfforts& getAllJointEfforts() const;
+  void setJointEfforts(const LimbEnum& limb, const JointEfforts& jointEfforts);
+  void setAllJointEfforts(const JointEfforts& jointEfforts);
+
+  const ControlSetup& getControlSetup(const BranchEnum& branch) const;
+  const ControlSetup& getControlSetup(const LimbEnum& limb) const;
+  void setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup);
+  void setControlSetup(const LimbEnum& limb, const ControlSetup& controlSetup);
+  void setEmptyControlSetup(const BranchEnum& branch);
+  void setEmptyControlSetup(const LimbEnum& limb);
 
  private:
   // TODO Extend QuadrupedState class with:
-  JointEfforts jointTorques_;
+  JointEfforts jointEfforts_;
+  JointAccelerations jointAccelerations_;
   LinearAcceleration linearAccelerationBaseInWorldFrame_;
   AngularAcceleration angularAccelerationBaseInBaseFrame_;
 

@@ -89,7 +89,7 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
   out << "Type: " << legMotion.getType() << std::endl;
   out << "Control setup: ";
   for (const auto& controlSetup : legMotion.getControlSetup()) {
-    if (controlSetup.second) out << controlSetup.first;
+    if (controlSetup.second) out << controlSetup.first << " ";
   }
   out << std::endl;
   switch (legMotion.getType()) {
