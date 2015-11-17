@@ -78,16 +78,16 @@ class Footstep : public EndEffectorMotionBase
   friend class StepRosConverter;
 
  private:
-  void generateStraightKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
-  void generateTriangleKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
-  void generateSquareKnots(std::vector<Time>& times, std::vector<ValueType>& values) const;
+  void generateStraightKnots(std::vector<ValueType>& values) const;
+  void generateTriangleKnots(std::vector<ValueType>& values) const;
+  void generateSquareKnots(std::vector<ValueType>& values) const;
+  void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
 
   Position start_;
   Position target_;
   std::string frameId_;
   double profileHeight_;
   double averageVelocity_;
-  double duration_;
   std::string profileType_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
