@@ -68,8 +68,6 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
     Position startPositionInWorldFrame = adapter_->getPositionWorldToBaseInWorldFrame() + adapter_->getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
-    std::cout << "startPositionInDesiredFrame: " << startPositionInDesiredFrame << std::endl;
-    std::cout << "vs. real pos: " << adapter_->getPositionWorldToFootInWorldFrame(endEffectorMotion.getLimb()) << std::endl;
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
   endEffectorMotion.compute(state, step, *adapter_);
