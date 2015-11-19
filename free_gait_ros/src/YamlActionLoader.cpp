@@ -348,6 +348,9 @@ trajectory_msgs::JointTrajectory YamlActionLoader::parseJointTrajectories(YAML::
 		for (YAML::Node position : knot["positions"]) {
 			point.positions.push_back(position.as<double>());
 		}
+		for (YAML::Node effort : knot["effort"]) {
+			point.effort.push_back(effort.as<double>());
+		}
 		joint_trajectory.points.push_back(point);
 	}
 	return joint_trajectory;
