@@ -45,7 +45,7 @@ class StepCompleter
 
   struct LegModeParameters
   {
-    double duration = 0.3;
+    double duration = 0.0025;
     std::string frameId = "base";
   } legModeParameters_;
 

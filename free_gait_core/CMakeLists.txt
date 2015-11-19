@@ -60,6 +60,7 @@ include_directories(
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
+   src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp
    src/leg_motion/LegMotionBase.cpp

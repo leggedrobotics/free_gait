@@ -20,8 +20,10 @@ LegMode::LegMode(LimbEnum limb)
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       computed_(false),
-      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+      controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
+
+// TODO Should all position stuff be removed? Test on hardware first.
 {
 }
 
@@ -42,6 +44,7 @@ const ControlSetup LegMode::getControlSetup() const
 
 void LegMode::updateStartPosition(const Position& startPosition)
 {
+  std::cout << "LegMode::updateStartPosition " <<  startPosition << std::endl;
   computed_ = false;
   position_ = startPosition;
 }

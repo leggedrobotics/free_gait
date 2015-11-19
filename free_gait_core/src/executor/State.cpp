@@ -198,6 +198,19 @@ const ControlSetup& State::getControlSetup(const LimbEnum& limb) const
   return controlSetups_.at(quadruped_model::getBranchEnumFromLimbEnum(limb));
 }
 
+bool State::isControlSetupEmpty(const BranchEnum& branch) const
+{
+  for (const auto& level : controlSetups_.at(branch)) {
+    if (level.second) return false;
+  }
+  return true;
+}
+
+bool State::isControlSetupEmpty(const LimbEnum& limb) const
+{
+  return isControlSetupEmpty(quadruped_model::getBranchEnumFromLimbEnum(limb));
+}
+
 void State::setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup)
 {
   controlSetups_[branch] = controlSetup;

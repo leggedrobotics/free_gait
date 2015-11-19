@@ -70,8 +70,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-  endEffectorMotion.compute(state, step, *adapter_);
-  return true;
+  return endEffectorMotion.compute(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
@@ -92,8 +91,7 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
     jointMotion.updateStartEfforts(startEffort);
   }
-  jointMotion.compute(state, step, *adapter_);
-  return true;
+  return jointMotion.compute(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
@@ -106,8 +104,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  baseMotion.compute(state, step, queue, *adapter_);
-  return true;
+  return baseMotion.compute(state, step, queue, *adapter_);
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const

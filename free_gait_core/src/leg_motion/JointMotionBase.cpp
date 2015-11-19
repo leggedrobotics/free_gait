@@ -69,4 +69,9 @@ const JointEfforts JointMotionBase::evaluateEffort(const double time) const
   throw std::runtime_error("JointMotionBase::evaluateEffort() not implemented.");
 }
 
+bool JointMotionBase::isIgnoreForPoseAdaptation() const
+{
+  return true;
+}
+
 } /* namespace */

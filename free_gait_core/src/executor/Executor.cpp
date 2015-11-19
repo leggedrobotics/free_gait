@@ -57,7 +57,10 @@ bool Executor::advance(double dt)
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
 
   while (hasSwitchedStep) {
-    completer_->complete(*state_, queue_, queue_.getCurrentStep());
+    if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+      std::cerr << "Executor::advance: Could not complete step." << std::endl;
+      return false;
+    }
 
     if (hasSwitchedStep) {
       std::cout << "Switched step state to:" << std::endl;
@@ -68,6 +71,7 @@ bool Executor::advance(double dt)
   }
 
   if (!writeIgnoreContact()) return false;
+  if (!writeIgnoreForPoseAdaptation()) return false;
   if (!writeSupportLegs()) return false;
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
@@ -191,6 +195,19 @@ bool Executor::writeIgnoreContact()
     if (step.hasLegMotion(limb)) {
       bool ignoreContact = step.getLegMotion(limb).isIgnoreContact();
       state_->setIgnoreContact(limb, ignoreContact);
+    }
+  }
+  return true;
+}
+
+bool Executor::writeIgnoreForPoseAdaptation()
+{
+  if (queue_.empty()) return true;
+  const Step& step = queue_.getCurrentStep();
+  for (const auto& limb : adapter_->getLimbs()) {
+    if (step.hasLegMotion(limb)) {
+      bool ignoreForPoseAdaptation = step.getLegMotion(limb).isIgnoreForPoseAdaptation();
+      state_->setIgnoreForPoseAdaptation(limb, ignoreForPoseAdaptation);
     }
   }
   return true;
