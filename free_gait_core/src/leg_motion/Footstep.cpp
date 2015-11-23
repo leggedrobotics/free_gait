@@ -18,7 +18,6 @@ Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
       averageVelocity_(0.0),
-      duration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       computed_(false),
@@ -50,22 +49,20 @@ void Footstep::updateStartPosition(const Position& startPosition)
 
 bool Footstep::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
-  double distance = (target_ - start_).norm(); // TODO Add better timing/distance method.
-  duration_ = distance / averageVelocity_;
-
-  std::vector<Time> times;
   std::vector<ValueType> values;
-
   if (profileType_ == "triangle") {
-    generateTriangleKnots(times, values);
+    generateTriangleKnots(values);
   } else if (profileType_ == "square") {
-    generateSquareKnots(times, values);
+    generateSquareKnots(values);
   } else if (profileType_ == "straight") {
-    generateStraightKnots(times, values);
+    generateStraightKnots(values);
   } else {
     ROCO_ERROR_STREAM("Swing profile of type '" << profileType_ << "' not supported.");
     return false;
   }
+
+  std::vector<Time> times;
+  computeTiming(values, times);
 
   trajectory_.fitCurve(times, values);
   computed_ = true;
@@ -79,7 +76,7 @@ const Position Footstep::evaluatePosition(const double time) const
 
 double Footstep::getDuration() const
 {
-  return duration_;
+  return trajectory_.getMaxTime() - trajectory_.getMinTime();
 }
 
 const Position Footstep::getTargetPosition() const
@@ -106,34 +103,28 @@ std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
 {
   out << "Height: " << footstep.profileHeight_ << std::endl;
   out << "Average velocity: " << footstep.averageVelocity_ << std::endl;
-  out << "Duration: " << footstep.duration_ << std::endl;
+  out << "Duration: " << footstep.getDuration() << std::endl;
   out << "Type: " << footstep.profileType_ << std::endl;
   out << "Start Position: " << footstep.start_ << std::endl;
   out << "Target Position: " << footstep.target_ << std::endl;
   return out;
 }
 
-void Footstep::generateStraightKnots(std::vector<Time>& times,
-                                     std::vector<ValueType>& values) const
+void Footstep::generateStraightKnots(std::vector<ValueType>& values) const
 {
   // Knot 1.
-  times.push_back(0.0);
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(duration_);
   values.push_back(target_.vector());
 }
 
-void Footstep::generateTriangleKnots(std::vector<Time>& times,
-                                     std::vector<ValueType>& values) const
+void Footstep::generateTriangleKnots(std::vector<ValueType>& values) const
 {
   // Knot 1.
-  times.push_back(0.0);
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(0.5 * duration_);
   // Interpolate on the xy-plane.
   Position knot2 = start_ + 0.5 * (target_ - start_);
   // Apex height.
@@ -142,34 +133,36 @@ void Footstep::generateTriangleKnots(std::vector<Time>& times,
   values.push_back(knot2.vector());
 
   // Knot 3.
-  times.push_back(duration_);
   values.push_back(target_.vector());
 }
 
-void Footstep::generateSquareKnots(std::vector<Time>& times,
-                                   std::vector<ValueType>& values) const
+void Footstep::generateSquareKnots(std::vector<ValueType>& values) const
 {
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
   double height = basis + profileHeight_;
 
   // Knot 1.
-  times.push_back(0.0);
   values.push_back(start_.vector());
 
   // Knot 2.
-  times.push_back(1.0/3.0 * duration_);
   Position knot2(start_.x(), start_.y(), height);
   values.push_back(knot2.vector());
 
   // Knot 3.
-  times.push_back(2.0/3.0 * duration_);
   Position knot3(target_.x(), target_.y(), height);
   values.push_back(knot3.vector());
 
   // Knot 4.
-  times.push_back(duration_);
   values.push_back(target_.vector());
 }
 
-} /* namespace */
+void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const
+{
+  times.push_back(0.0);
+  for (unsigned int i = 1; i < values.size(); ++i) {
+    double distance = (values[i] - values[i-1]).norm();
+    times.push_back(times[i-1] + distance / averageVelocity_);
+  }
+}
 
+} /* namespace */

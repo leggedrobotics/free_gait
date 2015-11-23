@@ -59,6 +59,8 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
         for motion_parameter in step_parameter:
             if 'footstep' in motion_parameter:
                 step.footstep.append(parse_footstep(motion_parameter['footstep']))
+            if 'leg_mode' in motion_parameter:
+                step.leg_mode.append(parse_leg_mode(motion_parameter['leg_mode']))
             if 'joint_trajectory' in motion_parameter:
                 step.joint_trajectory.append(parse_joint_trajectory(motion_parameter['joint_trajectory']))
             if 'base_auto' in motion_parameter:
@@ -214,6 +216,23 @@ def parse_footstep(yaml_object):
     return footstep
 
 
+def parse_leg_mode(yaml_object):
+    leg_mode = free_gait_msgs.msg.LegMode()
+    if not yaml_object:
+        return leg_mode
+    if 'name' in yaml_object:
+        leg_mode.name = yaml_object['name']
+    if 'support_leg' in yaml_object:
+        leg_mode.support_leg = yaml_object['support_leg']
+    if 'duration' in yaml_object:
+        leg_mode.duration = parse_duration(yaml_object['duration'])
+    if 'surface_normal' in yaml_object:
+        leg_mode.surface_normal = parse_vector(yaml_object['surface_normal'])
+    if 'ignore_for_pose_adaptation' in yaml_object:
+        leg_mode.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
+    return leg_mode
+
+
 def parse_joint_trajectory(yaml_object):
     joint_trajectory = free_gait_msgs.msg.JointTrajectory()
     if not yaml_object:
@@ -244,6 +263,10 @@ def parse_base_auto(yaml_object):
     if 'support_margin' in yaml_object:
         base_auto.support_margin = yaml_object['support_margin']
     return base_auto
+
+
+def parse_duration(duration):
+    return rospy.Duration(duration)
 
 
 def parse_point(yaml_object):
@@ -306,8 +329,14 @@ def parse_joint_trajectories(yaml_object):
     for knot in yaml_object['knots']:
         point = trajectory_msgs.msg.JointTrajectoryPoint()
         point.time_from_start = rospy.Time(knot['time'])
-        for position in knot['positions']:
-            point.positions.append(position)
+        if 'positions' in knot:
+            point.positions = knot['positions']
+        if 'velocities' in knot:
+            point.velocities = knot['velocities']
+        if 'accelerations' in knot:
+            point.accelerations = knot['accelerations']
+        if 'effort' in knot:
+            point.effort = knot['effort']
         joint_trajectory.points.append(point)
     
     return joint_trajectory

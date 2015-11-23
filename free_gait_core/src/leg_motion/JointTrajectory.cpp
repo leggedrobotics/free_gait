@@ -61,7 +61,19 @@ void JointTrajectory::updateStartAcceleration(const JointAccelerations& startAcc
 
 void JointTrajectory::updateStartEfforts(const JointEfforts& startEffort)
 {
-  throw std::runtime_error("JointTrajectory::updateStartEfforts() not implemented.");
+  computed_ = false;
+  auto& values = values_.at(ControlLevel::Effort);
+  auto& times = times_.at(ControlLevel::Effort);
+  if (times[0] == 0.0) {
+    for (size_t i = 0; i < values.size(); ++i) {
+      values[i][0] = startEffort(i);
+    }
+  } else {
+    times.insert(times.begin(), 0.0);
+    for (size_t i = 0; i < values.size(); ++i) {
+      values[i].insert(values[i].begin(), startEffort(i));
+    }
+  }
 }
 
 bool JointTrajectory::compute(const State& state, const Step& step, const AdapterBase& adapter)
@@ -110,7 +122,13 @@ const JointAccelerations JointTrajectory::evaluateAcceleration(const double time
 
 const JointEfforts JointTrajectory::evaluateEffort(const double time) const
 {
-  throw std::runtime_error("JointTrajectory::evaluateEffort() not implemented.");
+  const auto& trajectories = trajectories_.at(ControlLevel::Effort);
+  JointEfforts jointEfforts;
+  jointEfforts.toImplementation().resize((unsigned int) trajectories.size());
+  for (size_t i = 0; i < trajectories.size(); ++i) {
+    jointEfforts(i) = trajectories[i].evaluate(time);
+  }
+  return jointEfforts;
 }
 
 bool JointTrajectory::isIgnoreContact() const

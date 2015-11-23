@@ -77,19 +77,19 @@ bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& qu
 {
   if (!height_) {
     if (!computeHeight(state, adapter)) {
-      std::cerr << "BaseAuto::compute(): Could not compute height." << std::endl;
+      std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
       return false;
     }
   }
   if (!generateFootholdLists(state, step, queue, adapter)) {
-    std::cerr << "BaseAuto::compute(): Could not generate foothold lists." << std::endl;
+    std::cerr << "BaseAuto::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
   Position horizontalTargetPositionInWorldFrame;
   getAdaptiveHorizontalTargetPosition(state, adapter, horizontalTargetPositionInWorldFrame);
   getAdaptiveTargetPose(state, adapter, horizontalTargetPositionInWorldFrame, target_);
   if (!optimizePose(target_)) {
-    std::cerr << "BaseAuto::compute(): Could not compute pose optimization." << std::endl;
+    std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
     return false;
   }
   computeDuration();
@@ -125,10 +125,12 @@ bool BaseAuto::computeHeight(const State& state, const AdapterBase& adapter)
       double legHeight = -adapter.getPositionBaseToFootInBaseFrame(limb, state.getJointPositions(limb)).z();
       heightSum += legHeight;
       ++n;
+    } else {
     }
   }
   if (n == 0) return false;
   height_.reset(new double(heightSum / (double)(n)));
+  return true;
 }
 
 bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
@@ -332,6 +334,12 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
   out << "Target Position: " << baseAuto.target_.getPosition() << std::endl;
   out << "Target Orientation: " << baseAuto.target_.getRotation() << std::endl;
   out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.target_.getRotation()).getUnique().vector().transpose() << std::endl;
+  out << "Footholds in support: ";
+  for (const auto& f : baseAuto.footholdsInSupport_) out << f.first << " ";
+  out << std::endl;
+  out << "Footholds to reach: ";
+  for (const auto& f : baseAuto.footholdsToReach_) out << f.first << " ";
+  out << std::endl;
   return out;
 }
 

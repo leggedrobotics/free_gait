@@ -1,7 +1,7 @@
 /*
- * Footstep.hpp
+ * LegMode.hpp
  *
- *  Created on: Mar 6, 2015
+ *  Created on: Nov 16, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
@@ -12,23 +12,13 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
-// Curves
-#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
-
-// STD
-#include <string>
-#include <memory>
-
 namespace free_gait {
 
-class Footstep : public EndEffectorMotionBase
+class LegMode : public EndEffectorMotionBase
 {
  public:
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
-  typedef typename curves::Time Time;
-
-  Footstep(LimbEnum limb);
-  virtual ~Footstep();
+  LegMode(LimbEnum limb);
+  virtual ~LegMode();
 
   /*!
    * Deep copy clone.
@@ -73,29 +63,18 @@ class Footstep : public EndEffectorMotionBase
 
   bool isIgnoreForPoseAdaptation() const;
 
-  friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
+  friend std::ostream& operator << (std::ostream& out, const LegMode& legMode);
   friend class StepCompleter;
   friend class StepRosConverter;
 
  private:
-  void generateStraightKnots(std::vector<ValueType>& values) const;
-  void generateTriangleKnots(std::vector<ValueType>& values) const;
-  void generateSquareKnots(std::vector<ValueType>& values) const;
-  void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
-
-  Position start_;
-  Position target_;
+  Position position_;
   std::string frameId_;
-  double profileHeight_;
-  double averageVelocity_;
-  std::string profileType_;
+  double duration_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
 
   ControlSetup controlSetup_;
-
-  //! Foot trajectory.
-  curves::PolynomialSplineQuinticVector3Curve trajectory_;
 
   //! If trajectory is updated.
   bool computed_;

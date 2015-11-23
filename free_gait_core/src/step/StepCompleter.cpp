@@ -27,6 +27,9 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
       case LegMotionBase::Type::Footstep:
         setParameters(dynamic_cast<Footstep&>(*legMotion.second));
         break;
+      case LegMotionBase::Type::LegMode:
+        setParameters(dynamic_cast<LegMode&>(*legMotion.second));
+        break;
       default:
         break;
     }
@@ -67,8 +70,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-  endEffectorMotion.compute(state, step, *adapter_);
-  return true;
+  return endEffectorMotion.compute(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
@@ -77,8 +79,19 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
     jointMotion.updateStartPosition(startPosition);
   }
-  jointMotion.compute(state, step, *adapter_);
-  return true;
+  if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
+    JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
+    jointMotion.updateStartVelocity(startVelocity);
+  }
+  if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
+    JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
+    jointMotion.updateStartAcceleration(startAcceleration);
+  }
+  if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
+    JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+    jointMotion.updateStartEfforts(startEffort);
+  }
+  return jointMotion.compute(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
@@ -91,8 +104,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  baseMotion.compute(state, step, queue, *adapter_);
-  return true;
+  return baseMotion.compute(state, step, queue, *adapter_);
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const
@@ -107,6 +119,18 @@ void StepCompleter::setParameters(Footstep& footstep) const
     footstep.profileType_ = footTargetParameters_.profileType;
   if (footstep.averageVelocity_ == 0.0)
     footstep.averageVelocity_ = footTargetParameters_.averageVelocity;
+}
+
+void StepCompleter::setParameters(LegMode& legMode) const
+{
+  if (legMode.surfaceNormal_) {
+    if (*(legMode.surfaceNormal_) == Vector::Zero())
+      legMode.surfaceNormal_.reset(nullptr);
+  }
+  if (legMode.duration_ == 0.0)
+    legMode.duration_ = legModeParameters_.duration;
+  if (legMode.frameId_.empty())
+    legMode.frameId_ = legModeParameters_.frameId;
 }
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const

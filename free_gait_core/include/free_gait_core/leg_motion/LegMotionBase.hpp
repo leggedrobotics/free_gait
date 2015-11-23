@@ -10,6 +10,7 @@
 
 // Free Gait
 #include <free_gait_core/TypeDefs.hpp>
+#include <free_gait_core/TypePrints.hpp>
 #include <free_gait_core/step/Step.hpp>
 #include <free_gait_core/executor/State.hpp>
 #include <free_gait_core/executor/AdapterBase.hpp>
@@ -34,6 +35,7 @@ class LegMotionBase
   enum class Type
   {
     Footstep,
+    LegMode,
     EndEffectorTarget,
     EndEffectorTrajectory,
     JointTarget,

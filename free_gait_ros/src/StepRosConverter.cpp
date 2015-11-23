@@ -38,6 +38,13 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
     step.addLegMotion(limb, footstep);
   }
 
+  for (const auto& legModeMessage : message.leg_mode) {
+      const auto& limb = executor_->getAdapter().getLimbEnumFromLimbString(legModeMessage.name);
+      LegMode legMode(limb);
+      if (!fromMessage(legModeMessage, legMode)) return false;
+      step.addLegMotion(limb, legMode);
+    }
+
   for (const auto& jointTrajectoryMessage : message.joint_trajectory) {
     const auto& limb = executor_->getAdapter().getLimbEnumFromLimbString(jointTrajectoryMessage.name);
     JointTrajectory jointTrajectory(limb);
@@ -84,6 +91,31 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 
   // Ignore for pose adaptation.
   foostep.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
+
+  return true;
+}
+
+bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode)
+{
+  // Limb.
+  legMode.limb_ = executor_->getAdapter().getLimbEnumFromLimbString(message.name);
+
+  // Frame id. // TODO
+//  foostep.frameId_ = message.target.header.frame_id;
+
+  // Support mode.
+  legMode.ignoreContact_ = !message.support_leg;
+
+  // Duration.
+  legMode.duration_ = ros::Duration(message.duration).toSec();
+
+  // Surface normal.
+  Vector surfaceNormal;
+  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  legMode.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Ignore for pose adaptation.
+  legMode.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
 
   return true;
 }

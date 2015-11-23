@@ -21,6 +21,7 @@ add_message_files(
    BaseTarget.msg
    BaseTrajectory.msg
    Footstep.msg
+   LegMode.msg
    EndEffectorTarget.msg
    EndEffectorTrajectory.msg
    JointTarget.msg
