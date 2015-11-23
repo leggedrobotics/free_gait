@@ -6,6 +6,7 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 #include <free_gait_core/executor/State.hpp>
+#include <free_gait_core/TypePrints.hpp>
 #include <quadruped_model/common/topology_conversions.hpp>
 
 namespace free_gait {
@@ -234,6 +235,12 @@ void State::setEmptyControlSetup(const BranchEnum& branch)
 void State::setEmptyControlSetup(const LimbEnum& limb)
 {
   setEmptyControlSetup(quadruped_model::getBranchEnumFromLimbEnum(limb));
+}
+
+std::ostream& operator<<(std::ostream& out, const State& state)
+{
+  out << "Ignore for pose adaptation: " << state.ignoreForPoseAdaptation_;
+  return out;
 }
 
 } /* namespace free_gait */

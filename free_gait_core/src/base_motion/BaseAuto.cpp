@@ -177,15 +177,17 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
       }
     } else {
       // Use current foot position.
-      footholdsToReach_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      if (!state.isIgnoreForPoseAdaptation(limb)) {
+        footholdsToReach_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      }
     }
   }
 
   // TODO: Delete as soon full pose optimization is done.
   footholdsForTerrain_ = footholdsToReach_;
-  for (const auto& limb : adapter.getLimbs()) {
-    if (footholdsForTerrain_.count(limb) == 0) footholdsForTerrain_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
-  }
+//  for (const auto& limb : adapter.getLimbs()) {
+//    if (footholdsForTerrain_.count(limb) == 0) footholdsForTerrain_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+//  }
 
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {

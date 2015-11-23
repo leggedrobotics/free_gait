@@ -52,4 +52,28 @@ std::ostream& operator<< (std::ostream& out, const LimbEnum& limb)
   }
 }
 
+//std::ostream& operator<< (std::ostream& out, const bool boolean)
+//{
+//  switch (boolean) {
+//    case true:
+//      out << "True";
+//      return out;
+//    case false:
+//      out << "False";
+//      return out;
+//    default:
+//      out << "Undefined";
+//      return out;
+//  }
+//}
+
+std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, bool, EnumClassHash>& limbBooleanMap)
+{
+  for (const auto& limb : limbBooleanMap) {
+    out << limb.first << ": " << limb.second << ", ";
+  }
+  return out;
+}
+
+
 } // namespace
