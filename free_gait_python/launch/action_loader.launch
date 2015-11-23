@@ -1,7 +1,7 @@
 <launch>
   <!-- Action to load, can be set through command line with "file:=example") -->
   <arg name="file" default="" />
-  <arg name="robot_name" default="starleth"/>
+  <arg name="robot_name" default="anymal"/>
   <arg name="directory" default="$(find free_gait_actions)/actions/$(arg robot_name)" />
   
   <node pkg="free_gait_python" type="action_loader.py" name="free_gait_action_loader" output="screen">
