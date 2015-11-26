@@ -64,6 +64,8 @@ class JointMotionBase : public LegMotionBase
   virtual const JointAccelerations evaluateAcceleration(const double time) const;
   virtual const JointEfforts evaluateEffort(const double time) const;
 
+  bool isIgnoreForPoseAdaptation() const;
+
   /*!
    * Print the contents to console for debugging.
    * @param out the output stream.

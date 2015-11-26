@@ -265,8 +265,8 @@ def parse_base_auto(yaml_object):
     return base_auto
 
 
-def parse_duration(yaml_object):
-    return rospy.Duration(yaml_object['duration'])
+def parse_duration(duration):
+    return rospy.Duration(duration)
 
 
 def parse_point(yaml_object):

@@ -13,6 +13,7 @@
 
 // STD
 #include <vector>
+#include <iostream>
 
 namespace free_gait {
 
@@ -21,7 +22,6 @@ class State : public quadruped_model::QuadrupedState
  public:
   State();
   virtual ~State();
-  friend std::ostream& operator<<(std::ostream& out, const State& state);
 
   virtual void initialize(const std::vector<LimbEnum>& limbs, const std::vector<BranchEnum>& branches);
 
@@ -63,10 +63,14 @@ class State : public quadruped_model::QuadrupedState
 
   const ControlSetup& getControlSetup(const BranchEnum& branch) const;
   const ControlSetup& getControlSetup(const LimbEnum& limb) const;
+  bool isControlSetupEmpty(const BranchEnum& branch) const;
+  bool isControlSetupEmpty(const LimbEnum& limb) const;
   void setControlSetup(const BranchEnum& branch, const ControlSetup& controlSetup);
   void setControlSetup(const LimbEnum& limb, const ControlSetup& controlSetup);
   void setEmptyControlSetup(const BranchEnum& branch);
   void setEmptyControlSetup(const LimbEnum& limb);
+
+  friend std::ostream& operator << (std::ostream& out, const State& state);
 
  private:
   // TODO Extend QuadrupedState class with:

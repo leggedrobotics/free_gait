@@ -46,6 +46,7 @@ class Executor
   bool initializeStateWithRobot();
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
+  bool writeIgnoreForPoseAdaptation();
   bool writeSupportLegs();
   bool writeSurfaceNormals();
   bool writeLegMotion();

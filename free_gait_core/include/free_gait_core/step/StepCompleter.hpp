@@ -40,12 +40,12 @@ class StepCompleter
   {
     std::string profileType = "triangle";
     double profileHeight = 0.06;
-    double averageVelocity = 0.05;
+    double averageVelocity = 0.07;
   } footTargetParameters_;
 
   struct LegModeParameters
   {
-    double duration = 0.3;
+    double duration = 0.0025;
     std::string frameId = "base";
   } legModeParameters_;
 
@@ -59,7 +59,7 @@ class StepCompleter
     BaseAutoParameters()
     {
       Position2 position;
-      position << 0.2, 0.2;
+      position << 0.385, 0.25;
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LF_LEG, position);
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::RF_LEG, Position2(Eigen::Vector2d(position(0), -position(1))));
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LH_LEG, Position2(Eigen::Vector2d(-position(0), position(1))));

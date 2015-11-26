@@ -136,7 +136,7 @@ bool Step::advance(double dt)
   }
 
   time_ += dt;
-  if (time_ >= getTotalDuration()) return false;
+  if (time_ > getTotalDuration()) return false;
   return true;
 }
 
@@ -315,56 +315,5 @@ std::ostream& operator<<(std::ostream& out, const Step& step)
   }
   return out;
 }
-
-std::ostream& operator<< (std::ostream& out, const ControlLevel& controlLevel)
-{
-  switch (controlLevel) {
-    case ControlLevel::Position:
-      out << "Position";
-      return out;
-    case ControlLevel::Velocity:
-      out << "Velocity";
-      return out;
-    case ControlLevel::Acceleration:
-      out << "Acceleration";
-      return out;
-    case ControlLevel::Effort:
-      out << "Effort";
-      return out;
-    default:
-      out << "Undefined";
-      return out;
-  }
-}
-
-//Step::State& operator++(Step::State& phase)
-//{
-//  switch (phase) {
-//    case Step::State::PreStep:
-//      return phase = Step::State::AtStep;
-//    case Step::State::AtStep:
-//      return phase = Step::State::PostStep;
-//    case Step::State::PostStep:
-//      return phase = Step::State::PostStep;
-//  }
-//}
-//
-//std::ostream& operator<<(std::ostream& os, const Step::State& phase)
-//{
-//  switch (phase) {
-//    case Step::State::Undefined:
-//          os << "State::Undefined";
-//          return os;
-//    case Step::State::PreStep:
-//      os << "State::PreStep";
-//      return os;
-//    case Step::State::AtStep:
-//      os << "State::AtStep";
-//      return os;
-//    case Step::State::PostStep:
-//      os << "State::PostStep";
-//      return os;
-//  }
-//}
 
 } /* namespace */
