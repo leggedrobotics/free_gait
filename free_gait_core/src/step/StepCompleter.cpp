@@ -88,7 +88,8 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     jointMotion.updateStartAcceleration(startAcceleration);
   }
   if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
-    JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+    JointEfforts startEffort;// = JointEfforts::Zero();// TODO state.getJointEfforts(jointMotion.getLimb());
+    startEffort.setZero();
     jointMotion.updateStartEfforts(startEffort);
   }
   return jointMotion.compute(state, step, *adapter_);
