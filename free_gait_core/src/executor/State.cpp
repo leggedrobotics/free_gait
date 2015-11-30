@@ -239,7 +239,15 @@ void State::setEmptyControlSetup(const LimbEnum& limb)
 
 std::ostream& operator<<(std::ostream& out, const State& state)
 {
-  out << "Ignore for pose adaptation: " << state.ignoreForPoseAdaptation_;
+  out << "Ignore for pose adaptation: " << state.ignoreForPoseAdaptation_ << std::endl;
+  out << "Control setup:" << std::endl;
+  for (const auto& controlSetup : state.controlSetups_) {
+    out << controlSetup.first << ": ";
+    for (const auto& controlLevel : controlSetup.second) {
+      if (controlLevel.second) out << controlLevel.first << ", ";
+    }
+    out << std::endl;
+  }
   return out;
 }
 

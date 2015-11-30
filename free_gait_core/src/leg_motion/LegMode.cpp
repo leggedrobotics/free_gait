@@ -39,6 +39,7 @@ std::unique_ptr<LegMotionBase> LegMode::clone() const
 
 const ControlSetup LegMode::getControlSetup() const
 {
+  // TODO Generate correct leg mode!
   return controlSetup_;
 }
 
