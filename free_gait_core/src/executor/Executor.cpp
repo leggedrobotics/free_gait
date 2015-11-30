@@ -165,11 +165,14 @@ bool Executor::updateStateWithMeasurements()
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
       state_->setJointPositions(limb, adapter_->getJointPositions(limb));
-    } else if (!controlSetup.at(ControlLevel::Velocity)) {
+    }
+    if (!controlSetup.at(ControlLevel::Velocity)) {
       state_->setJointVelocities(limb, adapter_->getJointVelocities(limb));
-    } else if (!controlSetup.at(ControlLevel::Acceleration)) {
+    }
+    if (!controlSetup.at(ControlLevel::Acceleration)) {
 //      state_->setJointAccelerations(limb, adapter_->getJointAccelerations(limb));
-    } else if (!controlSetup.at(ControlLevel::Effort)) {
+    }
+    if (!controlSetup.at(ControlLevel::Effort)) {
       state_->setJointEfforts(limb, adapter_->getJointEfforts(limb));
     }
   }
