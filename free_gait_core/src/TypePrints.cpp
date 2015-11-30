@@ -52,6 +52,30 @@ std::ostream& operator<< (std::ostream& out, const LimbEnum& limb)
   }
 }
 
+std::ostream& operator<< (std::ostream& out, const BranchEnum& branch)
+{
+  switch (branch) {
+    case BranchEnum::BASE:
+      out << "BASE";
+      return out;
+    case BranchEnum::LF_LEG:
+      out << "LF_LEG";
+      return out;
+    case BranchEnum::RF_LEG:
+      out << "RF_LEG";
+      return out;
+    case BranchEnum::LH_LEG:
+      out << "LH_LEG";
+      return out;
+    case BranchEnum::RH_LEG:
+      out << "RH_LEG";
+      return out;
+    default:
+      out << "Undefined";
+      return out;
+  }
+}
+
 //std::ostream& operator<< (std::ostream& out, const bool boolean)
 //{
 //  switch (boolean) {
