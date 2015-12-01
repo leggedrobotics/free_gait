@@ -75,23 +75,53 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
 
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
 {
-  if (jointMotion.getControlSetup().at(ControlLevel::Position)) {
+  // Input.
+  bool positionIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Position);
+  bool velocityIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Velocity);
+  bool accelerationIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Acceleration);
+  bool effortIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Effort);
+
+  // Output.
+  bool positionOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Position);
+  bool velocityOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Velocity);
+  bool accelerationOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Acceleration);
+  bool effortOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Effort);
+
+  // Check for special mode transitions.
+  if (positionIn && !effortIn && positionOut && effortOut) {
     JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
     jointMotion.updateStartPosition(startPosition);
-  }
-  if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
-    JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
-    jointMotion.updateStartVelocity(startVelocity);
-  }
-  if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
-    JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
-    jointMotion.updateStartAcceleration(startAcceleration);
-  }
-  if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
-    JointEfforts startEffort;//(JointEfforts::VectorBase::;// TODO state.getJointEfforts(jointMotion.getLimb());
-    startEffort.vector().resize(3);
+    JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
     startEffort.setZero();
     jointMotion.updateStartEfforts(startEffort);
+  } else if (positionIn && effortIn && !positionOut && effortOut) {
+    JointEfforts startEffort = adapter_->getJointEfforts(jointMotion.getLimb());
+    jointMotion.updateStartEfforts(startEffort);
+  } //else if (positionIn && effortIn && positionOut && !effortOut) {
+    // TODO: Decrease torque to zero in special step.
+  //} else if (!positionIn && effortIn && positionOut && !effortOut) {
+    // TODO: Decrease compression on leg in special step.
+  // }
+  else {
+
+    // Standard transitions.
+    if (jointMotion.getControlSetup().at(ControlLevel::Position)) {
+      JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
+      jointMotion.updateStartPosition(startPosition);
+    }
+    if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
+      JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
+      jointMotion.updateStartVelocity(startVelocity);
+    }
+    if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
+      JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
+      jointMotion.updateStartAcceleration(startAcceleration);
+    }
+    if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
+      JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+      jointMotion.updateStartEfforts(startEffort);
+    }
+
   }
   return jointMotion.compute(state, step, *adapter_);
 }
