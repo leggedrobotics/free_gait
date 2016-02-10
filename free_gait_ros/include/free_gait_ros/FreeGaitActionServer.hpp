@@ -51,7 +51,6 @@ class FreeGaitActionServer
   void setAborted();
 
  private:
-
   //! ROS nodehandle.
   ros::NodeHandle nodeHandle_;
   std::shared_ptr<free_gait::Executor> executor_;

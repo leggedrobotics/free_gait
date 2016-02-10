@@ -41,6 +41,8 @@ bool Executor::isInitialized() const
 
 bool Executor::advance(double dt)
 {
+  boost::unique_lock<boost::shared_mutex> lock(mutex_);
+
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
 
@@ -83,6 +85,7 @@ bool Executor::advance(double dt)
 
 void Executor::reset()
 {
+  boost::unique_lock<boost::shared_mutex> lock(mutex_);
   queue_.clear();
   initializeStateWithRobot();
 }
