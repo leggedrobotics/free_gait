@@ -12,7 +12,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <free_gait_msgs/StepAction.h>
+#include <free_gait_msgs/ExecuteStepsAction.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <interactive_markers/interactive_marker_server.h>
@@ -123,7 +123,7 @@ class MarkerManager
   interactive_markers::MenuHandler knotMenuHandler_;
 
   //! Step action client.
-  std::unique_ptr<actionlib::SimpleActionClient<free_gait_msgs::StepAction>> stepActionClient_;
+  std::unique_ptr<actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>> stepActionClient_;
 
   //! TF listener.
   tf::TransformListener transformListener_;
