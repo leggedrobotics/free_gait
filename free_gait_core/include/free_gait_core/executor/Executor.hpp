@@ -16,6 +16,7 @@
 
 // STD
 #include <memory>
+#include <boost/thread.hpp>
 
 namespace free_gait {
 
@@ -53,10 +54,15 @@ class Executor
   bool writeTorsoMotion();
 
   StepQueue queue_;
+
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
-  bool isInitialized_;
+  boost::atomic<bool> isInitialized_;
+
+  boost::shared_mutex mutex_;
+
+
 };
 
 } /* namespace free_gait */
