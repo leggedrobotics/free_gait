@@ -56,15 +56,15 @@ include_directories(
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
-   src/StepActionServer.cpp
-   src/StepRosWrapper.cpp
-   src/SwingDataRosWrapper.cpp
-   src/SwingFootTrajectoryRosWrapper.cpp
-   src/SwingJointTrajectoryRosWrapper.cpp
-   src/SwingProfileRosWrapper.cpp
-   src/BaseShiftDataRosWrapper.cpp
-   src/BaseShiftSplineTrajectoryRosWrapper.cpp
-   src/BaseShiftProfileRosWrapper.cpp
+   src/FreeGaitActionServer.cpp
+   src/StepRosConverter.cpp
+#   src/SwingDataRosWrapper.cpp
+#   src/SwingFootTrajectoryRosWrapper.cpp
+#   src/SwingJointTrajectoryRosWrapper.cpp
+#   src/SwingProfileRosWrapper.cpp
+#   src/BaseShiftDataRosWrapper.cpp
+#   src/BaseShiftSplineTrajectoryRosWrapper.cpp
+#   src/BaseShiftProfileRosWrapper.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

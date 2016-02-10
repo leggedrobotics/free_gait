@@ -17,10 +17,15 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    Step.msg
-   SwingData.msg
-   SwingProfile.msg
-   BaseShiftData.msg
-   BaseShiftProfile.msg
+   BaseAuto.msg
+   BaseTarget.msg
+   BaseTrajectory.msg
+   Footstep.msg
+   LegMode.msg
+   EndEffectorTarget.msg
+   EndEffectorTrajectory.msg
+   JointTarget.msg
+   JointTrajectory.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -33,7 +38,7 @@ add_message_files(
 ## Generate actions in the 'action' folder
 add_action_files(
   FILES
-  Step.action
+  ExecuteSteps.action
 )
 
 ## Generate added messages and services with any dependencies listed here

@@ -9,10 +9,8 @@
 #pragma once
 
 // Free Gait
+#include <free_gait_core/base_motion/BaseMotionBase.hpp>
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/BaseShiftTrajectoryBase.hpp"
-
-// STD
 #include <string>
 
 // Curves
