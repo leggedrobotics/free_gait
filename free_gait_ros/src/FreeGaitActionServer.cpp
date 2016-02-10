@@ -72,6 +72,7 @@ void FreeGaitActionServer::goalCallback()
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
+    Executor::Lock lock(executor_->getMutex());
     executor_->getQueue().add(step);
   }
 }
@@ -81,6 +82,7 @@ void FreeGaitActionServer::preemptCallback()
   ROS_INFO("StepAction is requested to preempt.");
   if (executor_->getQueue().empty()) return;
   if (executor_->getQueue().size() <= 1) return;
+  Executor::Lock lock(executor_->getMutex());
   executor_->getQueue().clearNextSteps();
   isPreempting_ = true;
 }
@@ -89,7 +91,7 @@ void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::ExecuteStepsFeedback feedback;
   if (executor_->getQueue().empty()) return;
-  const auto& step = executor_->getQueue().getCurrentStep();
+//  const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
 
 //  if (step.checkStatus() == false) {

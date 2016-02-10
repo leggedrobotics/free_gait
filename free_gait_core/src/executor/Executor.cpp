@@ -29,6 +29,7 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
+  Lock lock(mutex_);
   state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
   reset();
   return isInitialized_ = true;
@@ -39,9 +40,14 @@ bool Executor::isInitialized() const
   return isInitialized_;
 }
 
+Executor::Mutex& Executor::getMutex()
+{
+  return mutex_;
+}
+
 bool Executor::advance(double dt)
 {
-  boost::unique_lock<boost::shared_mutex> lock(mutex_);
+  Lock lock(mutex_);
 
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
@@ -85,7 +91,7 @@ bool Executor::advance(double dt)
 
 void Executor::reset()
 {
-  boost::unique_lock<boost::shared_mutex> lock(mutex_);
+  Lock lock(mutex_);
   queue_.clear();
   initializeStateWithRobot();
 }
