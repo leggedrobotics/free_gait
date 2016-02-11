@@ -39,7 +39,7 @@ class JointTrajectory : public JointMotionBase
    */
   std::unique_ptr<LegMotionBase> clone() const;
 
-  virtual const ControlSetup getControlSetup() const;
+  const ControlSetup getControlSetup() const;
 
   /*!
    * Update the trajectory with the foot start position.

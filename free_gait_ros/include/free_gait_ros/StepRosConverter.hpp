@@ -17,6 +17,7 @@
 #include <free_gait_msgs/LegMode.h>
 #include <free_gait_msgs/JointTrajectory.h>
 #include <free_gait_msgs/BaseAuto.h>
+#include <free_gait_msgs/BaseTrajectory.h>
 
 // Quadruped model
 #include "quadruped_model/QuadrupedModel.hpp"
@@ -40,6 +41,7 @@ class StepRosConverter
   bool fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode);
   bool fromMessage(const free_gait_msgs::JointTrajectory& message, JointTrajectory& jointTrajectory);
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
+  bool fromMessage(const free_gait_msgs::BaseTrajectory& message, BaseTrajectory& baseTrajectory);
 
  private:
   std::shared_ptr<Executor> executor_;

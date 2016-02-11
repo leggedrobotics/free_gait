@@ -14,6 +14,7 @@
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/base_motion/BaseTrajectory.hpp"
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 #include "free_gait_core/leg_motion/JointMotionBase.hpp"
 #include "free_gait_core/leg_motion/Footstep.hpp"
@@ -33,6 +34,7 @@ class StepCompleter
   void setParameters(Footstep& footTarget) const;
   void setParameters(LegMode& legMode) const;
   void setParameters(BaseAuto& baseAuto) const;
+  void setParameters(BaseTrajectory& baseTrajectory) const;
 
  protected:
 
@@ -67,6 +69,14 @@ class StepCompleter
     }
 
   } baseAutoParameters_;
+
+  struct BaseTrajectoryParameters
+  {
+    BaseTrajectoryParameters()
+    {
+    }
+
+  } baseTrajectoryParameters_;
 
  private:
   std::shared_ptr<free_gait::AdapterBase> adapter_;

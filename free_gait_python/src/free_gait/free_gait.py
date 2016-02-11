@@ -65,6 +65,8 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
                 step.joint_trajectory.append(parse_joint_trajectory(motion_parameter['joint_trajectory']))
             if 'base_auto' in motion_parameter:
                 step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
+            if 'base_trajectory' in motion_parameter:
+                step.base_trajectory.append(parse_base_trajectory(motion_parameter['base_trajectory']))
         # # Swing data.
         # if 'swing_data' in step_parameter:
         #     for swing_data_parameter in step_parameter['swing_data']:
@@ -263,6 +265,15 @@ def parse_base_auto(yaml_object):
     if 'support_margin' in yaml_object:
         base_auto.support_margin = yaml_object['support_margin']
     return base_auto
+
+
+def parse_base_trajectory(yaml_object):
+    base_trajectory = free_gait_msgs.msg.BaseTrajectory()
+    if not yaml_object:
+        return base_trajectory
+    if 'trajectory' in yaml_object:
+        base_trajectory.trajectory = parse_multi_dof_trajectory('base', yaml_object['trajectory'])
+    return base_trajectory
 
 
 def parse_duration(duration):

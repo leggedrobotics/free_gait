@@ -18,13 +18,10 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       state_(state),
       isInitialized_(false)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 Executor::~Executor()
 {
-  // TODO Auto-generated destructor stub
 }
 
 bool Executor::initialize()
