@@ -11,7 +11,6 @@
 // ROS
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
-#include <free_gait_msgs/Step.h>
 
 // STD
 #include <algorithm>
@@ -45,8 +44,8 @@ MarkerManager::MarkerManager(ros::NodeHandle& nodeHandle)
   loadManagerParameters();
 
   stepActionClient_ = std::unique_ptr<
-      actionlib::SimpleActionClient<free_gait_msgs::StepAction>>(
-      new actionlib::SimpleActionClient<free_gait_msgs::StepAction>(
+      actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>>(
+      new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(
           actionServerTopic_, true));
 
   setupMenus();
@@ -519,7 +518,7 @@ bool MarkerManager::sendStepGoal()
   }
 
   std::sort(footholdList_.begin(), footholdList_.end());
-  free_gait_msgs::StepGoal goal;
+  free_gait_msgs::ExecuteStepsGoal goal;
 
   for (const auto& foothold : footholdList_) {
     markers::MarkerFoot marker;
@@ -531,13 +530,12 @@ bool MarkerManager::sendStepGoal()
     if (!foothold.isActive)
       continue;
     free_gait_msgs::Step step;
-    step.step_number = foothold.stepNumber;
-    free_gait_msgs::SwingData swingData;
-    swingData.name = foothold.legName;
-    swingData.profile.target.header.frame_id = footholdFrameId_;
-    swingData.profile.target.point = marker.pose.position;
+    free_gait_msgs::Footstep footstep;
+    footstep.name = foothold.legName;
+    footstep.target.header.frame_id = footholdFrameId_;
+    footstep.target.point = marker.pose.position;
 //    swingData.profile.type = "square";
-    step.swing_data.push_back(swingData);
+    step.footstep.push_back(footstep);
     goal.steps.push_back(step);
   }
 

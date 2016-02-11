@@ -47,7 +47,6 @@ class BaseAuto : public BaseMotionBase
    * Update the profile with the base start pose.
    * Do this to avoid jumps of the base.
    * @param startPose the start pose of the base in the frameId_ frame.
-   * @return true if successful, false otherwise.
    */
   void updateStartPose(const Pose& startPose);
 

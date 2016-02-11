@@ -8,6 +8,7 @@
 
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/base_motion/BaseTrajectory.hpp"
 
 namespace free_gait {
 
@@ -116,6 +117,9 @@ std::ostream& operator<< (std::ostream& out, const BaseMotionBase& baseMotion)
   switch (baseMotion.getType()) {
     case BaseMotionBase::Type::Auto:
       out << (dynamic_cast<const BaseAuto&>(baseMotion)) << std::endl;
+      break;
+    case BaseMotionBase::Type::Trajectory:
+      out << (dynamic_cast<const BaseTrajectory&>(baseMotion)) << std::endl;
       break;
     default:
       throw std::runtime_error("BaseMotionBase::operator<< not implemented for this type.");

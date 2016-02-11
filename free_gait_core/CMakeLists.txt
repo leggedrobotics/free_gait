@@ -63,6 +63,7 @@ add_library(${PROJECT_NAME}
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp
+   src/base_motion/BaseTrajectory.cpp
    src/leg_motion/LegMotionBase.cpp
    src/leg_motion/EndEffectorMotionBase.cpp
    src/leg_motion/JointMotionBase.cpp

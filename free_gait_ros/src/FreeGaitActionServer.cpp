@@ -64,11 +64,12 @@ void FreeGaitActionServer::shutdown()
 
 void FreeGaitActionServer::goalCallback()
 {
-  ROS_DEBUG("Received goal for StepAction.");
+  ROS_INFO("Received goal for StepAction.");
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
 
+  Executor::Lock lock(executor_->getMutex());
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
@@ -79,6 +80,7 @@ void FreeGaitActionServer::goalCallback()
 void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
+  Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
   if (executor_->getQueue().size() <= 1) return;
   executor_->getQueue().clearNextSteps();
@@ -88,9 +90,11 @@ void FreeGaitActionServer::preemptCallback()
 void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::ExecuteStepsFeedback feedback;
+  Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
-  const auto& step = executor_->getQueue().getCurrentStep();
+//  const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
+  lock.unlock();
 
 //  if (step.checkStatus() == false) {
 //    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;

@@ -51,6 +51,9 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
       case BaseMotionBase::Type::Auto:
         setParameters(dynamic_cast<BaseAuto&>(*step.baseMotion_));
         break;
+      case BaseMotionBase::Type::Trajectory:
+        setParameters(dynamic_cast<BaseTrajectory&>(*step.baseMotion_));
+        break;
       default:
         break;
     }
@@ -180,6 +183,10 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
 
   baseAuto.nominalPlanarStanceInBaseFrame_.clear();
   baseAuto.nominalPlanarStanceInBaseFrame_ = baseAutoParameters_.nominalPlanarStanceInBaseFrame;
+}
+
+void StepCompleter::setParameters(BaseTrajectory& baseTrajectory) const
+{
 }
 
 } /* namespace */
