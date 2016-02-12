@@ -70,10 +70,13 @@ void FreeGaitActionServer::goalCallback()
   const auto goal = server_.acceptNewGoal();
 
   Executor::Lock lock(executor_->getMutex());
+  lock.unlock();
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
+    lock.lock();
     executor_->getQueue().add(step);
+    lock.unlock();
   }
 }
 
