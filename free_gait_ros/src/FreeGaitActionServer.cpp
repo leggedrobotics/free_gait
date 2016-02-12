@@ -24,10 +24,8 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
       executor_(executor),
       rosConverter_(executor),
       server_(nodeHandle_, name_, false),
-      isPreempting_(false),
-      executorLock_(executor_->getMutex())
+      isPreempting_(false)
 {
-  executorLock_.unlock();
 }
 
 FreeGaitActionServer::~FreeGaitActionServer()
@@ -45,9 +43,9 @@ void FreeGaitActionServer::initialize()
 void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
-  executorLock_.lock();
+  Executor::Lock lock(executor_->getMutex());
   bool stepQueueEmpty = executor_->getQueue().empty();
-  executorLock_.unlock();
+  lock.unlock();
   if (stepQueueEmpty) {
     // Succeeded.
     if (isPreempting_) {
@@ -73,12 +71,14 @@ void FreeGaitActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
+  Executor::Lock lock(executor_->getMutex());
+  lock.unlock();
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
-    executorLock_.lock();
+    lock.lock();
     executor_->getQueue().add(step);
-    executorLock_.unlock();
+    lock.unlock();
   }
 }
 
