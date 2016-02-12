@@ -207,7 +207,7 @@ bool Executor::updateStateWithMeasurements()
 
 bool Executor::writeIgnoreContact()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -220,7 +220,7 @@ bool Executor::writeIgnoreContact()
 
 bool Executor::writeIgnoreForPoseAdaptation()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -233,7 +233,7 @@ bool Executor::writeIgnoreForPoseAdaptation()
 
 bool Executor::writeSupportLegs()
 {
-  if (queue_.empty()) {
+  if (!queue_.active()) {
     for (const auto& limb : adapter_->getLimbs()) {
       state_->setSupportLeg(limb, !state_->isIgnoreContact(limb));
     }
@@ -253,7 +253,7 @@ bool Executor::writeSupportLegs()
 
 bool Executor::writeSurfaceNormals()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -270,7 +270,7 @@ bool Executor::writeLegMotion()
   for (const auto& limb : adapter_->getLimbs()) {
     if (state_->isSupportLeg(limb)) state_->setEmptyControlSetup(limb);
   }
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
 
   const auto& step = queue_.getCurrentStep();
   if (!step.hasLegMotion()) return true;
@@ -319,7 +319,7 @@ bool Executor::writeLegMotion()
 bool Executor::writeTorsoMotion()
 {
   if (state_->getNumberOfSupportLegs() == 0) state_->setEmptyControlSetup(BranchEnum::BASE);
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
 
   if (!queue_.getCurrentStep().hasBaseMotion()) return true;
   double time = queue_.getCurrentStep().getTime();

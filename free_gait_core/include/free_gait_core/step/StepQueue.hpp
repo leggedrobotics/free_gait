@@ -42,6 +42,12 @@ class StepQueue
   bool advance(double dt, bool& hasSwitchedStep);
 
   /*!
+   * Queue is active if a step is available and the step is ready/updated.
+   * @return true if step should be processed, false otherwise.
+   */
+  bool active() const;
+
+  /*!
    * Checks if queue contain steps.
    * @return true if queue empty, false otherwise.
    */
