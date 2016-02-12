@@ -65,6 +65,8 @@ class FreeGaitActionServer
 
   //! True if in process of preempting.
   bool isPreempting_;
+
+  Executor::Lock executorLock_;
 };
 
 } /* namespace */
