@@ -45,6 +45,7 @@ class StepRosConverter
 
  private:
   std::shared_ptr<Executor> executor_;
+  Executor::Lock executorLock_;
 };
 
 }
