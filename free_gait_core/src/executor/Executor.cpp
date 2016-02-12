@@ -8,6 +8,8 @@
 
 #include "free_gait_core/executor/Executor.hpp"
 
+#include <robotUtils/timers/ChronoTimer.hpp>
+
 namespace free_gait {
 
 Executor::Executor(std::shared_ptr<StepCompleter> completer,
@@ -62,10 +64,16 @@ bool Executor::advance(double dt)
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
 
   while (hasSwitchedStep) {
+
+    robotUtils::ChronoTimer timer;
+    timer.pinTime();
+
     if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
       std::cerr << "Executor::advance: Could not complete step." << std::endl;
       return false;
     }
+
+    std::cout << "Time to complete step: " << timer.getElapsedTimeMsec() << std::endl;
 
     if (hasSwitchedStep) {
       std::cout << "Switched step state to:" << std::endl;
