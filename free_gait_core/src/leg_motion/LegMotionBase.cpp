@@ -59,6 +59,11 @@ bool LegMotionBase::compute(const State& state, const Step& step, const AdapterB
   throw std::runtime_error("LegMotionBase::compute() not implemented.");
 }
 
+bool LegMotionBase::requiresMultiThreading() const
+{
+  return false;
+}
+
 double LegMotionBase::getDuration() const
 {
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");

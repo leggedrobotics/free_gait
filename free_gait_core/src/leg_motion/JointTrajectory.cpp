@@ -94,6 +94,11 @@ bool JointTrajectory::compute(const State& state, const Step& step, const Adapte
   return true;
 }
 
+bool JointTrajectory::requiresMultiThreading() const
+{
+  return true;
+}
+
 double JointTrajectory::getDuration() const
 {
   return duration_;

@@ -46,7 +46,8 @@ bool StepQueue::advance(double dt, bool& hasSwitchedStep)
     return true;
   }
 
-  if (!queue_.front().isUpdated()) return false;
+  // Check if step is updated (multi-threading).
+  if (!queue_.front().isUpdated()) return true;
 
   // Advance current step.
   if (!queue_.front().advance(dt)) {
@@ -62,6 +63,12 @@ bool StepQueue::advance(double dt, bool& hasSwitchedStep)
   }
 
   return true;
+}
+
+bool StepQueue::active() const
+{
+  if (empty()) return false;
+  return queue_.front().isUpdated();
 }
 
 bool StepQueue::empty() const
