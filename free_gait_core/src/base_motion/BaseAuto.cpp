@@ -20,6 +20,7 @@ namespace free_gait {
 
 BaseAuto::BaseAuto()
     : BaseMotionBase(BaseMotionBase::Type::Auto),
+      ignoreTimingOfLegMotion_(false),
       averageLinearVelocity_(0.0),
       averageAngularVelocity_(0.0),
       duration_(0.0),
@@ -36,6 +37,7 @@ BaseAuto::~BaseAuto()
 
 BaseAuto::BaseAuto(const BaseAuto& other) :
     BaseMotionBase(other),
+    ignoreTimingOfLegMotion_(other.ignoreTimingOfLegMotion_),
     averageLinearVelocity_(other.averageLinearVelocity_),
     averageAngularVelocity_(other.averageAngularVelocity_),
     supportMargin_(other.supportMargin_),
@@ -76,7 +78,7 @@ void BaseAuto::updateStartPose(const Pose& startPose)
 bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (!height_) {
-    if (!computeHeight(state, adapter)) {
+    if (!computeHeight(state, queue, adapter)) {
       std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
       return false;
     }
@@ -92,7 +94,7 @@ bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& qu
     std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
     return false;
   }
-  computeDuration();
+  computeDuration(step, adapter);
   computeTrajectory();
   return computed_ = true;
 }
@@ -116,8 +118,24 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
-bool BaseAuto::computeHeight(const State& state, const AdapterBase& adapter)
+double BaseAuto::getHeight() const
 {
+  if (height_) return *height_;
+  throw std::runtime_error("BaseAuto::getHeight() has not yet been computed.");
+}
+
+bool BaseAuto::computeHeight(const State& state, const StepQueue& queue,  const AdapterBase& adapter)
+{
+  if (queue.previousStepExists()) {
+    if (queue.getPreviousStep().hasBaseMotion()) {
+      const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
+      if (previousBaseMotion.getType() == BaseMotionBase::Type::Auto) {
+        height_.reset(new double(previousBaseMotion.getHeight()));
+        return true;
+      }
+    }
+  }
+
   unsigned n = 0;
   double heightSum = 0;
   for (const auto& limb : adapter.getLimbs()) {
@@ -299,13 +317,23 @@ bool BaseAuto::optimizePose(Pose& pose)
   return poseOptimization_.optimize(pose);
 }
 
-void BaseAuto::computeDuration()
+void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
 {
-  double distance = (target_.getPosition() - start_.getPosition()).norm();
-  double translationDuration = distance / averageLinearVelocity_;
-  double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
-  double rotationDuration = angle / averageAngularVelocity_;
-  duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
+  if (!step.hasLegMotion() || ignoreTimingOfLegMotion_) {
+    double distance = (target_.getPosition() - start_.getPosition()).norm();
+    double translationDuration = distance / averageLinearVelocity_;
+    double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
+    double rotationDuration = angle / averageAngularVelocity_;
+    duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
+  } else {
+    for (const auto& limb : adapter.getLimbs()) {
+      if (step.hasLegMotion(limb)) {
+        if (!step.getLegMotion(limb).isIgnoreForPoseAdaptation()) {
+          if (duration_ < step.getLegMotion(limb).getDuration()) duration_ = step.getLegMotion(limb).getDuration();
+        }
+      }
+    }
+  }
 }
 
 bool BaseAuto::computeTrajectory()
@@ -326,6 +354,7 @@ bool BaseAuto::computeTrajectory()
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
   out << "Height: " << *(baseAuto.height_) << std::endl;
+  out << "Ignore timing of leg motion: " << (baseAuto.ignoreTimingOfLegMotion_ ? "True" : "False") << std::endl;
   out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;
   out << "Average Angular Velocity: " << baseAuto.averageAngularVelocity_ << std::endl;
   out << "Support Margin: " << baseAuto.supportMargin_ << std::endl;

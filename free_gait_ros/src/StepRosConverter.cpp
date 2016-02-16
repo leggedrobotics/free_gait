@@ -204,6 +204,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
                                    BaseAuto& baseAuto)
 {
   baseAuto.height_.reset(new double(message.height));
+  baseAuto.ignoreTimingOfLegMotion_ = message.ignore_timing_of_leg_motion;
   baseAuto.averageLinearVelocity_ = message.average_linear_velocity;
   baseAuto.averageAngularVelocity_ = message.average_angular_velocity;
   baseAuto.supportMargin_ = message.support_margin;
