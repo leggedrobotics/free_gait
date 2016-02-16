@@ -91,12 +91,7 @@ bool Executor::completeCurrentStep()
   robotUtils::ChronoTimer timer;
   timer.pinTime();
 
-//  if (queue_.getCurrentStep().requiresMultiThreading()) {
-//    std::cout << "Taking a break." << std::endl;
-//    std::this_thread::sleep_for(std::chrono::seconds(10));
-//    std::cout << "Finished break." << std::endl;
-//  }
-
+  // TODO: Add mutexes on state and queue?
   if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
     std::cerr << "Executor::advance: Could not complete step." << std::endl;
     return false;
