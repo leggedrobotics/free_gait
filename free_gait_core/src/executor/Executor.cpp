@@ -65,7 +65,7 @@ bool Executor::advance(double dt)
 
   while (hasSwitchedStep) {
 
-    robotUtils::ChronoTimer timer;
+    robotUtils::HighResolutionClockTimer timer;
     timer.pinTime();
 
     if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
