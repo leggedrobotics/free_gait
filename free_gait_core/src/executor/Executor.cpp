@@ -65,22 +65,14 @@ bool Executor::advance(double dt)
 
   while (hasSwitchedStep) {
 
-    robotUtils::ChronoTimer timer;
-    timer.pinTime();
-
-    if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
-      std::cerr << "Executor::advance: Could not complete step." << std::endl;
-      return false;
+    if (!queue_.getCurrentStep().requiresMultiThreading()) {
+      if (!completeCurrentStep()) return false;
+      if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
+    } else {
+      std::thread thread(&Executor::completeCurrentStep, this);
+      thread.detach();
+      hasSwitchedStep = false;
     }
-
-    std::cout << "Time to complete step: " << timer.getElapsedTimeMsec() << std::endl;
-
-    if (hasSwitchedStep) {
-      std::cout << "Switched step state to:" << std::endl;
-      std::cout << queue_.getCurrentStep() << std::endl;
-    }
-
-    if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
   }
 
   if (!writeIgnoreContact()) return false;
@@ -91,6 +83,28 @@ bool Executor::advance(double dt)
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
+  return true;
+}
+
+bool Executor::completeCurrentStep()
+{
+  robotUtils::ChronoTimer timer;
+  timer.pinTime();
+
+//  if (queue_.getCurrentStep().requiresMultiThreading()) {
+//    std::cout << "Taking a break." << std::endl;
+//    std::this_thread::sleep_for(std::chrono::seconds(10));
+//    std::cout << "Finished break." << std::endl;
+//  }
+
+  if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+    std::cerr << "Executor::advance: Could not complete step." << std::endl;
+    return false;
+  }
+
+  std::cout << "Time to compute step: " << timer.getElapsedTimeMsec() << std::endl;
+  std::cout << "Switched step to:" << std::endl;
+  std::cout << queue_.getCurrentStep() << std::endl;
   return true;
 }
 

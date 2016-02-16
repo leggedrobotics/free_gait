@@ -53,6 +53,7 @@ class JointTrajectory : public JointMotionBase
   void updateStartEfforts(const JointEfforts& startEffort);
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
+  bool requiresMultiThreading() const;
 
   /*!
    * Returns the total duration of the motion.
