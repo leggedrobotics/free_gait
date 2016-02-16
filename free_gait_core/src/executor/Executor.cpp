@@ -88,7 +88,7 @@ bool Executor::advance(double dt)
 
 bool Executor::completeCurrentStep()
 {
-  robotUtils::ChronoTimer timer;
+  robotUtils::HighResolutionClockTimer timer;
   timer.pinTime();
 
 //  if (queue_.getCurrentStep().requiresMultiThreading()) {
