@@ -258,8 +258,10 @@ def parse_base_auto(yaml_object):
         return base_auto
     if 'height' in yaml_object:
         base_auto.height = yaml_object['height']
+    if 'ignore_timing_of_leg_motion' in yaml_object:
+        base_auto.ignore_timing_of_leg_motion = yaml_object['ignore_timing_of_leg_motion']
     if 'average_linear_velocity' in yaml_object:
-        base_auto.average_linear_velocity = yaml_object['height']
+        base_auto.average_linear_velocity = yaml_object['average_linear_velocity']
     if 'average_angular_velocity' in yaml_object:
         base_auto.average_angular_velocity = yaml_object['average_angular_velocity']
     if 'support_margin' in yaml_object:
