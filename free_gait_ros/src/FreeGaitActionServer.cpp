@@ -43,7 +43,10 @@ void FreeGaitActionServer::initialize()
 void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
-  if (executor_->getQueue().empty()) {
+  Executor::Lock lock(executor_->getMutex());
+  bool stepQueueEmpty = executor_->getQueue().empty();
+  lock.unlock();
+  if (stepQueueEmpty) {
     // Succeeded.
     if (isPreempting_) {
       // Preempted.
@@ -68,12 +71,14 @@ void FreeGaitActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
-
   Executor::Lock lock(executor_->getMutex());
+  lock.unlock();
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
+    lock.lock();
     executor_->getQueue().add(step);
+    lock.unlock();
   }
 }
 
@@ -92,6 +97,7 @@ void FreeGaitActionServer::publishFeedback()
   free_gait_msgs::ExecuteStepsFeedback feedback;
   Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
+  // TODO Add feedback if executor multi-threading is not yet ready.
 //  const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
   lock.unlock();

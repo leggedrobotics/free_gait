@@ -58,6 +58,8 @@ class BaseAuto : public BaseMotionBase
    */
   double getDuration() const;
 
+  double getHeight() const;
+
   /*!
    * Evaluate the base shift pose at a given time.
    * @param time the time value.
@@ -72,17 +74,18 @@ class BaseAuto : public BaseMotionBase
 
  protected:
   std::unique_ptr<double> height_; // In control frame.
+  bool ignoreTimingOfLegMotion_;
   double averageLinearVelocity_;
   double averageAngularVelocity_;
   double supportMargin_;
 
  private:
 
-  bool computeHeight(const State& state, const AdapterBase& adapter);
+  bool computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter);
   bool generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   void getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame);
   void getAdaptiveTargetPose(const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld);
-  void computeDuration();
+  void computeDuration(const Step& step, const AdapterBase& adapter);
   bool optimizePose(Pose& pose);
 
   /*!

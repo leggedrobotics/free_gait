@@ -16,6 +16,9 @@
 
 // STD
 #include <memory>
+#include <thread>
+
+// Boost
 #include <boost/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -59,6 +62,7 @@ class Executor
   const AdapterBase& getAdapter() const;
 
  private:
+  bool completeCurrentStep();
   bool checkRobotStatus();
   bool initializeStateWithRobot();
   bool updateStateWithMeasurements();

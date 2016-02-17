@@ -8,6 +8,8 @@
 
 #include "free_gait_core/executor/Executor.hpp"
 
+#include <robotUtils/timers/ChronoTimer.hpp>
+
 namespace free_gait {
 
 Executor::Executor(std::shared_ptr<StepCompleter> completer,
@@ -62,17 +64,15 @@ bool Executor::advance(double dt)
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
 
   while (hasSwitchedStep) {
-    if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
-      std::cerr << "Executor::advance: Could not complete step." << std::endl;
-      return false;
-    }
 
-    if (hasSwitchedStep) {
-      std::cout << "Switched step state to:" << std::endl;
-      std::cout << queue_.getCurrentStep() << std::endl;
+    if (!queue_.getCurrentStep().requiresMultiThreading()) {
+      if (!completeCurrentStep()) return false;
+      if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
+    } else {
+      std::thread thread(&Executor::completeCurrentStep, this);
+      thread.detach();
+      hasSwitchedStep = false;
     }
-
-    if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
   }
 
   if (!writeIgnoreContact()) return false;
@@ -83,6 +83,23 @@ bool Executor::advance(double dt)
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
+  return true;
+}
+
+bool Executor::completeCurrentStep()
+{
+  robotUtils::ChronoTimer timer;
+  timer.pinTime();
+
+  // TODO: Add mutexes on state and queue?
+  if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+    std::cerr << "Executor::advance: Could not complete step." << std::endl;
+    return false;
+  }
+
+  std::cout << "Time to compute step: " << timer.getElapsedTimeMsec() << std::endl;
+  std::cout << "Switched step to:" << std::endl;
+  std::cout << queue_.getCurrentStep() << std::endl;
   return true;
 }
 
@@ -199,7 +216,7 @@ bool Executor::updateStateWithMeasurements()
 
 bool Executor::writeIgnoreContact()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -212,7 +229,7 @@ bool Executor::writeIgnoreContact()
 
 bool Executor::writeIgnoreForPoseAdaptation()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -225,7 +242,7 @@ bool Executor::writeIgnoreForPoseAdaptation()
 
 bool Executor::writeSupportLegs()
 {
-  if (queue_.empty()) {
+  if (!queue_.active()) {
     for (const auto& limb : adapter_->getLimbs()) {
       state_->setSupportLeg(limb, !state_->isIgnoreContact(limb));
     }
@@ -245,7 +262,7 @@ bool Executor::writeSupportLegs()
 
 bool Executor::writeSurfaceNormals()
 {
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
   for (const auto& limb : adapter_->getLimbs()) {
     if (step.hasLegMotion(limb)) {
@@ -262,7 +279,7 @@ bool Executor::writeLegMotion()
   for (const auto& limb : adapter_->getLimbs()) {
     if (state_->isSupportLeg(limb)) state_->setEmptyControlSetup(limb);
   }
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
 
   const auto& step = queue_.getCurrentStep();
   if (!step.hasLegMotion()) return true;
@@ -311,7 +328,7 @@ bool Executor::writeLegMotion()
 bool Executor::writeTorsoMotion()
 {
   if (state_->getNumberOfSupportLegs() == 0) state_->setEmptyControlSetup(BranchEnum::BASE);
-  if (queue_.empty()) return true;
+  if (!queue_.active()) return true;
 
   if (!queue_.getCurrentStep().hasBaseMotion()) return true;
   double time = queue_.getCurrentStep().getTime();

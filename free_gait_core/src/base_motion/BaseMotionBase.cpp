@@ -61,6 +61,11 @@ bool BaseMotionBase::compute(const State& state, const Step& step, const StepQue
   throw std::runtime_error("BaseMotionBase::compute() not implemented.");
 }
 
+bool BaseMotionBase::requiresMultiThreading() const
+{
+  return false;
+}
+
 double BaseMotionBase::getDuration() const
 {
   throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");
