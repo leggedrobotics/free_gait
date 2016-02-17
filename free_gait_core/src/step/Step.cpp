@@ -294,6 +294,20 @@ double Step::getBaseMotionPhase() const
 //  return loco::mapTo01Range(getTime(), 0.0, getTotalDuration());
 //}
 
+bool Step::requiresMultiThreading() const
+{
+  bool requiredMultiThreading = false;
+  for (auto& legMotion : legMotions_) {
+    if (legMotion.second->requiresMultiThreading()) requiredMultiThreading = true;
+  }
+
+  if (baseMotion_) {
+    if (baseMotion_->requiresMultiThreading()) requiredMultiThreading = true;
+  }
+
+  return requiredMultiThreading;
+}
+
 bool Step::isApproachingEnd(double tolerance) const
 {
   if (!isUpdated_) throw std::runtime_error("Step::isApproachingEnd() cannot be called if step is not updated.");

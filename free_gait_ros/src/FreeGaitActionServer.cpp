@@ -97,6 +97,7 @@ void FreeGaitActionServer::publishFeedback()
   free_gait_msgs::ExecuteStepsFeedback feedback;
   Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
+  // TODO Add feedback if executor multi-threading is not yet ready.
 //  const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
   lock.unlock();
