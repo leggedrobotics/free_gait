@@ -88,7 +88,7 @@ bool Executor::advance(double dt)
 
 bool Executor::completeCurrentStep()
 {
-  robotUtils::ChronoTimer timer;
+  robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
   // TODO: Add mutexes on state and queue?
@@ -97,7 +97,7 @@ bool Executor::completeCurrentStep()
     return false;
   }
 
-  std::cout << "Time to compute step: " << timer.getElapsedTimeMsec() << std::endl;
+  std::cout << timer << std::endl;
   std::cout << "Switched step to:" << std::endl;
   std::cout << queue_.getCurrentStep() << std::endl;
   return true;
