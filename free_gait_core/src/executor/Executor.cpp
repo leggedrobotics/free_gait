@@ -268,6 +268,8 @@ bool Executor::writeSurfaceNormals()
     if (step.hasLegMotion(limb)) {
       if (step.getLegMotion(limb).hasSurfaceNormal()) {
         state_->setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
+      } else {
+        state_->removeSurfaceNormal(limb);
       }
     }
   }
