@@ -87,10 +87,10 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
   bool effortIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Effort);
 
   // Output.
-  bool positionOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Position);
-  bool velocityOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Velocity);
-  bool accelerationOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Acceleration);
-  bool effortOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Effort);
+  bool positionOut = jointMotion.getControlSetup().at(ControlLevel::Position);
+  bool velocityOut = jointMotion.getControlSetup().at(ControlLevel::Velocity);
+  bool accelerationOut = jointMotion.getControlSetup().at(ControlLevel::Acceleration);
+  bool effortOut = jointMotion.getControlSetup().at(ControlLevel::Effort);
 
   // Check for special mode transitions.
   if (positionIn && !effortIn && positionOut && effortOut) {
@@ -110,19 +110,19 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
   else {
 
     // Standard transitions.
-    if (jointMotion.getControlSetup().at(ControlLevel::Position)) {
+    if (!positionIn && positionOut) {
       JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
       jointMotion.updateStartPosition(startPosition);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
+    if (!velocityIn && velocityOut) {
       JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
       jointMotion.updateStartVelocity(startVelocity);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
+    if (!accelerationIn && accelerationOut) {
       JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
       jointMotion.updateStartAcceleration(startAcceleration);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
+    if (!effortIn && effortOut) {
       JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
       jointMotion.updateStartEfforts(startEffort);
     }
