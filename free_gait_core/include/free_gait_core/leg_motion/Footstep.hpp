@@ -25,6 +25,7 @@ class Footstep : public EndEffectorMotionBase
 {
  public:
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
+  typedef typename curves::PolynomialSplineQuinticVector3Curve::DerivativeType DerivativeType;
   typedef typename curves::Time Time;
 
   Footstep(LimbEnum limb);
@@ -82,6 +83,8 @@ class Footstep : public EndEffectorMotionBase
   void generateTriangleKnots(std::vector<ValueType>& values) const;
   void generateSquareKnots(std::vector<ValueType>& values) const;
   void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
+  void computeVelocities(const std::vector<Time>& times, std::vector<DerivativeType>& velocities,
+                         std::vector<DerivativeType>& accelerations) const;
 
   Position start_;
   Position target_;
@@ -91,6 +94,8 @@ class Footstep : public EndEffectorMotionBase
   std::string profileType_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
+  double liftOffVelocity_;
+  double touchdownVelocity_;
 
   ControlSetup controlSetup_;
 

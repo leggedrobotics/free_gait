@@ -158,6 +158,9 @@ void StepCompleter::setParameters(Footstep& footstep) const
     footstep.profileType_ = parameters.profileType;
   if (footstep.averageVelocity_ == 0.0)
     footstep.averageVelocity_ = parameters.averageVelocity;
+
+  footstep.liftOffVelocity_ = parameters.liftOffVelocity;
+  footstep.touchdownVelocity_ = parameters.touchdownVelocity;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const

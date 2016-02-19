@@ -28,6 +28,8 @@ class StepParameters
     std::string profileType = "triangle";
     double profileHeight = 0.06;
     double averageVelocity = 0.07;
+    double liftOffVelocity = 0.2;
+    double touchdownVelocity = 0.03;
   } footTargetParameters_;
 
   struct LegModeParameters
