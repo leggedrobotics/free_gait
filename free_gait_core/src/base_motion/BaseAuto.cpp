@@ -25,6 +25,7 @@ BaseAuto::BaseAuto()
       averageAngularVelocity_(0.0),
       duration_(0.0),
       supportMargin_(0.0),
+      minimumDuration_(0.0),
       computed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
@@ -37,10 +38,12 @@ BaseAuto::~BaseAuto()
 
 BaseAuto::BaseAuto(const BaseAuto& other) :
     BaseMotionBase(other),
+    controllerType_(other.controllerType_),
     ignoreTimingOfLegMotion_(other.ignoreTimingOfLegMotion_),
     averageLinearVelocity_(other.averageLinearVelocity_),
     averageAngularVelocity_(other.averageAngularVelocity_),
     supportMargin_(other.supportMargin_),
+    minimumDuration_(other.minimumDuration_),
     start_(other.start_),
     target_(other.target_),
     duration_(other.duration_),
@@ -66,6 +69,11 @@ std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
 const ControlSetup BaseAuto::getControlSetup() const
 {
   return controlSetup_;
+}
+
+const std::string& BaseAuto::getControllerType() const
+{
+  return controllerType_;
 }
 
 void BaseAuto::updateStartPose(const Pose& startPose)
@@ -334,6 +342,8 @@ void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
       }
     }
   }
+
+  duration_ = duration_ < minimumDuration_ ? minimumDuration_ : duration_;
 }
 
 bool BaseAuto::computeTrajectory()

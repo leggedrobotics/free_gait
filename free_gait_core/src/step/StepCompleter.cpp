@@ -181,6 +181,9 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
   const auto& parameters = parameters_->baseAutoParameters_;
 
+  if (baseAuto.controllerType_.empty())
+    baseAuto.controllerType_ = parameters.controllerType;
+
   if (baseAuto.height_) {
     if (*(baseAuto.height_) == 0.0)
       baseAuto.height_.reset(nullptr);
@@ -191,6 +194,7 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
     baseAuto.averageAngularVelocity_ = parameters.averageAngularVelocity;
   if (baseAuto.supportMargin_ == 0.0)
     baseAuto.supportMargin_ = parameters.supportMargin;
+  baseAuto.minimumDuration_ = parameters.minimumDuration_;
 
   baseAuto.nominalPlanarStanceInBaseFrame_.clear();
   baseAuto.nominalPlanarStanceInBaseFrame_ = parameters.nominalPlanarStanceInBaseFrame;
@@ -198,6 +202,10 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
 
 void StepCompleter::setParameters(BaseTrajectory& baseTrajectory) const
 {
+//  const auto& parameters = parameters_->baseAutoParameters_;
+//
+//  if (baseAuto.controllerType_.empty())
+//    baseAuto.controllerType_ = parameters.controllerType;
 }
 
 } /* namespace */

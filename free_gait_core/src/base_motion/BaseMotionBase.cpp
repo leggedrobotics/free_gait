@@ -36,6 +36,11 @@ const ControlSetup BaseMotionBase::getControlSetup() const
   throw std::runtime_error("BaseMotionBase::getControlSetup() not implemented.");
 }
 
+const std::string& BaseMotionBase::getControllerType() const
+{
+  throw std::runtime_error("BaseMotionBase::getControllerType() not implemented.");
+}
+
 void BaseMotionBase::updateStartPose(const Pose& startPose)
 {
   throw std::runtime_error("BaseMotionBase::updateStartPose() not implemented.");
