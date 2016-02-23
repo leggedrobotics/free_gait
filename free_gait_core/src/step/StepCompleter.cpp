@@ -110,19 +110,19 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
   else {
 
     // Standard transitions.
-    if (!positionIn && positionOut) {
+    if (positionOut) {
       JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
       jointMotion.updateStartPosition(startPosition);
     }
-    if (!velocityIn && velocityOut) {
+    if (velocityOut) {
       JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
       jointMotion.updateStartVelocity(startVelocity);
     }
-    if (!accelerationIn && accelerationOut) {
+    if (accelerationOut) {
       JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
       jointMotion.updateStartAcceleration(startAcceleration);
     }
-    if (!effortIn && effortOut) {
+    if (effortOut) {
       JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
       jointMotion.updateStartEfforts(startEffort);
     }

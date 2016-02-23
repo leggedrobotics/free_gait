@@ -31,6 +31,13 @@ std::ostream& operator<< (std::ostream& out, const ControlLevel& controlLevel)
   }
 }
 
+std::ostream& operator<< (std::ostream& out, const ControlSetup& controlSetup)
+{
+  for (const auto& controlLevel : controlSetup) {
+    if (controlLevel.second) out << controlLevel.first << ", ";
+  }
+}
+
 std::ostream& operator<< (std::ostream& out, const LimbEnum& limb)
 {
   switch (limb) {
