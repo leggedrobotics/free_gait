@@ -122,8 +122,8 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type)
       out << "Footstep";
       return out;
     case LegMotionBase::Type::LegMode:
-          out << "LegMode";
-          return out;
+      out << "LegMode";
+      return out;
     case LegMotionBase::Type::EndEffectorTarget:
       out << "EndEffectorTarget";
       return out;

@@ -145,6 +145,11 @@ std::ostream& operator<<(std::ostream& out, const JointTrajectory& jointTrajecto
 {
   out << "Duration: " << jointTrajectory.duration_ << std::endl;
   out << "Ignore contact: " << (jointTrajectory.ignoreContact_ ? "True" : "False") << std::endl;
+  for (const auto& times : jointTrajectory.times_) {
+    out << "Times (" << times.first << "): ";
+    for (const auto& time : times.second) out << time << ", ";
+    out << std::endl;
+  }
   return out;
 }
 

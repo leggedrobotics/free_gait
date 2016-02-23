@@ -28,8 +28,8 @@ class StepParameters
     std::string profileType = "triangle";
     double profileHeight = 0.06;
     double averageVelocity = 0.07;
-    double liftOffVelocity = 0.2;
-    double touchdownVelocity = 0.03;
+    double liftOffVelocity = 0.05;
+    double touchdownVelocity = -0.05;
   } footTargetParameters_;
 
   struct LegModeParameters
@@ -40,9 +40,11 @@ class StepParameters
 
   struct BaseAutoParameters
   {
+    std::string controllerType = "virtual_model_control";
     double averageLinearVelocity = 0.05;
     double averageAngularVelocity = 0.1;
     double supportMargin = 0.04;
+    double minimumDuration_ = 0.2;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
