@@ -11,8 +11,10 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter(std::shared_ptr<free_gait::AdapterBase> adapter)
-    : adapter_(adapter)
+StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters,
+                             std::shared_ptr<AdapterBase> adapter)
+    : parameters_(parameters),
+      adapter_(adapter)
 {
 }
 
@@ -85,10 +87,10 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
   bool effortIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Effort);
 
   // Output.
-  bool positionOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Position);
-  bool velocityOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Velocity);
-  bool accelerationOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Acceleration);
-  bool effortOut = jointMotion.getControlSetup().at(free_gait::ControlLevel::Effort);
+  bool positionOut = jointMotion.getControlSetup().at(ControlLevel::Position);
+  bool velocityOut = jointMotion.getControlSetup().at(ControlLevel::Velocity);
+  bool accelerationOut = jointMotion.getControlSetup().at(ControlLevel::Acceleration);
+  bool effortOut = jointMotion.getControlSetup().at(ControlLevel::Effort);
 
   // Check for special mode transitions.
   if (positionIn && !effortIn && positionOut && effortOut) {
@@ -108,19 +110,19 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
   else {
 
     // Standard transitions.
-    if (jointMotion.getControlSetup().at(ControlLevel::Position)) {
+    if (positionOut) {
       JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
       jointMotion.updateStartPosition(startPosition);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Velocity)) {
+    if (velocityOut) {
       JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
       jointMotion.updateStartVelocity(startVelocity);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Acceleration)) {
+    if (accelerationOut) {
       JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
       jointMotion.updateStartAcceleration(startAcceleration);
     }
-    if (jointMotion.getControlSetup().at(ControlLevel::Effort)) {
+    if (effortOut) {
       JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
       jointMotion.updateStartEfforts(startEffort);
     }
@@ -144,49 +146,66 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
 
 void StepCompleter::setParameters(Footstep& footstep) const
 {
+  const auto& parameters = parameters_->footTargetParameters_;
+
   if (footstep.surfaceNormal_) {
     if (*(footstep.surfaceNormal_) == Vector::Zero())
       footstep.surfaceNormal_.reset(nullptr);
   }
   if (footstep.profileHeight_ == 0.0)
-    footstep.profileHeight_ = footTargetParameters_.profileHeight;
+    footstep.profileHeight_ = parameters.profileHeight;
   if (footstep.profileType_.empty())
-    footstep.profileType_ = footTargetParameters_.profileType;
+    footstep.profileType_ = parameters.profileType;
   if (footstep.averageVelocity_ == 0.0)
-    footstep.averageVelocity_ = footTargetParameters_.averageVelocity;
+    footstep.averageVelocity_ = parameters.averageVelocity;
+
+  footstep.liftOffVelocity_ = parameters.liftOffVelocity;
+  footstep.touchdownVelocity_ = parameters.touchdownVelocity;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const
 {
+  const auto& parameters = parameters_->legModeParameters_;
+
   if (legMode.surfaceNormal_) {
     if (*(legMode.surfaceNormal_) == Vector::Zero())
       legMode.surfaceNormal_.reset(nullptr);
   }
   if (legMode.duration_ == 0.0)
-    legMode.duration_ = legModeParameters_.duration;
+    legMode.duration_ = parameters.duration;
   if (legMode.frameId_.empty())
-    legMode.frameId_ = legModeParameters_.frameId;
+    legMode.frameId_ = parameters.frameId;
 }
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
+  const auto& parameters = parameters_->baseAutoParameters_;
+
+  if (baseAuto.controllerType_.empty())
+    baseAuto.controllerType_ = parameters.controllerType;
+
   if (baseAuto.height_) {
     if (*(baseAuto.height_) == 0.0)
       baseAuto.height_.reset(nullptr);
   }
   if (baseAuto.averageLinearVelocity_ == 0.0)
-    baseAuto.averageLinearVelocity_ = baseAutoParameters_.averageLinearVelocity;
+    baseAuto.averageLinearVelocity_ = parameters.averageLinearVelocity;
   if (baseAuto.averageAngularVelocity_ == 0.0)
-    baseAuto.averageAngularVelocity_ = baseAutoParameters_.averageAngularVelocity;
+    baseAuto.averageAngularVelocity_ = parameters.averageAngularVelocity;
   if (baseAuto.supportMargin_ == 0.0)
-    baseAuto.supportMargin_ = baseAutoParameters_.supportMargin;
+    baseAuto.supportMargin_ = parameters.supportMargin;
+  baseAuto.minimumDuration_ = parameters.minimumDuration_;
 
   baseAuto.nominalPlanarStanceInBaseFrame_.clear();
-  baseAuto.nominalPlanarStanceInBaseFrame_ = baseAutoParameters_.nominalPlanarStanceInBaseFrame;
+  baseAuto.nominalPlanarStanceInBaseFrame_ = parameters.nominalPlanarStanceInBaseFrame;
 }
 
 void StepCompleter::setParameters(BaseTrajectory& baseTrajectory) const
 {
+//  const auto& parameters = parameters_->baseAutoParameters_;
+//
+//  if (baseAuto.controllerType_.empty())
+//    baseAuto.controllerType_ = parameters.controllerType;
 }
 
 } /* namespace */

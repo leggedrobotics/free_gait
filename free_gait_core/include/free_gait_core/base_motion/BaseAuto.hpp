@@ -42,6 +42,7 @@ class BaseAuto : public BaseMotionBase
   std::unique_ptr<BaseMotionBase> clone() const;
 
   const ControlSetup getControlSetup() const;
+  const std::string& getControllerType() const;
 
   /*!
    * Update the profile with the base start pose.
@@ -73,11 +74,13 @@ class BaseAuto : public BaseMotionBase
   friend class StepRosConverter;
 
  protected:
+  std::string controllerType_;
   std::unique_ptr<double> height_; // In control frame.
   bool ignoreTimingOfLegMotion_;
   double averageLinearVelocity_;
   double averageAngularVelocity_;
   double supportMargin_;
+  double minimumDuration_;
 
  private:
 

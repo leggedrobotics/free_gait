@@ -180,10 +180,6 @@ bool Executor::initializeStateWithRobot()
 
 bool Executor::updateStateWithMeasurements()
 {
-  // Update states for new step.
-//  if (!queue_.previousStepExists()) {
-    // Update all states.
-
   for (const auto& limb : adapter_->getLimbs()) {
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
@@ -211,7 +207,6 @@ bool Executor::updateStateWithMeasurements()
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
   return true;
-
 }
 
 bool Executor::writeIgnoreContact()
@@ -268,6 +263,8 @@ bool Executor::writeSurfaceNormals()
     if (step.hasLegMotion(limb)) {
       if (step.getLegMotion(limb).hasSurfaceNormal()) {
         state_->setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
+      } else {
+        state_->removeSurfaceNormal(limb);
       }
     }
   }
@@ -299,7 +296,9 @@ bool Executor::writeLegMotion()
         if (controlSetup[ControlLevel::Position]) {
           // TODO Add frame handling.
           Position positionInWorldFrame(endEffectorMotion.evaluatePosition(time));
-          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+          // TODO adapter_->getOrientationWorldToBase() is nicer when the robot slips, but leads to problems at lift-off.
+//          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+          Position positionInBaseFrame(state_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
           JointPositions jointPositions;
           adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
           state_->setJointPositions(limb, jointPositions);
@@ -322,6 +321,7 @@ bool Executor::writeLegMotion()
         break;
     }
   }
+
   return true;
 }
 

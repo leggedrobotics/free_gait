@@ -7,7 +7,10 @@
  */
 
 #include <free_gait_core/leg_motion/Footstep.hpp>
-#include "free_gait_core/leg_motion/LegMotionBase.hpp"
+#include <free_gait_core/leg_motion/LegMotionBase.hpp>
+
+// Robot utils
+#include <robotUtils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
 
 // Roco
 #include <roco/log/log_messages.hpp>
@@ -18,6 +21,8 @@ Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
       averageVelocity_(0.0),
+      liftOffVelocity_(0.0),
+      touchdownVelocity_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       computed_(false),
@@ -63,8 +68,10 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
 
   std::vector<Time> times;
   computeTiming(values, times);
+  std::vector<DerivativeType> velocities, accelerations;
+  computeVelocities(times, velocities, accelerations);
 
-  trajectory_.fitCurve(times, values);
+  trajectory_.fitCurve(times, values, velocities, accelerations);
   computed_ = true;
   return true;
 }
@@ -163,6 +170,19 @@ void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<T
     double distance = (values[i] - values[i-1]).norm();
     times.push_back(times[i-1] + distance / averageVelocity_);
   }
+}
+
+void Footstep::computeVelocities(const std::vector<Time>& times,
+                                 std::vector<DerivativeType>& velocities,
+                                 std::vector<DerivativeType>& accelerations) const
+{
+  DerivativeType undefined(DerivativeType::Constant(robotUtils::PolynomialSplineContainer::undefinedValue));
+  velocities.resize(times.size(), undefined);
+  *(velocities.begin()) = DerivativeType(0.0, 0.0, liftOffVelocity_);
+  *(velocities.end()-1) = DerivativeType(0.0, 0.0, ignoreContact_ ? 0.0 : touchdownVelocity_);
+  accelerations.resize(times.size(), undefined);
+  *(accelerations.begin()) = DerivativeType::Zero();
+  *(accelerations.end() - 1) = DerivativeType::Zero();
 }
 
 } /* namespace */
