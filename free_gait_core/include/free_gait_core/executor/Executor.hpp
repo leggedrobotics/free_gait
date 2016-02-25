@@ -47,6 +47,14 @@ class Executor
    * @return true if successful, false otherwise.
    */
   bool advance(double dt);
+
+  /*!
+   * Checks status of robot to make sure if advancement is safe to continue.
+   * @return true if true execution active, false if execution stopped
+   *         because of unexpected event/state.
+   */
+  bool getExecutionStatus();
+
   void reset();
 
   const StepQueue& getQueue() const;
@@ -63,9 +71,9 @@ class Executor
 
  private:
   bool completeCurrentStep();
-  bool checkRobotStatus();
   bool initializeStateWithRobot();
   bool updateStateWithMeasurements();
+  void updateExecutionStatus();
   bool writeIgnoreContact();
   bool writeIgnoreForPoseAdaptation();
   bool writeSupportLegs();
@@ -75,6 +83,7 @@ class Executor
 
   Mutex mutex_;
   boost::atomic<bool> isInitialized_;
+  boost::atomic<bool> executionStatus_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<AdapterBase> adapter_;

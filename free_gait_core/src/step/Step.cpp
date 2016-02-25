@@ -128,46 +128,10 @@ bool Step::isComplete() const
 bool Step::advance(double dt)
 {
   if (!isUpdated_) throw std::runtime_error("Step::advance() cannot be called if step is not updated.");
-
-  bool status = checkStatus();
-  if (!status) {
-    ROCO_WARN_THROTTLE_STREAM(1.0, "Not continuing step. Status not ok.");
-    return true;
-  }
-
   time_ += dt;
   if (time_ > getTotalDuration()) return false;
   return true;
 }
-
-bool Step::checkStatus()
-{
-//  for (auto leg : *legs_) {
-//    loco::StateSwitcher* stateSwitcher = leg->getStateSwitcher();
-//    switch (stateSwitcher->getState()) {
-//      case (loco::StateSwitcher::States::StanceSlipping):
-//      case (loco::StateSwitcher::States::StanceLostContact):
-//      case (loco::StateSwitcher::States::SwingExpectingContact):
-//        ROCO_WARN_THROTTLE_STREAM(1.0, "Leg " << leg->getName() << " should be grounded but it is not.");
-//        return false;
-//
-//      case (loco::StateSwitcher::States::StanceNormal):
-//      case (loco::StateSwitcher::States::SwingNormal):
-//      case (loco::StateSwitcher::States::SwingLateLiftOff):
-//      case (loco::StateSwitcher::States::SwingBumpedIntoObstacle):
-//      case (loco::StateSwitcher::States::SwingEarlyTouchDown):
-//      case (loco::StateSwitcher::States::Init):
-//        break;
-//
-//      default:
-//        ROCO_ERROR_STREAM_FP("Unhandled state: " << stateSwitcher->getStateName(stateSwitcher->getState()) << std::endl);
-//        return false;
-//    }
-//  }
-
-  return true;
-}
-
 
 bool Step::hasLegMotion() const
 {

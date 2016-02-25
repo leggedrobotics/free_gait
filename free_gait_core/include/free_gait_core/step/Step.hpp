@@ -77,13 +77,6 @@ class Step
   bool advance(double dt);
 
   /*!
-   * Checks status of robot to make sure if advancement is safe to continue.
-   * @return true if true execution active, false if execution stopped
-   *         because of unexpected event/state.
-   */
-  bool checkStatus();
-
-  /*!
    * Returns the swing data as a map between leg name and swing data.
    * @return the swing data map.
    */
