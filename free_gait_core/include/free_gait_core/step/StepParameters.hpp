@@ -26,8 +26,8 @@ class StepParameters
   struct FootstepParameters
   {
     std::string profileType = "triangle";
-    double profileHeight = 0.06;
-    double averageVelocity = 0.07;
+    double profileHeight = 0.05;
+    double averageVelocity = 0.1;
     double liftOffVelocity = 0.05;
     double touchdownVelocity = -0.05;
   } footTargetParameters_;

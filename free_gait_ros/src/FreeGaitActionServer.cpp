@@ -56,7 +56,7 @@ void FreeGaitActionServer::update()
     }
   } else {
     // Ongoing.
-    publishFeedback();
+    if (executor_->getQueue().active()) publishFeedback();
   }
 }
 
@@ -98,37 +98,30 @@ void FreeGaitActionServer::publishFeedback()
   Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
   // TODO Add feedback if executor multi-threading is not yet ready.
-//  const auto& step = executor_->getQueue().getCurrentStep();
+  const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
-  lock.unlock();
 
-//  if (step.checkStatus() == false) {
-//    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
-//    feedback.description = "Paused.";
-//  } else {
-//    switch (step.getState()) {
-//      feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
-//      case Step::State::PreStep:
-//        feedback.description = "Pre step.";
-//        break;
-//      case Step::State::AtStep:
-//        feedback.description = "At step.";
-//        break;
-//      case Step::State::PostStep:
-//        feedback.description = "Post step.";
-//        break;
+  if (executor_->getExecutionStatus() == false) {
+    feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
+    feedback.description = "Paused.";
+  } else {
+      feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
+      feedback.description = "Executing.";
 //      default:
 //        feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_UNKNOWN;
 //        feedback.description = "Unknown.";
 //        break;
-//    }
-//  }
+  }
 
-//  feedback.duration = ros::Duration(step.getTotalDuration());
-//  feedback.phase = step.getTotalPhase();
-//  for (const auto& stepData : step.getSwingData())
-//    feedback.swing_leg_names.push_back(stepData.first);
-
+  feedback.duration = ros::Duration(step.getTotalDuration());
+  feedback.phase = step.getTotalPhase();
+  for (const auto& leg : executor_->getAdapter().getLimbs()) {
+    if (step.hasLegMotion(leg)) {
+      const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(leg));
+      feedback.swing_leg_names.push_back(legName);
+    }
+  }
+  lock.unlock();
   server_.publishFeedback(feedback);
 }
 
