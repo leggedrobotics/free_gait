@@ -368,7 +368,7 @@ bool Executor::writeLegMotion()
       {
         const auto& jointMotion = dynamic_cast<const JointTrajectory&>(legMotion);
         timer_.pinTime("writeLegMotion evalute spline");
-        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
+        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time, timer_));
 //        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
 //        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
         if (controlSetup[ControlLevel::Effort]) state_->setJointEfforts(limb, jointMotion.evaluateEffort(time));
