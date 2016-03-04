@@ -69,6 +69,8 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
   std::vector<Time> times;
   computeTiming(values, times);
   std::vector<DerivativeType> velocities, accelerations;
+  if (!ignoreContact_) touchdownVelocity_ = 0.0;
+  if (!state.isSupportLeg(limb_)) liftOffVelocity_ = 0.0;
   computeVelocities(times, velocities, accelerations);
 
   trajectory_.fitCurve(times, values, velocities, accelerations);
@@ -179,7 +181,7 @@ void Footstep::computeVelocities(const std::vector<Time>& times,
   DerivativeType undefined(DerivativeType::Constant(robotUtils::PolynomialSplineContainer::undefinedValue));
   velocities.resize(times.size(), undefined);
   *(velocities.begin()) = DerivativeType(0.0, 0.0, liftOffVelocity_);
-  *(velocities.end()-1) = DerivativeType(0.0, 0.0, ignoreContact_ ? 0.0 : touchdownVelocity_);
+  *(velocities.end()-1) = DerivativeType(0.0, 0.0, touchdownVelocity_);
   accelerations.resize(times.size(), undefined);
   *(accelerations.begin()) = DerivativeType::Zero();
   *(accelerations.end() - 1) = DerivativeType::Zero();
