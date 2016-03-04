@@ -327,7 +327,7 @@ bool Executor::writeLegMotion()
 
       case LegMotionBase::TrajectoryType::Joints:
       {
-        const auto& jointMotion = dynamic_cast<const JointTrajectory&>(legMotion);
+        const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
 //        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
 //        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
