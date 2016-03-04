@@ -111,7 +111,7 @@ const JointPositions JointTrajectory::evaluatePosition(const double time, robotU
   JointPositions jointPositions;
   jointPositions.toImplementation().resize((unsigned int) trajectories.size());
   for (size_t i = 0; i < trajectories.size(); ++i) {
-    jointPositions(i) = trajectories[i].evaluate(time, timer);
+    jointPositions(i) = trajectories[i].evaluate(time);
   }
   timer.splitTime("JointTrajectory::evaluatePosition");
   return jointPositions;
