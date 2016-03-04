@@ -7,10 +7,7 @@
  */
 
 #include "free_gait_core/executor/Executor.hpp"
-
-#include <robotUtils/timers/ChronoTimer.hpp>
-
-#include <free_gait_core/leg_motion/JointTrajectory.hpp>
+#include "free_gait_core/leg_motion/JointTrajectory.hpp"
 
 namespace free_gait {
 
@@ -49,15 +46,8 @@ Executor::Mutex& Executor::getMutex()
 
 bool Executor::advance(double dt)
 {
-  timer_ = robotUtils::HighResolutionClockTimer("FreeGait::Executor");
-  timer_.setAlpha(1.0);
-
-  timer_.pinTime("Total");
-  timer_.pinTime("Mutex");
   Lock lock(mutex_);
-  timer_.splitTime("Mutex");
 
-  timer_.pinTime("First part");
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
   updateExecutionStatus();
@@ -73,47 +63,27 @@ bool Executor::advance(double dt)
 
   bool hasSwitchedStep;
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
-  timer_.splitTime("First part");
 
-  timer_.pinTime("Second part");
   while (hasSwitchedStep) {
 
     if (!queue_.getCurrentStep().requiresMultiThreading()) {
       if (!completeCurrentStep()) return false;
       if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
     } else {
-      timer_.pinTime("Creating thread");
       std::thread thread(&Executor::completeCurrentStep, this, true);
       thread.detach();
-      timer_.splitTime("Creating thread");
       hasSwitchedStep = false;
     }
   }
 
-  timer_.pinTime("writeIgnoreContact");
   if (!writeIgnoreContact()) return false;
-  timer_.splitTime("writeIgnoreContact");
-  timer_.pinTime("writeIgnoreForPoseAdaptation");
   if (!writeIgnoreForPoseAdaptation()) return false;
-  timer_.splitTime("writeIgnoreForPoseAdaptation");
-    timer_.pinTime("writeSupportLegs");
   if (!writeSupportLegs()) return false;
-  timer_.splitTime("writeSupportLegs");
-    timer_.pinTime("writeSurfaceNormals");
   if (!writeSurfaceNormals()) return false;
-  timer_.splitTime("writeSurfaceNormals");
-    timer_.pinTime("writeLegMotion");
   if (!writeLegMotion()) return false;
-  timer_.splitTime("writeLegMotion");
-    timer_.pinTime("writeTorsoMotion");
   if (!writeTorsoMotion()) return false;
-  timer_.splitTime("writeTorsoMotion");
-    timer_.pinTime("updateExtras");
   if (!adapter_->updateExtras(queue_, *state_)) return false;
-  timer_.pinTime("updateExtras");
 //  std::cout << *state_ << std::endl;
-  timer_.splitTime("Second part");
-  timer_.splitTime("Total");
 
   return true;
 }
@@ -174,11 +144,6 @@ const State& Executor::getState() const
 const AdapterBase& Executor::getAdapter() const
 {
   return *adapter_;
-}
-
-const robotUtils::HighResolutionClockTimer& Executor::getTimer()
-{
-  return timer_;
 }
 
 bool Executor::initializeStateWithRobot()
@@ -327,7 +292,6 @@ bool Executor::writeSurfaceNormals()
 
 bool Executor::writeLegMotion()
 {
-  timer_.pinTime("1");
   for (const auto& limb : adapter_->getLimbs()) {
     if (state_->isSupportLeg(limb)) state_->setEmptyControlSetup(limb);
   }
@@ -335,12 +299,9 @@ bool Executor::writeLegMotion()
 
   const auto& step = queue_.getCurrentStep();
   if (!step.hasLegMotion()) return true;
-  timer_.splitTime("1");
 
-  timer_.pinTime("2");
   double time = queue_.getCurrentStep().getTime();
   for (const auto& limb : adapter_->getLimbs()) {
-    timer_.pinTime("writeLegmotion for loop");
     if (!step.hasLegMotion(limb)) continue;
     auto const& legMotion = step.getLegMotion(limb);
     ControlSetup controlSetup = legMotion.getControlSetup();
@@ -367,12 +328,10 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::Joints:
       {
         const auto& jointMotion = dynamic_cast<const JointTrajectory&>(legMotion);
-        timer_.pinTime("writeLegMotion evalute spline");
-        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time, timer_));
+        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
 //        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
 //        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
         if (controlSetup[ControlLevel::Effort]) state_->setJointEfforts(limb, jointMotion.evaluateEffort(time));
-        timer_.splitTime("writeLegMotion evalute spline");
         break;
       }
 
@@ -380,9 +339,7 @@ bool Executor::writeLegMotion()
         throw std::runtime_error("Executor::writeLegMotion() could not write leg motion of this type.");
         break;
     }
-    timer_.splitTime("writeLegmotion for loop");
   }
-  timer_.splitTime("2");
 
   return true;
 }

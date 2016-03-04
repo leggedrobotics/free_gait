@@ -71,7 +71,6 @@ class Executor
 
   const State& getState() const;
   const AdapterBase& getAdapter() const;
-  const robotUtils::HighResolutionClockTimer& getTimer();
 
  private:
   bool completeCurrentStep(bool multiThreaded = false);
@@ -86,7 +85,6 @@ class Executor
   bool writeTorsoMotion();
 
   Mutex mutex_;
-  robotUtils::HighResolutionClockTimer timer_;
   boost::atomic<bool> isInitialized_;
   boost::atomic<bool> executionStatus_;
   StepQueue queue_;
