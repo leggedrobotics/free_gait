@@ -78,7 +78,6 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
 
 const Position Footstep::evaluatePosition(const double time) const
 {
-  std::cout << Position(trajectory_.evaluate(time)) << std::endl;
   return Position(trajectory_.evaluate(time));
 }
 
