@@ -14,6 +14,9 @@
 #include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/step/StepCompleter.hpp"
 
+// Robot utils
+#include <robotUtils/timers/ChronoTimer.hpp>
+
 // STD
 #include <memory>
 #include <thread>
@@ -68,9 +71,10 @@ class Executor
 
   const State& getState() const;
   const AdapterBase& getAdapter() const;
+  const robotUtils::HighResolutionClockTimer& getTimer();
 
  private:
-  bool completeCurrentStep();
+  bool completeCurrentStep(bool multiThreaded = false);
   bool initializeStateWithRobot();
   bool updateStateWithMeasurements();
   void updateExecutionStatus();
@@ -82,6 +86,7 @@ class Executor
   bool writeTorsoMotion();
 
   Mutex mutex_;
+  robotUtils::HighResolutionClockTimer timer_;
   boost::atomic<bool> isInitialized_;
   boost::atomic<bool> executionStatus_;
   StepQueue queue_;

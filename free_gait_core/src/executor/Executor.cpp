@@ -21,6 +21,7 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       isInitialized_(false),
       executionStatus_(true)
 {
+  timer_ = robotUtils::HighResolutionClockTimer("FreeGait::Executor");
 }
 
 Executor::~Executor()
@@ -47,8 +48,12 @@ Executor::Mutex& Executor::getMutex()
 
 bool Executor::advance(double dt)
 {
+  timer_.pinTime("Total");
+  timer_.pinTime("Mutex");
   Lock lock(mutex_);
+  timer_.splitTime("Mutex");
 
+  timer_.pinTime("First part");
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
   updateExecutionStatus();
@@ -64,14 +69,16 @@ bool Executor::advance(double dt)
 
   bool hasSwitchedStep;
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
+  timer_.splitTime("First part");
 
+  timer_.pinTime("Second part");
   while (hasSwitchedStep) {
 
     if (!queue_.getCurrentStep().requiresMultiThreading()) {
       if (!completeCurrentStep()) return false;
       if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
     } else {
-      std::thread thread(&Executor::completeCurrentStep, this);
+      std::thread thread(&Executor::completeCurrentStep, this, true);
       thread.detach();
       hasSwitchedStep = false;
     }
@@ -85,6 +92,9 @@ bool Executor::advance(double dt)
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
+  timer_.splitTime("Second part");
+  timer_.splitTime("Total");
+
   return true;
 }
 
@@ -93,13 +103,21 @@ bool Executor::getExecutionStatus()
   return executionStatus_;
 }
 
-bool Executor::completeCurrentStep()
+bool Executor::completeCurrentStep(bool multiThreaded)
 {
   robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
   // TODO: Add mutexes on state and queue?
-  if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+  bool completionSuccessful;
+  if (multiThreaded) {
+    const State state(*state_);
+    completionSuccessful = completer_->complete(state, queue_, queue_.getCurrentStep());
+  } else {
+    completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
+  }
+
+  if (!completionSuccessful) {
     std::cerr << "Executor::advance: Could not complete step." << std::endl;
     return false;
   }
@@ -135,6 +153,11 @@ const State& Executor::getState() const
 const AdapterBase& Executor::getAdapter() const
 {
   return *adapter_;
+}
+
+const robotUtils::HighResolutionClockTimer& Executor::getTimer()
+{
+  return timer_;
 }
 
 bool Executor::initializeStateWithRobot()
