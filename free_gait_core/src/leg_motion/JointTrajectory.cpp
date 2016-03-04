@@ -104,14 +104,16 @@ double JointTrajectory::getDuration() const
   return duration_;
 }
 
-const JointPositions JointTrajectory::evaluatePosition(const double time) const
+const JointPositions JointTrajectory::evaluatePosition(const double time, robotUtils::HighResolutionClockTimer& timer) const
 {
+  timer.pinTime("JointTrajectory::evaluatePosition");
   const auto& trajectories = trajectories_.at(ControlLevel::Position);
   JointPositions jointPositions;
   jointPositions.toImplementation().resize((unsigned int) trajectories.size());
   for (size_t i = 0; i < trajectories.size(); ++i) {
-    jointPositions(i) = trajectories[i].evaluate(time);
+    jointPositions(i) = trajectories[i].evaluate(time, timer);
   }
+  timer.splitTime("JointTrajectory::evaluatePosition");
   return jointPositions;
 }
 

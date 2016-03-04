@@ -15,6 +15,8 @@
 // Curves
 #include <curves/PolynomialSplineScalarCurve.hpp>
 
+#include "robotUtils/timers/ChronoTimer.hpp"
+
 namespace free_gait {
 
 class JointTrajectory : public JointMotionBase
@@ -66,7 +68,7 @@ class JointTrajectory : public JointMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  const JointPositions evaluatePosition(const double time) const;
+  const JointPositions evaluatePosition(const double time, robotUtils::HighResolutionClockTimer& timer) const;
   const JointVelocities evaluateVelocity(const double time) const;
   const JointAccelerations evaluateAcceleration(const double time) const;
   const JointEfforts evaluateEffort(const double time) const;
