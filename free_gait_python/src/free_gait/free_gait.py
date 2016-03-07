@@ -191,7 +191,7 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
         adapt_coordinates(goal, position, orientation)
 
-    print goal
+    # print goal
     return goal
 
 
@@ -247,8 +247,6 @@ def parse_joint_trajectory(yaml_object):
         joint_trajectory.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
         joint_trajectory.surface_normal = parse_vector(yaml_object['surface_normal'])
-    print joint_trajectory
-
     return joint_trajectory
 
 

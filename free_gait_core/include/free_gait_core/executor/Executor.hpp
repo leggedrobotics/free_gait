@@ -14,6 +14,9 @@
 #include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/step/StepCompleter.hpp"
 
+// Robot utils
+#include <robotUtils/timers/ChronoTimer.hpp>
+
 // STD
 #include <memory>
 #include <thread>
@@ -70,7 +73,7 @@ class Executor
   const AdapterBase& getAdapter() const;
 
  private:
-  bool completeCurrentStep();
+  bool completeCurrentStep(bool multiThreaded = false);
   bool initializeStateWithRobot();
   bool updateStateWithMeasurements();
   void updateExecutionStatus();

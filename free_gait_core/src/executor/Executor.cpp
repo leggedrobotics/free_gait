@@ -7,8 +7,7 @@
  */
 
 #include "free_gait_core/executor/Executor.hpp"
-
-#include <robotUtils/timers/ChronoTimer.hpp>
+#include "free_gait_core/leg_motion/JointTrajectory.hpp"
 
 namespace free_gait {
 
@@ -71,7 +70,7 @@ bool Executor::advance(double dt)
       if (!completeCurrentStep()) return false;
       if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
     } else {
-      std::thread thread(&Executor::completeCurrentStep, this);
+      std::thread thread(&Executor::completeCurrentStep, this, true);
       thread.detach();
       hasSwitchedStep = false;
     }
@@ -85,6 +84,7 @@ bool Executor::advance(double dt)
   if (!writeTorsoMotion()) return false;
   if (!adapter_->updateExtras(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
+
   return true;
 }
 
@@ -93,17 +93,26 @@ bool Executor::getExecutionStatus()
   return executionStatus_;
 }
 
-bool Executor::completeCurrentStep()
+bool Executor::completeCurrentStep(bool multiThreaded)
 {
   robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
   // TODO: Add mutexes on state and queue?
-  if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+  bool completionSuccessful;
+  if (multiThreaded) {
+    const State state(*state_);
+    completionSuccessful = completer_->complete(state, queue_, queue_.getCurrentStep());
+  } else {
+    completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
+  }
+
+  if (!completionSuccessful) {
     std::cerr << "Executor::advance: Could not complete step." << std::endl;
     return false;
   }
 
+  timer.splitTime();
   std::cout << timer << std::endl;
   std::cout << "Switched step to:" << std::endl;
   std::cout << queue_.getCurrentStep() << std::endl;
@@ -307,8 +316,8 @@ bool Executor::writeLegMotion()
           // TODO Add frame handling.
           Position positionInWorldFrame(endEffectorMotion.evaluatePosition(time));
           // TODO adapter_->getOrientationWorldToBase() is nicer when the robot slips, but leads to problems at lift-off.
-//          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
-          Position positionInBaseFrame(state_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+//          Position positionInBaseFrame(state_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
           JointPositions jointPositions;
           adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
           state_->setJointPositions(limb, jointPositions);

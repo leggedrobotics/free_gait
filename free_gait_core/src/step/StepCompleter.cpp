@@ -68,7 +68,21 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
 
 bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const
 {
-  if (endEffectorMotion.getControlSetup().at(ControlLevel::Position)) {
+  // Input.
+//  ControlSetup controlSetupIn = state.getControlSetup(endEffectorMotion.getLimb());
+//  bool positionIn = controlSetupIn.at(ControlLevel::Position);
+//  bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
+//  bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
+//  bool effortIn = controlSetupIn.at(ControlLevel::Effort);
+
+  // Output.
+  ControlSetup controlSetupOut = endEffectorMotion.getControlSetup();
+  bool positionOut = controlSetupOut.at(ControlLevel::Position);
+  bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
+  bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
+  bool effortOut = controlSetupOut.at(ControlLevel::Effort);
+
+  if (positionOut) {
     // TODO Check frame.
     Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
     Position startPositionInWorldFrame = adapter_->getPositionWorldToBaseInWorldFrame() + adapter_->getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
@@ -81,16 +95,18 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
 {
   // Input.
-  bool positionIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Position);
-  bool velocityIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Velocity);
-  bool accelerationIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Acceleration);
-  bool effortIn = state.getControlSetup(jointMotion.getLimb()).at(ControlLevel::Effort);
+  ControlSetup controlSetupIn = state.getControlSetup(jointMotion.getLimb());
+  bool positionIn = controlSetupIn.at(ControlLevel::Position);
+  bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
+  bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
+  bool effortIn = controlSetupIn.at(ControlLevel::Effort);
 
   // Output.
-  bool positionOut = jointMotion.getControlSetup().at(ControlLevel::Position);
-  bool velocityOut = jointMotion.getControlSetup().at(ControlLevel::Velocity);
-  bool accelerationOut = jointMotion.getControlSetup().at(ControlLevel::Acceleration);
-  bool effortOut = jointMotion.getControlSetup().at(ControlLevel::Effort);
+  ControlSetup controlSetupOut = jointMotion.getControlSetup();
+  bool positionOut = controlSetupOut.at(ControlLevel::Position);
+  bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
+  bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
+  bool effortOut = controlSetupOut.at(ControlLevel::Effort);
 
   // Check for special mode transitions.
   if (positionIn && !effortIn && positionOut && effortOut) {
