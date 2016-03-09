@@ -40,11 +40,10 @@ class StepParameters
 
   struct BaseAutoParameters
   {
-    std::string controllerType = "virtual_model_control";
     double averageLinearVelocity = 0.05;
     double averageAngularVelocity = 0.1;
-    double supportMargin = 0.04;
-    double minimumDuration_ = 0.2;
+    double supportMargin = 0.08;
+    double minimumDuration_ = 0.4;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
