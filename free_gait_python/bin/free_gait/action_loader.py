@@ -23,7 +23,7 @@ class ActionLoader:
     
     def __init__(self):
         self.default_frame_id = 'map'
-        self.action_server_topic = '/locomotion_controller/step'
+        self.action_server_topic = '/loco_free_gait/execute_steps'
         self.request = None
         self._load_parameters()
         self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)

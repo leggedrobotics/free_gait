@@ -1,2 +1,2 @@
-action_server: /locomotion_controller/step
+action_server: /loco_free_gait/execute_steps
 default_frame_id: map
