@@ -34,7 +34,7 @@ class StepParameters
 
   struct LegModeParameters
   {
-    double duration = 0.0025;
+    double duration = 0.5;
     std::string frameId = "base";
   } legModeParameters_;
 
