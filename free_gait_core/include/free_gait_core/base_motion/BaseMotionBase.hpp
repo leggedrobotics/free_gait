@@ -57,7 +57,6 @@ class BaseMotionBase
   BaseMotionBase::Type getType() const;
 
   virtual const ControlSetup getControlSetup() const;
-  virtual const std::string& getControllerType() const;
 
   /*!
    * Update the trajectory with the base start pose.

@@ -239,6 +239,8 @@ void State::setEmptyControlSetup(const LimbEnum& limb)
 
 std::ostream& operator<<(std::ostream& out, const State& state)
 {
+  out << "Support legs: " << state.isSupportLegs_ << std::endl;
+  out << "Ignore contact: " << state.ignoreContact_ << std::endl;
   out << "Ignore for pose adaptation: " << state.ignoreForPoseAdaptation_ << std::endl;
   out << "Control setup:" << std::endl;
   for (const auto& controlSetup : state.controlSetups_) {

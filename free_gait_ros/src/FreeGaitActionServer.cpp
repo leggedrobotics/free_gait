@@ -101,7 +101,7 @@ void FreeGaitActionServer::publishFeedback()
   const auto& step = executor_->getQueue().getCurrentStep();
   feedback.queue_size = executor_->getQueue().size();
 
-  if (executor_->getExecutionStatus() == false) {
+  if (executor_->getAdapter().isExecutionOk() == false) {
     feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
     feedback.description = "Paused.";
   } else {

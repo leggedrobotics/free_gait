@@ -197,9 +197,6 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
   const auto& parameters = parameters_->baseAutoParameters_;
 
-  if (baseAuto.controllerType_.empty())
-    baseAuto.controllerType_ = parameters.controllerType;
-
   if (baseAuto.height_) {
     if (*(baseAuto.height_) == 0.0)
       baseAuto.height_.reset(nullptr);

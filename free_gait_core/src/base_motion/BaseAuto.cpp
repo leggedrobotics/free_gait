@@ -38,7 +38,6 @@ BaseAuto::~BaseAuto()
 
 BaseAuto::BaseAuto(const BaseAuto& other) :
     BaseMotionBase(other),
-    controllerType_(other.controllerType_),
     ignoreTimingOfLegMotion_(other.ignoreTimingOfLegMotion_),
     averageLinearVelocity_(other.averageLinearVelocity_),
     averageAngularVelocity_(other.averageAngularVelocity_),
@@ -69,11 +68,6 @@ std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
 const ControlSetup BaseAuto::getControlSetup() const
 {
   return controlSetup_;
-}
-
-const std::string& BaseAuto::getControllerType() const
-{
-  return controllerType_;
 }
 
 void BaseAuto::updateStartPose(const Pose& startPose)

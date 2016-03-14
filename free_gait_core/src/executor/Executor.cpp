@@ -17,8 +17,7 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
     : completer_(completer),
       adapter_(adapter),
       state_(state),
-      isInitialized_(false),
-      executionStatus_(true)
+      isInitialized_(false)
 {
 }
 
@@ -50,9 +49,9 @@ bool Executor::advance(double dt)
 
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
-  updateExecutionStatus();
+  bool executionStatus = adapter_->isExecutionOk();
 
-  if (executionStatus_) {
+  if (executionStatus) {
     if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
     state_->setRobotExecutionStatus(true);
   } else {
@@ -86,11 +85,6 @@ bool Executor::advance(double dt)
 //  std::cout << *state_ << std::endl;
 
   return true;
-}
-
-bool Executor::getExecutionStatus()
-{
-  return executionStatus_;
 }
 
 bool Executor::completeCurrentStep(bool multiThreaded)
@@ -215,17 +209,6 @@ bool Executor::updateStateWithMeasurements()
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
   return true;
-}
-
-void Executor::updateExecutionStatus()
-{
-  executionStatus_ = true;
-  for (const auto& limb : adapter_->getLimbs()) {
-    if (state_->isSupportLeg(limb) && !adapter_->isLegGrounded(limb)) {
-      executionStatus_ = false;
-      return;
-    }
-  }
 }
 
 bool Executor::writeIgnoreContact()
