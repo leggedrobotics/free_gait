@@ -126,7 +126,7 @@ double BaseAuto::getHeight() const
   throw std::runtime_error("BaseAuto::getHeight() has not yet been computed.");
 }
 
-bool BaseAuto::computeHeight(const State& state, const StepQueue& queue,  const AdapterBase& adapter)
+bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {
     if (queue.getPreviousStep().hasBaseMotion()) {
