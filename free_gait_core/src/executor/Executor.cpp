@@ -95,7 +95,9 @@ bool Executor::completeCurrentStep(bool multiThreaded)
   // TODO: Add mutexes on state and queue?
   bool completionSuccessful;
   if (multiThreaded) {
+    Lock lock(mutex_);
     const State state(*state_);
+    lock.unlock();
     completionSuccessful = completer_->complete(state, queue_, queue_.getCurrentStep());
   } else {
     completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
