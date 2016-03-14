@@ -56,7 +56,9 @@ void FreeGaitActionServer::update()
     }
   } else {
     // Ongoing.
+    lock.lock();
     if (executor_->getQueue().active()) publishFeedback();
+    lock.unlock();
   }
 }
 

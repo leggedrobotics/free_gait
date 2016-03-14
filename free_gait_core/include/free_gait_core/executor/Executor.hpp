@@ -77,7 +77,7 @@ class Executor
   bool writeTorsoMotion();
 
   Mutex mutex_;
-  bool isInitialized_;
+  boost::atomic<bool> isInitialized_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<AdapterBase> adapter_;
