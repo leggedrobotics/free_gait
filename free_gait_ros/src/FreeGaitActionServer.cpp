@@ -43,9 +43,9 @@ void FreeGaitActionServer::initialize()
 void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
-  Executor::Lock lock(executor_->getMutex());
+  Executor::SharedLock queueLock(executor_->getQueueMutex());
   bool stepQueueEmpty = executor_->getQueue().empty();
-  lock.unlock();
+  queueLock.unlock();
   if (stepQueueEmpty) {
     // Succeeded.
     if (isPreempting_) {
@@ -56,9 +56,9 @@ void FreeGaitActionServer::update()
     }
   } else {
     // Ongoing.
-    lock.lock();
+    queueLock.lock();
     if (executor_->getQueue().active()) publishFeedback();
-    lock.unlock();
+    queueLock.unlock();
   }
 }
 
@@ -73,21 +73,21 @@ void FreeGaitActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
-  Executor::Lock lock(executor_->getMutex());
-  lock.unlock();
+  Executor::UniqueLock queueLock(executor_->getQueueMutex());
+  queueLock.unlock();
   for (auto& stepMessage : goal->steps) {
     Step step;
     rosConverter_.fromMessage(stepMessage, step);
-    lock.lock();
+    queueLock.lock();
     executor_->getQueue().add(step);
-    lock.unlock();
+    queueLock.unlock();
   }
 }
 
 void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
-  Executor::Lock lock(executor_->getMutex());
+  Executor::UniqueLock queueLock(executor_->getQueueMutex());
   if (executor_->getQueue().empty()) return;
   if (executor_->getQueue().size() <= 1) return;
   executor_->getQueue().clearNextSteps();
@@ -97,7 +97,8 @@ void FreeGaitActionServer::preemptCallback()
 void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::ExecuteStepsFeedback feedback;
-  Executor::Lock lock(executor_->getMutex());
+  Executor::SharedLock queueLock(executor_->getQueueMutex());
+  Executor::SharedLock adapterLock(executor_->getAdapterMutex());
   if (executor_->getQueue().empty()) return;
   // TODO Add feedback if executor multi-threading is not yet ready.
   const auto& step = executor_->getQueue().getCurrentStep();
@@ -123,7 +124,8 @@ void FreeGaitActionServer::publishFeedback()
       feedback.swing_leg_names.push_back(legName);
     }
   }
-  lock.unlock();
+  queueLock.unlock();
+  adapterLock.unlock();
   server_.publishFeedback(feedback);
 }
 

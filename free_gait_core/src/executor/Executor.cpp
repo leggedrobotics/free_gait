@@ -27,7 +27,6 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
-  Lock lock(mutex_);
   state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
   reset();
   return isInitialized_ = true;
@@ -38,19 +37,15 @@ bool Executor::isInitialized() const
   return isInitialized_;
 }
 
-Executor::Mutex& Executor::getMutex()
-{
-  return mutex_;
-}
-
 bool Executor::advance(double dt)
 {
-  Lock lock(mutex_);
-
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
+  SharedLock adapterLock(adapterMutex_);
   bool executionStatus = adapter_->isExecutionOk();
+  adapterLock.unlock();
 
+  UniqueLock stateLock(stateMutex_);
   if (executionStatus) {
     if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
     state_->setRobotExecutionStatus(true);
@@ -59,29 +54,41 @@ bool Executor::advance(double dt)
     state_->setRobotExecutionStatus(false);
     return true;
   }
+  stateLock.unlock();
 
   bool hasSwitchedStep;
+  UniqueLock queueUniqueLock(queueMutex_);
   if (!queue_.advance(dt, hasSwitchedStep)) return false;
+  queueUniqueLock.unlock();
 
   while (hasSwitchedStep) {
 
+    queueUniqueLock.lock();
     if (!queue_.getCurrentStep().requiresMultiThreading()) {
       if (!completeCurrentStep()) return false;
       if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
+      queueUniqueLock.unlock();
     } else {
       std::thread thread(&Executor::completeCurrentStep, this, true);
       thread.detach();
+      queueUniqueLock.unlock();
       hasSwitchedStep = false;
     }
   }
 
+  stateLock.lock();
+  SharedLock queueSharedLock(queueMutex_);
   if (!writeIgnoreContact()) return false;
   if (!writeIgnoreForPoseAdaptation()) return false;
   if (!writeSupportLegs()) return false;
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
+  adapterLock.lock();
   if (!adapter_->updateExtras(queue_, *state_)) return false;
+  adapterLock.unlock();
+  queueSharedLock.unlock();
+  stateLock.unlock();
 //  std::cout << *state_ << std::endl;
 
   return true;
@@ -89,28 +96,30 @@ bool Executor::advance(double dt)
 
 bool Executor::completeCurrentStep(bool multiThreaded)
 {
+  std::cout << "START completeCurrentStep" << std::endl;
   robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
   bool completionSuccessful;
   if (multiThreaded) {
     timer.pinTime("Copy state, queue, and step");
-    Lock lock(mutex_);
+    SharedLock stateLock(stateMutex_);
     const State state(*state_);
-    lock.unlock(); // TODO Does this help?!
-    lock.lock();
-    const StepQueue queue(queue_);
-    lock.unlock();
-    lock.lock();
+    stateLock.unlock();
+    SharedLock queueSharedLock(queueMutex_);
     Step step(queue_.getCurrentStep());
-    lock.unlock();
+    queueSharedLock.unlock();
     timer.splitTime("Copy state, queue, and step");
 
-    completionSuccessful = completer_->complete(state, queue, step);
+    queueSharedLock.lock();
+    SharedLock adapterLock(adapterMutex_);
+    completionSuccessful = completer_->complete(state, queue_, step);
+    adapterLock.unlock();
+    queueSharedLock.unlock();
 
-    lock.lock();
+    UniqueLock queueUniqueLock(queueMutex_);
     queue_.replaceCurrentStep(step);
-    lock.unlock();
+    queueUniqueLock.unlock();
   } else {
     completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
   }
@@ -123,15 +132,19 @@ bool Executor::completeCurrentStep(bool multiThreaded)
   timer.splitTime();
   std::cout << timer << std::endl;
   std::cout << "Switched step to:" << std::endl;
-  Lock lock(mutex_);
-  std::cout << queue_.getCurrentStep() << std::endl;
-  lock.unlock();
+  if (multiThreaded) {
+    SharedLock queueLock(queueMutex_);
+    std::cout << queue_.getCurrentStep() << std::endl;
+    queueLock.unlock();
+  } else {
+    std::cout << queue_.getCurrentStep() << std::endl;
+  }
+  std::cout << "END completeCurrentStep" << std::endl;
   return true;
 }
 
 void Executor::reset()
 {
-  Lock lock(mutex_);
   queue_.clear();
   initializeStateWithRobot();
 }
@@ -146,14 +159,29 @@ StepQueue& Executor::getQueue()
   return queue_;
 }
 
+Executor::Mutex& Executor::getQueueMutex()
+{
+  return queueMutex_;
+}
+
 const State& Executor::getState() const
 {
   return *state_;
 }
 
+Executor::Mutex& Executor::getStateMutex()
+{
+  return stateMutex_;
+}
+
 const AdapterBase& Executor::getAdapter() const
 {
   return *adapter_;
+}
+
+Executor::Mutex& Executor::getAdapterMutex()
+{
+  return adapterMutex_;
 }
 
 bool Executor::initializeStateWithRobot()
@@ -198,6 +226,8 @@ bool Executor::initializeStateWithRobot()
 
 bool Executor::updateStateWithMeasurements()
 {
+  SharedLock adapterLock(adapterMutex_);
+  UniqueLock stateLock(stateMutex_);
   for (const auto& limb : adapter_->getLimbs()) {
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
