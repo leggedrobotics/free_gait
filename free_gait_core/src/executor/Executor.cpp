@@ -97,7 +97,7 @@ bool Executor::completeCurrentStep(bool multiThreaded)
     timer.pinTime("Copy state, queue, and step");
     Lock lock(mutex_);
     const State state(*state_);
-    lock.unlock();
+    lock.unlock(); // TODO Does this help?!
     lock.lock();
     const StepQueue queue(queue_);
     lock.unlock();
