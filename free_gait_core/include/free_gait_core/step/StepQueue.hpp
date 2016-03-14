@@ -26,6 +26,7 @@ class StepQueue
  public:
   StepQueue();
   virtual ~StepQueue();
+  StepQueue(const StepQueue& other);
 
   /*!
    * Add a step to the queue.
@@ -69,6 +70,7 @@ class StepQueue
    */
   const Step& getCurrentStep() const;
   Step& getCurrentStep();
+  void replaceCurrentStep(const Step& step);
 
   /*!
    * Returns the next step. Check if size() > 1 first!

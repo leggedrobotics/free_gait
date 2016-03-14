@@ -92,15 +92,21 @@ bool Executor::completeCurrentStep(bool multiThreaded)
   robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
-  // TODO: Add mutexes on state and queue?
   bool completionSuccessful;
   if (multiThreaded) {
-    timer.pinTime("Executor::Copy state");
+    timer.pinTime("Copy state, queue, and step");
     Lock lock(mutex_);
-    timer.splitTime("Executor::Copy state");
     const State state(*state_);
+    const StepQueue queue(queue_);
+    Step step(queue_.getCurrentStep());
     lock.unlock();
-    completionSuccessful = completer_->complete(state, queue_, queue_.getCurrentStep());
+    timer.splitTime("Copy state, queue, and step");
+
+    completionSuccessful = completer_->complete(state, queue, step);
+
+    lock.lock();
+    queue_.replaceCurrentStep(step);
+    lock.unlock();
   } else {
     completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
   }
@@ -113,7 +119,9 @@ bool Executor::completeCurrentStep(bool multiThreaded)
   timer.splitTime();
   std::cout << timer << std::endl;
   std::cout << "Switched step to:" << std::endl;
+  Lock lock(mutex_);
   std::cout << queue_.getCurrentStep() << std::endl;
+  lock.unlock();
   return true;
 }
 

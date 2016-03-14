@@ -19,10 +19,18 @@ namespace free_gait {
 StepQueue::StepQueue()
     : active_(false)
 {
+  previousStep_.reset();
 }
 
 StepQueue::~StepQueue()
 {
+}
+
+StepQueue::StepQueue(const StepQueue& other)
+    : queue_(other.queue_),
+      active_(other.active_)
+{
+  if (other.previousStep_) previousStep_ = std::move(other.previousStep_->clone());
 }
 
 void StepQueue::add(const Step& step)
@@ -98,6 +106,12 @@ Step& StepQueue::getCurrentStep()
 {
   if (empty()) throw std::out_of_range("StepQueue::getCurrentStep(): No steps in queue!");
   return queue_.front();
+}
+
+void StepQueue::replaceCurrentStep(const Step& step)
+{
+  queue_.pop_front();
+  queue_.push_front(step);
 }
 
 const Step& StepQueue::getNextStep() const

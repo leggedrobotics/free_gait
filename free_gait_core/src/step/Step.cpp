@@ -68,24 +68,11 @@ Step& Step::operator=(const Step& other)
   return *this;
 }
 
-//std::unique_ptr<Step> Step::clone() const
-//{
-//  std::unique_ptr<Step> pointer(new Step(*this));
-//  return pointer;
-//}
-
-//void Step::addSimpleStep(const int stepNumber, const std::string& legName,
-//                       const loco::Position& target)
-//{
-//  stepNumber_ = stepNumber;
-//  SwingData swingData;
-//  swingData.setName(legName);
-//  SwingProfile profile;
-//  profile.setTarget(target);
-//  swingData.setTrajectory(profile);
-//  legMotion_.insert(std::pair<std::string, SwingData>(legName, swingData));
-//  isDurationComputed_ = false;
-//}
+std::unique_ptr<Step> Step::clone() const
+{
+  std::unique_ptr<Step> pointer(new Step(*this));
+  return pointer;
+}
 
 void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
 {
