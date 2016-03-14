@@ -108,14 +108,13 @@ bool Executor::completeCurrentStep(bool multiThreaded)
     stateLock.unlock();
     SharedLock queueSharedLock(queueMutex_);
     Step step(queue_.getCurrentStep());
+    StepQueue queue(queue_); // TODO Don't copy entire queue, only previous step.
     queueSharedLock.unlock();
     timer.splitTime("Copy state, queue, and step");
 
-    queueSharedLock.lock();
     SharedLock adapterLock(adapterMutex_);
-    completionSuccessful = completer_->complete(state, queue_, step);
+    completionSuccessful = completer_->complete(state, queue, step);
     adapterLock.unlock();
-    queueSharedLock.unlock();
 
     UniqueLock queueUniqueLock(queueMutex_);
     queue_.replaceCurrentStep(step);
