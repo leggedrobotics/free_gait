@@ -112,7 +112,7 @@ bool Executor::completeCurrentStep(bool multiThreaded)
     queueSharedLock.unlock();
     timer.splitTime("Copy state, queue, and step");
 
-    SharedLock adapterLock(adapterMutex_);
+    SharedLock adapterLock(adapterMutex_);// TODO MIRE FINE GRAINED!! -> QUARUPED MODEL
     completionSuccessful = completer_->complete(state, queue, step);
     adapterLock.unlock();
 
