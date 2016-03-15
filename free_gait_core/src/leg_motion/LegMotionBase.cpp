@@ -64,11 +64,6 @@ bool LegMotionBase::isComputed() const
   throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
 }
 
-bool LegMotionBase::requiresMultiThreading() const
-{
-  return false;
-}
-
 double LegMotionBase::getDuration() const
 {
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");

@@ -66,11 +66,6 @@ bool BaseMotionBase::isComputed() const
   throw std::runtime_error("BaseMotionBase::isComputed() not implemented.");
 }
 
-bool BaseMotionBase::requiresMultiThreading() const
-{
-  return false;
-}
-
 double BaseMotionBase::getDuration() const
 {
   throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");

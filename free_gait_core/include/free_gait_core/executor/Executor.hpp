@@ -19,10 +19,9 @@
 
 // STD
 #include <memory>
-#include <thread>
 
 // Boost
-#include <boost/thread.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 namespace free_gait {
 
@@ -36,12 +35,13 @@ class Executor
   /*!
    * Type definitions.
    */
-  typedef boost::shared_mutex Mutex;
-  typedef boost::shared_lock<boost::shared_mutex> SharedLock;
-  typedef boost::unique_lock<boost::shared_mutex> UniqueLock;
+  typedef boost::recursive_mutex Mutex;
+  typedef boost::recursive_mutex::scoped_lock Lock;
 
   bool initialize();
   bool isInitialized() const;
+
+  Mutex& getMutex();
 
   /*!
    * Advance in time
@@ -60,14 +60,9 @@ class Executor
    * @return
    */
   StepQueue& getQueue();
-  Mutex& getQueueMutex();
-
   const State& getState() const;
-  Mutex& getStateMutex();
-
   const AdapterBase& getAdapter() const;
   AdapterBase& getAdapter();
-  Mutex& getAdapterMutex();
 
  private:
   bool completeCurrentStep(bool multiThreaded = false);
@@ -80,9 +75,7 @@ class Executor
   bool writeLegMotion();
   bool writeTorsoMotion();
 
-  Mutex adapterMutex_;
-  Mutex stateMutex_;
-  Mutex queueMutex_;
+  Mutex mutex_;
   bool isInitialized_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;

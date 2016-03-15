@@ -59,7 +59,6 @@ class JointTrajectory : public JointMotionBase
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
   bool isComputed() const;
-  bool requiresMultiThreading() const;
 
   /*!
    * Returns the total duration of the motion.

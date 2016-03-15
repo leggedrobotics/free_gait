@@ -88,7 +88,6 @@ class Step
   double getBaseMotionDuration() const;
   double getBaseMotionPhase() const;
 
-  bool requiresMultiThreading() const;
   bool isApproachingEnd(double tolerance) const;
 
   friend std::ostream& operator << (std::ostream& out, const Step& step);

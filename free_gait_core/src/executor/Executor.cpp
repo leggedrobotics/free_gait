@@ -37,15 +37,17 @@ bool Executor::isInitialized() const
   return isInitialized_;
 }
 
+Executor::Mutex& Executor::getMutex()
+{
+  return mutex_;
+}
+
 bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
-  SharedLock adapterLock(adapterMutex_);
   bool executionStatus = adapter_->isExecutionOk();
-  adapterLock.unlock();
 
-  UniqueLock stateLock(stateMutex_);
   if (executionStatus) {
     if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
     state_->setRobotExecutionStatus(true);
@@ -54,7 +56,6 @@ bool Executor::advance(double dt)
     state_->setRobotExecutionStatus(false);
     return true;
   }
-  stateLock.unlock();
 
   bool hasSwitchedStep;
   bool hasStartedStep;
@@ -73,19 +74,13 @@ bool Executor::advance(double dt)
     std::cout << queue_.getCurrentStep() << std::endl;
   }
 
-  stateLock.lock();
-  SharedLock queueSharedLock(queueMutex_);
   if (!writeIgnoreContact()) return false;
   if (!writeIgnoreForPoseAdaptation()) return false;
   if (!writeSupportLegs()) return false;
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
-  adapterLock.lock();
   if (!adapter_->updateExtras(queue_, *state_)) return false;
-  adapterLock.unlock();
-  queueSharedLock.unlock();
-  stateLock.unlock();
 //  std::cout << *state_ << std::endl;
 
   return true;
@@ -107,19 +102,9 @@ StepQueue& Executor::getQueue()
   return queue_;
 }
 
-Executor::Mutex& Executor::getQueueMutex()
-{
-  return queueMutex_;
-}
-
 const State& Executor::getState() const
 {
   return *state_;
-}
-
-Executor::Mutex& Executor::getStateMutex()
-{
-  return stateMutex_;
 }
 
 const AdapterBase& Executor::getAdapter() const
@@ -130,11 +115,6 @@ const AdapterBase& Executor::getAdapter() const
 AdapterBase& Executor::getAdapter()
 {
   return *adapter_;
-}
-
-Executor::Mutex& Executor::getAdapterMutex()
-{
-  return adapterMutex_;
 }
 
 bool Executor::initializeStateWithRobot()
@@ -179,8 +159,6 @@ bool Executor::initializeStateWithRobot()
 
 bool Executor::updateStateWithMeasurements()
 {
-  SharedLock adapterLock(adapterMutex_);
-  UniqueLock stateLock(stateMutex_);
   for (const auto& limb : adapter_->getLimbs()) {
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {

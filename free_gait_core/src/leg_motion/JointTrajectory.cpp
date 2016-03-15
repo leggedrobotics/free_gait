@@ -109,11 +109,6 @@ bool JointTrajectory::isComputed() const
   return isComputed_;
 }
 
-bool JointTrajectory::requiresMultiThreading() const
-{
-  return false;
-}
-
 double JointTrajectory::getDuration() const
 {
   return duration_;

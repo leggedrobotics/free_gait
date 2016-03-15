@@ -71,7 +71,6 @@ class BaseMotionBase
 
   virtual bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   virtual bool isComputed() const;
-  virtual bool requiresMultiThreading() const;
 
   /*!
    * Returns the total duration of the motion.
