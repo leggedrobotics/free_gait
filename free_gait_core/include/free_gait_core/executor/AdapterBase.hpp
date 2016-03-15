@@ -39,6 +39,7 @@ class AdapterBase
                                                     const JointPositions& jointPositions) const = 0;
 
   //! Reading state of real robot.
+  virtual bool isExecutionOk() const = 0;
   virtual bool isLegGrounded(const LimbEnum& limb) const = 0;
   virtual JointPositions getJointPositions(const LimbEnum& limb) const = 0;
   virtual JointPositions getAllJointPositions() const = 0;

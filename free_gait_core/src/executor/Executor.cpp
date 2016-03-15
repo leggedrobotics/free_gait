@@ -17,8 +17,7 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
     : completer_(completer),
       adapter_(adapter),
       state_(state),
-      isInitialized_(false),
-      executionStatus_(true)
+      isInitialized_(false)
 {
 }
 
@@ -50,9 +49,9 @@ bool Executor::advance(double dt)
 
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
-  updateExecutionStatus();
+  bool executionStatus = adapter_->isExecutionOk();
 
-  if (executionStatus_) {
+  if (executionStatus) {
     if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
     state_->setRobotExecutionStatus(true);
   } else {
@@ -88,21 +87,30 @@ bool Executor::advance(double dt)
   return true;
 }
 
-bool Executor::getExecutionStatus()
-{
-  return executionStatus_;
-}
-
 bool Executor::completeCurrentStep(bool multiThreaded)
 {
   robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
   timer.pinTime();
 
-  // TODO: Add mutexes on state and queue?
   bool completionSuccessful;
   if (multiThreaded) {
+    timer.pinTime("Copy state, queue, and step");
+    Lock lock(mutex_);
     const State state(*state_);
-    completionSuccessful = completer_->complete(state, queue_, queue_.getCurrentStep());
+    lock.unlock();
+    lock.lock();
+    const StepQueue queue(queue_);
+    lock.unlock();
+    lock.lock();
+    Step step(queue_.getCurrentStep());
+    lock.unlock();
+    timer.splitTime("Copy state, queue, and step");
+
+    completionSuccessful = completer_->complete(state, queue, step);
+
+    lock.lock();
+    queue_.replaceCurrentStep(step);
+    lock.unlock();
   } else {
     completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
   }
@@ -115,7 +123,9 @@ bool Executor::completeCurrentStep(bool multiThreaded)
   timer.splitTime();
   std::cout << timer << std::endl;
   std::cout << "Switched step to:" << std::endl;
+  Lock lock(mutex_);
   std::cout << queue_.getCurrentStep() << std::endl;
+  lock.unlock();
   return true;
 }
 
@@ -215,17 +225,6 @@ bool Executor::updateStateWithMeasurements()
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
   return true;
-}
-
-void Executor::updateExecutionStatus()
-{
-  executionStatus_ = true;
-  for (const auto& limb : adapter_->getLimbs()) {
-    if (state_->isSupportLeg(limb) && !adapter_->isLegGrounded(limb)) {
-      executionStatus_ = false;
-      return;
-    }
-  }
 }
 
 bool Executor::writeIgnoreContact()

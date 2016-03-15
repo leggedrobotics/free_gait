@@ -38,13 +38,8 @@ class Step
    */
   typedef std::unordered_map<LimbEnum, std::unique_ptr<LegMotionBase>, EnumClassHash> LegMotions;
 
-  /*!
-   * Add step data (simplified input).
-   * @param stepNumber the step number.
-   * @param legName the name of the leg.
-   * @param position the desired position of the step in world frame.
-   */
-//  void addSimpleStep(const int stepNumber, const std::string& legName, const free_gait::Position& position);
+
+  std::unique_ptr<Step> clone() const;
 
   /*!
    * Add swing data for a leg.

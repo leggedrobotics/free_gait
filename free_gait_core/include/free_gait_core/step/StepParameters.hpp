@@ -34,17 +34,16 @@ class StepParameters
 
   struct LegModeParameters
   {
-    double duration = 0.0025;
+    double duration = 0.5;
     std::string frameId = "base";
   } legModeParameters_;
 
   struct BaseAutoParameters
   {
-    std::string controllerType = "virtual_model_control";
     double averageLinearVelocity = 0.05;
     double averageAngularVelocity = 0.1;
-    double supportMargin = 0.04;
-    double minimumDuration_ = 0.2;
+    double supportMargin = 0.06;
+    double minimumDuration_ = 0.4;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
