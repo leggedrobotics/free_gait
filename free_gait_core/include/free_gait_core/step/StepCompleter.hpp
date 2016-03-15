@@ -26,12 +26,12 @@ namespace free_gait {
 class StepCompleter
 {
  public:
-  StepCompleter(std::shared_ptr<StepParameters> parameters, std::shared_ptr<AdapterBase> adapter);
+  StepCompleter(std::shared_ptr<StepParameters> parameters);
   virtual ~StepCompleter();
-  bool complete(const State& state, const StepQueue& queue, Step& step) const;
-  bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
-  bool complete(const State& state, const Step& step, JointMotionBase& jointMotion) const;
-  bool complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const;
+  bool complete(const State& state, const StepQueue& queue, const AdapterBase& adapter, Step& step) const;
+  bool complete(const State& state, const Step& step, const AdapterBase& adapter, EndEffectorMotionBase& endEffectorMotion) const;
+  bool complete(const State& state, const Step& step, const AdapterBase& adapter, JointMotionBase& jointMotion) const;
+  bool complete(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter, BaseMotionBase& baseMotion) const;
   void setParameters(Footstep& footTarget) const;
   void setParameters(LegMode& legMode) const;
   void setParameters(BaseAuto& baseAuto) const;
@@ -39,7 +39,6 @@ class StepCompleter
 
  private:
   std::shared_ptr<StepParameters> parameters_;
-  std::shared_ptr<AdapterBase> adapter_;
 };
 
 } /* namespace */

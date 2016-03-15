@@ -102,7 +102,7 @@ bool Executor::completeCurrentStep(bool multiThreaded)
 
   bool completionSuccessful;
   if (multiThreaded) {
-    timer.pinTime("Copy state, queue, and step");
+    timer.pinTime("Copy state, queue, step, and adapter");
     SharedLock stateLock(stateMutex_);
     const State state(*state_);
     stateLock.unlock();
@@ -110,17 +110,18 @@ bool Executor::completeCurrentStep(bool multiThreaded)
     Step step(queue_.getCurrentStep());
     StepQueue queue(queue_); // TODO Don't copy entire queue, only previous step.
     queueSharedLock.unlock();
-    timer.splitTime("Copy state, queue, and step");
-
-    SharedLock adapterLock(adapterMutex_);// TODO MIRE FINE GRAINED!! -> QUARUPED MODEL
-    completionSuccessful = completer_->complete(state, queue, step);
+    SharedLock adapterLock(adapterMutex_);
+    auto adapter(adapter_->clone());
     adapterLock.unlock();
+    timer.splitTime("Copy state, queue, step, and adapter");
+
+    completionSuccessful = completer_->complete(state, queue, *adapter, step);
 
     UniqueLock queueUniqueLock(queueMutex_);
     queue_.replaceCurrentStep(step);
     queueUniqueLock.unlock();
   } else {
-    completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
+    completionSuccessful = completer_->complete(*state_, queue_, *adapter_, queue_.getCurrentStep());
   }
 
   if (!completionSuccessful) {
@@ -174,6 +175,11 @@ Executor::Mutex& Executor::getStateMutex()
 }
 
 const AdapterBase& Executor::getAdapter() const
+{
+  return *adapter_;
+}
+
+AdapterBase& Executor::getAdapter()
 {
   return *adapter_;
 }

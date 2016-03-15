@@ -23,6 +23,7 @@ class AdapterBase
  public:
   AdapterBase();
   virtual ~AdapterBase();
+  virtual std::unique_ptr<AdapterBase> clone() const = 0;
 
   //! Copying data from real robot to free gait state.
   virtual bool updateExtras(const StepQueue& stepQueue, State& state) const = 0;

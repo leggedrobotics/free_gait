@@ -11,10 +11,8 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters,
-                             std::shared_ptr<AdapterBase> adapter)
-    : parameters_(parameters),
-      adapter_(adapter)
+StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters)
+    : parameters_(parameters)
 {
 }
 
@@ -22,7 +20,7 @@ StepCompleter::~StepCompleter()
 {
 }
 
-bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step) const
+bool StepCompleter::complete(const State& state, const StepQueue& queue, const AdapterBase& adapter, Step& step) const
 {
   for (auto& legMotion : step.legMotions_) {
     switch ((legMotion.second)->getType()) {
@@ -37,10 +35,10 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
     }
     switch (legMotion.second->getTrajectoryType()) {
       case LegMotionBase::TrajectoryType::EndEffector:
-        if (!complete(state, step, dynamic_cast<EndEffectorMotionBase&>(*legMotion.second))) return false;
+        if (!complete(state, step, adapter, dynamic_cast<EndEffectorMotionBase&>(*legMotion.second))) return false;
         break;
       case LegMotionBase::TrajectoryType::Joints:
-        if (!complete(state, step, dynamic_cast<JointMotionBase&>(*legMotion.second))) return false;
+        if (!complete(state, step, adapter, dynamic_cast<JointMotionBase&>(*legMotion.second))) return false;
         break;
       default:
         throw std::runtime_error("StepCompleter::complete() could not complete leg motion of this type.");
@@ -59,14 +57,14 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
       default:
         break;
     }
-    if (!complete(state, step, queue, *(step.baseMotion_))) return false;
+    if (!complete(state, step, queue, adapter, *(step.baseMotion_))) return false;
   }
 
   step.isComplete_ = true;
   return step.update();
 }
 
-bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const
+bool StepCompleter::complete(const State& state, const Step& step, const AdapterBase& adapter, EndEffectorMotionBase& endEffectorMotion) const
 {
   // Input.
 //  ControlSetup controlSetupIn = state.getControlSetup(endEffectorMotion.getLimb());
@@ -84,15 +82,15 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
 
   if (positionOut) {
     // TODO Check frame.
-    Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
-    Position startPositionInWorldFrame = adapter_->getPositionWorldToBaseInWorldFrame() + adapter_->getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
+    Position startPositionInBaseFrame = adapter.getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
+    Position startPositionInWorldFrame = adapter.getPositionWorldToBaseInWorldFrame() + adapter.getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-  return endEffectorMotion.compute(state, step, *adapter_);
+  return endEffectorMotion.compute(state, step, adapter);
 }
 
-bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
+bool StepCompleter::complete(const State& state, const Step& step, const AdapterBase& adapter, JointMotionBase& jointMotion) const
 {
   // Input.
   ControlSetup controlSetupIn = state.getControlSetup(jointMotion.getLimb());
@@ -116,7 +114,7 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     startEffort.setZero();
     jointMotion.updateStartEfforts(startEffort);
   } else if (positionIn && effortIn && !positionOut && effortOut) {
-    JointEfforts startEffort = adapter_->getJointEfforts(jointMotion.getLimb());
+    JointEfforts startEffort = adapter.getJointEfforts(jointMotion.getLimb());
     jointMotion.updateStartEfforts(startEffort);
   } //else if (positionIn && effortIn && positionOut && !effortOut) {
     // TODO: Decrease torque to zero in special step.
@@ -144,10 +142,10 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     }
 
   }
-  return jointMotion.compute(state, step, *adapter_);
+  return jointMotion.compute(state, step, adapter);
 }
 
-bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
+bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter, BaseMotionBase& baseMotion) const
 {
   if (baseMotion.getControlSetup().at(ControlLevel::Position)) {
     // TODO Check frame.
@@ -157,7 +155,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  return baseMotion.compute(state, step, queue, *adapter_);
+  return baseMotion.compute(state, step, queue, adapter);
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const

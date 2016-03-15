@@ -66,6 +66,7 @@ class Executor
   Mutex& getStateMutex();
 
   const AdapterBase& getAdapter() const;
+  AdapterBase& getAdapter();
   Mutex& getAdapterMutex();
 
  private:
