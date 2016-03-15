@@ -62,7 +62,7 @@ bool Executor::advance(double dt)
   if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false;
 
   while (hasSwitchedStep) {
-    if (!completer_->complete(*state_, queue_, *adapter_, queue_.getCurrentStep())) {
+    if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
       std::cerr << "Executor::advance: Could not complete step." << std::endl;
       return false;
     }

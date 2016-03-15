@@ -164,8 +164,6 @@ bool JointTrajectory::fitTrajectories()
     }
   }
 
-  usleep(5e6);
-
   isComputed_ = true;
   return true;
 }
