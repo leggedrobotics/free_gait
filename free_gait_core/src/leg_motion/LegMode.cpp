@@ -19,7 +19,7 @@ LegMode::LegMode(LimbEnum limb)
       duration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
-      computed_(false),
+      isComputed_(false),
       controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 
@@ -46,14 +46,19 @@ const ControlSetup LegMode::getControlSetup() const
 void LegMode::updateStartPosition(const Position& startPosition)
 {
   std::cout << "LegMode::updateStartPosition " <<  startPosition << std::endl;
-  computed_ = false;
+  isComputed_ = false;
   position_ = startPosition;
 }
 
 bool LegMode::compute(const State& state, const Step& step, const AdapterBase& adapter)
 {
-  computed_ = true;
+  isComputed_ = true;
   return true;
+}
+
+bool LegMode::isComputed() const
+{
+  return isComputed_;
 }
 
 const Position LegMode::evaluatePosition(const double time) const

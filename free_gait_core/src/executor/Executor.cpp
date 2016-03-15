@@ -57,23 +57,20 @@ bool Executor::advance(double dt)
   stateLock.unlock();
 
   bool hasSwitchedStep;
-  UniqueLock queueUniqueLock(queueMutex_);
-  if (!queue_.advance(dt, hasSwitchedStep)) return false;
-  queueUniqueLock.unlock();
+  bool hasStartedStep;
+  if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false;
 
   while (hasSwitchedStep) {
-
-    queueUniqueLock.lock();
-    if (!queue_.getCurrentStep().requiresMultiThreading()) {
-      if (!completeCurrentStep()) return false;
-      if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
-      queueUniqueLock.unlock();
-    } else {
-      std::thread thread(&Executor::completeCurrentStep, this, true);
-      thread.detach();
-      queueUniqueLock.unlock();
-      hasSwitchedStep = false;
+    if (!completer_->complete(*state_, queue_, *adapter_, queue_.getCurrentStep())) {
+      std::cerr << "Executor::advance: Could not complete step." << std::endl;
+      return false;
     }
+    if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false; // Advance again after completion.
+  }
+
+  if (hasStartedStep) {
+    std::cout << "Switched step to:" << std::endl;
+    std::cout << queue_.getCurrentStep() << std::endl;
   }
 
   stateLock.lock();
@@ -91,55 +88,6 @@ bool Executor::advance(double dt)
   stateLock.unlock();
 //  std::cout << *state_ << std::endl;
 
-  return true;
-}
-
-bool Executor::completeCurrentStep(bool multiThreaded)
-{
-  std::cout << "START completeCurrentStep" << std::endl;
-  robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
-  timer.pinTime();
-
-  bool completionSuccessful;
-  if (multiThreaded) {
-    timer.pinTime("Copy state, queue, step, and adapter");
-    SharedLock stateLock(stateMutex_);
-    const State state(*state_);
-    stateLock.unlock();
-    SharedLock queueSharedLock(queueMutex_);
-    Step step(queue_.getCurrentStep());
-    StepQueue queue(queue_); // TODO Don't copy entire queue, only previous step.
-    queueSharedLock.unlock();
-    SharedLock adapterLock(adapterMutex_);
-    auto adapter(adapter_->clone());
-    adapterLock.unlock();
-    timer.splitTime("Copy state, queue, step, and adapter");
-
-    completionSuccessful = completer_->complete(state, queue, *adapter, step);
-
-    UniqueLock queueUniqueLock(queueMutex_);
-    queue_.replaceCurrentStep(step);
-    queueUniqueLock.unlock();
-  } else {
-    completionSuccessful = completer_->complete(*state_, queue_, *adapter_, queue_.getCurrentStep());
-  }
-
-  if (!completionSuccessful) {
-    std::cerr << "Executor::advance: Could not complete step." << std::endl;
-    return false;
-  }
-
-  timer.splitTime();
-  std::cout << timer << std::endl;
-  std::cout << "Switched step to:" << std::endl;
-  if (multiThreaded) {
-    SharedLock queueLock(queueMutex_);
-    std::cout << queue_.getCurrentStep() << std::endl;
-    queueLock.unlock();
-  } else {
-    std::cout << queue_.getCurrentStep() << std::endl;
-  }
-  std::cout << "END completeCurrentStep" << std::endl;
   return true;
 }
 

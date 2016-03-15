@@ -49,6 +49,8 @@ class Footstep : public EndEffectorMotionBase
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
+  bool isComputed() const;
+
   /*!
    * Evaluate the swing foot position at a given swing phase value.
    * @param phase the swing phase value.
@@ -103,7 +105,7 @@ class Footstep : public EndEffectorMotionBase
   curves::PolynomialSplineQuinticVector3Curve trajectory_;
 
   //! If trajectory is updated.
-  bool computed_;
+  bool isComputed_;
 };
 
 } /* namespace */

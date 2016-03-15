@@ -25,7 +25,7 @@ Footstep::Footstep(LimbEnum limb)
       touchdownVelocity_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
-      computed_(false),
+      isComputed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
@@ -48,7 +48,7 @@ const ControlSetup Footstep::getControlSetup() const
 
 void Footstep::updateStartPosition(const Position& startPosition)
 {
-  computed_ = false;
+  isComputed_ = false;
   start_ = startPosition;
 }
 
@@ -74,8 +74,13 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
   computeVelocities(times, velocities, accelerations);
 
   trajectory_.fitCurve(times, values, velocities, accelerations);
-  computed_ = true;
+  isComputed_ = true;
   return true;
+}
+
+bool Footstep::isComputed() const
+{
+  return isComputed_;
 }
 
 const Position Footstep::evaluatePosition(const double time) const

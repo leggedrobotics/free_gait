@@ -40,7 +40,7 @@ class StepQueue
    * @param hasSwitchedStep, true if the step was changed in the last advance() update.
    * @return true if successful, false otherwise.
    */
-  bool advance(double dt, bool& hasSwitchedStep);
+  bool advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep);
 
   /*!
    * Queue is active if a step is available and the step is ready/updated.

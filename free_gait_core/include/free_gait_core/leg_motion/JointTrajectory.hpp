@@ -15,6 +15,9 @@
 // Curves
 #include <curves/PolynomialSplineScalarCurve.hpp>
 
+// STD
+#include <atomic>
+
 namespace free_gait {
 
 class JointTrajectory : public JointMotionBase
@@ -27,6 +30,8 @@ class JointTrajectory : public JointMotionBase
    * Constructor.
    */
   JointTrajectory(LimbEnum limb);
+
+  JointTrajectory(const JointTrajectory& other);
 
   /*!
    * Destructor.
@@ -53,6 +58,7 @@ class JointTrajectory : public JointMotionBase
   void updateStartEfforts(const JointEfforts& startEffort);
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
+  bool isComputed() const;
   bool requiresMultiThreading() const;
 
   /*!
@@ -84,7 +90,9 @@ class JointTrajectory : public JointMotionBase
   friend class StepRosConverter;
 
  private:
-  bool computed_;
+  bool fitTrajectories();
+
+  std::atomic<bool> isComputed_;
   bool ignoreContact_;
   ControlSetup controlSetup_;
 

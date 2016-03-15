@@ -60,8 +60,7 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, const A
     if (!complete(state, step, queue, adapter, *(step.baseMotion_))) return false;
   }
 
-  step.isComplete_ = true;
-  return step.update();
+  return true;
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, const AdapterBase& adapter, EndEffectorMotionBase& endEffectorMotion) const

@@ -78,12 +78,14 @@ void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
 {
   legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(limb, std::move(legMotion.clone())));
   isUpdated_ = false;
+  isComplete_ = false;
 }
 
 void Step::addBaseMotion(const BaseMotionBase& baseMotion)
 {
   baseMotion_ = std::move(baseMotion.clone());
   isUpdated_ = false;
+  isComplete_ = false;
 }
 
 bool Step::isUpdated() const
@@ -93,7 +95,15 @@ bool Step::isUpdated() const
 
 bool Step::update()
 {
-  if (!isComplete_) throw std::runtime_error("Step::update() cannot be called if step is not complete.");
+  if (!isComplete_) {
+    for (const auto& legMotion : legMotions_) {
+      if (!legMotion.second->isComputed()) return false;
+    }
+    if (hasBaseMotion()) {
+      if (!baseMotion_->isComputed()) return false;
+    }
+  }
+  isComplete_ = true;
 
   totalDuration_ = 0.0;
   for (const auto& legMotion : legMotions_) {
@@ -105,11 +115,6 @@ bool Step::update()
       totalDuration_ = baseMotion_->getDuration();
   }
   return isUpdated_ = true;
-}
-
-bool Step::isComplete() const
-{
-  return isComplete_;
 }
 
 bool Step::advance(double dt)

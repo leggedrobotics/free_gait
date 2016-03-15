@@ -38,6 +38,8 @@ class LegMode : public EndEffectorMotionBase
 
   bool compute(const State& state, const Step& step, const AdapterBase& adapter);
 
+  bool isComputed() const;
+
   /*!
    * Evaluate the swing foot position at a given swing phase value.
    * @param phase the swing phase value.
@@ -77,7 +79,7 @@ class LegMode : public EndEffectorMotionBase
   ControlSetup controlSetup_;
 
   //! If trajectory is updated.
-  bool computed_;
+  bool isComputed_;
 };
 
 } /* namespace */

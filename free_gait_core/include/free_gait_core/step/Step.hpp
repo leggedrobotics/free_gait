@@ -59,12 +59,6 @@ class Step
   bool isUpdated() const;
 
   /*!
-   * Checks if step has all data.
-   * @return true if complete, false otherwise.
-   */
-  bool isComplete() const;
-
-  /*!
    * Advance in time
    * @param dt the time step to advance [s].
    * @return true if step is active, false if finished.
