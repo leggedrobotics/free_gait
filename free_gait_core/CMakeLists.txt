@@ -70,6 +70,7 @@ add_library(${PROJECT_NAME}
    src/leg_motion/Footstep.cpp
    src/leg_motion/LegMode.cpp
    src/leg_motion/JointTrajectory.cpp
+   src/leg_motion/EndEffectorTrajectory.cpp
 #   src/BaseShiftProfile.cpp
 #   src/BaseShiftSplineTrajectory.cpp
 #   src/BaseShiftTrajectoryBase.cpp

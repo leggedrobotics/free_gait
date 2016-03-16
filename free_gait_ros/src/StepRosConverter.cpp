@@ -99,6 +99,74 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
   return true;
 }
 
+bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& message,
+                                   EndEffectorTrajectory& endEffectorTrajectory)
+{
+  // Limb.
+  endEffectorTrajectory.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+
+  // Trajectory.
+  endEffectorTrajectory.frameIds_.at(ControlLevel::Position) = message.trajectory.header.frame_id;
+
+  endEffectorTrajectory.controlSetup_[ControlLevel::Position] = false;
+  endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = false;
+  endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
+  endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = false;
+
+
+//  for (const auto& point : message.trajectory.points) {
+//    if (!point.transforms.empty()) baseTrajectory.controlSetup_[ControlLevel::Position] = true;
+//    if (!point.velocities.empty()) baseTrajectory.controlSetup_[ControlLevel::Velocity] = true;
+//    if (!point.accelerations.empty()) baseTrajectory.controlSetup_[ControlLevel::Acceleration] = true;
+//  }
+//
+//  if (baseTrajectory.controlSetup_[ControlLevel::Position]) {
+//    baseTrajectory.values_[ControlLevel::Position] = std::vector<BaseTrajectory::ValueType>();
+//  }
+//  for (const auto& controlSetup : baseTrajectory.controlSetup_) {
+//    if (controlSetup.first == ControlLevel::Position || !controlSetup.second) continue;
+//    baseTrajectory.times_[controlSetup.first] = std::vector<BaseTrajectory::Time>();
+//    baseTrajectory.derivatives_[controlSetup.first] = std::vector<BaseTrajectory::DerivativeType>();
+//  }
+//
+//  for (const auto& point : message.trajectory.points) {
+//    if (!point.transforms.empty()) baseTrajectory.times_[ControlLevel::Position].push_back(ros::Duration(point.time_from_start).toSec());
+//    if (!point.velocities.empty()) baseTrajectory.times_[ControlLevel::Velocity].push_back(ros::Duration(point.time_from_start).toSec());
+//    if (!point.accelerations.empty()) baseTrajectory.times_[ControlLevel::Acceleration].push_back(ros::Duration(point.time_from_start).toSec());
+//  }
+//
+//  for (const auto& controlSetup : baseTrajectory.controlSetup_) {
+//    if (!controlSetup.second)continue;
+//    for (const auto& point : message.trajectory.points) {
+//      if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
+//        BaseTrajectory::ValueType pose;
+//        kindr::poses::eigen_impl::convertFromRosGeometryMsg(point.transforms[0], pose);
+//        baseTrajectory.values_[controlSetup.first].push_back(pose);
+//      } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
+////        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
+//      } else if (controlSetup.first == ControlLevel::Acceleration && !point.accelerations.empty()) {
+////        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.accelerations[j]);
+//      } /*else if (controlSetup.first == ControlLevel::Effort && !point.effort.empty()) {
+//          baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.effort[j]);
+//      }*/
+//    }
+//  }
+
+
+  // Surface normal.
+  Vector surfaceNormal;
+  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  endEffectorTrajectory.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Ignore contact.
+  endEffectorTrajectory.ignoreContact_ = message.ignore_contact;
+
+  // Ignore for pose adaptation.
+  endEffectorTrajectory.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
+
+  return true;
+}
+
 bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode)
 {
   // Limb.
