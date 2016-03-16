@@ -77,8 +77,10 @@ class LegMotionBase
 
   virtual const ControlSetup getControlSetup() const;
 
-  virtual bool compute(const State& state, const Step& step, const AdapterBase& adapter);
-  virtual bool requiresMultiThreading() const;
+  virtual bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
+  virtual bool needsComputation() const;
+  virtual bool compute();
+  virtual bool isComputed() const;
 
   /*!
    * Returns the total duration of the motion.

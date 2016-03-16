@@ -12,9 +12,11 @@
 namespace free_gait {
 
 Executor::Executor(std::shared_ptr<StepCompleter> completer,
+                   std::shared_ptr<StepComputer> computer,
                    std::shared_ptr<AdapterBase> adapter,
                    std::shared_ptr<State> state)
     : completer_(completer),
+      computer_(computer),
       adapter_(adapter),
       state_(state),
       isInitialized_(false)
@@ -27,7 +29,7 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
-  Lock lock(mutex_);
+  computer_->initialize();
   state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
   reset();
   return isInitialized_ = true;
@@ -45,8 +47,6 @@ Executor::Mutex& Executor::getMutex()
 
 bool Executor::advance(double dt)
 {
-  Lock lock(mutex_);
-
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
   bool executionStatus = adapter_->isExecutionOk();
@@ -60,19 +60,41 @@ bool Executor::advance(double dt)
     return true;
   }
 
+  // Copying result from computer when done.
+  if (!queue_.empty() && queue_.getCurrentStep().needsComputation() && computer_->isDone()) {
+     computer_->getStep(queue_.getCurrentStep());
+     computer_->resetIsDone();
+  }
+
+  // Advance queue.
   bool hasSwitchedStep;
-  if (!queue_.advance(dt, hasSwitchedStep)) return false;
+  bool hasStartedStep;
+  if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false;
 
+  // For a new switch in step, do some work on step for the transition.
   while (hasSwitchedStep) {
-
-    if (!queue_.getCurrentStep().requiresMultiThreading()) {
-      if (!completeCurrentStep()) return false;
-      if (!queue_.advance(dt, hasSwitchedStep)) return false; // Advance again after completion.
-    } else {
-      std::thread thread(&Executor::completeCurrentStep, this, true);
-      thread.detach();
-      hasSwitchedStep = false;
+    auto& currentStep = queue_.getCurrentStep();
+    if (!completer_->complete(*state_, queue_, currentStep)) {
+      std::cerr << "Executor::advance: Could not complete step." << std::endl;
+      return false;
     }
+    if (currentStep.needsComputation() && !computer_->isBusy()) {
+      computer_->setStep(currentStep);
+      if (!computer_->compute()) {
+        std::cerr << "Executor::advance: Could not compute step." << std::endl;
+        return false;
+      }
+      if (computer_->isDone()) {
+        computer_->getStep(queue_.getCurrentStep());
+        computer_->resetIsDone();
+      }
+    }
+    if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false; // Advance again after completion.
+  }
+
+  if (hasStartedStep) {
+    std::cout << "Switched step to:" << std::endl;
+    std::cout << queue_.getCurrentStep() << std::endl;
   }
 
   if (!writeIgnoreContact()) return false;
@@ -87,51 +109,8 @@ bool Executor::advance(double dt)
   return true;
 }
 
-bool Executor::completeCurrentStep(bool multiThreaded)
-{
-  robotUtils::HighResolutionClockTimer timer("Executor::completeCurrentStep");
-  timer.pinTime();
-
-  bool completionSuccessful;
-  if (multiThreaded) {
-    timer.pinTime("Copy state, queue, and step");
-    Lock lock(mutex_);
-    const State state(*state_);
-    lock.unlock();
-    lock.lock();
-    const StepQueue queue(queue_);
-    lock.unlock();
-    lock.lock();
-    Step step(queue_.getCurrentStep());
-    lock.unlock();
-    timer.splitTime("Copy state, queue, and step");
-
-    completionSuccessful = completer_->complete(state, queue, step);
-
-    lock.lock();
-    queue_.replaceCurrentStep(step);
-    lock.unlock();
-  } else {
-    completionSuccessful = completer_->complete(*state_, queue_, queue_.getCurrentStep());
-  }
-
-  if (!completionSuccessful) {
-    std::cerr << "Executor::advance: Could not complete step." << std::endl;
-    return false;
-  }
-
-  timer.splitTime();
-  std::cout << timer << std::endl;
-  std::cout << "Switched step to:" << std::endl;
-  Lock lock(mutex_);
-  std::cout << queue_.getCurrentStep() << std::endl;
-  lock.unlock();
-  return true;
-}
-
 void Executor::reset()
 {
-  Lock lock(mutex_);
   queue_.clear();
   initializeStateWithRobot();
 }

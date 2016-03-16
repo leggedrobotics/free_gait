@@ -7,6 +7,7 @@
  */
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 #include <free_gait_core/leg_motion/Footstep.hpp>
+#include <free_gait_core/leg_motion/EndEffectorTrajectory.hpp>
 #include <free_gait_core/leg_motion/LegMode.hpp>
 #include <free_gait_core/leg_motion/JointTrajectory.hpp>
 
@@ -54,14 +55,24 @@ const ControlSetup LegMotionBase::getControlSetup() const
   throw std::runtime_error("LegMotionBase::getControlSetup() not implemented.");
 }
 
-bool LegMotionBase::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool LegMotionBase::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
+{
+  throw std::runtime_error("LegMotionBase::prepareComputation() not implemented.");
+}
+
+bool LegMotionBase::needsComputation() const
+{
+  throw std::runtime_error("LegMotionBase::needsComputation() not implemented.");
+}
+
+bool LegMotionBase::compute()
 {
   throw std::runtime_error("LegMotionBase::compute() not implemented.");
 }
 
-bool LegMotionBase::requiresMultiThreading() const
+bool LegMotionBase::isComputed() const
 {
-  return false;
+  throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
 }
 
 double LegMotionBase::getDuration() const
@@ -101,6 +112,9 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
       out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      break;
+    case LegMotionBase::Type::EndEffectorTrajectory:
+      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion)) << std::endl;
       break;
     case LegMotionBase::Type::LegMode:
       out << (dynamic_cast<const LegMode&>(legMotion)) << std::endl;

@@ -1,7 +1,7 @@
 /*
- * Footstep.hpp
+ * EndEffectorTrajectory.hpp
  *
- *  Created on: Mar 6, 2015
+ *  Created on: Mar 16, 2016
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
@@ -21,15 +21,15 @@
 
 namespace free_gait {
 
-class Footstep : public EndEffectorMotionBase
+class EndEffectorTrajectory : public EndEffectorMotionBase
 {
  public:
   typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
   typedef typename curves::PolynomialSplineQuinticVector3Curve::DerivativeType DerivativeType;
   typedef typename curves::Time Time;
 
-  Footstep(LimbEnum limb);
-  virtual ~Footstep();
+  EndEffectorTrajectory(LimbEnum limb);
+  virtual ~EndEffectorTrajectory();
 
   /*!
    * Deep copy clone.
@@ -70,13 +70,13 @@ class Footstep : public EndEffectorMotionBase
    */
   const Position getTargetPosition() const;
 
-  const std::string& getFrameId() const;
+  const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   bool isIgnoreContact() const;
 
   bool isIgnoreForPoseAdaptation() const;
 
-  friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
+  friend std::ostream& operator << (std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory);
   friend class StepCompleter;
   friend class StepRosConverter;
 
@@ -85,22 +85,18 @@ class Footstep : public EndEffectorMotionBase
   void generateTriangleKnots(std::vector<ValueType>& values) const;
   void generateSquareKnots(std::vector<ValueType>& values) const;
   void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
-  void computeVelocities(const std::vector<Time>& times, std::vector<DerivativeType>& velocities,
-                         std::vector<DerivativeType>& accelerations) const;
 
-  Position start_;
-  Position target_;
-  std::string frameId_;
-  double profileHeight_;
-  double averageVelocity_;
-  std::string profileType_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
-  double liftOffVelocity_;
-  double touchdownVelocity_;
-  double minimumDuration_;
 
   ControlSetup controlSetup_;
+
+  //! Knots.
+  std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds_;
+  std::vector<Time> times_;
+  std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash> values_;
+
+  double duration_;
 
   //! Foot trajectory.
   curves::PolynomialSplineQuinticVector3Curve trajectory_;

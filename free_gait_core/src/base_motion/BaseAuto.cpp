@@ -26,7 +26,7 @@ BaseAuto::BaseAuto()
       duration_(0.0),
       supportMargin_(0.0),
       minimumDuration_(0.0),
-      computed_(false),
+      isComputed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
@@ -54,7 +54,7 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
     footholdsForTerrain_(other.footholdsForTerrain_),
     poseOptimization_(other.poseOptimization_),
-    computed_(other.computed_)
+    isComputed_(other.isComputed_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -72,12 +72,12 @@ const ControlSetup BaseAuto::getControlSetup() const
 
 void BaseAuto::updateStartPose(const Pose& startPose)
 {
-  computed_ = false;
+  isComputed_ = false;
   start_.getPosition() = startPose.getPosition();
   start_.getRotation() = startPose.getRotation().getUnique();
 }
 
-bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
@@ -98,7 +98,17 @@ bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& qu
   }
   computeDuration(step, adapter);
   computeTrajectory();
-  return computed_ = true;
+  return isComputed_ = true;
+}
+
+bool BaseAuto::needsComputation() const
+{
+  return false;
+}
+
+bool BaseAuto::isComputed() const
+{
+  return isComputed_;
 }
 
 Pose BaseAuto::evaluatePose(const double time) const

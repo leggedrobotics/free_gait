@@ -52,8 +52,10 @@ class JointTrajectory : public JointMotionBase
   void updateStartAcceleration(const JointAccelerations& startAcceleration);
   void updateStartEfforts(const JointEfforts& startEffort);
 
-  bool compute(const State& state, const Step& step, const AdapterBase& adapter);
-  bool requiresMultiThreading() const;
+  bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
+  bool needsComputation() const;
+  bool compute();
+  bool isComputed() const;
 
   /*!
    * Returns the total duration of the motion.
@@ -84,7 +86,9 @@ class JointTrajectory : public JointMotionBase
   friend class StepRosConverter;
 
  private:
-  bool computed_;
+  bool fitTrajectories();
+
+  bool isComputed_;
   bool ignoreContact_;
   ControlSetup controlSetup_;
 

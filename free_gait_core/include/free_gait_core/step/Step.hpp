@@ -55,14 +55,11 @@ class Step
    */
   void addBaseMotion(const BaseMotionBase& baseMotion);
 
+  bool needsComputation() const;
+  bool compute();
+
   bool update();
   bool isUpdated() const;
-
-  /*!
-   * Checks if step has all data.
-   * @return true if complete, false otherwise.
-   */
-  bool isComplete() const;
 
   /*!
    * Advance in time
@@ -94,7 +91,6 @@ class Step
   double getBaseMotionDuration() const;
   double getBaseMotionPhase() const;
 
-  bool requiresMultiThreading() const;
   bool isApproachingEnd(double tolerance) const;
 
   friend std::ostream& operator << (std::ostream& out, const Step& step);
@@ -102,7 +98,6 @@ class Step
   friend class StepCompleter;
 
  protected:
-  bool isComplete_;
   LegMotions legMotions_;
   std::unique_ptr<BaseMotionBase> baseMotion_;
 
@@ -111,7 +106,7 @@ class Step
   double time_;
   double totalDuration_;
   bool isUpdated_;
-
+  bool isComputed_;
 };
 
 } /* namespace */

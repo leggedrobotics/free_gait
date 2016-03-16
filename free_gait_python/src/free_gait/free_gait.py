@@ -59,6 +59,8 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
         for motion_parameter in step_parameter:
             if 'footstep' in motion_parameter:
                 step.footstep.append(parse_footstep(motion_parameter['footstep']))
+            if 'end_effector_trajectory' in motion_parameter:
+                step.end_effector_trajectory.append(parse_end_effector_trajectory(motion_parameter['end_effector_trajectory']))
             if 'leg_mode' in motion_parameter:
                 step.leg_mode.append(parse_leg_mode(motion_parameter['leg_mode']))
             if 'joint_trajectory' in motion_parameter:
@@ -218,6 +220,23 @@ def parse_footstep(yaml_object):
     return footstep
 
 
+def parse_end_effector_trajectory(yaml_object):
+    end_effector_trajectory = free_gait_msgs.msg.EndEffectorTrajectory()
+    if not yaml_object:
+        return end_effector_trajectory
+    if 'name' in yaml_object:
+        end_effector_trajectory.name = yaml_object['name']
+    if 'trajectory' in yaml_object:
+        end_effector_trajectory.trajectory = parse_translational_trajectory(end_effector_trajectory.name, yaml_object['trajectory'])
+    if 'surface_normal' in yaml_object:
+        end_effector_trajectory.surface_normal = parse_vector(yaml_object['surface_normal'])
+    if 'ignore_contact' in yaml_object:
+        end_effector_trajectory.ignore_contact = yaml_object['ignore_contact']
+    if 'ignore_for_pose_adaptation' in yaml_object:
+        end_effector_trajectory.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
+    return end_effector_trajectory
+
+
 def parse_leg_mode(yaml_object):
     leg_mode = free_gait_msgs.msg.LegMode()
     if not yaml_object:
@@ -333,6 +352,23 @@ def parse_multi_dof_trajectory(joint_name, trajectory):
     return output
 
 
+def parse_translational_trajectory(joint_name, trajectory):
+    output = trajectory_msgs.msg.MultiDOFJointTrajectory()
+    output.header.frame_id = trajectory['frame']
+    output.joint_names.append(joint_name)
+    for knot in trajectory['knots']:
+        point = trajectory_msgs.msg.MultiDOFJointTrajectoryPoint()
+        point.time_from_start = rospy.Time(knot['time'])
+        transform = geometry_msgs.msg.Transform()
+        transform.translation.x = knot['position'][0]
+        transform.translation.y = knot['position'][1]
+        transform.translation.z = knot['position'][2]
+        point.transforms.append(transform)
+        output.points.append(point)
+    
+    return output
+
+
 def parse_joint_trajectories(yaml_object):
     joint_trajectory = trajectory_msgs.msg.JointTrajectory()
     for joint_name in yaml_object['joint_names']:
@@ -395,10 +431,7 @@ def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0]
     
     if listener is None:
         listener = tf.TransformListener()
-        # Not working in current version of tf/tf2.
-        # http://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/
-        # listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-        rospy.sleep(1.0)
+        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
 
     try:
         (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
@@ -416,9 +449,7 @@ def get_transform(source_frame_id, target_frame_id, listener = None):
     
     if listener is None:
         listener = tf.TransformListener()
-        # Not working in current version of tf/tf2.
-        # listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-        rospy.sleep(1.0)
+        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
 
     try:
         (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))

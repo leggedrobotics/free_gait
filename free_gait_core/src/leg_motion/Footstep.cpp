@@ -23,9 +23,10 @@ Footstep::Footstep(LimbEnum limb)
       averageVelocity_(0.0),
       liftOffVelocity_(0.0),
       touchdownVelocity_(0.0),
+      minimumDuration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
-      computed_(false),
+      isComputed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
@@ -48,11 +49,11 @@ const ControlSetup Footstep::getControlSetup() const
 
 void Footstep::updateStartPosition(const Position& startPosition)
 {
-  computed_ = false;
+  isComputed_ = false;
   start_ = startPosition;
 }
 
-bool Footstep::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool Footstep::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   std::vector<ValueType> values;
   if (profileType_ == "triangle") {
@@ -74,8 +75,18 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
   computeVelocities(times, velocities, accelerations);
 
   trajectory_.fitCurve(times, values, velocities, accelerations);
-  computed_ = true;
+  isComputed_ = true;
   return true;
+}
+
+bool Footstep::needsComputation() const
+{
+  return false;
+}
+
+bool Footstep::isComputed() const
+{
+  return isComputed_;
 }
 
 const Position Footstep::evaluatePosition(const double time) const
@@ -170,7 +181,9 @@ void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<T
   times.push_back(0.0);
   for (unsigned int i = 1; i < values.size(); ++i) {
     double distance = (values[i] - values[i-1]).norm();
-    times.push_back(times[i-1] + distance / averageVelocity_);
+    double duration = distance / averageVelocity_;
+    duration = duration < minimumDuration_ ? minimumDuration_ : duration;
+    times.push_back(times[i-1] + duration);
   }
 }
 

@@ -11,8 +11,7 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters,
-                             std::shared_ptr<AdapterBase> adapter)
+StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters, std::shared_ptr<AdapterBase> adapter)
     : parameters_(parameters),
       adapter_(adapter)
 {
@@ -22,7 +21,7 @@ StepCompleter::~StepCompleter()
 {
 }
 
-bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step) const
+bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step)
 {
   for (auto& legMotion : step.legMotions_) {
     switch ((legMotion.second)->getType()) {
@@ -62,8 +61,7 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
     if (!complete(state, step, queue, *(step.baseMotion_))) return false;
   }
 
-  step.isComplete_ = true;
-  return step.update();
+  return true;
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const
@@ -89,7 +87,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-  return endEffectorMotion.compute(state, step, *adapter_);
+  return endEffectorMotion.prepareComputation(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
@@ -144,7 +142,7 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     }
 
   }
-  return jointMotion.compute(state, step, *adapter_);
+  return jointMotion.prepareComputation(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
@@ -157,7 +155,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  return baseMotion.compute(state, step, queue, *adapter_);
+  return baseMotion.prepareComputation(state, step, queue, *adapter_);
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const
@@ -177,6 +175,7 @@ void StepCompleter::setParameters(Footstep& footstep) const
 
   footstep.liftOffVelocity_ = parameters.liftOffVelocity;
   footstep.touchdownVelocity_ = parameters.touchdownVelocity;
+  footstep.minimumDuration_ = parameters.minimumDuration_;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const

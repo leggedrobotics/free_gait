@@ -13,16 +13,15 @@
 #include "free_gait_core/executor/State.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
 #include "free_gait_core/step/StepCompleter.hpp"
+#include "free_gait_core/step/StepComputer.hpp"
 
 // Robot utils
 #include <robotUtils/timers/ChronoTimer.hpp>
 
 // STD
 #include <memory>
-#include <thread>
 
 // Boost
-#include <boost/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace free_gait {
@@ -30,8 +29,8 @@ namespace free_gait {
 class Executor
 {
  public:
-  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<AdapterBase> adapter,
-           std::shared_ptr<State> state);
+  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<StepComputer> computer,
+           std::shared_ptr<AdapterBase> adapter, std::shared_ptr<State> state);
   virtual ~Executor();
 
   /*!
@@ -42,6 +41,7 @@ class Executor
 
   bool initialize();
   bool isInitialized() const;
+
   Mutex& getMutex();
 
   /*!
@@ -61,7 +61,6 @@ class Executor
    * @return
    */
   StepQueue& getQueue();
-
   const State& getState() const;
   const AdapterBase& getAdapter() const;
 
@@ -77,9 +76,10 @@ class Executor
   bool writeTorsoMotion();
 
   Mutex mutex_;
-  boost::atomic<bool> isInitialized_;
+  bool isInitialized_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
+  std::shared_ptr<StepComputer> computer_;
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
 };

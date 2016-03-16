@@ -38,10 +38,11 @@ void StepQueue::add(const Step& step)
   queue_.push_back(step);
 }
 
-bool StepQueue::advance(double dt, bool& hasSwitchedStep)
+bool StepQueue::advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep)
 {
   // Check if empty.
   hasSwitchedStep = false;
+  hasStartedStep = false;
   if (queue_.empty()) {
     active_ = false;
     return true;
@@ -55,7 +56,13 @@ bool StepQueue::advance(double dt, bool& hasSwitchedStep)
   }
 
   // Check if step is updated (multi-threading).
-  if (!queue_.front().isUpdated()) return true;
+  if (!queue_.front().isUpdated()) {
+    if (queue_.front().update()) {
+      hasStartedStep = true;
+    } else {
+      return true;
+    }
+  }
 
   // Advance current step.
   if (!queue_.front().advance(dt)) {

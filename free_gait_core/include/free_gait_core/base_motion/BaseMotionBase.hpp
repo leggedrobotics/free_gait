@@ -69,8 +69,10 @@ class BaseMotionBase
   virtual void updateStartAcceleration(const Twist& startAcceleration);
   virtual void updateStartForceTorque(const Force& startForce, const Torque& startTorque);
 
-  virtual bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
-  virtual bool requiresMultiThreading() const;
+  virtual bool prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  virtual bool needsComputation() const;
+  virtual bool compute();
+  virtual bool isComputed() const;
 
   /*!
    * Returns the total duration of the motion.
