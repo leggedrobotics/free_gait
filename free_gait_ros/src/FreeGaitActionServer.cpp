@@ -70,7 +70,6 @@ void FreeGaitActionServer::shutdown()
 
 void FreeGaitActionServer::goalCallback()
 {
-  ROS_INFO("goalCallback START");
   ROS_INFO("Received goal for StepAction.");
 //  if (server_.isActive()) server_.setRejected();
 
@@ -84,7 +83,6 @@ void FreeGaitActionServer::goalCallback()
     executor_->getQueue().add(step);
     lock.unlock();
   }
-  ROS_INFO("goalCallback END");
 }
 
 void FreeGaitActionServer::preemptCallback()
