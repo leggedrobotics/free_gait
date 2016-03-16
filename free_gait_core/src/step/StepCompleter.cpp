@@ -81,11 +81,14 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
   bool effortOut = controlSetupOut.at(ControlLevel::Effort);
 
   if (positionOut) {
-    // TODO Check frame.
+    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
+    if (!adapter_->frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      return false;
+    }
     Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
-    Position startPositionInWorldFrame = adapter_->getPositionWorldToBaseInWorldFrame() + adapter_->getOrientationWorldToBase().inverseRotate(startPositionInBaseFrame);
-    Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
-    endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
+    Position startPosition = adapter_->transformPosition("base", frameId, startPositionInBaseFrame);
+    endEffectorMotion.updateStartPosition(startPosition);
   }
   return endEffectorMotion.prepareComputation(state, step, *adapter_);
 }

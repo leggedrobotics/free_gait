@@ -72,7 +72,7 @@ class EndEffectorMotionBase : public LegMotionBase
    * Returns the frame id of the trajectory.
    * @return the frame id.
    */
-  virtual const std::string& getFrameId() const;
+  virtual const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   /*!
    * Print the contents to console for debugging.

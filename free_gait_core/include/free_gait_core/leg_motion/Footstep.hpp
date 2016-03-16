@@ -70,7 +70,7 @@ class Footstep : public EndEffectorMotionBase
    */
   const Position getTargetPosition() const;
 
-  const std::string& getFrameId() const;
+  const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   bool isIgnoreContact() const;
 

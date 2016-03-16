@@ -81,24 +81,9 @@ double BaseMotionBase::getDuration() const
   throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");
 }
 
-const std::string& BaseMotionBase::getPoseFrameId() const
+const std::string& BaseMotionBase::getFrameId(const ControlLevel& controlLevel) const
 {
-  throw std::runtime_error("BaseMotionBase::getPoseFrameId() not implemented.");
-}
-
-const std::string& BaseMotionBase::getTwistFrameId() const
-{
-  throw std::runtime_error("BaseMotionBase::getTwistFrameId() not implemented.");
-}
-
-const std::string& BaseMotionBase::getAccelerationFrameId() const
-{
-  throw std::runtime_error("BaseMotionBase::getAccelerationFrameId() not implemented.");
-}
-
-const std::string& BaseMotionBase::getForceTorqueFrameId() const
-{
-  throw std::runtime_error("BaseMotionBase::getForceTorqueFrameId() not implemented.");
+  throw std::runtime_error("BaseMotionBase::getFrameId() not implemented.");
 }
 
 Pose BaseMotionBase::evaluatePose(const double time) const

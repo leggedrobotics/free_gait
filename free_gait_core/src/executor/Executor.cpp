@@ -291,11 +291,12 @@ bool Executor::writeLegMotion()
       {
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) {
-          // TODO Add frame handling.
-          Position positionInWorldFrame(endEffectorMotion.evaluatePosition(time));
-          // TODO adapter_->getOrientationWorldToBase() is nicer when the robot slips, but leads to problems at lift-off.
-          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
-//          Position positionInBaseFrame(state_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
+          if (!adapter_->frameIdExists(frameId)) {
+            std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+            return false;
+          }
+          Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
           JointPositions jointPositions;
           adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
           state_->setJointPositions(limb, jointPositions);
