@@ -30,7 +30,7 @@ class FreeGaitActionServer
 {
  public:
   FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                       std::shared_ptr<Executor> executor);
+                       std::shared_ptr<Executor> executor, std::shared_ptr<AdapterBase> adapter);
 
   virtual ~FreeGaitActionServer();
 

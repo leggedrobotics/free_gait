@@ -62,7 +62,6 @@ class Executor
   StepQueue& getQueue();
   const State& getState() const;
   const AdapterBase& getAdapter() const;
-  AdapterBase& getAdapter();
 
  private:
   bool completeCurrentStep(bool multiThreaded = false);

@@ -112,11 +112,6 @@ const AdapterBase& Executor::getAdapter() const
   return *adapter_;
 }
 
-AdapterBase& Executor::getAdapter()
-{
-  return *adapter_;
-}
-
 bool Executor::initializeStateWithRobot()
 {
   for (const auto& limb : adapter_->getLimbs()) {

@@ -18,11 +18,11 @@
 namespace free_gait {
 
 FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                                           std::shared_ptr<Executor> executor)
+                                           std::shared_ptr<Executor> executor, std::shared_ptr<AdapterBase> adapter)
     : nodeHandle_(nodeHandle),
       name_(name),
       executor_(executor),
-      rosConverter_(executor),
+      rosConverter_(adapter),
       server_(nodeHandle_, name_, false),
       isPreempting_(false)
 {

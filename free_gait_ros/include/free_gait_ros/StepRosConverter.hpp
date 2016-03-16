@@ -27,7 +27,7 @@ namespace free_gait {
 class StepRosConverter
 {
  public:
-  StepRosConverter(std::shared_ptr<Executor> executor);
+  StepRosConverter(std::shared_ptr<AdapterBase> adapter);
   virtual ~StepRosConverter();
 
   /*!
@@ -44,7 +44,7 @@ class StepRosConverter
   bool fromMessage(const free_gait_msgs::BaseTrajectory& message, BaseTrajectory& baseTrajectory);
 
  private:
-  std::shared_ptr<Executor> executor_;
+  std::shared_ptr<AdapterBase> adapter_;
 };
 
 }
