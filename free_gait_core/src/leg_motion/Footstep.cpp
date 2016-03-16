@@ -52,7 +52,7 @@ void Footstep::updateStartPosition(const Position& startPosition)
   start_ = startPosition;
 }
 
-bool Footstep::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool Footstep::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   std::vector<ValueType> values;
   if (profileType_ == "triangle") {
@@ -76,6 +76,11 @@ bool Footstep::compute(const State& state, const Step& step, const AdapterBase& 
   trajectory_.fitCurve(times, values, velocities, accelerations);
   isComputed_ = true;
   return true;
+}
+
+bool Footstep::needsComputation() const
+{
+  return false;
 }
 
 bool Footstep::isComputed() const

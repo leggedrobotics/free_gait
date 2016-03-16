@@ -50,10 +50,15 @@ void LegMode::updateStartPosition(const Position& startPosition)
   position_ = startPosition;
 }
 
-bool LegMode::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool LegMode::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   isComputed_ = true;
   return true;
+}
+
+bool LegMode::needsComputation() const
+{
+  return false;
 }
 
 bool LegMode::isComputed() const

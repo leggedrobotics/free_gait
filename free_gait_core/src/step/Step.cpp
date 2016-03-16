@@ -29,9 +29,9 @@ inline double mapTo01Range(double v, double min, double max){
 
 Step::Step()
     : time_(0.0),
-      isComplete_(false),
       totalDuration_(0.0),
-      isUpdated_(false)
+      isUpdated_(false),
+      isComputed_(false)
 {
   legMotions_.clear();
   baseMotion_.reset();
@@ -43,9 +43,9 @@ Step::~Step()
 
 Step::Step(const Step& other) :
     time_(other.time_),
-    isComplete_(other.isComplete_),
     totalDuration_(other.totalDuration_),
-    isUpdated_(other.isUpdated_)
+    isUpdated_(other.isUpdated_),
+    isComputed_(other.isComputed_)
 {
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
@@ -56,10 +56,10 @@ Step::Step(const Step& other) :
 
 Step& Step::operator=(const Step& other)
 {
-  isComplete_ = other.isComplete_;
   time_ = other.time_;
   totalDuration_ = other.time_;
   isUpdated_ = other.isUpdated_;
+  isComputed_ = other.isComputed_;
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
   for (const auto& legMotion : other.legMotions_) {
@@ -78,14 +78,42 @@ void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
 {
   legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(limb, std::move(legMotion.clone())));
   isUpdated_ = false;
-  isComplete_ = false;
+  isComputed_ = false;
 }
 
 void Step::addBaseMotion(const BaseMotionBase& baseMotion)
 {
   baseMotion_ = std::move(baseMotion.clone());
   isUpdated_ = false;
-  isComplete_ = false;
+  isComputed_ = false;
+}
+
+bool Step::needsComputation() const
+{
+  bool needsComputation = false;
+  for (auto& legMotion : legMotions_) {
+    if (legMotion.second->needsComputation())
+      needsComputation = true;
+  }
+
+  if (baseMotion_) {
+    if (baseMotion_->needsComputation())
+      needsComputation = true;
+  }
+
+  return needsComputation;
+}
+
+bool Step::compute()
+{
+  for (const auto& legMotion : legMotions_) {
+    if (!legMotion.second->compute()) return false;
+  }
+  if (hasBaseMotion()) {
+    if (!baseMotion_->compute()) return false;
+  }
+  isComputed_ = true;
+  return true;
 }
 
 bool Step::isUpdated() const
@@ -95,15 +123,7 @@ bool Step::isUpdated() const
 
 bool Step::update()
 {
-  if (!isComplete_) {
-    for (const auto& legMotion : legMotions_) {
-      if (!legMotion.second->isComputed()) return false;
-    }
-    if (hasBaseMotion()) {
-      if (!baseMotion_->isComputed()) return false;
-    }
-  }
-  isComplete_ = true;
+  if (needsComputation() && !isComputed_) return false;
 
   totalDuration_ = 0.0;
   for (const auto& legMotion : legMotions_) {

@@ -77,7 +77,7 @@ void BaseAuto::updateStartPose(const Pose& startPose)
   start_.getRotation() = startPose.getRotation().getUnique();
 }
 
-bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
@@ -99,6 +99,11 @@ bool BaseAuto::compute(const State& state, const Step& step, const StepQueue& qu
   computeDuration(step, adapter);
   computeTrajectory();
   return isComputed_ = true;
+}
+
+bool BaseAuto::needsComputation() const
+{
+  return false;
 }
 
 bool BaseAuto::isComputed() const

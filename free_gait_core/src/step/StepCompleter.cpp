@@ -15,8 +15,6 @@ StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters, std::sh
     : parameters_(parameters),
       adapter_(adapter)
 {
-  timer_ = robotUtils::HighResolutionClockTimer("FreeGait::StepCompleter");
-  timer_.setAlpha(1.0);
 }
 
 StepCompleter::~StepCompleter()
@@ -25,8 +23,6 @@ StepCompleter::~StepCompleter()
 
 bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step)
 {
-  timer_.pinTime();
-
   for (auto& legMotion : step.legMotions_) {
     switch ((legMotion.second)->getType()) {
       case LegMotionBase::Type::Footstep:
@@ -65,8 +61,6 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
     if (!complete(state, step, queue, *(step.baseMotion_))) return false;
   }
 
-  timer_.splitTime();
-  std::cout << timer_ << std::endl;
   return true;
 }
 
@@ -93,7 +87,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     Position startPositionInDesiredFrame = startPositionInWorldFrame; // TODO
     endEffectorMotion.updateStartPosition(startPositionInDesiredFrame);
   }
-  return endEffectorMotion.compute(state, step, *adapter_);
+  return endEffectorMotion.prepareComputation(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, JointMotionBase& jointMotion) const
@@ -148,7 +142,7 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
     }
 
   }
-  return jointMotion.compute(state, step, *adapter_);
+  return jointMotion.prepareComputation(state, step, *adapter_);
 }
 
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
@@ -161,7 +155,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
   }
-  return baseMotion.compute(state, step, queue, *adapter_);
+  return baseMotion.prepareComputation(state, step, queue, *adapter_);
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const

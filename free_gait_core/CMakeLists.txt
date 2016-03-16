@@ -77,6 +77,7 @@ add_library(${PROJECT_NAME}
    src/step/Step.cpp
    src/step/StepQueue.cpp
    src/step/StepCompleter.cpp
+   src/step/StepComputer.cpp
    src/executor/Executor.cpp
    src/executor/State.cpp
    src/executor/AdapterBase.cpp

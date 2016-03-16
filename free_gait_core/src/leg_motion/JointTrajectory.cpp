@@ -7,9 +7,6 @@
  */
 #include <free_gait_core/leg_motion/JointTrajectory.hpp>
 
-// STD
-#include <thread>
-
 namespace free_gait {
 
 JointTrajectory::JointTrajectory(LimbEnum limb)
@@ -17,18 +14,6 @@ JointTrajectory::JointTrajectory(LimbEnum limb)
       ignoreContact_(false),
       duration_(0.0),
       isComputed_(false)
-{
-}
-
-JointTrajectory::JointTrajectory(const JointTrajectory& other)
-    : JointMotionBase(LegMotionBase::Type::JointTrajectory, other.limb_),
-      isComputed_(isComputed_.load()),
-      ignoreContact_(other.ignoreContact_),
-      controlSetup_(other.controlSetup_),
-      times_(other.times_),
-      values_(other.values_),
-      duration_(other.duration_),
-      trajectories_(other.trajectories_)
 {
 }
 
@@ -91,16 +76,31 @@ void JointTrajectory::updateStartEfforts(const JointEfforts& startEffort)
   }
 }
 
-bool JointTrajectory::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool JointTrajectory::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   isComputed_ = false;
   duration_ = 0.0;
   for (const auto& times : times_) {
     if (times.second.back() > duration_) duration_ = times.second.back();
   }
+  return true;
+}
 
-  std::thread thread(&JointTrajectory::fitTrajectories, this);
-  thread.detach();
+bool JointTrajectory::needsComputation() const
+{
+  return true;
+}
+
+bool JointTrajectory::compute()
+{
+  for (auto& trajectories : trajectories_) {
+    trajectories.second.resize(values_.at(trajectories.first).size());
+    for (size_t i = 0; i < values_.at(trajectories.first).size(); ++i) {
+      trajectories.second[i].fitCurve(times_.at(trajectories.first), values_.at(trajectories.first)[i]);
+    }
+  }
+
+  isComputed_ = true;
   return true;
 }
 
@@ -153,19 +153,6 @@ const JointEfforts JointTrajectory::evaluateEffort(const double time) const
 bool JointTrajectory::isIgnoreContact() const
 {
   return ignoreContact_;
-}
-
-bool JointTrajectory::fitTrajectories()
-{
-  for (auto& trajectories : trajectories_) {
-    trajectories.second.resize(values_.at(trajectories.first).size());
-    for (size_t i = 0; i < values_.at(trajectories.first).size(); ++i) {
-      trajectories.second[i].fitCurve(times_.at(trajectories.first), values_.at(trajectories.first)[i]);
-    }
-  }
-
-  isComputed_ = true;
-  return true;
 }
 
 std::ostream& operator<<(std::ostream& out, const JointTrajectory& jointTrajectory)

@@ -59,6 +59,11 @@ bool BaseTrajectory::compute(const State& state, const Step& step, const StepQue
   return true;
 }
 
+bool BaseTrajectory::needsComputation() const
+{
+  return false;
+}
+
 bool BaseTrajectory::isComputed() const
 {
   return isComputed_;

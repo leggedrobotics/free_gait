@@ -12,9 +12,11 @@
 namespace free_gait {
 
 Executor::Executor(std::shared_ptr<StepCompleter> completer,
+                   std::shared_ptr<StepComputer> computer,
                    std::shared_ptr<AdapterBase> adapter,
                    std::shared_ptr<State> state)
     : completer_(completer),
+      computer_(computer),
       adapter_(adapter),
       state_(state),
       isInitialized_(false)
@@ -27,6 +29,7 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
+  computer_->initialize();
   state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
   reset();
   return isInitialized_ = true;
@@ -57,14 +60,34 @@ bool Executor::advance(double dt)
     return true;
   }
 
+  // Copying result from computer when done.
+  if (!queue_.empty() && queue_.getCurrentStep().needsComputation() && computer_->isDone()) {
+     computer_->getStep(queue_.getCurrentStep());
+     computer_->resetIsDone();
+  }
+
+  // Advance queue.
   bool hasSwitchedStep;
   bool hasStartedStep;
   if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false;
 
+  // For a new switch in step, do some work on step for the transition.
   while (hasSwitchedStep) {
-    if (!completer_->complete(*state_, queue_, queue_.getCurrentStep())) {
+    auto& currentStep = queue_.getCurrentStep();
+    if (!completer_->complete(*state_, queue_, currentStep)) {
       std::cerr << "Executor::advance: Could not complete step." << std::endl;
       return false;
+    }
+    if (currentStep.needsComputation() && !computer_->isBusy()) {
+      computer_->setStep(currentStep);
+      if (!computer_->compute()) {
+        std::cerr << "Executor::advance: Could not compute step." << std::endl;
+        return false;
+      }
+      if (computer_->isDone()) {
+        computer_->getStep(queue_.getCurrentStep());
+        computer_->resetIsDone();
+      }
     }
     if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false; // Advance again after completion.
   }

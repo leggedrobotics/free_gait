@@ -21,9 +21,6 @@
 #include "free_gait_core/leg_motion/Footstep.hpp"
 #include "free_gait_core/leg_motion/LegMode.hpp"
 
-// Robot utils
-#include <robotUtils/timers/ChronoTimer.hpp>
-
 namespace free_gait {
 
 class StepCompleter
@@ -43,7 +40,6 @@ class StepCompleter
  private:
   std::shared_ptr<StepParameters> parameters_;
   std::shared_ptr<AdapterBase> adapter_;
-  robotUtils::HighResolutionClockTimer timer_;
 };
 
 } /* namespace */

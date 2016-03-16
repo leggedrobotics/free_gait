@@ -50,7 +50,8 @@ class BaseAuto : public BaseMotionBase
    */
   void updateStartPose(const Pose& startPose);
 
-  bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  bool prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  bool needsComputation() const;
   bool isComputed() const;
 
   /*!
