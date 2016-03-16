@@ -13,7 +13,7 @@ namespace free_gait {
 
 StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters, std::shared_ptr<AdapterBase> adapter)
     : parameters_(parameters),
-      adapter_(adapter_)
+      adapter_(adapter)
 {
 }
 
