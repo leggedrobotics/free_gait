@@ -113,27 +113,26 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
   endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
   endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = false;
 
+  for (const auto& point : message.trajectory.points) {
+    if (!point.transforms.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Position] = true;
+    if (!point.velocities.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = true;
+    if (!point.accelerations.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = true;
+  }
 
-//  for (const auto& point : message.trajectory.points) {
-//    if (!point.transforms.empty()) baseTrajectory.controlSetup_[ControlLevel::Position] = true;
-//    if (!point.velocities.empty()) baseTrajectory.controlSetup_[ControlLevel::Velocity] = true;
-//    if (!point.accelerations.empty()) baseTrajectory.controlSetup_[ControlLevel::Acceleration] = true;
-//  }
-//
-//  if (baseTrajectory.controlSetup_[ControlLevel::Position]) {
-//    baseTrajectory.values_[ControlLevel::Position] = std::vector<BaseTrajectory::ValueType>();
-//  }
-//  for (const auto& controlSetup : baseTrajectory.controlSetup_) {
-//    if (controlSetup.first == ControlLevel::Position || !controlSetup.second) continue;
-//    baseTrajectory.times_[controlSetup.first] = std::vector<BaseTrajectory::Time>();
-//    baseTrajectory.derivatives_[controlSetup.first] = std::vector<BaseTrajectory::DerivativeType>();
-//  }
-//
-//  for (const auto& point : message.trajectory.points) {
-//    if (!point.transforms.empty()) baseTrajectory.times_[ControlLevel::Position].push_back(ros::Duration(point.time_from_start).toSec());
-//    if (!point.velocities.empty()) baseTrajectory.times_[ControlLevel::Velocity].push_back(ros::Duration(point.time_from_start).toSec());
-//    if (!point.accelerations.empty()) baseTrajectory.times_[ControlLevel::Acceleration].push_back(ros::Duration(point.time_from_start).toSec());
-//  }
+  for (const auto& controlSetup : endEffectorTrajectory.controlSetup_) {
+    if (!controlSetup.second) continue;
+    endEffectorTrajectory.values_[controlSetup.first] = std::vector<EndEffectorTrajectory::ValueType>();
+  }
+
+  // TODO Copy times correctly for pure velocity or acceleration trajectories.
+  for (const auto& point : message.trajectory.points) {
+    if (!point.transforms.empty()) {
+      endEffectorTrajectory.times_.push_back(ros::Duration(point.time_from_start).toSec());
+    } else {
+      std::cerr << "StepRosConverter: Could not read from ROS message, only position trajectories are supported for now." << std::endl;
+      break;
+    }
+  }
 //
 //  for (const auto& controlSetup : baseTrajectory.controlSetup_) {
 //    if (!controlSetup.second)continue;
