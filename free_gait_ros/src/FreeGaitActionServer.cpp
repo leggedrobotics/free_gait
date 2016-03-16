@@ -66,6 +66,7 @@ void FreeGaitActionServer::update()
 
 void FreeGaitActionServer::shutdown()
 {
+  ROS_INFO("Shutting down Free Gait Action Server.");
   server_.shutdown();
 }
 
