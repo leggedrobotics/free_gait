@@ -42,7 +42,6 @@ void FreeGaitActionServer::initialize()
 
 void FreeGaitActionServer::update()
 {
-  ROS_INFO("FreeGaitActionServer::update START");
   if (!server_.isActive()) return;
   Executor::Lock lock(executor_->getMutex());
   bool stepQueueEmpty = executor_->getQueue().empty();
@@ -61,7 +60,6 @@ void FreeGaitActionServer::update()
     if (executor_->getQueue().active()) publishFeedback();
     lock.unlock();
   }
-  ROS_INFO("FreeGaitActionServer::update END");
 }
 
 void FreeGaitActionServer::shutdown()
@@ -101,7 +99,6 @@ void FreeGaitActionServer::preemptCallback()
 
 void FreeGaitActionServer::publishFeedback()
 {
-  ROS_INFO("publishFeedback START");
   free_gait_msgs::ExecuteStepsFeedback feedback;
   Executor::Lock lock(executor_->getMutex());
   if (executor_->getQueue().empty()) return;
@@ -131,7 +128,6 @@ void FreeGaitActionServer::publishFeedback()
   }
   lock.unlock();
   server_.publishFeedback(feedback);
-  ROS_INFO("publishFeedback END");
 }
 
 void FreeGaitActionServer::setSucceeded()
