@@ -30,6 +30,7 @@ class StepParameters
     double averageVelocity = 0.1;
     double liftOffVelocity = 0.05;
     double touchdownVelocity = -0.05;
+    double minimumDuration_ = 0.5;
   } footTargetParameters_;
 
   struct LegModeParameters
@@ -43,7 +44,7 @@ class StepParameters
     double averageLinearVelocity = 0.05;
     double averageAngularVelocity = 0.1;
     double supportMargin = 0.06;
-    double minimumDuration_ = 0.5;
+    double minimumDuration_ = 0.7;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()

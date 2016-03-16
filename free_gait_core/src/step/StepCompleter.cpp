@@ -175,6 +175,7 @@ void StepCompleter::setParameters(Footstep& footstep) const
 
   footstep.liftOffVelocity_ = parameters.liftOffVelocity;
   footstep.touchdownVelocity_ = parameters.touchdownVelocity;
+  footstep.minimumDuration_ = parameters.minimumDuration_;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const

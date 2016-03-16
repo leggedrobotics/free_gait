@@ -98,6 +98,7 @@ class Footstep : public EndEffectorMotionBase
   bool ignoreForPoseAdaptation_;
   double liftOffVelocity_;
   double touchdownVelocity_;
+  double minimumDuration_;
 
   ControlSetup controlSetup_;
 
