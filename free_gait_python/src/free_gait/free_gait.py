@@ -395,10 +395,7 @@ def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0]
     
     if listener is None:
         listener = tf.TransformListener()
-        # Not working in current version of tf/tf2.
-        # http://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/
-        # listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-        rospy.sleep(1.0)
+        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
 
     try:
         (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
@@ -416,9 +413,7 @@ def get_transform(source_frame_id, target_frame_id, listener = None):
     
     if listener is None:
         listener = tf.TransformListener()
-        # Not working in current version of tf/tf2.
-        # listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-        rospy.sleep(1.0)
+        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
 
     try:
         (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))

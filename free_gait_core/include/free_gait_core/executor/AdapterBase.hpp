@@ -49,8 +49,8 @@ class AdapterBase
   virtual JointAccelerations getAllJointAccelerations() const = 0;
   virtual JointEfforts getJointEfforts(const LimbEnum& limb) const = 0;
   virtual JointEfforts getAllJointEfforts() const = 0;
-  virtual const Position& getPositionWorldToBaseInWorldFrame() const = 0;
-  virtual const RotationQuaternion& getOrientationWorldToBase() const = 0;
+  virtual Position getPositionWorldToBaseInWorldFrame() const = 0;
+  virtual RotationQuaternion getOrientationWorldToBase() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;

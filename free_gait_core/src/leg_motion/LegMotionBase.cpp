@@ -54,14 +54,24 @@ const ControlSetup LegMotionBase::getControlSetup() const
   throw std::runtime_error("LegMotionBase::getControlSetup() not implemented.");
 }
 
-bool LegMotionBase::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool LegMotionBase::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
+{
+  throw std::runtime_error("LegMotionBase::prepareComputation() not implemented.");
+}
+
+bool LegMotionBase::needsComputation() const
+{
+  throw std::runtime_error("LegMotionBase::needsComputation() not implemented.");
+}
+
+bool LegMotionBase::compute()
 {
   throw std::runtime_error("LegMotionBase::compute() not implemented.");
 }
 
-bool LegMotionBase::requiresMultiThreading() const
+bool LegMotionBase::isComputed() const
 {
-  return false;
+  throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
 }
 
 double LegMotionBase::getDuration() const

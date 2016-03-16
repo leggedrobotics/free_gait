@@ -59,6 +59,8 @@ class BaseTrajectory : public BaseMotionBase
   void updateStartPose(const Pose& startPose);
 
   bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  bool needsComputation() const;
+  bool isComputed() const;
 
   /*!
    * Returns the total duration of the trajectory.
@@ -92,7 +94,7 @@ class BaseTrajectory : public BaseMotionBase
 
  protected:
 
-  bool computed_;
+  bool isComputed_;
   double duration_;
   ControlSetup controlSetup_;
 

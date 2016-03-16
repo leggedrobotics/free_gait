@@ -27,7 +27,7 @@ namespace free_gait {
 class StepRosConverter
 {
  public:
-  StepRosConverter(std::shared_ptr<Executor> executor);
+  StepRosConverter(std::shared_ptr<AdapterBase> adapter);
   virtual ~StepRosConverter();
 
   /*!
@@ -38,13 +38,14 @@ class StepRosConverter
    */
   bool fromMessage(const free_gait_msgs::Step& message, Step& step);
   bool fromMessage(const free_gait_msgs::Footstep& message, Footstep& footstep);
+  bool fromMessage(const free_gait_msgs::EndEffectorTrajectory& message, EndEffectorTrajectory& endEffectorTrajectory);
   bool fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode);
   bool fromMessage(const free_gait_msgs::JointTrajectory& message, JointTrajectory& jointTrajectory);
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
   bool fromMessage(const free_gait_msgs::BaseTrajectory& message, BaseTrajectory& baseTrajectory);
 
  private:
-  std::shared_ptr<Executor> executor_;
+  std::shared_ptr<AdapterBase> adapter_;
 };
 
 }

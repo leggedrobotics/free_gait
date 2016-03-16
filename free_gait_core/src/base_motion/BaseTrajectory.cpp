@@ -13,7 +13,7 @@ namespace free_gait {
 BaseTrajectory::BaseTrajectory()
     : BaseMotionBase(BaseMotionBase::Type::Trajectory),
       duration_(0.0),
-      computed_(false)
+      isComputed_(false)
 {
 }
 
@@ -34,7 +34,7 @@ const ControlSetup BaseTrajectory::getControlSetup() const
 
 void BaseTrajectory::updateStartPose(const Pose& startPose)
 {
-  computed_ = false;
+  isComputed_ = false;
   auto& values = values_.at(ControlLevel::Position);
   auto& times = times_.at(ControlLevel::Position);
   if (times[0] == 0.0) {
@@ -55,8 +55,18 @@ bool BaseTrajectory::compute(const State& state, const Step& step, const StepQue
     if (times.second.back() > duration_) duration_ = times.second.back();
   }
 
-  computed_ = true;
+  isComputed_ = true;
   return true;
+}
+
+bool BaseTrajectory::needsComputation() const
+{
+  return false;
+}
+
+bool BaseTrajectory::isComputed() const
+{
+  return isComputed_;
 }
 
 double BaseTrajectory::getDuration() const

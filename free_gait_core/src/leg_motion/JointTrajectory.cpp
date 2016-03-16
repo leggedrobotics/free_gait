@@ -13,7 +13,7 @@ JointTrajectory::JointTrajectory(LimbEnum limb)
     : JointMotionBase(LegMotionBase::Type::JointTrajectory, limb),
       ignoreContact_(false),
       duration_(0.0),
-      computed_(false)
+      isComputed_(false)
 {
 }
 
@@ -34,7 +34,7 @@ const ControlSetup JointTrajectory::getControlSetup() const
 
 void JointTrajectory::updateStartPosition(const JointPositions& startPosition)
 {
-  computed_ = false;
+  isComputed_ = false;
   auto& values = values_.at(ControlLevel::Position);
   auto& times = times_.at(ControlLevel::Position);
   if (times[0] == 0.0) {
@@ -61,7 +61,7 @@ void JointTrajectory::updateStartAcceleration(const JointAccelerations& startAcc
 
 void JointTrajectory::updateStartEfforts(const JointEfforts& startEffort)
 {
-  computed_ = false;
+  isComputed_ = false;
   auto& values = values_.at(ControlLevel::Effort);
   auto& times = times_.at(ControlLevel::Effort);
   if (times[0] == 0.0) {
@@ -76,7 +76,22 @@ void JointTrajectory::updateStartEfforts(const JointEfforts& startEffort)
   }
 }
 
-bool JointTrajectory::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool JointTrajectory::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
+{
+  isComputed_ = false;
+  duration_ = 0.0;
+  for (const auto& times : times_) {
+    if (times.second.back() > duration_) duration_ = times.second.back();
+  }
+  return true;
+}
+
+bool JointTrajectory::needsComputation() const
+{
+  return true;
+}
+
+bool JointTrajectory::compute()
 {
   for (auto& trajectories : trajectories_) {
     trajectories.second.resize(values_.at(trajectories.first).size());
@@ -85,18 +100,13 @@ bool JointTrajectory::compute(const State& state, const Step& step, const Adapte
     }
   }
 
-  duration_ = 0.0;
-  for (const auto& times : times_) {
-    if (times.second.back() > duration_) duration_ = times.second.back();
-  }
-
-  computed_ = true;
+  isComputed_ = true;
   return true;
 }
 
-bool JointTrajectory::requiresMultiThreading() const
+bool JointTrajectory::isComputed() const
 {
-  return true;
+  return isComputed_;
 }
 
 double JointTrajectory::getDuration() const
@@ -106,6 +116,7 @@ double JointTrajectory::getDuration() const
 
 const JointPositions JointTrajectory::evaluatePosition(const double time) const
 {
+  if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluatePosition() cannot be called if trajectory is not computed.");
   const auto& trajectories = trajectories_.at(ControlLevel::Position);
   JointPositions jointPositions;
   jointPositions.toImplementation().resize((unsigned int) trajectories.size());
@@ -117,16 +128,19 @@ const JointPositions JointTrajectory::evaluatePosition(const double time) const
 
 const JointVelocities JointTrajectory::evaluateVelocity(const double time) const
 {
+  if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateVelocity() cannot be called if trajectory is not computed.");
   throw std::runtime_error("JointTrajectory::evaluateVelocity() not implemented.");
 }
 
 const JointAccelerations JointTrajectory::evaluateAcceleration(const double time) const
 {
+  if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateAcceleration() cannot be called if trajectory is not computed.");
   throw std::runtime_error("JointTrajectory::evaluateAcceleration() not implemented.");
 }
 
 const JointEfforts JointTrajectory::evaluateEffort(const double time) const
 {
+  if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateEffort() cannot be called if trajectory is not computed.");
   const auto& trajectories = trajectories_.at(ControlLevel::Effort);
   JointEfforts jointEfforts;
   jointEfforts.toImplementation().resize((unsigned int) trajectories.size());
@@ -143,6 +157,7 @@ bool JointTrajectory::isIgnoreContact() const
 
 std::ostream& operator<<(std::ostream& out, const JointTrajectory& jointTrajectory)
 {
+  if (!jointTrajectory.isComputed()) throw std::runtime_error("JointTrajectory::operator<< cannot be called if trajectory is not computed.");
   out << "Duration: " << jointTrajectory.duration_ << std::endl;
   out << "Ignore contact: " << (jointTrajectory.ignoreContact_ ? "True" : "False") << std::endl;
   for (const auto& times : jointTrajectory.times_) {
