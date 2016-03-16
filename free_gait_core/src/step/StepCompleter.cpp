@@ -15,14 +15,18 @@ StepCompleter::StepCompleter(std::shared_ptr<StepParameters> parameters, std::sh
     : parameters_(parameters),
       adapter_(adapter)
 {
+  timer_ = robotUtils::HighResolutionClockTimer("FreeGait::StepCompleter");
+  timer_.setAlpha(1.0);
 }
 
 StepCompleter::~StepCompleter()
 {
 }
 
-bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step) const
+bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step)
 {
+  timer_.pinTime();
+
   for (auto& legMotion : step.legMotions_) {
     switch ((legMotion.second)->getType()) {
       case LegMotionBase::Type::Footstep:
@@ -61,6 +65,8 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
     if (!complete(state, step, queue, *(step.baseMotion_))) return false;
   }
 
+  timer_.splitTime();
+  std::cout << timer_ << std::endl;
   return true;
 }
 
