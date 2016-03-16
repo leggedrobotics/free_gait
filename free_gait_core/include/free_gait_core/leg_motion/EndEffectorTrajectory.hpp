@@ -47,8 +47,8 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
 
   const ControlSetup getControlSetup() const;
 
-  bool compute(const State& state, const Step& step, const AdapterBase& adapter);
-
+  bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
+  bool needsComputation() const;
   bool isComputed() const;
 
   /*!

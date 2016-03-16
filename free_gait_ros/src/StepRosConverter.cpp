@@ -14,6 +14,7 @@
 // Kindr
 #include "kindr/thirdparty/ros/RosGeometryMsgPhysicalQuantitiesEigen.hpp"
 #include "kindr/thirdparty/ros/RosGeometryMsgPoseEigen.hpp"
+#include "kindr/thirdparty/ros/RosGeometryMsgPhysicalQuantitiesEigen.hpp"
 
 namespace free_gait {
 
@@ -34,6 +35,13 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
     Footstep footstep(limb);
     if (!fromMessage(footstepMessage, footstep)) return false;
     step.addLegMotion(limb, footstep);
+  }
+
+  for (const auto& endEffectorMessage : message.end_effector_trajectory) {
+    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorMessage.name);
+    EndEffectorTrajectory endEffectorTrajectory(limb);
+    if (!fromMessage(endEffectorMessage, endEffectorTrajectory)) return false;
+    step.addLegMotion(limb, endEffectorTrajectory);
   }
 
   for (const auto& legModeMessage : message.leg_mode) {
@@ -106,7 +114,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
   endEffectorTrajectory.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
 
   // Trajectory.
-  endEffectorTrajectory.frameIds_.at(ControlLevel::Position) = message.trajectory.header.frame_id;
+  endEffectorTrajectory.frameIds_[ControlLevel::Position] = message.trajectory.header.frame_id;
 
   endEffectorTrajectory.controlSetup_[ControlLevel::Position] = false;
   endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = false;
@@ -133,24 +141,23 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
       break;
     }
   }
-//
-//  for (const auto& controlSetup : baseTrajectory.controlSetup_) {
-//    if (!controlSetup.second)continue;
-//    for (const auto& point : message.trajectory.points) {
-//      if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
-//        BaseTrajectory::ValueType pose;
-//        kindr::poses::eigen_impl::convertFromRosGeometryMsg(point.transforms[0], pose);
-//        baseTrajectory.values_[controlSetup.first].push_back(pose);
-//      } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
-////        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
-//      } else if (controlSetup.first == ControlLevel::Acceleration && !point.accelerations.empty()) {
-////        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.accelerations[j]);
-//      } /*else if (controlSetup.first == ControlLevel::Effort && !point.effort.empty()) {
-//          baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.effort[j]);
-//      }*/
-//    }
-//  }
 
+  for (const auto& controlSetup : endEffectorTrajectory.controlSetup_) {
+    if (!controlSetup.second)continue;
+    for (const auto& point : message.trajectory.points) {
+      if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
+        Position position;
+        kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(point.transforms[0].translation, position);
+        endEffectorTrajectory.values_[controlSetup.first].push_back(position.vector());
+      } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
+//        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
+      } else if (controlSetup.first == ControlLevel::Acceleration && !point.accelerations.empty()) {
+//        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.accelerations[j]);
+      } /*else if (controlSetup.first == ControlLevel::Effort && !point.effort.empty()) {
+          baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.effort[j]);
+      }*/
+    }
+  }
 
   // Surface normal.
   Vector surfaceNormal;

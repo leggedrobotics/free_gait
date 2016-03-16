@@ -7,6 +7,7 @@
  */
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 #include <free_gait_core/leg_motion/Footstep.hpp>
+#include <free_gait_core/leg_motion/EndEffectorTrajectory.hpp>
 #include <free_gait_core/leg_motion/LegMode.hpp>
 #include <free_gait_core/leg_motion/JointTrajectory.hpp>
 
@@ -111,6 +112,9 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
       out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      break;
+    case LegMotionBase::Type::EndEffectorTrajectory:
+      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion)) << std::endl;
       break;
     case LegMotionBase::Type::LegMode:
       out << (dynamic_cast<const LegMode&>(legMotion)) << std::endl;

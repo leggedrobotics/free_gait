@@ -53,12 +53,17 @@ void EndEffectorTrajectory::updateStartPosition(const Position& startPosition)
   }
 }
 
-bool EndEffectorTrajectory::compute(const State& state, const Step& step, const AdapterBase& adapter)
+bool EndEffectorTrajectory::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   duration_ = times_.back();
   trajectory_.fitCurve(times_, values_.at(ControlLevel::Position));
   isComputed_ = true;
   return true;
+}
+
+bool EndEffectorTrajectory::needsComputation() const
+{
+  return false;
 }
 
 bool EndEffectorTrajectory::isComputed() const
@@ -105,7 +110,7 @@ std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffe
   for (const auto& time : endEffectorTrajectory.times_) out << time << ", ";
   out << std::endl;
   out << "Positions: ";
-  for (const auto& position : endEffectorTrajectory.values_.at(ControlLevel::Position)) out << position << ", ";
+  for (const auto& position : endEffectorTrajectory.values_.at(ControlLevel::Position)) out << "[" << position.transpose() << "], ";
   out << std::endl;
   return out;
 }
