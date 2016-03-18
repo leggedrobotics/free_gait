@@ -104,8 +104,9 @@ const Position Footstep::getTargetPosition() const
   return target_;
 }
 
-const std::string& Footstep::getFrameId() const
+const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const
 {
+  if (controlLevel != ControlLevel::Position) throw std::runtime_error("Footstep::getFrameId() is only valid for position.");
   return frameId_;
 }
 

@@ -112,7 +112,8 @@ bool Executor::advance(double dt)
 void Executor::reset()
 {
   queue_.clear();
-  initializeStateWithRobot();
+  resetStateWithRobot();
+  adapter_->updateExtras(queue_, *state_);
 }
 
 const StepQueue& Executor::getQueue() const
@@ -135,7 +136,7 @@ const AdapterBase& Executor::getAdapter() const
   return *adapter_;
 }
 
-bool Executor::initializeStateWithRobot()
+bool Executor::resetStateWithRobot()
 {
   for (const auto& limb : adapter_->getLimbs()) {
     state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
@@ -171,7 +172,6 @@ bool Executor::initializeStateWithRobot()
   }
 
   state_->setRobotExecutionStatus(true);
-
   return true;
 }
 
@@ -291,11 +291,12 @@ bool Executor::writeLegMotion()
       {
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) {
-          // TODO Add frame handling.
-          Position positionInWorldFrame(endEffectorMotion.evaluatePosition(time));
-          // TODO adapter_->getOrientationWorldToBase() is nicer when the robot slips, but leads to problems at lift-off.
-          Position positionInBaseFrame(adapter_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
-//          Position positionInBaseFrame(state_->getOrientationWorldToBase().rotate(positionInWorldFrame - adapter_->getPositionWorldToBaseInWorldFrame()));
+          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
+          if (!adapter_->frameIdExists(frameId)) {
+            std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+            return false;
+          }
+          Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
           JointPositions jointPositions;
           adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
           state_->setJointPositions(limb, jointPositions);

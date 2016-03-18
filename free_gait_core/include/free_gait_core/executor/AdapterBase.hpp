@@ -55,6 +55,11 @@ class AdapterBase
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;
   virtual ControlSetup getControlSetup(const LimbEnum& limb) const = 0;
+
+  //! Depending on state of real robot.
+  virtual bool frameIdExists(const std::string& frameId);
+  virtual Position transformPosition(const std::string& inputFrameId,
+                                     const std::string& outputFrameId, const Position& position);
 };
 
 } /* namespace free_gait */

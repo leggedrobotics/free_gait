@@ -66,7 +66,7 @@ class Executor
 
  private:
   bool completeCurrentStep(bool multiThreaded = false);
-  bool initializeStateWithRobot();
+  bool resetStateWithRobot();
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
   bool writeIgnoreForPoseAdaptation();

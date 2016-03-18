@@ -84,10 +84,7 @@ class BaseMotionBase
    * Returns the frame id base motion.
    * @return the frame id.
    */
-  virtual const std::string& getPoseFrameId() const;
-  virtual const std::string& getTwistFrameId() const;
-  virtual const std::string& getAccelerationFrameId() const;
-  virtual const std::string& getForceTorqueFrameId() const;
+  virtual const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   /*!
    * Evaluate the base motion at a given time.
