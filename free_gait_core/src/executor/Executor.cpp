@@ -113,6 +113,7 @@ void Executor::reset()
 {
   queue_.clear();
   initializeStateWithRobot();
+  adapter_->updateExtras(queue_, *state_);
 }
 
 const StepQueue& Executor::getQueue() const
