@@ -111,6 +111,7 @@ bool Executor::advance(double dt)
 
 void Executor::reset()
 {
+  std::cout << "RESETTING EXECUUUUUUUUUUUUUUUUUUUUUUTOR" << std::endl;
   queue_.clear();
   initializeStateWithRobot();
   adapter_->updateExtras(queue_, *state_);
