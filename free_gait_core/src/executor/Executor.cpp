@@ -111,9 +111,8 @@ bool Executor::advance(double dt)
 
 void Executor::reset()
 {
-  std::cout << "RESETTING EXECUUUUUUUUUUUUUUUUUUUUUUTOR" << std::endl;
   queue_.clear();
-  initializeStateWithRobot();
+  resetStateWithRobot();
   adapter_->updateExtras(queue_, *state_);
 }
 
@@ -137,7 +136,7 @@ const AdapterBase& Executor::getAdapter() const
   return *adapter_;
 }
 
-bool Executor::initializeStateWithRobot()
+bool Executor::resetStateWithRobot()
 {
   for (const auto& limb : adapter_->getLimbs()) {
     state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
@@ -173,7 +172,6 @@ bool Executor::initializeStateWithRobot()
   }
 
   state_->setRobotExecutionStatus(true);
-
   return true;
 }
 
