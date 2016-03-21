@@ -45,8 +45,8 @@ void BaseTrajectory::updateStartPose(const Pose& startPose)
   }
 }
 
-bool BaseTrajectory::compute(const State& state, const Step& step, const StepQueue& queue,
-                             const AdapterBase& adapter)
+bool BaseTrajectory::prepareComputation(const State& state, const Step& step,
+                                        const StepQueue& queue, const AdapterBase& adapter)
 {
   trajectory_.fitCurve(times_[ControlLevel::Position], values_[ControlLevel::Position]);
 

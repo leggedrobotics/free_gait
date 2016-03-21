@@ -25,7 +25,8 @@ class AdapterBase
   virtual ~AdapterBase();
 
   //! Copying data from real robot to free gait state.
-  virtual bool updateExtras(const StepQueue& stepQueue, State& state) const = 0;
+  virtual bool updateExtrasBefore(const StepQueue& stepQueue, State& state) const = 0;
+  virtual bool updateExtrasAfter(const StepQueue& stepQueue, State& state) const = 0;
 
   //! State independent functions.
   virtual const std::vector<LimbEnum>& getLimbs() const = 0;
