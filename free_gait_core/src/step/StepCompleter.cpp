@@ -52,6 +52,9 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
       case BaseMotionBase::Type::Auto:
         setParameters(dynamic_cast<BaseAuto&>(*step.baseMotion_));
         break;
+      case BaseMotionBase::Type::Target:
+        setParameters(dynamic_cast<BaseTarget&>(*step.baseMotion_));
+        break;
       case BaseMotionBase::Type::Trajectory:
         setParameters(dynamic_cast<BaseTrajectory&>(*step.baseMotion_));
         break;
@@ -163,7 +166,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
 
 void StepCompleter::setParameters(Footstep& footstep) const
 {
-  const auto& parameters = parameters_->footTargetParameters_;
+  const auto& parameters = parameters_->footTargetParameters;
 
   if (footstep.surfaceNormal_) {
     if (*(footstep.surfaceNormal_) == Vector::Zero())
@@ -183,7 +186,7 @@ void StepCompleter::setParameters(Footstep& footstep) const
 
 void StepCompleter::setParameters(LegMode& legMode) const
 {
-  const auto& parameters = parameters_->legModeParameters_;
+  const auto& parameters = parameters_->legModeParameters;
 
   if (legMode.surfaceNormal_) {
     if (*(legMode.surfaceNormal_) == Vector::Zero())
@@ -197,7 +200,7 @@ void StepCompleter::setParameters(LegMode& legMode) const
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
-  const auto& parameters = parameters_->baseAutoParameters_;
+  const auto& parameters = parameters_->baseAutoParameters;
 
   if (baseAuto.height_) {
     if (*(baseAuto.height_) == 0.0)
@@ -209,10 +212,20 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
     baseAuto.averageAngularVelocity_ = parameters.averageAngularVelocity;
   if (baseAuto.supportMargin_ == 0.0)
     baseAuto.supportMargin_ = parameters.supportMargin;
-  baseAuto.minimumDuration_ = parameters.minimumDuration_;
+  baseAuto.minimumDuration_ = parameters.minimumDuration;
 
   baseAuto.nominalPlanarStanceInBaseFrame_.clear();
   baseAuto.nominalPlanarStanceInBaseFrame_ = parameters.nominalPlanarStanceInBaseFrame;
+}
+
+void StepCompleter::setParameters(BaseTarget& baseTarget) const
+{
+  const auto& parameters = parameters_->baseTargetParameters;
+  if (baseTarget.averageLinearVelocity_ == 0.0)
+    baseTarget.averageLinearVelocity_ = parameters.averageLinearVelocity;
+  if (baseTarget.averageAngularVelocity_ == 0.0)
+    baseTarget.averageAngularVelocity_ = parameters.averageAngularVelocity;
+  baseTarget.minimumDuration_ = parameters.minimumDuration;
 }
 
 void StepCompleter::setParameters(BaseTrajectory& baseTrajectory) const
