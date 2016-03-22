@@ -23,6 +23,7 @@ bool free_gait::AdapterBase::frameIdExists(const std::string& frameId)
   if (frameId == "base") return true;
   if (frameId == "odom") return true;
   if (frameId == "map") return true;
+  if (frameId == "map_ga") return true;
   return false;
 }
 
@@ -39,6 +40,9 @@ Position free_gait::AdapterBase::transformPosition(const std::string& inputFrame
       transformedPosition = position;
     } else if (outputFrameId == "odom") {
       transformedPosition = getPositionWorldToBaseInWorldFrame() + getOrientationWorldToBase().inverseRotate(position);
+    } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
+      const Position positionInOdom = transformPosition(inputFrameId, "odom", position);
+      transformedPosition = transformPosition("odom", outputFrameId, positionInOdom);
     } else {
       frameError = true;
     }
@@ -49,6 +53,19 @@ Position free_gait::AdapterBase::transformPosition(const std::string& inputFrame
       transformedPosition = getOrientationWorldToBase().rotate(position - getPositionWorldToBaseInWorldFrame());
     } else if (outputFrameId == "odom") {
       transformedPosition = position;
+    } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
+      transformedPosition = getWorldToFrameTransform(outputFrameId).transform(position);
+    } else {
+      frameError = true;
+    }
+
+  } else if (inputFrameId == "map" || inputFrameId == "map_ga") {
+
+    if (outputFrameId == "base") {
+      const Position positionInOdom = transformPosition(inputFrameId, "odom", position);
+      transformedPosition = transformPosition("odom", outputFrameId, positionInOdom);
+    } else if (outputFrameId == "odom") {
+      transformedPosition = getWorldToFrameTransform(inputFrameId).inverseTransform(position);
     } else {
       frameError = true;
     }
@@ -57,7 +74,10 @@ Position free_gait::AdapterBase::transformPosition(const std::string& inputFrame
     frameError = true;
   }
 
-  if (frameError) throw std::invalid_argument("Invalid frame for transforming position.");
+  if (frameError) {
+    const std::string message = "Invalid frame for transforming position (input frame: " + inputFrameId + ", output frame: " + outputFrameId + ").";
+    throw std::invalid_argument(message);
+  }
   return transformedPosition;
 }
 

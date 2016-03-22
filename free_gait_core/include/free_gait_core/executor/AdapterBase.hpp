@@ -54,6 +54,7 @@ class AdapterBase
   virtual RotationQuaternion getOrientationWorldToBase() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
+  virtual Pose getWorldToFrameTransform(const std::string& frameId) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;
   virtual ControlSetup getControlSetup(const LimbEnum& limb) const = 0;
 
