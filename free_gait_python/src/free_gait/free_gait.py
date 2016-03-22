@@ -233,7 +233,6 @@ def parse_vector(yaml_object):
 
 
 def parse_transform(yaml_object):
-    print yaml_object
     transform = geometry_msgs.msg.Transform()
     if 'position' in yaml_object:
         transform.translation = parse_vector(yaml_object['position'])
