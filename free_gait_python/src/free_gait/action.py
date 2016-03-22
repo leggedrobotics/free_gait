@@ -33,7 +33,7 @@ class ActionBase(object):
     
     def _send_goal(self):
         if self.goal == None:
-            self.result = self.result.RESULT_FAILED
+            self.result = self.result.RESULT_UNKNOWN
             self.state = ActionState.DONE
             return
         

@@ -7,7 +7,7 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf
 
-def load_action_from_file(file_path, source_frame_id = ''):
+def load_action_from_file(file_path):
     import os
     from rosparam import load_file
     if not os.path.isfile(file_path):
@@ -21,19 +21,22 @@ def load_action_from_file(file_path, source_frame_id = ''):
     parameters = load_file(file_path)
     if 'adapt_coordinates' in parameters[0][0]:
         adapt_parameters = parameters[0][0]['adapt_coordinates']
-        is_adapt = True
-        target_frame_id = adapt_parameters['frame']
-        if 'pose' in adapt_parameters:
-            position = adapt_parameters['pose']['position']
-            orientation = adapt_parameters['pose']['orientation']
+        source_frame_id = adapt_parameters['source_frame']
+        if 'target' in adapt_parameters:
+            is_adapt = True
+            target_frame_id = adapt_parameters['target']['frame']
+            if 'position' in adapt_parameters['target']:
+                position = adapt_parameters['target']['position']
+            if 'orientation' in adapt_parameters['target']:
+                orientation = adapt_parameters['target']['orientation']
 
     if is_adapt:
         (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
 
-    return parse_action(parameters, position, orientation)
+    return parse_action(parameters, source_frame_id, position, orientation)
 
 
-def load_action_from_file_and_transform(file_path, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def load_action_from_file_and_transform(file_path, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     from rosparam import load_file
     import os
     
@@ -41,10 +44,10 @@ def load_action_from_file_and_transform(file_path, position=[0, 0, 0], orientati
         rospy.logerr('File with path "' + file_path + '" does not exists.')
         return None
 
-    return parse_action(load_file(file_path), position, orientation)
+    return parse_action(load_file(file_path), source_frame_id, position, orientation)
 
 
-def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def parse_action(yaml_object, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     goal = free_gait_msgs.msg.ExecuteStepsGoal()
     
     # For each step.
@@ -390,7 +393,7 @@ def parse_joint_trajectories(yaml_object):
 
 
 def adapt_coordinates(goal, position, orientation):
-    # For each steps.
+    # For each step.
     translation = translation_matrix(position)
     z_axis = [0, 0, 1]
     (roll, pitch, yaw) = euler_from_quaternion(orientation)
@@ -428,7 +431,7 @@ def adapt_coordinates(goal, position, orientation):
 
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
-    
+
     if listener is None:
         listener = tf.TransformListener()
         listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))

@@ -8,7 +8,6 @@ import actionlib
 import free_gait_msgs.msg
 import geometry_msgs.msg
 import trajectory_msgs.msg
-import std_msgs.msg
 
 def step_client():
     client = actionlib.SimpleActionClient('/locomotion_controller/step', free_gait_msgs.msg.StepAction)
