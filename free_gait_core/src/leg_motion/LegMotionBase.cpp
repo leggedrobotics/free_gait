@@ -111,21 +111,27 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
   out << std::endl;
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
-      out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const Footstep&>(legMotion));
       break;
     case LegMotionBase::Type::EndEffectorTrajectory:
-      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion));
       break;
     case LegMotionBase::Type::LegMode:
-      out << (dynamic_cast<const LegMode&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const LegMode&>(legMotion));
       break;
     case LegMotionBase::Type::JointTrajectory:
-      out << (dynamic_cast<const JointTrajectory&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const JointTrajectory&>(legMotion));
       break;
     default:
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
       break;
   }
+  if (legMotion.hasSurfaceNormal()) {
+    out << "Surface normal: " << legMotion.getSurfaceNormal() << std::endl;
+  } else {
+    out << "Surface normal: None" << std::endl;
+  }
+  out << std::endl;
   return out;
 }
 

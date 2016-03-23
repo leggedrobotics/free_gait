@@ -97,13 +97,14 @@ bool Executor::advance(double dt)
     std::cout << queue_.getCurrentStep() << std::endl;
   }
 
+  if (!adapter_->updateExtrasBefore(queue_, *state_)) return false;
   if (!writeIgnoreContact()) return false;
   if (!writeIgnoreForPoseAdaptation()) return false;
   if (!writeSupportLegs()) return false;
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
-  if (!adapter_->updateExtras(queue_, *state_)) return false;
+  if (!adapter_->updateExtrasAfter(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
 
   return true;
@@ -113,7 +114,7 @@ void Executor::reset()
 {
   queue_.clear();
   resetStateWithRobot();
-  adapter_->updateExtras(queue_, *state_);
+  adapter_->resetExtrasWithRobot(queue_, *state_);
 }
 
 const StepQueue& Executor::getQueue() const
@@ -298,7 +299,10 @@ bool Executor::writeLegMotion()
           }
           Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
           JointPositions jointPositions;
-          adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
+          if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
+            std::cerr << "Failed to compute joint positions from end effector position." << std::endl;
+            return false;
+          }
           state_->setJointPositions(limb, jointPositions);
         }
         break;

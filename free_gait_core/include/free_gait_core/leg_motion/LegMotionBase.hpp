@@ -102,6 +102,7 @@ class LegMotionBase
    * @return the resulting output stream.
    */
   friend std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion);
+  friend class StepCompleter;
 
  protected:
   LimbEnum limb_;
