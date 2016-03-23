@@ -47,7 +47,7 @@ def load_action_from_file_and_transform(file_path, source_frame_id='', position=
     return parse_action(load_file(file_path), source_frame_id, position, orientation)
 
 
-def parse_action(yaml_object, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     goal = free_gait_msgs.msg.ExecuteStepsGoal()
     
     # For each step.
@@ -80,7 +80,7 @@ def parse_action(yaml_object, source_frame_id='', position=[0, 0, 0], orientatio
     
     # Adapt to local coordinates if desired.
     if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
-        adapt_coordinates(goal, position, orientation)
+        adapt_coordinates(goal, frame_id, position, orientation)
 
     # print goal
     return goal
@@ -318,20 +318,27 @@ def parse_joint_trajectories(yaml_object):
     return joint_trajectory
 
 
-def adapt_coordinates(goal, position, orientation):
+def adapt_coordinates(goal, frame_id, position, orientation):
     # For each step.
     translation = translation_matrix(position)
+    yaw = 0
+    if len(orientation) == 4:
+        (roll, pitch, yaw) = euler_from_quaternion(orientation)
+    elif len(orientation) == 3:
+        yaw = orientation[2]
     z_axis = [0, 0, 1]
-    (roll, pitch, yaw) = euler_from_quaternion(orientation)
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
 
-    for step in goal.steps:
-        for foostep in step.footstep:
-            position = foostep.target.point;
-            if check_if_position_valid(position):
-                position = transform_position(transform, position)
-                foostep.target.point = position
+    adapt_coordinates_recursively(goal.steps, frame_id, transform)
+
+    # for step in goal.steps:
+    #     for footstep in step.footstep:
+    #         current_frame_id = footstep.target.header.frame_id
+    #         position = footstep.target.point
+    #         if check_if_position_valid(position) and current_frame_id == frame_id:
+    #             position = transform_position(transform, position)
+    #             footstep.target.point = position
             # if 'base_auto' in motion_parameter:
             #     step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
             # if 'footstep' in motion_parameter:
@@ -355,6 +362,17 @@ def adapt_coordinates(goal, position, orientation):
             #         transformation = transform_transformation(transform, point.transforms[0])
             #         point.transforms[0] = transformation
 
+
+def adapt_coordinates_recursively(message, frame_id, transform):
+    print '*********'
+    print message
+    if hasattr(message, '__iter__'):
+        for m in message:
+            adapt_coordinates_recursively(m, frame_id, transform)
+    else:
+        for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or
+               a == 'deserialize' or a == 'deserialize_numpy' or a == 'serialize' or a == 'serialize_numpy')]:
+            adapt_coordinates_recursively(m, frame_id, transform)
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
 
