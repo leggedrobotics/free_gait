@@ -24,6 +24,7 @@ StepCompleter::~StepCompleter()
 bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step)
 {
   for (auto& legMotion : step.legMotions_) {
+    setParameters(*legMotion.second);
     switch ((legMotion.second)->getType()) {
       case LegMotionBase::Type::Footstep:
         setParameters(dynamic_cast<Footstep&>(*legMotion.second));
@@ -164,14 +165,18 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   return baseMotion.prepareComputation(state, step, queue, *adapter_);
 }
 
+void StepCompleter::setParameters(LegMotionBase& legMotion) const
+{
+  if (legMotion.surfaceNormal_) {
+    if (*(legMotion.surfaceNormal_) == Vector::Zero())
+      legMotion.surfaceNormal_.reset(nullptr);
+  }
+}
+
 void StepCompleter::setParameters(Footstep& footstep) const
 {
   const auto& parameters = parameters_->footTargetParameters;
 
-  if (footstep.surfaceNormal_) {
-    if (*(footstep.surfaceNormal_) == Vector::Zero())
-      footstep.surfaceNormal_.reset(nullptr);
-  }
   if (footstep.profileHeight_ == 0.0)
     footstep.profileHeight_ = parameters.profileHeight;
   if (footstep.profileType_.empty())
@@ -188,10 +193,6 @@ void StepCompleter::setParameters(LegMode& legMode) const
 {
   const auto& parameters = parameters_->legModeParameters;
 
-  if (legMode.surfaceNormal_) {
-    if (*(legMode.surfaceNormal_) == Vector::Zero())
-      legMode.surfaceNormal_.reset(nullptr);
-  }
   if (legMode.duration_ == 0.0)
     legMode.duration_ = parameters.duration;
   if (legMode.frameId_.empty())

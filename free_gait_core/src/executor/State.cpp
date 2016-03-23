@@ -252,6 +252,7 @@ std::ostream& operator<<(std::ostream& out, const State& state)
     }
     out << std::endl;
   }
+  out << "Surface normals: " << state.surfaceNormals_ << std::endl;
   return out;
 }
 
