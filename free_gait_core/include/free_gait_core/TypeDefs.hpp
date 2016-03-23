@@ -8,10 +8,11 @@
 
 #pragma once
 
-#include "kindr/poses/PoseEigen.hpp"
-#include "kindr/poses/PoseDiffEigen.hpp"
-#include "kindr/phys_quant/PhysicalQuantitiesEigen.hpp"
+// quadruped model
 #include <quadruped_model/common/enums.hpp>
+#include <quadruped_model/common/typedefs.hpp>
+
+// stl
 #include <unordered_map>
 
 namespace free_gait {
@@ -25,37 +26,44 @@ struct EnumClassHash
   }
 };
 
-typedef kindr::poses::eigen_impl::HomogeneousTransformationPosition3RotationQuaternionD Pose;
-typedef kindr::poses::eigen_impl::TwistLinearVelocityLocalAngularVelocityPD Twist;
+// Import enum aliases.
+using LimbEnum = quadruped_model::LimbEnum;
+using BranchEnum = quadruped_model::BranchEnum;
+using ContactEnum = quadruped_model::ContactEnum;
 
-typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
-typedef kindr::rotations::eigen_impl::AngleAxisPD AngleAxis;
-typedef kindr::rotations::eigen_impl::RotationMatrixPD RotationMatrix;
-typedef kindr::rotations::eigen_impl::EulerAnglesZyxPD EulerAnglesZyx;
-typedef kindr::rotations::eigen_impl::RotationVectorPD RotationVector;
+// Import kindr aliases.
+using quadruped_model::Pose;
+using quadruped_model::Twist;
+using quadruped_model::RotationQuaternion;
+using quadruped_model::AngleAxis;
+using quadruped_model::RotationMatrix;
+using quadruped_model::EulerAnglesZyx;
+using quadruped_model::RotationVector;
+using quadruped_model::EulerAnglesXyz;
+using quadruped_model::EulerAnglesXyzDiff;
+using quadruped_model::Position;
+using Position2 = kindr::phys_quant::eigen_impl::Position<double, 2>;
+using quadruped_model::LinearVelocity;
+using quadruped_model::LocalAngularVelocity;
+using quadruped_model::EulerAnglesZyxDiff;
+using quadruped_model::LinearAcceleration;
+using quadruped_model::AngularAcceleration;
+using quadruped_model::Force;
+using quadruped_model::Torque;
+using quadruped_model::Vector;
 
-typedef kindr::phys_quant::eigen_impl::Position3D Position;
-typedef kindr::phys_quant::eigen_impl::Position<double, 2> Position2;
-
-typedef kindr::phys_quant::eigen_impl::Velocity3D LinearVelocity;
-typedef kindr::rotations::eigen_impl::LocalAngularVelocityPD LocalAngularVelocity;
-
-typedef kindr::phys_quant::eigen_impl::Acceleration3D LinearAcceleration;
-typedef kindr::phys_quant::eigen_impl::AngularAcceleration3D AngularAcceleration;
-
-typedef kindr::phys_quant::eigen_impl::Force3D Force;
-typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
-
-typedef kindr::phys_quant::eigen_impl::VectorTypeless3D Vector;
+// Import robot-specific kindr quantities.
+using quadruped_model::GeneralizedCoordinates;
+using quadruped_model::GeneralizedVelocities;
+using quadruped_model::GeneralizedAccelerations;
+//using quadruped_model::JointPositions;
+//using quadruped_model::JointVelocities;
+//using quadruped_model::JointTorques;
 
 typedef kindr::phys_quant::eigen_impl::Position<double, Eigen::Dynamic> JointPositions;
 typedef kindr::phys_quant::eigen_impl::Velocity<double, Eigen::Dynamic> JointVelocities;
 typedef kindr::phys_quant::eigen_impl::Acceleration<double, Eigen::Dynamic> JointAccelerations;
 typedef kindr::phys_quant::eigen_impl::Torque<double, Eigen::Dynamic> JointEfforts;
-
-typedef quadruped_model::LimbEnum LimbEnum;
-typedef quadruped_model::BranchEnum BranchEnum;
-typedef quadruped_model::ContactEnum ContactEnum;
 
 enum class ControlLevel
 {

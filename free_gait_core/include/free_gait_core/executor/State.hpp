@@ -43,16 +43,16 @@ class State : public quadruped_model::QuadrupedState
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
 
-  const JointPositions getJointPositions(const LimbEnum& limb) const;
-  void setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions);
+  const free_gait::JointPositions getJointPositions(const LimbEnum& limb) const;
+  void setJointPositions(const LimbEnum& limb, const free_gait::JointPositions& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
 
-  const JointVelocities getJointVelocities(const LimbEnum& limb) const;
-  void setJointVelocities(const LimbEnum& limb, const JointVelocities& jointVelocities);
+  const free_gait::JointVelocities getJointVelocities(const LimbEnum& limb) const;
+  void setJointVelocities(const LimbEnum& limb, const free_gait::JointVelocities& jointVelocities);
   void setAllJointVelocities(const JointVelocities& jointVelocities);
 
-  const JointAccelerations getJointAccelerations(const LimbEnum& limb) const;
-  const JointAccelerations& getAllJointAccelerations() const;
+  const free_gait::JointAccelerations getJointAccelerations(const LimbEnum& limb) const;
+  const free_gait::JointAccelerations& getAllJointAccelerations() const;
   void setJointAccelerations(const LimbEnum& limb, const JointAccelerations& jointAccelerations);
   void setAllJointAccelerations(const JointAccelerations& jointAccelerations);
 
