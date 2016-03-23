@@ -1,12 +1,12 @@
 /*
- * BaseAuto.cpp
+ * BaseTarget.cpp
  *
- *  Created on: Mar 7, 2015
+ *  Created on: Mar 22, 2016
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/base_motion/BaseTarget.hpp"
 #include <free_gait_core/base_motion/BaseMotionBase.hpp>
 
 #include <math.h>
@@ -14,11 +14,15 @@
 namespace free_gait {
 
 BaseTarget::BaseTarget()
-    : BaseMotionBase(BaseMotionBase::Type::Auto),
-      hasTarget_(false),
-      averageVelocity_(0.0),
+    : BaseMotionBase(BaseMotionBase::Type::Target),
+      ignoreTimingOfLegMotion_(false),
+      averageLinearVelocity_(0.0),
+      averageAngularVelocity_(0.0),
+      minimumDuration_(0.0),
       duration_(0.0),
-      trajectoryUpdated_(false)
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 
@@ -28,23 +32,36 @@ BaseTarget::~BaseTarget()
 
 std::unique_ptr<BaseMotionBase> BaseTarget::clone() const
 {
-  std::unique_ptr<BaseMotionBase> pointer(new BaseAuto(*this));
+  std::unique_ptr<BaseMotionBase> pointer(new BaseTarget(*this));
   return pointer;
 }
 
-bool BaseTarget::updateStartPose(const Pose& startPose)
+const ControlSetup BaseTarget::getControlSetup() const
 {
-  start_.getPosition() = startPose.getPosition();
-  start_.getRotation() = startPose.getRotation().getUnique();
-  trajectoryUpdated_ = false;
-  return true;
+  return controlSetup_;
 }
 
-const Pose BaseTarget::evaluate(const double time)
+void BaseTarget::updateStartPose(const Pose& startPose)
 {
-  if (!trajectoryUpdated_) computeTrajectory();
-  double timeInRange = time <= duration_ ? time : duration_;
-  return Pose(trajectory_.evaluate(timeInRange));
+  isComputed_ = false;
+  start_.getPosition() = startPose.getPosition();
+  start_.getRotation() = startPose.getRotation().getUnique();
+}
+
+bool BaseTarget::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+{
+  computeDuration(step, adapter);
+  return isComputed_ = computeTrajectory();
+}
+
+bool BaseTarget::needsComputation() const
+{
+  return false;
+}
+
+bool BaseTarget::isComputed() const
+{
+  return isComputed_;
 }
 
 double BaseTarget::getDuration() const
@@ -52,48 +69,41 @@ double BaseTarget::getDuration() const
   return duration_;
 }
 
-double BaseTarget::getAverageVelocity() const
+const std::string& BaseTarget::getFrameId(const ControlLevel& controlLevel) const
 {
-  return averageVelocity_;
+  return frameId_;
 }
 
-void BaseTarget::setAverageVelocity(double averageVelocity)
+
+Pose BaseTarget::evaluatePose(const double time) const
 {
-  averageVelocity_ = averageVelocity;
-  trajectoryUpdated_ = false;
+  double timeInRange = time <= duration_ ? time : duration_;
+  return trajectory_.evaluate(timeInRange);
 }
 
-bool BaseTarget::hasTarget() const
+void BaseTarget::computeDuration(const Step& step, const AdapterBase& adapter)
 {
-  return hasTarget_;
-}
+  if (!step.hasLegMotion() || ignoreTimingOfLegMotion_) {
+    double distance = (target_.getPosition() - start_.getPosition()).norm();
+    double translationDuration = distance / averageLinearVelocity_;
+    double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
+    double rotationDuration = angle / averageAngularVelocity_;
+    duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
+  } else {
+    for (const auto& limb : adapter.getLimbs()) {
+      if (step.hasLegMotion(limb)) {
+        if (!step.getLegMotion(limb).isIgnoreForPoseAdaptation()) {
+          if (duration_ < step.getLegMotion(limb).getDuration()) duration_ = step.getLegMotion(limb).getDuration();
+        }
+      }
+    }
+  }
 
-double BaseTarget::getHeight() const
-{
-  return height_;
-}
-
-void BaseTarget::setHeight(double height)
-{
-  height_ = height;
-}
-
-const Pose& BaseTarget::getTarget() const
-{
-  return target_;
-}
-
-void BaseTarget::setTarget(const Pose& target)
-{
-  target_.getPosition() = target.getPosition();
-  target_.getRotation() = target.getRotation().getUnique();
-  hasTarget_ = true;
+  duration_ = duration_ < minimumDuration_ ? minimumDuration_ : duration_;
 }
 
 bool BaseTarget::computeTrajectory()
 {
-  if (!hasTarget_) return false;
-
   std::vector<Time> times;
   std::vector<ValueType> values;
 
@@ -104,21 +114,19 @@ bool BaseTarget::computeTrajectory()
   values.push_back(target_);
 
   trajectory_.fitCurve(times, values);
-  trajectoryUpdated_ = true;
   return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const BaseTarget& baseAuto)
+std::ostream& operator<<(std::ostream& out, const BaseTarget& baseTarget)
 {
-//  out << "Start Position: " << baseShiftProfile.start_.getPosition() << std::endl;
-//  out << "Start Orientation: " << baseShiftProfile.start_.getRotation() << std::endl;
-//  out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseShiftProfile.start_.getRotation()).getUnique().vector().transpose() << std::endl;
-//  out << "Target Position: " << baseShiftProfile.target_.getPosition() << std::endl;
-//  out << "Target Orientation: " << baseShiftProfile.target_.getRotation() << std::endl;
-//  out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseShiftProfile.target_.getRotation()).getUnique().vector().transpose() << std::endl;
-//  out << "Height: " << baseShiftProfile.height_ << std::endl;
-//  out << "Duration: " << baseShiftProfile.duration_ << std::endl;
-//  out << "Type: " << baseShiftProfile.profileType_;
+  out << "Frame id: " << baseTarget.frameId_ << std::endl;
+  out << "Start Position: " << baseTarget.start_.getPosition() << std::endl;
+  out << "Start Orientation: " << baseTarget.start_.getRotation() << std::endl;
+  out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseTarget.start_.getRotation()).getUnique().vector().transpose() << std::endl;
+  out << "Target Position: " << baseTarget.target_.getPosition() << std::endl;
+  out << "Target Orientation: " << baseTarget.target_.getRotation() << std::endl;
+  out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseTarget.target_.getRotation()).getUnique().vector().transpose() << std::endl;
+  out << "Duration: " << baseTarget.duration_ << std::endl;
   return out;
 }
 

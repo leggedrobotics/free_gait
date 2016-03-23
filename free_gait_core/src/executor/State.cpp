@@ -8,6 +8,7 @@
 #include <free_gait_core/executor/State.hpp>
 #include <free_gait_core/TypePrints.hpp>
 #include <quadruped_model/common/topology_conversions.hpp>
+#include <quadruped_model/common/quadruped_model_common.hpp>
 
 namespace free_gait {
 
@@ -105,14 +106,14 @@ void State::setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdap
 
 const JointPositions State::getJointPositions(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointPositions(quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointPositions(quadruped_model::QuadrupedState::getJointPositions().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 void State::setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions)
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  for (unsigned int i = 0; i < 3; ++i) {
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  for (unsigned int i = 0; i < quadruped_model::numDofLeg; ++i) {
     quadruped_model::QuadrupedState::getJointPositions()(startIndex + i) = jointPositions(i);
   }
 }
@@ -124,14 +125,14 @@ void State::setAllJointPositions(const JointPositions& jointPositions)
 
 const JointVelocities State::getJointVelocities(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointVelocities(quadruped_model::QuadrupedState::getJointVelocities().vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointVelocities(quadruped_model::QuadrupedState::getJointVelocities().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 void State::setJointVelocities(const LimbEnum& limb, const JointVelocities& jointVelocities)
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  for (unsigned int i = 0; i < 3; ++i) {
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  for (unsigned int i = 0; i < quadruped_model::numDofLeg; ++i) {
     quadruped_model::QuadrupedState::getJointVelocities()(startIndex + i) = jointVelocities(i);
   }
 }
@@ -143,8 +144,8 @@ void State::setAllJointVelocities(const JointVelocities& jointVelocities)
 
 const JointAccelerations State::getJointAccelerations(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointAccelerations(jointAccelerations_.vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointAccelerations(jointAccelerations_.vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 const JointAccelerations& State::getAllJointAccelerations() const
@@ -154,8 +155,8 @@ const JointAccelerations& State::getAllJointAccelerations() const
 
 void State::setJointAccelerations(const LimbEnum& limb, const JointAccelerations& jointAccelerations)
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  for (unsigned int i = 0; i < 3; ++i) {
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  for (unsigned int i = 0; i < quadruped_model::numDofLeg; ++i) {
     jointAccelerations_(startIndex + i) = jointAccelerations(i);
   }
 }
@@ -167,8 +168,8 @@ void State::setAllJointAccelerations(const JointAccelerations& jointAcceleration
 
 const JointEfforts State::getJointEfforts(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointEfforts(getAllJointEfforts().vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointEfforts(getAllJointEfforts().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 const JointEfforts& State::getAllJointEfforts() const
@@ -178,8 +179,8 @@ const JointEfforts& State::getAllJointEfforts() const
 
 void State::setJointEfforts(const LimbEnum& limb, const JointEfforts& jointEfforts)
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  for (unsigned int i = 0; i < 3; ++i) { // TODO Can we do block operation?
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  for (unsigned int i = 0; i < quadruped_model::numDofLeg; ++i) { // TODO Can we do block operation?
     jointEfforts_(startIndex + i) = jointEfforts(i);
   }
 }
@@ -239,6 +240,7 @@ void State::setEmptyControlSetup(const LimbEnum& limb)
 
 std::ostream& operator<<(std::ostream& out, const State& state)
 {
+  out << static_cast<const quadruped_model::QuadrupedState&>(state) << std::endl;
   out << "Support legs: " << state.isSupportLegs_ << std::endl;
   out << "Ignore contact: " << state.ignoreContact_ << std::endl;
   out << "Ignore for pose adaptation: " << state.ignoreForPoseAdaptation_ << std::endl;
@@ -250,8 +252,8 @@ std::ostream& operator<<(std::ostream& out, const State& state)
     }
     out << std::endl;
   }
+  out << "Surface normals: " << state.surfaceNormals_ << std::endl;
   return out;
 }
 
 } /* namespace free_gait */
-

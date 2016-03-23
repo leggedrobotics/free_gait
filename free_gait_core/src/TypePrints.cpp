@@ -106,5 +106,12 @@ std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, 
   return out;
 }
 
+std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, Vector, EnumClassHash>& limbBooleanMap)
+{
+  for (const auto& limb : limbBooleanMap) {
+    out << limb.first << ": " << limb.second << ", ";
+  }
+  return out;
+}
 
 } // namespace

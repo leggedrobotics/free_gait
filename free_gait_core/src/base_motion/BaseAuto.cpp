@@ -140,8 +140,8 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
 {
   if (queue.previousStepExists()) {
     if (queue.getPreviousStep().hasBaseMotion()) {
-      const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
-      if (previousBaseMotion.getType() == BaseMotionBase::Type::Auto) {
+      if (queue.getPreviousStep().getBaseMotion().getType() == BaseMotionBase::Type::Auto) {
+        const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
         height_.reset(new double(previousBaseMotion.getHeight()));
         return true;
       }

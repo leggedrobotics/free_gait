@@ -69,7 +69,8 @@ class BaseMotionBase
   virtual void updateStartAcceleration(const Twist& startAcceleration);
   virtual void updateStartForceTorque(const Force& startForce, const Torque& startTorque);
 
-  virtual bool prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  virtual bool prepareComputation(const State& state, const Step& step, const StepQueue& queue,
+                                  const AdapterBase& adapter);
   virtual bool needsComputation() const;
   virtual bool compute();
   virtual bool isComputed() const;

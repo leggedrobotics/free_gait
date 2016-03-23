@@ -65,6 +65,12 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
     step.addBaseMotion(baseAuto);
   }
 
+  for (const auto& baseTargetMessage : message.base_target) {
+    BaseTarget baseTarget;
+    if (!fromMessage(baseTargetMessage, baseTarget)) return false;
+    step.addBaseMotion(baseTarget);
+  }
+
   for (const auto& baseTrajectoryMessage : message.base_trajectory) {
     BaseTrajectory baseTrajectory;
     if (!fromMessage(baseTrajectoryMessage, baseTrajectory)) return false;
@@ -268,6 +274,21 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
   baseAuto.averageLinearVelocity_ = message.average_linear_velocity;
   baseAuto.averageAngularVelocity_ = message.average_angular_velocity;
   baseAuto.supportMargin_ = message.support_margin;
+  return true;
+}
+
+bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTarget& message,
+                                   BaseTarget& baseTarget)
+{
+  // Target.
+  baseTarget.frameId_ = message.target.header.frame_id;
+  Pose target;
+  kindr::poses::eigen_impl::convertFromRosGeometryMsg(message.target.pose, target);
+  baseTarget.target_ = target;
+
+  baseTarget.ignoreTimingOfLegMotion_ = message.ignore_timing_of_leg_motion;
+  baseTarget.averageLinearVelocity_ = message.average_linear_velocity;
+  baseTarget.averageAngularVelocity_ = message.average_angular_velocity;
   return true;
 }
 
