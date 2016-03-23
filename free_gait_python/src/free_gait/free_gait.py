@@ -329,50 +329,47 @@ def adapt_coordinates(goal, frame_id, position, orientation):
     z_axis = [0, 0, 1]
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
-
     adapt_coordinates_recursively(goal.steps, frame_id, transform)
-
-    # for step in goal.steps:
-    #     for footstep in step.footstep:
-    #         current_frame_id = footstep.target.header.frame_id
-    #         position = footstep.target.point
-    #         if check_if_position_valid(position) and current_frame_id == frame_id:
-    #             position = transform_position(transform, position)
-    #             footstep.target.point = position
-            # if 'base_auto' in motion_parameter:
-            #     step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
-            # if 'footstep' in motion_parameter:
-            #     step.footstep.append(parse_footstep(motion_parameter['footstep']))
-
-
-            # for swing_data in step.swing_data:
-            #     position = swing_data.profile.target.point;
-            #     if check_if_position_valid(position):
-            #         position = transform_position(transform, position)
-            #         swing_data.profile.target.point = position
-            #     for point in swing_data.foot_trajectory.points:
-            #         position = transform_position(transform, point.transforms[0].translation)
-            #         point.transforms[0].translation = position
-            # for base_shift_data in step.base_shift_data:
-            #     pose = base_shift_data.profile.target.pose;
-            #     if check_if_pose_valid(pose):
-            #         pose = transform_pose(transform, pose)
-            #         base_shift_data.profile.target.pose = pose
-            #     for point in base_shift_data.trajectory.points:
-            #         transformation = transform_transformation(transform, point.transforms[0])
-            #         point.transforms[0] = transformation
 
 
 def adapt_coordinates_recursively(message, frame_id, transform):
-    print '*********'
-    print message
+
+    # Stop recursion for methods and primitve types.
+    if hasattr(message, '__call__') or isinstance(message, int) or isinstance(message, str) or \
+            isinstance(message, bool) or isinstance(message, float):
+        return
+
+    # Transform known geometries.
+    if isinstance(message, geometry_msgs.msg.Vector3Stamped):
+        if check_if_vector_valid(message.vector) and message.header.frame_id == frame_id:
+            vector = transform_vector(transform, message.vector)
+            message.vector = vector
+        return
+    elif isinstance(message, geometry_msgs.msg.PointStamped):
+        if check_if_position_valid(message.point) and message.header.frame_id == frame_id:
+            position = transform_position(transform, message.point)
+            message.point = position
+        return
+    elif isinstance(message, geometry_msgs.msg.PoseStamped):
+        if check_if_pose_valid(message.pose) and message.header.frame_id == frame_id:
+            pose = transform_pose(transform, message.pose)
+            message.pose = pose
+        return
+    elif isinstance(message, trajectory_msgs.msg.MultiDOFJointTrajectory):
+        if message.header.frame_id == frame_id:
+            for transformation in message.points.transforms:  # TODO Fixme
+                transformation = transform_transformation(transform, transformation)
+        return
+
+    # Do recursion for lists and members.
     if hasattr(message, '__iter__'):
         for m in message:
             adapt_coordinates_recursively(m, frame_id, transform)
     else:
-        for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or
-               a == 'deserialize' or a == 'deserialize_numpy' or a == 'serialize' or a == 'serialize_numpy')]:
-            adapt_coordinates_recursively(m, frame_id, transform)
+        for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or \
+                a == 'deserialize' or a == 'deserialize_numpy' or a == 'serialize' or a == 'serialize_numpy')]:
+            adapt_coordinates_recursively(eval("message." + m), frame_id, transform)
+
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
 
@@ -410,6 +407,12 @@ def get_transform(source_frame_id, target_frame_id, listener = None):
     return concatenate_matrices(translation_matrix_form, rotation_matrix_form)
 
 
+def transform_vector(transform, vector):
+    angle, direction, point = rotation_from_matrix(transform)
+    transformed_vector = rotation_matrix(angle, direction).dot([vector.x, vector.y, vector.z, 1.0])
+    return geometry_msgs.msg.Vector3(transformed_vector[0], transformed_vector[1], transformed_vector[2])
+
+
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
     return geometry_msgs.msg.Point(transformed_point[0], transformed_point[1], transformed_point[2])
@@ -433,6 +436,12 @@ def transform_transformation(transform, transformation):
     transformation.rotation = transform_orientation(transform, transformation.rotation)
     return transformation
 
+
+def check_if_vector_valid(vector):
+    if (vector.x == 0 and vector.y == 0 and vector.z == 0):
+        return False
+    else:
+        return True
 
 def check_if_position_valid(position):
     if (position.x == 0 and position.y == 0 and position.z == 0):
