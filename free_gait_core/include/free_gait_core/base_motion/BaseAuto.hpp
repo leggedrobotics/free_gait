@@ -106,7 +106,10 @@ class BaseAuto : public BaseMotionBase
   //! Base trajectory.
   curves::CubicHermiteSE3Curve trajectory_;
 
-  Stance footholdsToReach_, footholdsInSupport_, nominalStanceInBaseFrame_;
+  // In world frame.
+  Stance footholdsToReach_, footholdsInSupport_;
+  // In base frame.
+  Stance nominalStanceInBaseFrame_;
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
   PoseOptimization poseOptimization_;
 

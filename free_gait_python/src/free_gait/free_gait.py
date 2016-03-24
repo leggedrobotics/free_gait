@@ -15,6 +15,7 @@ def load_action_from_file(file_path):
         return None
     
     is_adapt = False
+    source_frame_id = ''
     position = [0, 0, 0]
     orientation = [0, 0, 0, 1]
     
@@ -75,7 +76,6 @@ def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0
             if 'base_trajectory' in motion_parameter:
                 step.base_trajectory.append(parse_base_trajectory(motion_parameter['base_trajectory']))
     
-        print step
         goal.steps.append(step)
     
     # Adapt to local coordinates if desired.
@@ -357,8 +357,10 @@ def adapt_coordinates_recursively(message, frame_id, transform):
         return
     elif isinstance(message, trajectory_msgs.msg.MultiDOFJointTrajectory):
         if message.header.frame_id == frame_id:
-            for transformation in message.points.transforms:  # TODO Fixme
-                transformation = transform_transformation(transform, transformation)
+            for i, point in enumerate(message.points):
+                for j, transformation in enumerate(message.points[i].transforms):
+                    t = transform_transformation(transform, transformation)
+                    message.points[i].transforms[j] = t
         return
 
     # Do recursion for lists and members.

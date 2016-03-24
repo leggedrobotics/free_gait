@@ -82,6 +82,7 @@ class ActionLoader:
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
+        rospy.loginfo(goal)
         if goal == None:
             rospy.logerr('Could not load action from YAML file.')
         self.action = SimpleAction(self.client, goal)
