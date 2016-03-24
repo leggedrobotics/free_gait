@@ -155,9 +155,14 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
 {
   if (baseMotion.getControlSetup().at(ControlLevel::Position)) {
-    // TODO Check frame.
-    Pose pose(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationWorldToBase());
-    baseMotion.updateStartPose(pose);
+    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
+    if (!adapter_->frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
+      return false;
+    }
+    Pose startPoseInWorld(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationWorldToBase());
+    Pose startPose = adapter_->transformPose(adapter_->getWorldFrameId(), frameId, startPoseInWorld);
+    baseMotion.updateStartPose(startPose);
   }
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
@@ -201,6 +206,8 @@ void StepCompleter::setParameters(LegMode& legMode) const
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
+  baseAuto.frameId_ =  adapter_->getWorldFrameId();
+
   const auto& parameters = parameters_->baseAutoParameters;
 
   if (baseAuto.height_) {

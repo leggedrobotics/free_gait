@@ -60,6 +60,8 @@ class BaseAuto : public BaseMotionBase
    */
   double getDuration() const;
 
+  const std::string& getFrameId(const ControlLevel& controlLevel) const;
+
   double getHeight() const;
 
   /*!
@@ -75,6 +77,7 @@ class BaseAuto : public BaseMotionBase
   friend class StepRosConverter;
 
  protected:
+  std::string frameId_;
   std::unique_ptr<double> height_; // In control frame.
   bool ignoreTimingOfLegMotion_;
   double averageLinearVelocity_;
