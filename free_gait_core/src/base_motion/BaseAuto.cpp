@@ -203,7 +203,12 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
           && step.getLegMotion(limb).getControlSetup().at(ControlLevel::Position)) {
         // Use target end effector position.
         const auto& legMotion = dynamic_cast<const EndEffectorMotionBase&>(step.getLegMotion(limb));
-        footholdsToReach_[limb] = legMotion.getTargetPosition();
+        footholdsToReach_[limb] = adapter.transformPosition(legMotion.getFrameId(ControlLevel::Position),
+                                                            adapter.getWorldFrameId(),
+                                                            legMotion.getTargetPosition());
+      }
+      else {
+        return false;
       }
     } else {
       // Use current foot position.

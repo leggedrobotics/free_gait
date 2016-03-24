@@ -103,12 +103,11 @@ bool LegMotionBase::isIgnoreForPoseAdaptation() const
 
 std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
 {
+  out << "Limb: " << legMotion.getLimb() << std::endl;
   out << "Type: " << legMotion.getType() << std::endl;
-  out << "Control setup: ";
-  for (const auto& controlSetup : legMotion.getControlSetup()) {
-    if (controlSetup.second) out << controlSetup.first << " ";
-  }
-  out << std::endl;
+  out << "Is computed: " << (legMotion.isComputed() ? "True" : "False") << std::endl;
+  out << "Control setup: " << legMotion.getControlSetup() << std::endl;
+  out << "Duration: " << legMotion.getDuration() << std::endl;
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
       out << (dynamic_cast<const Footstep&>(legMotion));
@@ -126,10 +125,13 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
       break;
   }
+  out << "Ignores contact: " << (legMotion.isIgnoreContact() ? "True" : "False") << std::endl;
+  out << "Ignored for pose adaptation: " << (legMotion.isIgnoreForPoseAdaptation() ? "True" : "False") << std::endl;
+  out << "Surface normal: ";
   if (legMotion.hasSurfaceNormal()) {
-    out << "Surface normal: " << legMotion.getSurfaceNormal() << std::endl;
+    out << legMotion.getSurfaceNormal() << std::endl;
   } else {
-    out << "Surface normal: None" << std::endl;
+    out << "None" << std::endl;
   }
   out << std::endl;
   return out;

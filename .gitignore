@@ -20,11 +20,6 @@
 *.out
 *.app
 
-# Eclipse
-.cproject
-.project
-.settings
-
 # OS X
 .DS_Store
 
@@ -35,6 +30,11 @@
 *.log
 *.gz
 
-# Python
+# Editors
+.cproject
+.project
+.settings
 *.pydevproject
 *.pyc
+*.idea
+*.sublime*

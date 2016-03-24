@@ -22,7 +22,6 @@ global client
 class ActionLoader:
     
     def __init__(self):
-        self.default_frame_id = 'map'
         self.action_server_topic = '/loco_free_gait/execute_steps'
         self.request = None
         self._load_parameters()
@@ -30,7 +29,6 @@ class ActionLoader:
         self.action = None
         
     def _load_parameters(self):
-        self.default_frame_id = rospy.get_param('~default_frame_id')
         self.action_server_topic = rospy.get_param('~action_server')
         self.directory = rospy.get_param('~directory')
         
@@ -83,7 +81,8 @@ class ActionLoader:
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
-        goal = load_action_from_file(file_path, self.default_frame_id)
+        goal = load_action_from_file(file_path)
+        rospy.loginfo(goal)
         if goal == None:
             rospy.logerr('Could not load action from YAML file.')
         self.action = SimpleAction(self.client, goal)

@@ -7,7 +7,7 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf
 
-def load_action_from_file(file_path, source_frame_id = ''):
+def load_action_from_file(file_path):
     import os
     from rosparam import load_file
     if not os.path.isfile(file_path):
@@ -15,25 +15,29 @@ def load_action_from_file(file_path, source_frame_id = ''):
         return None
     
     is_adapt = False
+    source_frame_id = ''
     position = [0, 0, 0]
     orientation = [0, 0, 0, 1]
     
     parameters = load_file(file_path)
     if 'adapt_coordinates' in parameters[0][0]:
         adapt_parameters = parameters[0][0]['adapt_coordinates']
-        is_adapt = True
-        target_frame_id = adapt_parameters['frame']
-        if 'pose' in adapt_parameters:
-            position = adapt_parameters['pose']['position']
-            orientation = adapt_parameters['pose']['orientation']
+        source_frame_id = adapt_parameters['source_frame']
+        if 'target' in adapt_parameters:
+            is_adapt = True
+            target_frame_id = adapt_parameters['target']['frame']
+            if 'position' in adapt_parameters['target']:
+                position = adapt_parameters['target']['position']
+            if 'orientation' in adapt_parameters['target']:
+                orientation = adapt_parameters['target']['orientation']
 
     if is_adapt:
         (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
 
-    return parse_action(parameters, position, orientation)
+    return parse_action(parameters, source_frame_id, position, orientation)
 
 
-def load_action_from_file_and_transform(file_path, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def load_action_from_file_and_transform(file_path, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     from rosparam import load_file
     import os
     
@@ -41,10 +45,10 @@ def load_action_from_file_and_transform(file_path, position=[0, 0, 0], orientati
         rospy.logerr('File with path "' + file_path + '" does not exists.')
         return None
 
-    return parse_action(load_file(file_path), position, orientation)
+    return parse_action(load_file(file_path), source_frame_id, position, orientation)
 
 
-def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     goal = free_gait_msgs.msg.ExecuteStepsGoal()
     
     # For each step.
@@ -72,12 +76,11 @@ def parse_action(yaml_object, position=[0, 0, 0], orientation=[0, 0, 0, 1]):
             if 'base_trajectory' in motion_parameter:
                 step.base_trajectory.append(parse_base_trajectory(motion_parameter['base_trajectory']))
     
-        print step
         goal.steps.append(step)
     
     # Adapt to local coordinates if desired.
     if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
-        adapt_coordinates(goal, position, orientation)
+        adapt_coordinates(goal, frame_id, position, orientation)
 
     # print goal
     return goal
@@ -315,46 +318,63 @@ def parse_joint_trajectories(yaml_object):
     return joint_trajectory
 
 
-def adapt_coordinates(goal, position, orientation):
-    # For each steps.
+def adapt_coordinates(goal, frame_id, position, orientation):
+    # For each step.
     translation = translation_matrix(position)
+    yaw = 0
+    if len(orientation) == 4:
+        (roll, pitch, yaw) = euler_from_quaternion(orientation)
+    elif len(orientation) == 3:
+        yaw = orientation[2]
     z_axis = [0, 0, 1]
-    (roll, pitch, yaw) = euler_from_quaternion(orientation)
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
-
-    for step in goal.steps:
-        for foostep in step.footstep:
-            position = foostep.target.point;
-            if check_if_position_valid(position):
-                position = transform_position(transform, position)
-                foostep.target.point = position
-            # if 'base_auto' in motion_parameter:
-            #     step.base_auto.append(parse_base_auto(motion_parameter['base_auto']))
-            # if 'footstep' in motion_parameter:
-            #     step.footstep.append(parse_footstep(motion_parameter['footstep']))
+    adapt_coordinates_recursively(goal.steps, frame_id, transform)
 
 
-            # for swing_data in step.swing_data:
-            #     position = swing_data.profile.target.point;
-            #     if check_if_position_valid(position):
-            #         position = transform_position(transform, position)
-            #         swing_data.profile.target.point = position
-            #     for point in swing_data.foot_trajectory.points:
-            #         position = transform_position(transform, point.transforms[0].translation)
-            #         point.transforms[0].translation = position
-            # for base_shift_data in step.base_shift_data:
-            #     pose = base_shift_data.profile.target.pose;
-            #     if check_if_pose_valid(pose):
-            #         pose = transform_pose(transform, pose)
-            #         base_shift_data.profile.target.pose = pose
-            #     for point in base_shift_data.trajectory.points:
-            #         transformation = transform_transformation(transform, point.transforms[0])
-            #         point.transforms[0] = transformation
+def adapt_coordinates_recursively(message, frame_id, transform):
+
+    # Stop recursion for methods and primitve types.
+    if hasattr(message, '__call__') or isinstance(message, int) or isinstance(message, str) or \
+            isinstance(message, bool) or isinstance(message, float):
+        return
+
+    # Transform known geometries.
+    if isinstance(message, geometry_msgs.msg.Vector3Stamped):
+        if check_if_vector_valid(message.vector) and message.header.frame_id == frame_id:
+            vector = transform_vector(transform, message.vector)
+            message.vector = vector
+        return
+    elif isinstance(message, geometry_msgs.msg.PointStamped):
+        if check_if_position_valid(message.point) and message.header.frame_id == frame_id:
+            position = transform_position(transform, message.point)
+            message.point = position
+        return
+    elif isinstance(message, geometry_msgs.msg.PoseStamped):
+        if check_if_pose_valid(message.pose) and message.header.frame_id == frame_id:
+            pose = transform_pose(transform, message.pose)
+            message.pose = pose
+        return
+    elif isinstance(message, trajectory_msgs.msg.MultiDOFJointTrajectory):
+        if message.header.frame_id == frame_id:
+            for i, point in enumerate(message.points):
+                for j, transformation in enumerate(message.points[i].transforms):
+                    t = transform_transformation(transform, transformation)
+                    message.points[i].transforms[j] = t
+        return
+
+    # Do recursion for lists and members.
+    if hasattr(message, '__iter__'):
+        for m in message:
+            adapt_coordinates_recursively(m, frame_id, transform)
+    else:
+        for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or \
+                a == 'deserialize' or a == 'deserialize_numpy' or a == 'serialize' or a == 'serialize_numpy')]:
+            adapt_coordinates_recursively(eval("message." + m), frame_id, transform)
 
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
-    
+
     if listener is None:
         listener = tf.TransformListener()
         listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
@@ -389,6 +409,12 @@ def get_transform(source_frame_id, target_frame_id, listener = None):
     return concatenate_matrices(translation_matrix_form, rotation_matrix_form)
 
 
+def transform_vector(transform, vector):
+    angle, direction, point = rotation_from_matrix(transform)
+    transformed_vector = rotation_matrix(angle, direction).dot([vector.x, vector.y, vector.z, 1.0])
+    return geometry_msgs.msg.Vector3(transformed_vector[0], transformed_vector[1], transformed_vector[2])
+
+
 def transform_position(transform, position):
     transformed_point = transform.dot([position.x, position.y, position.z, 1.0])
     return geometry_msgs.msg.Point(transformed_point[0], transformed_point[1], transformed_point[2])
@@ -412,6 +438,12 @@ def transform_transformation(transform, transformation):
     transformation.rotation = transform_orientation(transform, transformation.rotation)
     return transformation
 
+
+def check_if_vector_valid(vector):
+    if (vector.x == 0 and vector.y == 0 and vector.z == 0):
+        return False
+    else:
+        return True
 
 def check_if_position_valid(position):
     if (position.x == 0 and position.y == 0 and position.z == 0):

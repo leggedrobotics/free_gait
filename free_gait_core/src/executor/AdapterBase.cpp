@@ -18,7 +18,7 @@ AdapterBase::~AdapterBase()
 {
 }
 
-bool free_gait::AdapterBase::frameIdExists(const std::string& frameId)
+bool AdapterBase::frameIdExists(const std::string& frameId) const
 {
   if (frameId == "base") return true;
   if (frameId == "odom") return true;
@@ -27,9 +27,9 @@ bool free_gait::AdapterBase::frameIdExists(const std::string& frameId)
   return false;
 }
 
-Position free_gait::AdapterBase::transformPosition(const std::string& inputFrameId,
+Position AdapterBase::transformPosition(const std::string& inputFrameId,
                                                    const std::string& outputFrameId,
-                                                   const Position& position)
+                                                   const Position& position) const
 {
   Position transformedPosition;
   bool frameError = false;
@@ -54,7 +54,10 @@ Position free_gait::AdapterBase::transformPosition(const std::string& inputFrame
     } else if (outputFrameId == "odom") {
       transformedPosition = position;
     } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
-      transformedPosition = getWorldToFrameTransform(outputFrameId).transform(position);
+      // TODO Why does this not work?
+//      transformedPosition = getFramePoseInWorld(outputFrameId).inverseTransform(position);
+      const Pose pose(getFramePoseInWorld(outputFrameId));
+      transformedPosition = pose.getRotation().rotate((position - pose.getPosition()));
     } else {
       frameError = true;
     }
@@ -65,7 +68,10 @@ Position free_gait::AdapterBase::transformPosition(const std::string& inputFrame
       const Position positionInOdom = transformPosition(inputFrameId, "odom", position);
       transformedPosition = transformPosition("odom", outputFrameId, positionInOdom);
     } else if (outputFrameId == "odom") {
-      transformedPosition = getWorldToFrameTransform(inputFrameId).inverseTransform(position);
+      // TODO Why does this not work?
+//      transformedPosition = getFramePoseInWorld(inputFrameId).transform(position);
+      const Pose pose(getFramePoseInWorld(inputFrameId));
+      transformedPosition = pose.getRotation().inverseRotate(position) + pose.getPosition();
     } else {
       frameError = true;
     }
