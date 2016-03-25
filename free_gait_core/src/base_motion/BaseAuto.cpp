@@ -130,6 +130,11 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
+const std::string& BaseAuto::getFrameId(const ControlLevel& controlLevel) const
+{
+  return frameId_;
+}
+
 double BaseAuto::getHeight() const
 {
   if (height_) return *height_;

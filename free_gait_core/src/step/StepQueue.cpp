@@ -17,7 +17,9 @@
 namespace free_gait {
 
 StepQueue::StepQueue()
-    : active_(false)
+    : active_(false),
+      hasSwitchedStep_(false),
+      hasStartedStep_(false)
 {
   previousStep_.reset();
 }
@@ -38,11 +40,11 @@ void StepQueue::add(const Step& step)
   queue_.push_back(step);
 }
 
-bool StepQueue::advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep)
+bool StepQueue::advance(double dt)
 {
   // Check if empty.
-  hasSwitchedStep = false;
-  hasStartedStep = false;
+  hasSwitchedStep_ = false;
+  hasStartedStep_ = false;
   if (queue_.empty()) {
     active_ = false;
     return true;
@@ -51,14 +53,14 @@ bool StepQueue::advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep)
   // Special treatment of first step of queue.
   if (!active_) {
     active_ = true;
-    hasSwitchedStep = true;
+    hasSwitchedStep_ = true;
     return true;
   }
 
   // Check if step is updated (multi-threading).
   if (!queue_.front().isUpdated()) {
     if (queue_.front().update()) {
-      hasStartedStep = true;
+      hasStartedStep_ = true;
     } else {
       return true;
     }
@@ -74,10 +76,20 @@ bool StepQueue::advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep)
       active_ = false;
       return true;
     }
-    hasSwitchedStep = true;
+    hasSwitchedStep_ = true;
   }
 
   return true;
+}
+
+bool StepQueue::hasSwitchedStep() const
+{
+  return hasSwitchedStep_;
+}
+
+bool StepQueue::hasStartedStep() const
+{
+  return hasStartedStep_;
 }
 
 bool StepQueue::active() const

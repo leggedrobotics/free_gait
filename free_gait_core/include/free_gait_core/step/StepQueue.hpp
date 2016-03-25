@@ -37,10 +37,12 @@ class StepQueue
   /*!
    * Advance in time
    * @param dt the time step to advance [s].
-   * @param hasSwitchedStep, true if the step was changed in the last advance() update.
    * @return true if successful, false otherwise.
    */
-  bool advance(double dt, bool& hasSwitchedStep, bool& hasStartedStep);
+  bool advance(double dt);
+
+  bool hasSwitchedStep() const;
+  bool hasStartedStep() const;
 
   /*!
    * Queue is active if a step is available and the step is ready/updated.
@@ -98,6 +100,7 @@ class StepQueue
   std::deque<Step> queue_;
   std::unique_ptr<Step> previousStep_;
   bool active_;
+  bool hasSwitchedStep_, hasStartedStep_;
 };
 
 } /* namespace */
