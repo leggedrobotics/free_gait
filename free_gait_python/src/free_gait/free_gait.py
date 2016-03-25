@@ -30,6 +30,8 @@ def load_action_from_file(file_path):
                 position = adapt_parameters['target']['position']
             if 'orientation' in adapt_parameters['target']:
                 orientation = adapt_parameters['target']['orientation']
+                if len(orientation) == 3:
+                    orientation = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
 
     if is_adapt:
         (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
