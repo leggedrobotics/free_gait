@@ -5,7 +5,7 @@ import free_gait_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 import trajectory_msgs.msg
-import tf
+import tf2_ros
 
 def load_action_from_file(file_path):
     import os
@@ -373,17 +373,10 @@ def adapt_coordinates_recursively(message, frame_id, transform):
             adapt_coordinates_recursively(eval("message." + m), frame_id, transform)
 
 
-def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], listener = None):
+def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], tf_buffer = None):
 
-    if listener is None:
-        listener = tf.TransformListener()
-        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-
-    try:
-        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        rospy.logerr('Could not look up TF transformation from "' +
-                     source_frame_id + '" to "' + target_frame_id + '".')
+    (translation, rotation) = get_tf_transform(source_frame_id, target_frame_id, tf_buffer)
+    if not (translation or rotation):
         return None
 
     transformed_position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
@@ -391,23 +384,30 @@ def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0]
     return transformed_position, transformed_orientation
 
 
-def get_transform(source_frame_id, target_frame_id, listener = None):
+def get_transform(source_frame_id, target_frame_id, tf_buffer = None):
     
-    if listener is None:
-        listener = tf.TransformListener()
-        listener.waitForTransform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
-
-    try:
-        (translation, rotation) = listener.lookupTransform(source_frame_id, target_frame_id, rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        rospy.logerr('Could not look up TF transformation from "' +
-                     source_frame_id + '" to "' + target_frame_id + '".')
-        return None
-
+    (translation, rotation) = get_tf_transform(source_frame_id, target_frame_id, tf_buffer)
     translation_matrix_form = translation_matrix(translation)
     rotation_matrix_form = quaternion_matrix(rotation)
     return concatenate_matrices(translation_matrix_form, rotation_matrix_form)
 
+
+def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
+    
+    if tf_buffer is None:
+        tf_buffer = tf2_ros.Buffer()
+        listener = tf2_ros.TransformListener(tf_buffer)
+    
+    try:
+        transform = tf_buffer.lookup_transform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+    except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        rospy.logerr('Could not look up TF transformation from "' +
+                     source_frame_id + '" to "' + target_frame_id + '".')
+        return None
+
+    t = transform.transform.translation
+    r = transform.transform.rotation
+    return [t.x, t.y, t.z], [r.x, r.y, r.z, r.w]
 
 def transform_vector(transform, vector):
     angle, direction, point = rotation_from_matrix(transform)
