@@ -32,8 +32,9 @@ class ActionBase(object):
         return self.result
     
     def _send_goal(self):
-        if self.goal == None:
-            self.result = self.result.RESULT_UNKNOWN
+        if self.goal is None:
+            self.result = free_gait_msgs.msg.ExecuteStepsResult()
+            self.result.status = free_gait_msgs.msg.ExecuteStepsResult.RESULT_UNKNOWN
             self.state = ActionState.DONE
             return
         
