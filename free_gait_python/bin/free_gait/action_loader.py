@@ -59,9 +59,12 @@ class ActionLoader:
                 self.action.wait_for_result()
                 result = self.action.get_result()
                                 
-                if result == None or result.status == result.RESULT_FAILED:
+                if result is None or result.status == result.RESULT_FAILED or \
+                        result.status == result.RESULT_UNKNOWN:
                     response.status = response.STATUS_ERROR
+                    rospy.logerr('An error occurred while reading the action.')
                     return response
+
                 rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
             except:
@@ -83,14 +86,14 @@ class ActionLoader:
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
         rospy.loginfo(goal)
-        if goal == None:
+        if goal is None:
             rospy.logerr('Could not load action from YAML file.')
         self.action = SimpleAction(self.client, goal)
     
     def _load_python_action(self, file_path):
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
-        action_locals = dict()
+        # action_locals = dict()
         # Kind of nasty, but currently only way to make external imports work
         execfile(file_path, globals(), globals())
         self.action = action

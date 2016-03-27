@@ -7,19 +7,24 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf2_ros
 
-def load_action_from_file(file_path):
+def load_action_from_file(file_path, placeholders = None):
     import os
     from rosparam import load_file
     if not os.path.isfile(file_path):
         rospy.logerr('File with path "' + file_path + '" does not exists.')
         return None
-    
+
+    parameters = load_file(file_path)
+
+    # Replace placeholders.
+    if placeholders is not None:
+        replace_placeholders(parameters[0][0], placeholders)
+
+    # Adapt coordinates.
     is_adapt = False
     source_frame_id = ''
     position = [0, 0, 0]
     orientation = [0, 0, 0, 1]
-    
-    parameters = load_file(file_path)
     if 'adapt_coordinates' in parameters[0][0]:
         adapt_parameters = parameters[0][0]['adapt_coordinates']
         source_frame_id = adapt_parameters['source_frame']
@@ -86,6 +91,23 @@ def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0
 
     # print goal
     return goal
+
+
+def replace_placeholders(yaml_object, placeholders):
+    if type(yaml_object) == dict:
+        for i, item in yaml_object.items():
+            if type(item) == str:
+                if item in placeholders:
+                    yaml_object[i] = placeholders[item]
+            else:
+                replace_placeholders(yaml_object[i], placeholders)
+    if type(yaml_object) == list:
+        for i, item in enumerate(yaml_object):
+            if type(item) == str:
+                if item in placeholders:
+                    yaml_object[i] = placeholders[item]
+            else:
+                replace_placeholders(yaml_object[i], placeholders)
 
 
 def parse_footstep(yaml_object):
@@ -336,7 +358,7 @@ def adapt_coordinates(goal, frame_id, position, orientation):
 
 def adapt_coordinates_recursively(message, frame_id, transform):
 
-    # Stop recursion for methods and primitve types.
+    # Stop recursion for methods and primitive types.
     if hasattr(message, '__call__') or isinstance(message, int) or isinstance(message, str) or \
             isinstance(message, bool) or isinstance(message, float):
         return
@@ -367,7 +389,7 @@ def adapt_coordinates_recursively(message, frame_id, transform):
 
     # Do recursion for lists and members.
     if hasattr(message, '__iter__'):
-        for m in message:
+        for m in message:  # TODO Need enumerate?
             adapt_coordinates_recursively(m, frame_id, transform)
     else:
         for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or \
@@ -442,13 +464,14 @@ def transform_transformation(transform, transformation):
 
 
 def check_if_vector_valid(vector):
-    if (vector.x == 0 and vector.y == 0 and vector.z == 0):
+    if vector.x == 0 and vector.y == 0 and vector.z == 0:
         return False
     else:
         return True
 
+
 def check_if_position_valid(position):
-    if (position.x == 0 and position.y == 0 and position.z == 0):
+    if position.x == 0 and position.y == 0 and position.z == 0:
         return False
     else:
         return True
