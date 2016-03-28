@@ -30,6 +30,9 @@ class ActionBase(object):
         
     def get_result(self):
         return self.result
+
+    def stop(self):
+        self.state = ActionState.DONE
     
     def _send_goal(self):
         if self.goal is None:

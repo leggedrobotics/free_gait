@@ -103,7 +103,9 @@ class ActionLoader:
         self.action = action
                 
     def reset(self):
-        del(self.action)
+        if self.action:
+            self.action.stop()
+        del self.action
         self.action = None
         if self.client.gh:
             self.client.stop_tracking_goal()
