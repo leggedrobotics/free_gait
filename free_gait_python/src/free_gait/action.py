@@ -46,9 +46,9 @@ class ActionBase(object):
             self.client.stop_tracking_goal()
         self.client.wait_for_server()
         self.client.send_goal(self.goal,
-                              done_cb = self._done_callback,
-                              active_cb = self._active_callback,
-                              feedback_cb = self._feedback_callback)
+                              done_cb=self._done_callback,
+                              active_cb=self._active_callback,
+                              feedback_cb=self._feedback_callback)
 
     def _active_callback(self):
         self.state = ActionState.ACTIVE
@@ -57,7 +57,7 @@ class ActionBase(object):
         self.feedback = feedback
         
     def _done_callback(self, status, result):
-        self.state = ActionState.DONE
+        self.stop()
         self.result = result
         
         
