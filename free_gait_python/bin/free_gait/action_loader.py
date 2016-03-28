@@ -59,10 +59,14 @@ class ActionLoader:
                 self.action.wait_for_result()
                 result = self.action.get_result()
                                 
-                if result is None or result.status == result.RESULT_FAILED or \
-                        result.status == result.RESULT_UNKNOWN:
+                if result is None:
                     response.status = response.STATUS_ERROR
                     rospy.logerr('An error occurred while reading the action.')
+                    return response
+
+                if result.status == result.RESULT_FAILED:
+                    response.status = response.STATUS_ERROR
+                    rospy.logerr('An error occurred while executing the action.')
                     return response
 
                 rospy.loginfo('Action successfully executed.')
