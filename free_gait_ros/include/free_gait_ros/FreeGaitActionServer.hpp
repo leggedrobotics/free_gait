@@ -38,6 +38,8 @@ class FreeGaitActionServer
   void update();
   void shutdown();
 
+  bool isActive();
+
   void goalCallback();
 
   void preemptCallback();
