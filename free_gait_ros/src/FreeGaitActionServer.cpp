@@ -150,7 +150,7 @@ void FreeGaitActionServer::setAborted()
   ROS_INFO("StepAction aborted.");
   free_gait_msgs::ExecuteStepsResult result;
   result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
-  server_.setAborted(result, "Step action has failed.");
+  server_.setAborted(result, "Step action has failed (aborted).");
 }
 
 } /* namespace */
