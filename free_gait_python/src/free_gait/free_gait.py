@@ -7,7 +7,8 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf2_ros
 
-def load_action_from_file(file_path, placeholders = None):
+
+def load_action_from_file(file_path, placeholders=None):
     import os
     from rosparam import load_file
     if not os.path.isfile(file_path):

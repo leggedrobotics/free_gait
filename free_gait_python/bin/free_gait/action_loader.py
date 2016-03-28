@@ -44,7 +44,7 @@ class ActionLoader:
         response = locomotion_controller_msgs.srv.SwitchControllerResponse()
         file_path = self._get_path(request.name)
         file_type = splitext(request.name)[-1]
-        if file_path == None:
+        if file_path is None:
             rospy.logerr('Action with name "' + request.name + '" does not exists.')
             response.status = response.STATUS_NOTFOUND
         else:
@@ -103,7 +103,9 @@ class ActionLoader:
         self.action = action
                 
     def reset(self):
-        del(self.action)
+        if self.action:
+            self.action.stop()
+        del self.action
         self.action = None
         if self.client.gh:
             self.client.stop_tracking_goal()

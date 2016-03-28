@@ -68,6 +68,11 @@ void FreeGaitActionServer::shutdown()
   server_.shutdown();
 }
 
+bool FreeGaitActionServer::isActive()
+{
+  return server_.isActive();
+}
+
 void FreeGaitActionServer::goalCallback()
 {
   ROS_INFO("Received goal for StepAction.");
