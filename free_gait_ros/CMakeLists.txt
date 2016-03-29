@@ -65,6 +65,7 @@ add_library(${PROJECT_NAME}
 #   src/BaseShiftDataRosWrapper.cpp
 #   src/BaseShiftSplineTrajectoryRosWrapper.cpp
 #   src/BaseShiftProfileRosWrapper.cpp
+   src/ActionBase.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
