@@ -300,7 +300,8 @@ def parse_vector_stamped(yaml_object):
 
 def parse_multi_dof_trajectory(joint_name, trajectory):
     output = trajectory_msgs.msg.MultiDOFJointTrajectory()
-    output.header.frame_id = trajectory['frame']
+    if 'frame' in trajectory:
+        output.header.frame_id = trajectory['frame']
     output.joint_names.append(joint_name)
     for knot in trajectory['knots']:
         point = trajectory_msgs.msg.MultiDOFJointTrajectoryPoint()

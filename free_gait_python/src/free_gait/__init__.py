@@ -3,6 +3,7 @@ from free_gait import parse_action
 from free_gait import adapt_coordinates
 from free_gait import transform_coordinates
 from free_gait import get_transform
+from free_gait import transform_transformation
 from action import ActionState
 from action import ActionBase
 from action import SimpleAction
