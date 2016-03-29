@@ -8,7 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   free_gait_msgs
   free_gait_core
   curves_ros
-  tf
 )
 
 ## System dependencies are found with CMake's conventions
