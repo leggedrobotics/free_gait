@@ -64,7 +64,7 @@ class ActionLoader:
                     rospy.logerr('An error occurred while reading the action.')
                     return response
 
-                if result.status == result.RESULT_FAILED:
+                if result.status == free_gait_msgs.msg.ExecuteStepsResult.RESULT_FAILED:
                     response.status = response.STATUS_ERROR
                     rospy.logerr('An error occurred while executing the action.')
                     return response
