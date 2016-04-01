@@ -299,7 +299,7 @@ bool Executor::writeLegMotion()
           Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
           JointPositions jointPositions;
           if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
-            std::cerr << "Failed to compute joint positions from end effector position." << std::endl;
+            std::cerr << "Failed to compute joint positions from end effector position for " <<limb << "." << std::endl;
             return false;
           }
           state_->setJointPositions(limb, jointPositions);
