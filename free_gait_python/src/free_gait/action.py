@@ -3,6 +3,7 @@
 import roslib
 from free_gait import *
 import threading
+from actionlib_msgs.msg import GoalStatus
 
 class ActionState:
     PENDING = 0
@@ -32,8 +33,8 @@ class ActionBase(object):
         return self.result
 
     def stop(self):
-        self.state = ActionState.DONE
-    
+        pass
+
     def _send_goal(self):
         if self.goal is None:
             self.result = free_gait_msgs.msg.ExecuteStepsResult()
@@ -57,8 +58,10 @@ class ActionBase(object):
         self.feedback = feedback
         
     def _done_callback(self, status, result):
-        self.stop()
+        self.state = ActionState.DONE
         self.result = result
+        if status != GoalStatus.SUCCEEDED:
+            self.stop()
         
         
 class SimpleAction(ActionBase):
@@ -66,7 +69,23 @@ class SimpleAction(ActionBase):
     def __init__(self, client, goal):
         ActionBase.__init__(self, client, None)
         self.goal = goal
-        
+
+
+class ContinuousAction(ActionBase):
+
+    def __init__(self, client, directory = None):
+        ActionBase.__init__(self, client, directory)
+        self.keep_alive = True
+
+    def start(self):
+        # Immediate return because action runs in background.
+        self.state = ActionState.DONE
+        self.result = free_gait_msgs.msg.ExecuteStepsResult()
+        self.result.status = self.result.RESULT_UNKNOWN
+
+    def wait_for_result(self):
+        pass
+
     
 class TriggerOnFeedback:
     

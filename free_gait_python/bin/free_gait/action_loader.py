@@ -69,7 +69,10 @@ class ActionLoader:
                     rospy.logerr('An error occurred while executing the action.')
                     return response
 
-                rospy.loginfo('Action successfully executed.')
+                if self.action.keep_alive:
+                    rospy.loginfo("Action continues in the background.")
+                else:
+                    rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
             except:
                 rospy.logerr('An error occurred while reading the action.')
