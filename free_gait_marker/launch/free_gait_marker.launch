@@ -2,8 +2,11 @@
 
 <launch>
 
+  <arg name="tf_minimal" default="false"/>
+
   <node pkg="free_gait_marker" type="free_gait_marker" name="free_gait_marker" output="screen">
-    <rosparam command="load" file="$(find free_gait_marker)/config/locomotion_controller.yaml" />
+    <rosparam command="load" file="$(find free_gait_marker)/config/locomotion_controller.yaml"/>
+    <remap from="/tf" to="/tf_minimal" if="$(arg tf_minimal)"/>
   </node>
 	
 </launch>
