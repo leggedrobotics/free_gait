@@ -119,7 +119,7 @@ bool BaseTarget::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseTarget& baseTarget)
 {
-  out << "Frame id: " << baseTarget.frameId_ << std::endl;
+  out << "Frame: " << baseTarget.frameId_ << std::endl;
   out << "Start Position: " << baseTarget.start_.getPosition() << std::endl;
   out << "Start Orientation: " << baseTarget.start_.getRotation() << std::endl;
   out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseTarget.start_.getRotation()).getUnique().vector().transpose() << std::endl;

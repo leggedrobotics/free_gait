@@ -377,6 +377,7 @@ bool BaseAuto::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
+  out << "Frame: " << *(baseAuto.frameId_) << std::endl;
   out << "Height: " << *(baseAuto.height_) << std::endl;
   out << "Ignore timing of leg motion: " << (baseAuto.ignoreTimingOfLegMotion_ ? "True" : "False") << std::endl;
   out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;
