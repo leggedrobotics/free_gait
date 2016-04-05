@@ -36,6 +36,10 @@ void FreeGaitActionServer::initialize()
 {
   server_.registerGoalCallback(boost::bind(&FreeGaitActionServer::goalCallback, this));
   server_.registerPreemptCallback(boost::bind(&FreeGaitActionServer::preemptCallback, this));
+}
+
+void FreeGaitActionServer::start()
+{
   server_.start();
   ROS_INFO_STREAM("Started " << name_ << " action server.");
 }

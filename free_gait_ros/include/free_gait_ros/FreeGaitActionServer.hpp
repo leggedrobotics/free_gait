@@ -35,6 +35,7 @@ class FreeGaitActionServer
   virtual ~FreeGaitActionServer();
 
   void initialize();
+  void start();
   void update();
   void shutdown();
 
