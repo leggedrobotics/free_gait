@@ -27,9 +27,9 @@ class StepParameters
   {
     std::string profileType = "triangle";
     double profileHeight = 0.05;
-    double averageVelocity = 0.1;
+    double averageVelocity = 0.15;
     double liftOffVelocity = 0.05;
-    double touchdownVelocity = -0.05;
+    double touchdownVelocity = -0.07;
     double minimumDuration_ = 0.5;
   } footTargetParameters;
 
@@ -41,9 +41,9 @@ class StepParameters
 
   struct BaseAutoParameters
   {
-    double averageLinearVelocity = 0.05;
-    double averageAngularVelocity = 0.1;
-    double supportMargin = 0.06;
+    double averageLinearVelocity = 0.07;
+    double averageAngularVelocity = 0.12;
+    double supportMargin = 0.05;
     double minimumDuration = 0.7;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
