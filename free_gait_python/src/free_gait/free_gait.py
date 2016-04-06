@@ -435,6 +435,7 @@ def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
     r = transform.transform.rotation
     return [t.x, t.y, t.z], [r.x, r.y, r.z, r.w]
 
+
 def transform_vector(transform, vector):
     angle, direction, point = rotation_from_matrix(transform)
     transformed_vector = rotation_matrix(angle, direction).dot([vector.x, vector.y, vector.z, 1.0])
