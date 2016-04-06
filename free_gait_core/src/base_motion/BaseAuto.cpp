@@ -286,8 +286,9 @@ void BaseAuto::getAdaptiveTargetPose(
 
   // Compute orientation of terrain in world.
   double terrainPitch, terrainRoll;
-  terrainPitch = atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
-  terrainRoll = atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
+  const double adaptationFactor = 0.5;
+  terrainPitch = adaptationFactor * atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
+  terrainRoll = adaptationFactor * atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
   RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
       * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
 
