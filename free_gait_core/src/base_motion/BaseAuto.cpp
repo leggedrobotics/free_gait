@@ -176,6 +176,8 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 //    const auto& limb = quadrupedModel_->getLimbEnumFromLimbUInt((uint) leg->getId());
 //    footholdsForOrientation_.emplace(limb, leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame());
 //  }
+  std::cout << "**********************" << std::endl;
+  std::cout << "[ALZHEIMER]: Starting debugging." << std::endl;
 
   footholdsInSupport_.clear();
   bool prepareForNextStep = false;
@@ -185,6 +187,7 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
   if (prepareForNextStep) {
     // Auto motion for preparation of next step.
+    std::cout << "[ALZHEIMER]: prepareForNextStep = true" << std::endl;
     for (const auto& limb : adapter.getLimbs()) {
       if (!state.isIgnoreContact(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
@@ -192,12 +195,17 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   } else {
     // Auto motion for current step.
+    std::cout << "[ALZHEIMER]: prepareForNextStep = false" << std::endl;
     for (const auto& limb : adapter.getLimbs()) {
       if (!step.hasLegMotion(limb) && !state.isIgnoreContact(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
   }
+  std::cout << "[ALZHEIMER]: footholdsInSupport_ size:" << footholdsInSupport_.size() << std::endl;
+  std::cout << "[ALZHEIMER]: footholdsInSupport_:" << std::endl;
+  for (const auto& f : footholdsInSupport_) std::cout << f.first << " ";
+  std::cout << std::endl;
 
   footholdsToReach_.clear();
   for (const auto& limb : adapter.getLimbs()) {
