@@ -176,6 +176,8 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 //    const auto& limb = quadrupedModel_->getLimbEnumFromLimbUInt((uint) leg->getId());
 //    footholdsForOrientation_.emplace(limb, leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame());
 //  }
+  std::cout << "**********************" << std::endl;
+  std::cout << "[ALZHEIMER]: Starting debugging." << std::endl;
 
   footholdsInSupport_.clear();
   bool prepareForNextStep = false;
@@ -185,6 +187,7 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
   if (prepareForNextStep) {
     // Auto motion for preparation of next step.
+    std::cout << "[ALZHEIMER]: prepareForNextStep = true" << std::endl;
     for (const auto& limb : adapter.getLimbs()) {
       if (!state.isIgnoreContact(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
@@ -192,12 +195,17 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   } else {
     // Auto motion for current step.
+    std::cout << "[ALZHEIMER]: prepareForNextStep = false" << std::endl;
     for (const auto& limb : adapter.getLimbs()) {
       if (!step.hasLegMotion(limb) && !state.isIgnoreContact(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
   }
+  std::cout << "[ALZHEIMER]: footholdsInSupport_ size:" << footholdsInSupport_.size() << std::endl;
+  std::cout << "[ALZHEIMER]: footholdsInSupport_:" << std::endl;
+  for (const auto& f : footholdsInSupport_) std::cout << f.first << " ";
+  std::cout << std::endl;
 
   footholdsToReach_.clear();
   for (const auto& limb : adapter.getLimbs()) {
@@ -286,8 +294,9 @@ void BaseAuto::getAdaptiveTargetPose(
 
   // Compute orientation of terrain in world.
   double terrainPitch, terrainRoll;
-  terrainPitch = atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
-  terrainRoll = atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
+  const double adaptationFactor = 0.5;
+  terrainPitch = adaptationFactor * atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
+  terrainRoll = adaptationFactor * atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
   RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
       * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
 
@@ -377,6 +386,7 @@ bool BaseAuto::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
+  out << "Frame: " << baseAuto.frameId_ << std::endl;
   out << "Height: " << *(baseAuto.height_) << std::endl;
   out << "Ignore timing of leg motion: " << (baseAuto.ignoreTimingOfLegMotion_ ? "True" : "False") << std::endl;
   out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;
