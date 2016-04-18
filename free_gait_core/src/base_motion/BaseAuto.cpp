@@ -178,6 +178,7 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 //  }
   std::cout << "**********************" << std::endl;
   std::cout << "[ALZHEIMER]: Starting debugging." << std::endl;
+  std::cout << "[ALZHEIMER]: queue size: " << queue.size() << std::endl;
 
   footholdsInSupport_.clear();
   bool prepareForNextStep = false;

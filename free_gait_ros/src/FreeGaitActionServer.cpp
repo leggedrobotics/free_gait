@@ -94,15 +94,15 @@ void FreeGaitActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
-  Executor::Lock lock(executor_->getMutex());
-  lock.unlock();
+  std::vector<Step> steps;
   for (auto& stepMessage : goal->steps) {
     Step step;
     adapter_.fromMessage(stepMessage, step);
-    lock.lock();
-    executor_->getQueue().add(step);
-    lock.unlock();
+    steps.push_back(step);
   }
+  Executor::Lock lock(executor_->getMutex());
+  executor_->getQueue().add(steps);
+  lock.unlock();
 }
 
 void FreeGaitActionServer::preemptCallback()
