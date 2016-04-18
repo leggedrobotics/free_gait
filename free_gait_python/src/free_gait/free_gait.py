@@ -48,7 +48,7 @@ def load_action_from_file(file_path, placeholders=None):
 def load_action_from_file_and_transform(file_path, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     from rosparam import load_file
     import os
-    
+
     if not os.path.isfile(file_path):
         rospy.logerr('File with path "' + file_path + '" does not exists.')
         return None
@@ -58,7 +58,7 @@ def load_action_from_file_and_transform(file_path, source_frame_id='', position=
 
 def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     goal = free_gait_msgs.msg.ExecuteStepsGoal()
-    
+
     # For each step.
     for step_parameter in yaml_object[0][0]['steps']:
 
@@ -71,6 +71,8 @@ def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0
         for motion_parameter in step_parameter:
             if 'footstep' in motion_parameter:
                 step.footstep.append(parse_footstep(motion_parameter['footstep']))
+            if 'end_effector_target' in motion_parameter:
+                step.end_effector_target.append(parse_end_effector_target(motion_parameter['end_effector_target']))
             if 'end_effector_trajectory' in motion_parameter:
                 step.end_effector_trajectory.append(parse_end_effector_trajectory(motion_parameter['end_effector_trajectory']))
             if 'leg_mode' in motion_parameter:
@@ -83,9 +85,9 @@ def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0
                 step.base_target.append(parse_base_target(motion_parameter['base_target']))
             if 'base_trajectory' in motion_parameter:
                 step.base_trajectory.append(parse_base_trajectory(motion_parameter['base_trajectory']))
-    
+
         goal.steps.append(step)
-    
+
     # Adapt to local coordinates if desired.
     if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
         adapt_coordinates(goal, frame_id, position, orientation)
@@ -132,6 +134,31 @@ def parse_footstep(yaml_object):
     if 'ignore_for_pose_adaptation' in yaml_object:
         footstep.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
     return footstep
+
+
+def parse_end_effector_target(yaml_object):
+    end_effector_target = free_gait_msgs.msg.EndEffectorTarget()
+    if not yaml_object:
+        return end_effector_target
+    if 'name' in yaml_object:
+        end_effector_target.name = yaml_object['name']
+    if 'target_position' in yaml_object:
+        end_effector_target.target_position.append(parse_position_stamped(yaml_object['target_position']))
+    if 'target_velocity' in yaml_object:
+        end_effector_target.target_velocity.append(parse_vector_stamped(yaml_object['target_velocity']))
+    if 'target_acceleration' in yaml_object:
+        end_effector_target.target_acceleration.append(parse_vector_stamped(yaml_object['target_acceleration']))
+    if 'target_force' in yaml_object:
+        end_effector_target.target_force.append(parse_vector_stamped(yaml_object['target_force']))
+    if 'average_velocity' in yaml_object:
+        end_effector_target.average_velocity = yaml_object['average_velocity']
+    if 'ignore_contact' in yaml_object:
+        end_effector_target.ignore_contact = yaml_object['ignore_contact']
+    if 'surface_normal' in yaml_object:
+        end_effector_target.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'ignore_for_pose_adaptation' in yaml_object:
+        end_effector_target.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
+    return end_effector_target
 
 
 def parse_end_effector_trajectory(yaml_object):
@@ -411,7 +438,7 @@ def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0]
 
 
 def get_transform(source_frame_id, target_frame_id, tf_buffer = None):
-    
+
     (translation, rotation) = get_tf_transform(source_frame_id, target_frame_id, tf_buffer)
     translation_matrix_form = translation_matrix(translation)
     rotation_matrix_form = quaternion_matrix(rotation)
@@ -419,11 +446,11 @@ def get_transform(source_frame_id, target_frame_id, tf_buffer = None):
 
 
 def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
-    
+
     if tf_buffer is None:
         tf_buffer = tf2_ros.Buffer()
         listener = tf2_ros.TransformListener(tf_buffer)
-    
+
     try:
         transform = tf_buffer.lookup_transform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
@@ -434,6 +461,7 @@ def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
     t = transform.transform.translation
     r = transform.transform.rotation
     return [t.x, t.y, t.z], [r.x, r.y, r.z, r.w]
+
 
 def transform_vector(transform, vector):
     angle, direction, point = rotation_from_matrix(transform)

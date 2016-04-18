@@ -68,10 +68,11 @@ add_library(${PROJECT_NAME}
    src/leg_motion/LegMotionBase.cpp
    src/leg_motion/EndEffectorMotionBase.cpp
    src/leg_motion/JointMotionBase.cpp
-   src/leg_motion/Footstep.cpp
    src/leg_motion/LegMode.cpp
    src/leg_motion/JointTrajectory.cpp
    src/leg_motion/EndEffectorTrajectory.cpp
+   src/leg_motion/EndEffectorTarget.cpp
+   src/leg_motion/Footstep.cpp
    src/step/Step.cpp
    src/step/StepQueue.cpp
    src/step/StepCompleter.cpp

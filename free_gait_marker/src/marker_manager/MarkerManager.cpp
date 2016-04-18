@@ -529,6 +529,12 @@ bool MarkerManager::sendStepGoal()
 
     if (!foothold.isActive)
       continue;
+    free_gait_msgs::Step preStep;
+    free_gait_msgs::BaseAuto baseMotion;
+    baseMotion.height = 0.42;
+    preStep.base_auto.push_back(baseMotion);
+    goal.steps.push_back(preStep);
+
     free_gait_msgs::Step step;
     free_gait_msgs::Footstep footstep;
     footstep.name = foothold.legName;

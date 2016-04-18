@@ -112,7 +112,6 @@ class ActionLoader:
         self.action = None
         if self.client.gh:
             self.client.stop_tracking_goal()
-        self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
 
     def preempt(self):
         try:
