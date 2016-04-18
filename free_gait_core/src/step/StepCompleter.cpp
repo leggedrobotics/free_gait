@@ -25,9 +25,12 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
 {
   for (auto& legMotion : step.legMotions_) {
     setParameters(*legMotion.second);
-    switch ((legMotion.second)->getType()) {
+    switch (legMotion.second->getType()) {
       case LegMotionBase::Type::Footstep:
         setParameters(dynamic_cast<Footstep&>(*legMotion.second));
+        break;
+      case LegMotionBase::Type::EndEffectorTarget:
+        setParameters(dynamic_cast<EndEffectorTarget&>(*legMotion.second));
         break;
       case LegMotionBase::Type::LegMode:
         setParameters(dynamic_cast<LegMode&>(*legMotion.second));
@@ -192,6 +195,16 @@ void StepCompleter::setParameters(Footstep& footstep) const
   footstep.liftOffVelocity_ = parameters.liftOffVelocity;
   footstep.touchdownVelocity_ = parameters.touchdownVelocity;
   footstep.minimumDuration_ = parameters.minimumDuration_;
+}
+
+void StepCompleter::setParameters(EndEffectorTarget& endEffectorTarget) const
+{
+  const auto& parameters = parameters_->endEffectorTargetParameters;
+
+  if (endEffectorTarget.averageVelocity_ == 0.0)
+    endEffectorTarget.averageVelocity_ = parameters.averageVelocity;
+
+  endEffectorTarget.minimumDuration_ = parameters.minimumDuration_;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const
