@@ -30,6 +30,7 @@ class StepCompleter
   bool complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const;
   void setParameters(LegMotionBase& legMotion) const;
   void setParameters(Footstep& footstep) const;
+  void setParameters(EndEffectorTarget& endEffectorMotion) const;
   void setParameters(LegMode& legMode) const;
   void setParameters(BaseAuto& baseAuto) const;
   void setParameters(BaseTarget& baseTarget) const;

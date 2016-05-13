@@ -100,7 +100,7 @@ RotationQuaternion AdapterBase::transformOrientation(const std::string& inputFra
       transformedOrientation = orientation;
     } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
       const Pose pose(getFrameTransform(outputFrameId));
-      transformedOrientation = pose.getRotation().inverted() * orientation;
+      transformedOrientation = orientation * pose.getRotation().inverted();
     } else {
       frameError = true;
     }
@@ -109,7 +109,7 @@ RotationQuaternion AdapterBase::transformOrientation(const std::string& inputFra
 
     if (outputFrameId == getWorldFrameId()) {
       const Pose pose(getFrameTransform(inputFrameId));
-      transformedOrientation = pose.getRotation() * orientation;
+      transformedOrientation = orientation * pose.getRotation();
     } else {
       frameError = true;
     }

@@ -33,6 +33,7 @@ class StepQueue
    * @param step the step to be added.
    */
   void add(const Step& step);
+  void add(const std::vector<Step> steps);
 
   /*!
    * Advance in time

@@ -3,10 +3,13 @@
 # Leg name ('LF_LEG', 'RH_LEG' etc.).
 string name
 
-# Target of the end effector ('time_from_start' is ignored).
-# Target can be specified as transform, twist, or acceleration,
-# or a combination of these. 
-trajectory_msgs/MultiDOFJointTrajectoryPoint target
+# Target of the end effector.
+# Target can be specified as position, velocity, acceleration,
+# force, or a combination of these.
+geometry_msgs/PointStamped[] target_position
+geometry_msgs/Vector3Stamped[] target_velocity
+geometry_msgs/Vector3Stamped[] target_acceleration
+geometry_msgs/Vector3Stamped[] target_force
 
 # Average velocity of the end effector motion [m/s].
 # Determines the duration of the motion.

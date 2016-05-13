@@ -40,6 +40,12 @@ void StepQueue::add(const Step& step)
   queue_.push_back(step);
 }
 
+void StepQueue::add(const std::vector<Step> steps)
+{
+  std::deque<Step>::iterator iterator = queue_.end();
+  queue_.insert(iterator, steps.begin(), steps.end());
+}
+
 bool StepQueue::advance(double dt)
 {
   // Check if empty.

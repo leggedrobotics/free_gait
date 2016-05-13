@@ -37,10 +37,17 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
     step.addLegMotion(limb, footstep);
   }
 
-  for (const auto& endEffectorMessage : message.end_effector_trajectory) {
-    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorMessage.name);
+  for (const auto& endEffectorTargetMessage : message.end_effector_target) {
+    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTargetMessage.name);
+    EndEffectorTarget endEffectorTarget(limb);
+    if (!fromMessage(endEffectorTargetMessage, endEffectorTarget)) return false;
+    step.addLegMotion(limb, endEffectorTarget);
+  }
+
+  for (const auto& endEffectorTrajectoryMessage : message.end_effector_trajectory) {
+    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTrajectoryMessage.name);
     EndEffectorTrajectory endEffectorTrajectory(limb);
-    if (!fromMessage(endEffectorMessage, endEffectorTrajectory)) return false;
+    if (!fromMessage(endEffectorTrajectoryMessage, endEffectorTrajectory)) return false;
     step.addLegMotion(limb, endEffectorTrajectory);
   }
 
@@ -81,34 +88,71 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gai
 }
 
 bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
-                                   Footstep& foostep)
+                                   Footstep& footstep)
 {
   // Limb.
-  foostep.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  footstep.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
 
   // Target.
-  foostep.frameId_ = message.target.header.frame_id;
+  footstep.frameId_ = message.target.header.frame_id;
   Position target;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target.point, target);
-  foostep.target_ = target;
+  footstep.target_ = target;
 
   // Profile.
-  foostep.profileHeight_ = message.profile_height;
-  foostep.profileType_ = message.profile_type;
+  footstep.profileHeight_ = message.profile_height;
+  footstep.profileType_ = message.profile_type;
 
   // Average Velocity.
-  foostep.averageVelocity_ = message.average_velocity;
+  footstep.averageVelocity_ = message.average_velocity;
 
   // Surface normal.
   Vector surfaceNormal;
   kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
-  foostep.surfaceNormal_.reset(new Vector(surfaceNormal));
+  footstep.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
-  foostep.ignoreContact_ = message.ignore_contact;
+  footstep.ignoreContact_ = message.ignore_contact;
 
   // Ignore for pose adaptation.
-  foostep.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
+  footstep.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
+
+  return true;
+}
+
+bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& message,
+                                   EndEffectorTarget& endEffectorTarget)
+{
+  // Limb.
+  endEffectorTarget.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+
+  // Target position.
+  endEffectorTarget.controlSetup_[ControlLevel::Position] = !message.target_position.empty();
+  if (endEffectorTarget.controlSetup_[ControlLevel::Position]) {
+    endEffectorTarget.frameIds_[ControlLevel::Position] = message.target_position[0].header.frame_id;
+    Position target_position;
+    kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target_position[0].point, target_position);
+    endEffectorTarget.target_[ControlLevel::Position] = target_position.vector();
+  }
+
+  // TODO.
+  endEffectorTarget.controlSetup_[ControlLevel::Velocity] = !message.target_velocity.empty();
+  endEffectorTarget.controlSetup_[ControlLevel::Acceleration] = !message.target_acceleration.empty();
+  endEffectorTarget.controlSetup_[ControlLevel::Effort] = !message.target_force.empty();
+
+  // Average Velocity.
+  endEffectorTarget.averageVelocity_ = message.average_velocity;
+
+  // Surface normal.
+  Vector surfaceNormal;
+  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  endEffectorTarget.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Ignore contact.
+  endEffectorTarget.ignoreContact_ = message.ignore_contact;
+
+  // Ignore for pose adaptation.
+  endEffectorTarget.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
 
   return true;
 }
