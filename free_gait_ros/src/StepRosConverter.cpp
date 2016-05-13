@@ -328,6 +328,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTarget& message,
   baseTarget.frameId_ = message.target.header.frame_id;
   Pose target;
   kindr::poses::eigen_impl::convertFromRosGeometryMsg(message.target.pose, target);
+  target.getRotation() = target.getRotation().getUnique();
   baseTarget.target_ = target;
 
   baseTarget.ignoreTimingOfLegMotion_ = message.ignore_timing_of_leg_motion;
@@ -382,6 +383,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTrajectory& message
       if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
         BaseTrajectory::ValueType pose;
         kindr::poses::eigen_impl::convertFromRosGeometryMsg(point.transforms[0], pose);
+        pose.getRotation() = pose.getRotation().getUnique();
         baseTrajectory.values_[controlSetup.first].push_back(pose);
       } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
 //        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
