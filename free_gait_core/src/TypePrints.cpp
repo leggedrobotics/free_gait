@@ -36,6 +36,7 @@ std::ostream& operator<< (std::ostream& out, const ControlSetup& controlSetup)
   for (const auto& controlLevel : controlSetup) {
     if (controlLevel.second) out << controlLevel.first << ", ";
   }
+  return out;
 }
 
 std::ostream& operator<< (std::ostream& out, const LimbEnum& limb)
@@ -106,5 +107,12 @@ std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, 
   return out;
 }
 
+std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, Vector, EnumClassHash>& limbVectorMap)
+{
+  for (const auto& limb : limbVectorMap) {
+    out << limb.first << ": " << limb.second << ", ";
+  }
+  return out;
+}
 
 } // namespace

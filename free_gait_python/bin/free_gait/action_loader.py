@@ -22,7 +22,6 @@ global client
 class ActionLoader:
     
     def __init__(self):
-        self.default_frame_id = 'map'
         self.action_server_topic = '/loco_free_gait/execute_steps'
         self.request = None
         self._load_parameters()
@@ -30,7 +29,6 @@ class ActionLoader:
         self.action = None
         
     def _load_parameters(self):
-        self.default_frame_id = rospy.get_param('~default_frame_id')
         self.action_server_topic = rospy.get_param('~action_server')
         self.directory = rospy.get_param('~directory')
         
@@ -46,7 +44,7 @@ class ActionLoader:
         response = locomotion_controller_msgs.srv.SwitchControllerResponse()
         file_path = self._get_path(request.name)
         file_type = splitext(request.name)[-1]
-        if file_path == None:
+        if file_path is None:
             rospy.logerr('Action with name "' + request.name + '" does not exists.')
             response.status = response.STATUS_NOTFOUND
         else:
@@ -61,10 +59,20 @@ class ActionLoader:
                 self.action.wait_for_result()
                 result = self.action.get_result()
                                 
-                if result == None or result.status == result.RESULT_FAILED:
+                if result is None:
                     response.status = response.STATUS_ERROR
+                    rospy.logerr('An error occurred while reading the action.')
                     return response
-                rospy.loginfo('Action successfully executed.')
+
+                if result.status == free_gait_msgs.msg.ExecuteStepsResult.RESULT_FAILED:
+                    response.status = response.STATUS_ERROR
+                    rospy.logerr('An error occurred while executing the action.')
+                    return response
+
+                if self.action.keep_alive:
+                    rospy.loginfo("Action continues in the background.")
+                else:
+                    rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
             except:
                 rospy.logerr('An error occurred while reading the action.')
@@ -83,25 +91,28 @@ class ActionLoader:
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
-        goal = load_action_from_file(file_path, self.default_frame_id)
-        if goal == None:
+        goal = load_action_from_file(file_path)
+        rospy.logdebug(goal)
+        if goal is None:
             rospy.logerr('Could not load action from YAML file.')
         self.action = SimpleAction(self.client, goal)
     
     def _load_python_action(self, file_path):
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
-        action_locals = dict()
+        # action_locals = dict()
         # Kind of nasty, but currently only way to make external imports work
         execfile(file_path, globals(), globals())
         self.action = action
                 
     def reset(self):
-        del(self.action)
+        if self.action:
+            self.action.stop()
+        del self.action
         self.action = None
         if self.client.gh:
             self.client.stop_tracking_goal()
-            
+
     def preempt(self):
         try:
             if self.client.gh:

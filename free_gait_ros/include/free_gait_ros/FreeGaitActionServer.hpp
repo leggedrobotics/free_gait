@@ -35,8 +35,13 @@ class FreeGaitActionServer
   virtual ~FreeGaitActionServer();
 
   void initialize();
+  void setExecutor(std::shared_ptr<Executor> executor);
+  void setAdapter(std::shared_ptr<AdapterBase> adapter);
+  void start();
   void update();
   void shutdown();
+
+  bool isActive();
 
   void goalCallback();
 
@@ -56,7 +61,7 @@ class FreeGaitActionServer
   std::shared_ptr<free_gait::Executor> executor_;
 
   //! ROS converter.
-  StepRosConverter rosConverter_;
+  StepRosConverter adapter_;
 
   //! Action server.
   std::string name_;

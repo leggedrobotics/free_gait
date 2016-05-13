@@ -24,9 +24,13 @@ StepCompleter::~StepCompleter()
 bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& step)
 {
   for (auto& legMotion : step.legMotions_) {
-    switch ((legMotion.second)->getType()) {
+    setParameters(*legMotion.second);
+    switch (legMotion.second->getType()) {
       case LegMotionBase::Type::Footstep:
         setParameters(dynamic_cast<Footstep&>(*legMotion.second));
+        break;
+      case LegMotionBase::Type::EndEffectorTarget:
+        setParameters(dynamic_cast<EndEffectorTarget&>(*legMotion.second));
         break;
       case LegMotionBase::Type::LegMode:
         setParameters(dynamic_cast<LegMode&>(*legMotion.second));
@@ -51,6 +55,9 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
     switch (step.baseMotion_->getType()) {
       case BaseMotionBase::Type::Auto:
         setParameters(dynamic_cast<BaseAuto&>(*step.baseMotion_));
+        break;
+      case BaseMotionBase::Type::Target:
+        setParameters(dynamic_cast<BaseTarget&>(*step.baseMotion_));
         break;
       case BaseMotionBase::Type::Trajectory:
         setParameters(dynamic_cast<BaseTrajectory&>(*step.baseMotion_));
@@ -151,9 +158,14 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
 bool StepCompleter::complete(const State& state, const Step& step, const StepQueue& queue, BaseMotionBase& baseMotion) const
 {
   if (baseMotion.getControlSetup().at(ControlLevel::Position)) {
-    // TODO Check frame.
-    Pose pose(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationWorldToBase());
-    baseMotion.updateStartPose(pose);
+    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
+    if (!adapter_->frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
+      return false;
+    }
+    Pose startPoseInWorld(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationWorldToBase());
+    Pose startPose = adapter_->transformPose(adapter_->getWorldFrameId(), frameId, startPoseInWorld);
+    baseMotion.updateStartPose(startPose);
   }
   if (baseMotion.getControlSetup().at(ControlLevel::Velocity)) {
     // TODO
@@ -161,14 +173,18 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
   return baseMotion.prepareComputation(state, step, queue, *adapter_);
 }
 
+void StepCompleter::setParameters(LegMotionBase& legMotion) const
+{
+  if (legMotion.surfaceNormal_) {
+    if (*(legMotion.surfaceNormal_) == Vector::Zero())
+      legMotion.surfaceNormal_.reset(nullptr);
+  }
+}
+
 void StepCompleter::setParameters(Footstep& footstep) const
 {
-  const auto& parameters = parameters_->footTargetParameters_;
+  const auto& parameters = parameters_->footTargetParameters;
 
-  if (footstep.surfaceNormal_) {
-    if (*(footstep.surfaceNormal_) == Vector::Zero())
-      footstep.surfaceNormal_.reset(nullptr);
-  }
   if (footstep.profileHeight_ == 0.0)
     footstep.profileHeight_ = parameters.profileHeight;
   if (footstep.profileType_.empty())
@@ -181,14 +197,20 @@ void StepCompleter::setParameters(Footstep& footstep) const
   footstep.minimumDuration_ = parameters.minimumDuration_;
 }
 
+void StepCompleter::setParameters(EndEffectorTarget& endEffectorTarget) const
+{
+  const auto& parameters = parameters_->endEffectorTargetParameters;
+
+  if (endEffectorTarget.averageVelocity_ == 0.0)
+    endEffectorTarget.averageVelocity_ = parameters.averageVelocity;
+
+  endEffectorTarget.minimumDuration_ = parameters.minimumDuration_;
+}
+
 void StepCompleter::setParameters(LegMode& legMode) const
 {
-  const auto& parameters = parameters_->legModeParameters_;
+  const auto& parameters = parameters_->legModeParameters;
 
-  if (legMode.surfaceNormal_) {
-    if (*(legMode.surfaceNormal_) == Vector::Zero())
-      legMode.surfaceNormal_.reset(nullptr);
-  }
   if (legMode.duration_ == 0.0)
     legMode.duration_ = parameters.duration;
   if (legMode.frameId_.empty())
@@ -197,7 +219,9 @@ void StepCompleter::setParameters(LegMode& legMode) const
 
 void StepCompleter::setParameters(BaseAuto& baseAuto) const
 {
-  const auto& parameters = parameters_->baseAutoParameters_;
+  baseAuto.frameId_ =  adapter_->getWorldFrameId();
+
+  const auto& parameters = parameters_->baseAutoParameters;
 
   if (baseAuto.height_) {
     if (*(baseAuto.height_) == 0.0)
@@ -209,10 +233,20 @@ void StepCompleter::setParameters(BaseAuto& baseAuto) const
     baseAuto.averageAngularVelocity_ = parameters.averageAngularVelocity;
   if (baseAuto.supportMargin_ == 0.0)
     baseAuto.supportMargin_ = parameters.supportMargin;
-  baseAuto.minimumDuration_ = parameters.minimumDuration_;
+  baseAuto.minimumDuration_ = parameters.minimumDuration;
 
   baseAuto.nominalPlanarStanceInBaseFrame_.clear();
   baseAuto.nominalPlanarStanceInBaseFrame_ = parameters.nominalPlanarStanceInBaseFrame;
+}
+
+void StepCompleter::setParameters(BaseTarget& baseTarget) const
+{
+  const auto& parameters = parameters_->baseTargetParameters;
+  if (baseTarget.averageLinearVelocity_ == 0.0)
+    baseTarget.averageLinearVelocity_ = parameters.averageLinearVelocity;
+  if (baseTarget.averageAngularVelocity_ == 0.0)
+    baseTarget.averageAngularVelocity_ = parameters.averageAngularVelocity;
+  baseTarget.minimumDuration_ = parameters.minimumDuration;
 }
 
 void StepCompleter::setParameters(BaseTrajectory& baseTrajectory) const

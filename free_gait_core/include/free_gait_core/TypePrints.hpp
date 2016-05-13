@@ -18,5 +18,6 @@ std::ostream& operator<< (std::ostream& out, const LimbEnum& limb);
 std::ostream& operator<< (std::ostream& out, const BranchEnum& branch);
 //std::ostream& operator<< (std::ostream& out, const bool boolean);
 std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, bool, EnumClassHash>& limbBooleanMap);
+std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, Vector, EnumClassHash>& limbVectorMap);
 
 } // namespace

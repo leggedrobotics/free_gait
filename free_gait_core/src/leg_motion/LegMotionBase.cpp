@@ -7,6 +7,7 @@
  */
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 #include <free_gait_core/leg_motion/Footstep.hpp>
+#include <free_gait_core/leg_motion/EndEffectorTarget.hpp>
 #include <free_gait_core/leg_motion/EndEffectorTrajectory.hpp>
 #include <free_gait_core/leg_motion/LegMode.hpp>
 #include <free_gait_core/leg_motion/JointTrajectory.hpp>
@@ -103,29 +104,40 @@ bool LegMotionBase::isIgnoreForPoseAdaptation() const
 
 std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
 {
+  out << "Limb: " << legMotion.getLimb() << std::endl;
   out << "Type: " << legMotion.getType() << std::endl;
-  out << "Control setup: ";
-  for (const auto& controlSetup : legMotion.getControlSetup()) {
-    if (controlSetup.second) out << controlSetup.first << " ";
-  }
-  out << std::endl;
+  out << "Is computed: " << (legMotion.isComputed() ? "True" : "False") << std::endl;
+  out << "Control setup: " << legMotion.getControlSetup() << std::endl;
+  out << "Duration: " << legMotion.getDuration() << std::endl;
   switch (legMotion.getType()) {
     case LegMotionBase::Type::Footstep:
-      out << (dynamic_cast<const Footstep&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const Footstep&>(legMotion));
+      break;
+    case LegMotionBase::Type::EndEffectorTarget:
+      out << (dynamic_cast<const EndEffectorTarget&>(legMotion));
       break;
     case LegMotionBase::Type::EndEffectorTrajectory:
-      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const EndEffectorTrajectory&>(legMotion));
       break;
     case LegMotionBase::Type::LegMode:
-      out << (dynamic_cast<const LegMode&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const LegMode&>(legMotion));
       break;
     case LegMotionBase::Type::JointTrajectory:
-      out << (dynamic_cast<const JointTrajectory&>(legMotion)) << std::endl;
+      out << (dynamic_cast<const JointTrajectory&>(legMotion));
       break;
     default:
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
       break;
   }
+  out << "Ignores contact: " << (legMotion.isIgnoreContact() ? "True" : "False") << std::endl;
+  out << "Ignored for pose adaptation: " << (legMotion.isIgnoreForPoseAdaptation() ? "True" : "False") << std::endl;
+  out << "Surface normal: ";
+  if (legMotion.hasSurfaceNormal()) {
+    out << legMotion.getSurfaceNormal() << std::endl;
+  } else {
+    out << "None" << std::endl;
+  }
+  out << std::endl;
   return out;
 }
 

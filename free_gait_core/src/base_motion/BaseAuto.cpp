@@ -130,6 +130,11 @@ double BaseAuto::getDuration() const
   return duration_;
 }
 
+const std::string& BaseAuto::getFrameId(const ControlLevel& controlLevel) const
+{
+  return frameId_;
+}
+
 double BaseAuto::getHeight() const
 {
   if (height_) return *height_;
@@ -140,8 +145,8 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
 {
   if (queue.previousStepExists()) {
     if (queue.getPreviousStep().hasBaseMotion()) {
-      const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
-      if (previousBaseMotion.getType() == BaseMotionBase::Type::Auto) {
+      if (queue.getPreviousStep().getBaseMotion().getType() == BaseMotionBase::Type::Auto) {
+        const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
         height_.reset(new double(previousBaseMotion.getHeight()));
         return true;
       }
@@ -203,7 +208,12 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
           && step.getLegMotion(limb).getControlSetup().at(ControlLevel::Position)) {
         // Use target end effector position.
         const auto& legMotion = dynamic_cast<const EndEffectorMotionBase&>(step.getLegMotion(limb));
-        footholdsToReach_[limb] = legMotion.getTargetPosition();
+        footholdsToReach_[limb] = adapter.transformPosition(legMotion.getFrameId(ControlLevel::Position),
+                                                            adapter.getWorldFrameId(),
+                                                            legMotion.getTargetPosition());
+      }
+      else {
+        return false;
       }
     } else {
       // Use current foot position.
@@ -276,8 +286,9 @@ void BaseAuto::getAdaptiveTargetPose(
 
   // Compute orientation of terrain in world.
   double terrainPitch, terrainRoll;
-  terrainPitch = atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
-  terrainRoll = atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
+  const double adaptationFactor = 0.5;
+  terrainPitch = adaptationFactor * atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
+  terrainRoll = adaptationFactor * atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
   RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
       * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
 
@@ -367,6 +378,7 @@ bool BaseAuto::computeTrajectory()
 
 std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 {
+  out << "Frame: " << baseAuto.frameId_ << std::endl;
   out << "Height: " << *(baseAuto.height_) << std::endl;
   out << "Ignore timing of leg motion: " << (baseAuto.ignoreTimingOfLegMotion_ ? "True" : "False") << std::endl;
   out << "Average Linear Velocity: " << baseAuto.averageLinearVelocity_ << std::endl;

@@ -45,8 +45,8 @@ void BaseTrajectory::updateStartPose(const Pose& startPose)
   }
 }
 
-bool BaseTrajectory::compute(const State& state, const Step& step, const StepQueue& queue,
-                             const AdapterBase& adapter)
+bool BaseTrajectory::prepareComputation(const State& state, const Step& step,
+                                        const StepQueue& queue, const AdapterBase& adapter)
 {
   trajectory_.fitCurve(times_[ControlLevel::Position], values_[ControlLevel::Position]);
 
@@ -86,7 +86,20 @@ Pose BaseTrajectory::evaluatePose(const double time) const
 
 std::ostream& operator<<(std::ostream& out, const BaseTrajectory& baseTrajectory)
 {
+  out << "Frame [Position]: " << baseTrajectory.frameIds_.at(ControlLevel::Position) << std::endl;
   out << "Duration: " << baseTrajectory.duration_ << std::endl;
+  out << "Times: ";
+  for (const auto& time : baseTrajectory.times_.at(ControlLevel::Position)) out << time << ", ";
+  out << std::endl;
+  out << "Positions: ";
+  for (const auto& pose : baseTrajectory.values_.at(ControlLevel::Position)) out << "[" << pose.getPosition() << "], ";
+  out << std::endl;
+  out << "Orientations: ";
+  for (const auto& pose : baseTrajectory.values_.at(ControlLevel::Position)) out << "[" << pose.getRotation() << "], ";
+  out << std::endl;
+  out << "Orientations (yaw, pitch, roll) [deg]: : ";
+  for (const auto& pose : baseTrajectory.values_.at(ControlLevel::Position)) out << "[" << 180.0 / M_PI * EulerAnglesZyx(pose.getRotation()).getUnique().vector().transpose() << "], ";
+  out << std::endl;
   return out;
 }
 

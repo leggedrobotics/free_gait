@@ -52,13 +52,14 @@ class BaseTrajectory : public BaseMotionBase
   const ControlSetup getControlSetup() const;
 
   /*!
-   * Update the profile with the base start pose.
+   * Update the trajectory with the base start pose.
    * Do this to avoid jumps of the base.
    * @param startPose the start pose of the base in the frameId_ frame.
    */
   void updateStartPose(const Pose& startPose);
 
-  bool compute(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
+  bool prepareComputation(const State& state, const Step& step, const StepQueue& queue,
+                          const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
 

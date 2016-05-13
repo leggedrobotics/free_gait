@@ -27,24 +27,30 @@ class StepParameters
   {
     std::string profileType = "triangle";
     double profileHeight = 0.05;
-    double averageVelocity = 0.1;
+    double averageVelocity = 0.15;
     double liftOffVelocity = 0.05;
-    double touchdownVelocity = -0.05;
+    double touchdownVelocity = -0.07;
     double minimumDuration_ = 0.5;
-  } footTargetParameters_;
+  } footTargetParameters;
+
+  struct EndEffectorTargetParameters
+  {
+    double averageVelocity = 0.15;
+    double minimumDuration_ = 0.1;
+  } endEffectorTargetParameters;
 
   struct LegModeParameters
   {
     double duration = 0.5;
     std::string frameId = "base";
-  } legModeParameters_;
+  } legModeParameters;
 
   struct BaseAutoParameters
   {
-    double averageLinearVelocity = 0.05;
-    double averageAngularVelocity = 0.1;
-    double supportMargin = 0.06;
-    double minimumDuration_ = 0.7;
+    double averageLinearVelocity = 0.07;
+    double averageAngularVelocity = 0.12;
+    double supportMargin = 0.05;
+    double minimumDuration = 0.7;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
@@ -57,7 +63,14 @@ class StepParameters
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::RH_LEG, Position2(Eigen::Vector2d(-position(0), -position(1))));
     }
 
-  } baseAutoParameters_;
+  } baseAutoParameters;
+
+  struct BaseTargetParameters
+  {
+    double averageLinearVelocity = 0.05;
+    double averageAngularVelocity = 0.1;
+    double minimumDuration = 0.7;
+  } baseTargetParameters;
 
   struct BaseTrajectoryParameters
   {
@@ -65,7 +78,7 @@ class StepParameters
     {
     }
 
-  } baseTrajectoryParameters_;
+  } baseTrajectoryParameters;
 };
 
 } /* namespace */

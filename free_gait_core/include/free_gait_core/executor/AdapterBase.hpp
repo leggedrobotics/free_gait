@@ -25,9 +25,12 @@ class AdapterBase
   virtual ~AdapterBase();
 
   //! Copying data from real robot to free gait state.
-  virtual bool updateExtras(const StepQueue& stepQueue, State& state) const = 0;
+  virtual bool resetExtrasWithRobot(const StepQueue& stepQueue, State& state) = 0;
+  virtual bool updateExtrasBefore(const StepQueue& stepQueue, State& state) = 0;
+  virtual bool updateExtrasAfter(const StepQueue& stepQueue, State& state) = 0;
 
   //! State independent functions.
+  virtual const std::string& getWorldFrameId() const = 0;
   virtual const std::vector<LimbEnum>& getLimbs() const = 0;
   virtual const std::vector<BranchEnum>& getBranches() const = 0;
   virtual LimbEnum getLimbEnumFromLimbString(const std::string& limb) const = 0;
@@ -53,13 +56,19 @@ class AdapterBase
   virtual RotationQuaternion getOrientationWorldToBase() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
+  virtual Pose getFrameTransform(const std::string& frameId) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;
   virtual ControlSetup getControlSetup(const LimbEnum& limb) const = 0;
 
   //! Depending on state of real robot.
-  virtual bool frameIdExists(const std::string& frameId);
+  virtual bool frameIdExists(const std::string& frameId) const;
   virtual Position transformPosition(const std::string& inputFrameId,
-                                     const std::string& outputFrameId, const Position& position);
+                                     const std::string& outputFrameId, const Position& position) const;
+  virtual RotationQuaternion transformOrientation(const std::string& inputFrameId,
+                                                  const std::string& outputFrameId,
+                                                  const RotationQuaternion& orientation) const;
+  virtual Pose transformPose(const std::string& inputFrameId, const std::string& outputFrameId,
+                             const Pose& pose) const;
 };
 
 } /* namespace free_gait */

@@ -122,9 +122,9 @@ bool Footstep::isIgnoreForPoseAdaptation() const
 
 std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
 {
+  out << "Frame: " << footstep.getFrameId(ControlLevel::Position) << std::endl;
   out << "Height: " << footstep.profileHeight_ << std::endl;
   out << "Average velocity: " << footstep.averageVelocity_ << std::endl;
-  out << "Duration: " << footstep.getDuration() << std::endl;
   out << "Type: " << footstep.profileType_ << std::endl;
   out << "Start Position: " << footstep.start_ << std::endl;
   out << "Target Position: " << footstep.target_ << std::endl;

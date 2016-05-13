@@ -67,12 +67,12 @@ bool Executor::advance(double dt)
   }
 
   // Advance queue.
-  bool hasSwitchedStep;
-  bool hasStartedStep;
-  if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false;
+  if (!queue_.advance(dt)) return false;
+
+  if (!adapter_->updateExtrasBefore(queue_, *state_)) return false;
 
   // For a new switch in step, do some work on step for the transition.
-  while (hasSwitchedStep) {
+  while (queue_.hasSwitchedStep()) {
     auto& currentStep = queue_.getCurrentStep();
     if (!completer_->complete(*state_, queue_, currentStep)) {
       std::cerr << "Executor::advance: Could not complete step." << std::endl;
@@ -89,10 +89,10 @@ bool Executor::advance(double dt)
         computer_->resetIsDone();
       }
     }
-    if (!queue_.advance(dt, hasSwitchedStep, hasStartedStep)) return false; // Advance again after completion.
+    if (!queue_.advance(dt)) return false; // Advance again after completion.
   }
 
-  if (hasStartedStep) {
+  if (queue_.hasStartedStep()) {
     std::cout << "Switched step to:" << std::endl;
     std::cout << queue_.getCurrentStep() << std::endl;
   }
@@ -103,7 +103,7 @@ bool Executor::advance(double dt)
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
-  if (!adapter_->updateExtras(queue_, *state_)) return false;
+  if (!adapter_->updateExtrasAfter(queue_, *state_)) return false;
 //  std::cout << *state_ << std::endl;
 
   return true;
@@ -113,7 +113,7 @@ void Executor::reset()
 {
   queue_.clear();
   resetStateWithRobot();
-  adapter_->updateExtras(queue_, *state_);
+  adapter_->resetExtrasWithRobot(queue_, *state_);
 }
 
 const StepQueue& Executor::getQueue() const
@@ -298,7 +298,10 @@ bool Executor::writeLegMotion()
           }
           Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
           JointPositions jointPositions;
-          adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions);
+          if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
+            std::cerr << "Failed to compute joint positions from end effector position for " <<limb << "." << std::endl;
+            return false;
+          }
           state_->setJointPositions(limb, jointPositions);
         }
         break;
@@ -330,16 +333,21 @@ bool Executor::writeTorsoMotion()
 
   if (!queue_.getCurrentStep().hasBaseMotion()) return true;
   double time = queue_.getCurrentStep().getTime();
-  // TODO Add frame handling.
   const auto& baseMotion = queue_.getCurrentStep().getBaseMotion();
   ControlSetup controlSetup = baseMotion.getControlSetup();
   state_->setControlSetup(BranchEnum::BASE, controlSetup);
   if (controlSetup[ControlLevel::Position]) {
-    Pose pose = baseMotion.evaluatePose(time);
-    state_->setPositionWorldToBaseInWorldFrame(pose.getPosition());
-    state_->setOrientationWorldToBase(pose.getRotation());
+    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
+    if (!adapter_->frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
+      return false;
+    }
+    Pose poseInWorldFrame = adapter_->transformPose(frameId, adapter_->getWorldFrameId(), baseMotion.evaluatePose(time));
+    state_->setPositionWorldToBaseInWorldFrame(poseInWorldFrame.getPosition());
+    state_->setOrientationWorldToBase(poseInWorldFrame.getRotation());
   }
   if (controlSetup[ControlLevel::Velocity]) {
+    // TODO Add frame handling.
     Twist twist = baseMotion.evaluateTwist(time);
     state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
     state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());

@@ -60,6 +60,8 @@ class BaseAuto : public BaseMotionBase
    */
   double getDuration() const;
 
+  const std::string& getFrameId(const ControlLevel& controlLevel) const;
+
   double getHeight() const;
 
   /*!
@@ -75,6 +77,7 @@ class BaseAuto : public BaseMotionBase
   friend class StepRosConverter;
 
  protected:
+  std::string frameId_;
   std::unique_ptr<double> height_; // In control frame.
   bool ignoreTimingOfLegMotion_;
   double averageLinearVelocity_;
@@ -106,7 +109,10 @@ class BaseAuto : public BaseMotionBase
   //! Base trajectory.
   curves::CubicHermiteSE3Curve trajectory_;
 
-  Stance footholdsToReach_, footholdsInSupport_, nominalStanceInBaseFrame_;
+  // In world frame.
+  Stance footholdsToReach_, footholdsInSupport_;
+  // In base frame.
+  Stance nominalStanceInBaseFrame_;
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
   PoseOptimization poseOptimization_;
 

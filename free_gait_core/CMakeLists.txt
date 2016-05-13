@@ -63,17 +63,16 @@ add_library(${PROJECT_NAME}
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp
+   src/base_motion/BaseTarget.cpp
    src/base_motion/BaseTrajectory.cpp
    src/leg_motion/LegMotionBase.cpp
    src/leg_motion/EndEffectorMotionBase.cpp
    src/leg_motion/JointMotionBase.cpp
-   src/leg_motion/Footstep.cpp
    src/leg_motion/LegMode.cpp
    src/leg_motion/JointTrajectory.cpp
    src/leg_motion/EndEffectorTrajectory.cpp
-#   src/BaseShiftProfile.cpp
-#   src/BaseShiftSplineTrajectory.cpp
-#   src/BaseShiftTrajectoryBase.cpp
+   src/leg_motion/EndEffectorTarget.cpp
+   src/leg_motion/Footstep.cpp
    src/step/Step.cpp
    src/step/StepQueue.cpp
    src/step/StepCompleter.cpp
@@ -81,11 +80,6 @@ add_library(${PROJECT_NAME}
    src/executor/Executor.cpp
    src/executor/State.cpp
    src/executor/AdapterBase.cpp
-#   src/SwingData.cpp
-#   src/SwingTrajectoryBase.cpp
-#   src/SwingProfile.cpp
-#   src/SwingFootTrajectory.cpp
-#   src/SwingJointTrajectory.cpp
    src/pose_optimization/PoseOptimization3d.cpp
 )
 

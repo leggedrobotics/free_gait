@@ -22,7 +22,7 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
     : nodeHandle_(nodeHandle),
       name_(name),
       executor_(executor),
-      rosConverter_(adapter),
+      adapter_(adapter),
       server_(nodeHandle_, name_, false),
       isPreempting_(false)
 {
@@ -36,6 +36,21 @@ void FreeGaitActionServer::initialize()
 {
   server_.registerGoalCallback(boost::bind(&FreeGaitActionServer::goalCallback, this));
   server_.registerPreemptCallback(boost::bind(&FreeGaitActionServer::preemptCallback, this));
+}
+
+void FreeGaitActionServer::setExecutor(std::shared_ptr<Executor> executor)
+{
+  Executor::Lock lock(executor_->getMutex());
+  executor_ = executor;
+}
+
+void FreeGaitActionServer::setAdapter(std::shared_ptr<AdapterBase> adapter)
+{
+  adapter_ = adapter;
+}
+
+void FreeGaitActionServer::start()
+{
   server_.start();
   ROS_INFO_STREAM("Started " << name_ << " action server.");
 }
@@ -68,21 +83,26 @@ void FreeGaitActionServer::shutdown()
   server_.shutdown();
 }
 
+bool FreeGaitActionServer::isActive()
+{
+  return server_.isActive();
+}
+
 void FreeGaitActionServer::goalCallback()
 {
   ROS_INFO("Received goal for StepAction.");
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
-  Executor::Lock lock(executor_->getMutex());
-  lock.unlock();
+  std::vector<Step> steps;
   for (auto& stepMessage : goal->steps) {
     Step step;
-    rosConverter_.fromMessage(stepMessage, step);
-    lock.lock();
-    executor_->getQueue().add(step);
-    lock.unlock();
+    adapter_.fromMessage(stepMessage, step);
+    steps.push_back(step);
   }
+  Executor::Lock lock(executor_->getMutex());
+  executor_->getQueue().add(steps);
+  lock.unlock();
 }
 
 void FreeGaitActionServer::preemptCallback()
@@ -150,7 +170,7 @@ void FreeGaitActionServer::setAborted()
   ROS_INFO("StepAction aborted.");
   free_gait_msgs::ExecuteStepsResult result;
   result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
-  server_.setAborted(result, "Step action has failed.");
+  server_.setAborted(result, "Step action has failed (aborted).");
 }
 
 } /* namespace */
