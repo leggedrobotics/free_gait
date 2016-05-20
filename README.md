@@ -2,11 +2,11 @@
 
 A free gait implementation for loco.
 
+## Build status
+
+[![Build Status](http://192.168.0.40:8080/buildStatus/icon?job=free_gait)](http://192.168.0.40:8080/job/free_gait/)
+
 ## Dependencies
-
-* [Loco Crawling](https://bitbucket.org/ethz-asl-lr/loco_crawling/), branch `feature/free_gait`,
-* [StarlETH ROS Common](https://bitbucket.org/ethz-asl-lr/starleth_ros_common), branch `feature/free_gait`.
-
 
 ## Build
 
