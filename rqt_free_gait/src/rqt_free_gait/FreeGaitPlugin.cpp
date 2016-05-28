@@ -25,6 +25,9 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   }
   context.addWidget(widget_);
 
+  // event filter
+  widget_->installEventFilter(this);
+
   // subscriber
   subGoal_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionGoal>
       ("/loco_free_gait/execute_steps/goal", 10, &FreeGaitPlugin::goalCallback, this);
@@ -58,7 +61,25 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   pixmapWarning_ = QPixmap(s.c_str());
   ui_.label_status->setPixmap(pixmapDone_);
 
-  ui_.label_description->setText("<none>");
+  // TEST description extend feature
+//  std::string shortDescription = "";
+//  std::string longDescription = "<none1>\n<none2>\n<none3>";
+//  longDescription_ = QString::fromStdString(longDescription);
+//  if (containsString(longDescription, "\n")) {
+//    std::string str;
+//    splitString(longDescription, shortDescription, str, "\n");
+//    shortDescription_ = QString::fromStdString(shortDescription);
+//  } else {
+//    shortDescription_ = longDescription_;
+//  }
+
+  longDescription_ = "<none>";
+  shortDescription_ = longDescription_;
+
+  ui_.label_description->setText(shortDescription_);
+
+  isTextExtended_ = false;
+  ui_.label_extend_text->setText("+");
 
   ui_.progressBar_step->setMinimum(0);
   ui_.progressBar_step->setMaximum(0);
@@ -150,7 +171,23 @@ void FreeGaitPlugin::updateFeedback(free_gait_msgs::ExecuteStepsActionFeedback f
   ui_.progressBar_step->setFormat(QString::fromStdString(progressBarText.str()));
 
   // update text
-  ui_.label_description->setText(QString::fromStdString(feedback.feedback.description));
+  mutexExtendText_.lock();
+  std::string shortDescription = "";
+  std::string longDescription = feedback.feedback.description;
+  longDescription_ = QString::fromStdString(longDescription);
+  if (containsString(longDescription, "\n")) {
+    std::string str;
+    splitString(longDescription, shortDescription, str, "\n");
+    shortDescription_ = QString::fromStdString(shortDescription);
+  } else {
+    shortDescription_ = longDescription_;
+  }
+  if (isTextExtended_) {
+    ui_.label_description->setText(longDescription_);
+  } else {
+    ui_.label_description->setText(shortDescription_);
+  }
+  mutexExtendText_.unlock();
 
   // update legs
   if (std::find(feedback.feedback.swing_leg_names.begin(),
@@ -206,8 +243,16 @@ void FreeGaitPlugin::updateResult(free_gait_msgs::ExecuteStepsActionResult resul
   ui_.progressBar_step->setValue(0);
 
   // reset text
+  mutexExtendText_.lock();
   ui_.label_name->setText("<none>");
-  ui_.label_description->setText("<none>");
+  longDescription_ = "<none>";
+  shortDescription_ = longDescription_;
+  if (isTextExtended_) {
+    ui_.label_description->setText(longDescription_);
+  } else {
+    ui_.label_description->setText(shortDescription_);
+  }
+  mutexExtendText_.unlock();
 
   // reset legs
   ui_.label_LF->setStyleSheet("QLabel {color: red;}");
@@ -234,6 +279,26 @@ void FreeGaitPlugin::updateResult(free_gait_msgs::ExecuteStepsActionResult resul
 
 void FreeGaitPlugin::on_pushButton_preempt_clicked() {
 
+}
+
+bool FreeGaitPlugin::eventFilter(QObject *ob, QEvent *e) {
+    if (e->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(e);
+        if (ui_.label_extend_text->underMouse()) {
+          isTextExtended_ = !isTextExtended_;
+          if (isTextExtended_) {
+            ui_.label_extend_text->setText("-");
+            std::lock_guard<std::mutex> lock_guard(mutexExtendText_);
+            ui_.label_description->setText(longDescription_);
+          } else {
+            ui_.label_extend_text->setText("+");
+            std::lock_guard<std::mutex> lock_guard(mutexExtendText_);
+            ui_.label_description->setText(shortDescription_);
+          }
+        }
+    }
+
+    return QObject::eventFilter(ob, e);
 }
 
 } // namespace

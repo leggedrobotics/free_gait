@@ -4,6 +4,7 @@
 #include <ui_FreeGaitPlugin.h>
 
 #include <atomic>
+#include <mutex>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -17,6 +18,8 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QEvent>
+#include <QMouseEvent>
 
 namespace rqt_free_gait {
 
@@ -116,6 +119,12 @@ protected:
   int totalSteps_ = 0;
 
   std::atomic<bool> isActionRunning_;
+  std::atomic<bool> isTextExtended_;
+
+  std::mutex mutexExtendText_;
+
+  QString shortDescription_ = "";
+  QString longDescription_ = "";
 
   QPixmap pixmapDone_;
   QPixmap pixmapFailed_;
@@ -124,6 +133,14 @@ protected:
   QPixmap pixmapStop_;
   QPixmap pixmapUnknown_;
   QPixmap pixmapWarning_;
+
+  /**
+   * @brief eventFilter
+   * @param object
+   * @param event
+   * @return
+   */
+  bool eventFilter(QObject *object, QEvent *event);
 
   /**
    * @brief goalCallback
@@ -142,6 +159,35 @@ protected:
    * @param result
    */
   void resultCallback(const free_gait_msgs::ExecuteStepsActionResultConstPtr &result);
+
+  /**
+   * @brief containsString
+   * @param str
+   * @param subStr
+   * @return
+   */
+  bool containsString(std::string str, std::string subStr) {
+    return str.find(subStr) != std::string::npos;
+  }
+
+  /**
+   * @brief splitString
+   * @param src
+   * @param str1
+   * @param str2
+   * @param delimiter
+   * @return
+   */
+  bool splitString(std::string src, std::string &str1, std::string &str2, std::string delimiter) {
+    size_t pos = 0;
+    if ((pos = src.find(delimiter)) != std::string::npos) {
+      str1 = src.substr(0, pos);
+      src.erase(0, pos + delimiter.length());
+      str2 = src;
+      return true;
+    }
+    return false;
+  }
 };
 
 } // namespace
