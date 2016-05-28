@@ -1,0 +1,17 @@
+<library path="lib/librqt_free_gait">
+  <class name="rqt_free_gait/FreeGaitPlugin" type="rqt_free_gait::FreeGaitPlugin" base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A GUI plugin to ...
+    </description>
+    <qtgui>
+      <group>
+        <label>Starleth</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to starleth</statustip>
+      </group>
+      <label>Free Gait</label>
+      <icon type="theme">applications-graphics</icon>
+      <statustip>A GUI plugin to monitor free gait.</statustip>
+    </qtgui>
+  </class>
+</library>
