@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 
 # Flags
-SET(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 include(${QT_USE_FILE})
 
