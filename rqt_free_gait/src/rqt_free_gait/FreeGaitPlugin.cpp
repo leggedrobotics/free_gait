@@ -40,9 +40,9 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.label_name->setText("<none>");
 
   ui_.progressBar_free_gait->setMinimum(0);
-  ui_.progressBar_free_gait->setMaximum(0);
-  ui_.progressBar_free_gait->setValue(0);
-//  ui_.progressBar_free_gait->setEnabled(false);
+  ui_.progressBar_free_gait->setMaximum(1);
+  ui_.progressBar_free_gait->setValue(1);
+  ui_.progressBar_free_gait->setFormat("");
 
   std::string s;
   s = ros::package::getPath("rqt_free_gait") + "/resource/16x16/" + "done.svg";
@@ -82,14 +82,14 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.label_extend_text->setText("+");
 
   ui_.progressBar_step->setMinimum(0);
-  ui_.progressBar_step->setMaximum(0);
-  ui_.progressBar_step->setValue(0);
-//  ui_.progressBar_step->setEnabled(false);
+  ui_.progressBar_step->setMaximum(1);
+  ui_.progressBar_step->setValue(1);
+  ui_.progressBar_step->setFormat("");
 
-  ui_.label_LF->setStyleSheet("QLabel {color: red;}");
-  ui_.label_RF->setStyleSheet("QLabel {color: red;}");
-  ui_.label_LH->setStyleSheet("QLabel {color: red;}");
-  ui_.label_RH->setStyleSheet("QLabel {color: red;}");
+  ui_.label_LF->setStyleSheet("QLabel {color: black;}");
+  ui_.label_RF->setStyleSheet("QLabel {color: black;}");
+  ui_.label_LH->setStyleSheet("QLabel {color: black;}");
+  ui_.label_RH->setStyleSheet("QLabel {color: black;}");
 
   // connct signals and slots
   connect(this, SIGNAL(updateGoalSignal(free_gait_msgs::ExecuteStepsActionGoal)),
@@ -148,6 +148,11 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   progressBarTextFreeGait << 0 << "/" << totalSteps_ << " steps";
   ui_.progressBar_free_gait->setFormat(QString::fromStdString(progressBarTextFreeGait.str()));
 
+  ui_.progressBar_step->setMinimum(0);
+  ui_.progressBar_step->setMaximum(1);
+  ui_.progressBar_step->setValue(0);
+  ui_.progressBar_step->setFormat("");
+
   // update status
   ui_.label_status->setPixmap(pixmapPlay_);
 }
@@ -194,25 +199,25 @@ void FreeGaitPlugin::updateFeedback(free_gait_msgs::ExecuteStepsActionFeedback f
                 feedback.feedback.swing_leg_names.end(), "LF_LEG") != feedback.feedback.swing_leg_names.end()) {
     ui_.label_LF->setStyleSheet("QLabel {color: green;}");
   } else {
-    ui_.label_LF->setStyleSheet("QLabel {color: red;}");
+    ui_.label_LF->setStyleSheet("QLabel {color: black;}");
   }
   if (std::find(feedback.feedback.swing_leg_names.begin(),
                 feedback.feedback.swing_leg_names.end(), "RF_LEG") != feedback.feedback.swing_leg_names.end()) {
     ui_.label_RF->setStyleSheet("QLabel {color: green;}");
   } else {
-    ui_.label_RF->setStyleSheet("QLabel {color: red;}");
+    ui_.label_RF->setStyleSheet("QLabel {color: black;}");
   }
   if (std::find(feedback.feedback.swing_leg_names.begin(),
                 feedback.feedback.swing_leg_names.end(), "LH_LEG") != feedback.feedback.swing_leg_names.end()) {
     ui_.label_LH->setStyleSheet("QLabel {color: green;}");
   } else {
-    ui_.label_LH->setStyleSheet("QLabel {color: red;}");
+    ui_.label_LH->setStyleSheet("QLabel {color: black;}");
   }
   if (std::find(feedback.feedback.swing_leg_names.begin(),
                 feedback.feedback.swing_leg_names.end(), "RH_LEG") != feedback.feedback.swing_leg_names.end()) {
     ui_.label_RH->setStyleSheet("QLabel {color: green;}");
   } else {
-    ui_.label_RH->setStyleSheet("QLabel {color: red;}");
+    ui_.label_RH->setStyleSheet("QLabel {color: black;}");
   }
 
   // update status
@@ -235,12 +240,14 @@ void FreeGaitPlugin::updateFeedback(free_gait_msgs::ExecuteStepsActionFeedback f
 void FreeGaitPlugin::updateResult(free_gait_msgs::ExecuteStepsActionResult result) {
   // reset progress bar
   ui_.progressBar_free_gait->setMinimum(0);
-  ui_.progressBar_free_gait->setMaximum(0);
-  ui_.progressBar_free_gait->setValue(0);
+  ui_.progressBar_free_gait->setMaximum(1);
+  ui_.progressBar_free_gait->setValue(1);
+  ui_.progressBar_free_gait->setFormat("");
 
   ui_.progressBar_step->setMinimum(0);
-  ui_.progressBar_step->setMaximum(0);
-  ui_.progressBar_step->setValue(0);
+  ui_.progressBar_step->setMaximum(1);
+  ui_.progressBar_step->setValue(1);
+  ui_.progressBar_step->setFormat("");
 
   // reset text
   mutexExtendText_.lock();
@@ -255,10 +262,10 @@ void FreeGaitPlugin::updateResult(free_gait_msgs::ExecuteStepsActionResult resul
   mutexExtendText_.unlock();
 
   // reset legs
-  ui_.label_LF->setStyleSheet("QLabel {color: red;}");
-  ui_.label_RF->setStyleSheet("QLabel {color: red;}");
-  ui_.label_LH->setStyleSheet("QLabel {color: red;}");
-  ui_.label_RH->setStyleSheet("QLabel {color: red;}");
+  ui_.label_LF->setStyleSheet("QLabel {color: black;}");
+  ui_.label_RF->setStyleSheet("QLabel {color: black;}");
+  ui_.label_LH->setStyleSheet("QLabel {color: black;}");
+  ui_.label_RH->setStyleSheet("QLabel {color: black;}");
 
   // reset status
   switch (result.result.status) {

@@ -107,6 +107,8 @@ signals:
   void updateResultSignal(free_gait_msgs::ExecuteStepsActionResult result);
 
 protected:
+  const std::string TAG = "rqt_free_gait";
+
   Ui::FreeGaitPluginWidget ui_;
   QWidget *widget_;
   ros::NodeHandle nh_;
