@@ -56,14 +56,14 @@ using quadruped_model::Vector;
 using quadruped_model::GeneralizedCoordinates;
 using quadruped_model::GeneralizedVelocities;
 using quadruped_model::GeneralizedAccelerations;
-//using quadruped_model::JointPositions;
-//using quadruped_model::JointVelocities;
-//using quadruped_model::JointTorques;
-
-typedef kindr::phys_quant::eigen_impl::Position<double, Eigen::Dynamic> JointPositions;
-typedef kindr::phys_quant::eigen_impl::Velocity<double, Eigen::Dynamic> JointVelocities;
-typedef kindr::phys_quant::eigen_impl::Acceleration<double, Eigen::Dynamic> JointAccelerations;
-typedef kindr::phys_quant::eigen_impl::Torque<double, Eigen::Dynamic> JointEfforts;
+using quadruped_model::JointPositions;
+using quadruped_model::JointPositionsLeg;
+using quadruped_model::JointVelocities;
+using quadruped_model::JointVelocitiesLeg;
+using quadruped_model::JointAccelerations;
+using quadruped_model::JointAccelerationsLeg;
+typedef quadruped_model::JointTorques JointEfforts;
+typedef quadruped_model::JointTorquesLeg JointEffortsLeg;
 
 enum class ControlLevel
 {

@@ -37,20 +37,20 @@ class AdapterBase
   virtual std::string getLimbStringFromLimbEnum(const LimbEnum& limb) const = 0;
   virtual bool getLimbJointPositionsFromPositionBaseToFootInBaseFrame(
       const Position& positionBaseToFootInBaseFrame, const LimbEnum& limb,
-      JointPositions& legJoints) const = 0;
+      JointPositionsLeg& jointPositions) const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb,
-                                                    const JointPositions& jointPositions) const = 0;
+                                                    const JointPositionsLeg& jointPositions) const = 0;
 
   //! Reading state of real robot.
   virtual bool isExecutionOk() const = 0;
   virtual bool isLegGrounded(const LimbEnum& limb) const = 0;
-  virtual free_gait::JointPositions getJointPositions(const LimbEnum& limb) const = 0;
-  virtual quadruped_model::JointPositions getAllJointPositions() const = 0;
-  virtual free_gait::JointVelocities getJointVelocities(const LimbEnum& limb) const = 0;
-  virtual quadruped_model::JointVelocities getAllJointVelocities() const = 0;
-  virtual JointAccelerations getJointAccelerations(const LimbEnum& limb) const = 0;
+  virtual JointPositionsLeg getJointPositionsForLimb(const LimbEnum& limb) const = 0;
+  virtual JointPositions getAllJointPositions() const = 0;
+  virtual JointVelocitiesLeg getJointVelocitiesForLimb(const LimbEnum& limb) const = 0;
+  virtual JointVelocities getAllJointVelocities() const = 0;
+  virtual JointAccelerationsLeg getJointAccelerationsForLimb(const LimbEnum& limb) const = 0;
   virtual JointAccelerations getAllJointAccelerations() const = 0;
-  virtual JointEfforts getJointEfforts(const LimbEnum& limb) const = 0;
+  virtual JointEffortsLeg getJointEffortsForLimb(const LimbEnum& limb) const = 0;
   virtual JointEfforts getAllJointEfforts() const = 0;
   virtual Position getPositionWorldToBaseInWorldFrame() const = 0;
   virtual RotationQuaternion getOrientationWorldToBase() const = 0;

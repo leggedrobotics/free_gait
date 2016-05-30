@@ -29,42 +29,42 @@ LegMotionBase::TrajectoryType JointMotionBase::getTrajectoryType() const
   return LegMotionBase::TrajectoryType::Joints;
 }
 
-void JointMotionBase::updateStartPosition(const JointPositions& startPosition)
+void JointMotionBase::updateStartPosition(const JointPositionsLeg& startPosition)
 {
   throw std::runtime_error("JointMotionBase::updateStartPosition() not implemented.");
 }
 
-void JointMotionBase::updateStartVelocity(const JointVelocities& startVelocity)
+void JointMotionBase::updateStartVelocity(const JointVelocitiesLeg& startVelocity)
 {
   throw std::runtime_error("JointMotionBase::updateStartVelocity() not implemented.");
 }
 
-void JointMotionBase::updateStartAcceleration(const JointAccelerations& startAcceleration)
+void JointMotionBase::updateStartAcceleration(const JointAccelerationsLeg& startAcceleration)
 {
   throw std::runtime_error("JointMotionBase::updateStartAcceleration() not implemented.");
 }
 
-void JointMotionBase::updateStartEfforts(const JointEfforts& startEffort)
+void JointMotionBase::updateStartEfforts(const JointEffortsLeg& startEffort)
 {
   throw std::runtime_error("JointMotionBase::updateStartEfforts() not implemented.");
 }
 
-const JointPositions JointMotionBase::evaluatePosition(const double time) const
+const JointPositionsLeg JointMotionBase::evaluatePosition(const double time) const
 {
   throw std::runtime_error("JointMotionBase::evaluatePosition() not implemented.");
 }
 
-const JointVelocities JointMotionBase::evaluateVelocity(const double time) const
+const JointVelocitiesLeg JointMotionBase::evaluateVelocity(const double time) const
 {
   throw std::runtime_error("JointMotionBase::evaluateVelocity() not implemented.");
 }
 
-const JointAccelerations JointMotionBase::evaluateAcceleration(const double time) const
+const JointAccelerationsLeg JointMotionBase::evaluateAcceleration(const double time) const
 {
   throw std::runtime_error("JointMotionBase::evaluateAcceleration() not implemented.");
 }
 
-const JointEfforts JointMotionBase::evaluateEffort(const double time) const
+const JointEffortsLeg JointMotionBase::evaluateEffort(const double time) const
 {
   throw std::runtime_error("JointMotionBase::evaluateEffort() not implemented.");
 }
