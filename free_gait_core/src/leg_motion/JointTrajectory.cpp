@@ -32,7 +32,7 @@ const ControlSetup JointTrajectory::getControlSetup() const
   return controlSetup_;
 }
 
-void JointTrajectory::updateStartPosition(const JointPositions& startPosition)
+void JointTrajectory::updateStartPosition(const JointPositionsLeg& startPosition)
 {
   isComputed_ = false;
   auto& values = values_.at(ControlLevel::Position);
@@ -49,17 +49,17 @@ void JointTrajectory::updateStartPosition(const JointPositions& startPosition)
   }
 }
 
-void JointTrajectory::updateStartVelocity(const JointVelocities& startVelocity)
+void JointTrajectory::updateStartVelocity(const JointVelocitiesLeg& startVelocity)
 {
   throw std::runtime_error("JointTrajectory::updateStartVelocity() not implemented.");
 }
 
-void JointTrajectory::updateStartAcceleration(const JointAccelerations& startAcceleration)
+void JointTrajectory::updateStartAcceleration(const JointAccelerationsLeg& startAcceleration)
 {
   throw std::runtime_error("JointTrajectory::updateStartAcceleration() not implemented.");
 }
 
-void JointTrajectory::updateStartEfforts(const JointEfforts& startEffort)
+void JointTrajectory::updateStartEfforts(const JointEffortsLeg& startEffort)
 {
   isComputed_ = false;
   auto& values = values_.at(ControlLevel::Effort);
@@ -114,36 +114,34 @@ double JointTrajectory::getDuration() const
   return duration_;
 }
 
-const JointPositions JointTrajectory::evaluatePosition(const double time) const
+const JointPositionsLeg JointTrajectory::evaluatePosition(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluatePosition() cannot be called if trajectory is not computed.");
   const auto& trajectories = trajectories_.at(ControlLevel::Position);
-  JointPositions jointPositions;
-  jointPositions.toImplementation().resize((unsigned int) trajectories.size());
+  JointPositionsLeg jointPositions;
   for (size_t i = 0; i < trajectories.size(); ++i) {
     jointPositions(i) = trajectories[i].evaluate(time);
   }
   return jointPositions;
 }
 
-const JointVelocities JointTrajectory::evaluateVelocity(const double time) const
+const JointVelocitiesLeg JointTrajectory::evaluateVelocity(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateVelocity() cannot be called if trajectory is not computed.");
   throw std::runtime_error("JointTrajectory::evaluateVelocity() not implemented.");
 }
 
-const JointAccelerations JointTrajectory::evaluateAcceleration(const double time) const
+const JointAccelerationsLeg JointTrajectory::evaluateAcceleration(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateAcceleration() cannot be called if trajectory is not computed.");
   throw std::runtime_error("JointTrajectory::evaluateAcceleration() not implemented.");
 }
 
-const JointEfforts JointTrajectory::evaluateEffort(const double time) const
+const JointEffortsLeg JointTrajectory::evaluateEffort(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateEffort() cannot be called if trajectory is not computed.");
   const auto& trajectories = trajectories_.at(ControlLevel::Effort);
-  JointEfforts jointEfforts;
-  jointEfforts.toImplementation().resize((unsigned int) trajectories.size());
+  JointEffortsLeg jointEfforts;
   for (size_t i = 0; i < trajectories.size(); ++i) {
     jointEfforts(i) = trajectories[i].evaluate(time);
   }

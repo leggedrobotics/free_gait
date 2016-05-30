@@ -180,16 +180,16 @@ bool Executor::updateStateWithMeasurements()
   for (const auto& limb : adapter_->getLimbs()) {
     const auto& controlSetup = state_->getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
-      state_->setJointPositions(limb, adapter_->getJointPositions(limb));
+      state_->setJointPositionsForLimb(limb, adapter_->getJointPositionsForLimb(limb));
     }
     if (!controlSetup.at(ControlLevel::Velocity)) {
-      state_->setJointVelocities(limb, adapter_->getJointVelocities(limb));
+      state_->setJointVelocitiesForLimb(limb, adapter_->getJointVelocitiesForLimb(limb));
     }
     if (!controlSetup.at(ControlLevel::Acceleration)) {
 //      state_->setJointAccelerations(limb, adapter_->getJointAccelerations(limb));
     }
     if (!controlSetup.at(ControlLevel::Effort)) {
-      state_->setJointEfforts(limb, adapter_->getJointEfforts(limb));
+      state_->setJointEffortsForLimb(limb, adapter_->getJointEffortsForLimb(limb));
     }
   }
 
@@ -297,12 +297,12 @@ bool Executor::writeLegMotion()
             return false;
           }
           Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
-          JointPositions jointPositions;
+          JointPositionsLeg jointPositions;
           if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
             std::cerr << "Failed to compute joint positions from end effector position for " <<limb << "." << std::endl;
             return false;
           }
-          state_->setJointPositions(limb, jointPositions);
+          state_->setJointPositionsForLimb(limb, jointPositions);
         }
         break;
       }
@@ -310,10 +310,10 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::Joints:
       {
         const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
-        if (controlSetup[ControlLevel::Position]) state_->setJointPositions(limb, jointMotion.evaluatePosition(time));
+        if (controlSetup[ControlLevel::Position]) state_->setJointPositionsForLimb(limb, jointMotion.evaluatePosition(time));
 //        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
 //        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
-        if (controlSetup[ControlLevel::Effort]) state_->setJointEfforts(limb, jointMotion.evaluateEffort(time));
+        if (controlSetup[ControlLevel::Effort]) state_->setJointEffortsForLimb(limb, jointMotion.evaluateEffort(time));
         break;
       }
 

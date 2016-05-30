@@ -47,10 +47,10 @@ class JointTrajectory : public JointMotionBase
    * @param footStartPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  void updateStartPosition(const JointPositions& startPosition);
-  void updateStartVelocity(const JointVelocities& startVelocity);
-  void updateStartAcceleration(const JointAccelerations& startAcceleration);
-  void updateStartEfforts(const JointEfforts& startEffort);
+  void updateStartPosition(const JointPositionsLeg& startPosition);
+  void updateStartVelocity(const JointVelocitiesLeg& startVelocity);
+  void updateStartAcceleration(const JointAccelerationsLeg& startAcceleration);
+  void updateStartEfforts(const JointEffortsLeg& startEffort);
 
   bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
   bool needsComputation() const;
@@ -68,10 +68,10 @@ class JointTrajectory : public JointMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  const JointPositions evaluatePosition(const double time) const;
-  const JointVelocities evaluateVelocity(const double time) const;
-  const JointAccelerations evaluateAcceleration(const double time) const;
-  const JointEfforts evaluateEffort(const double time) const;
+  const JointPositionsLeg evaluatePosition(const double time) const;
+  const JointVelocitiesLeg evaluateVelocity(const double time) const;
+  const JointAccelerationsLeg evaluateAcceleration(const double time) const;
+  const JointEffortsLeg evaluateEffort(const double time) const;
 
   bool isIgnoreContact() const;
 

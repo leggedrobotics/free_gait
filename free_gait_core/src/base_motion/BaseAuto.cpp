@@ -157,7 +157,7 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
   double heightSum = 0;
   for (const auto& limb : adapter.getLimbs()) {
     if (!state.isIgnoreForPoseAdaptation(limb)) {
-      double legHeight = -adapter.getPositionBaseToFootInBaseFrame(limb, state.getJointPositions(limb)).z();
+      double legHeight = -adapter.getPositionBaseToFootInBaseFrame(limb, state.getJointPositionsForLimb(limb)).z();
       heightSum += legHeight;
       ++n;
     } else {

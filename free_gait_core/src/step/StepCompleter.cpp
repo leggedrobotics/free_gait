@@ -93,7 +93,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
       std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
       return false;
     }
-    Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositions(endEffectorMotion.getLimb()));
+    Position startPositionInBaseFrame = adapter_->getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositionsForLimb(endEffectorMotion.getLimb()));
     Position startPosition = adapter_->transformPosition("base", frameId, startPositionInBaseFrame);
     endEffectorMotion.updateStartPosition(startPosition);
   }
@@ -118,13 +118,13 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
 
   // Check for special mode transitions.
   if (positionIn && !effortIn && positionOut && effortOut) {
-    JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
+    JointPositionsLeg startPosition = state.getJointPositionsForLimb(jointMotion.getLimb());
     jointMotion.updateStartPosition(startPosition);
-    JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+    JointEffortsLeg startEffort = state.getJointEffortsForLimb(jointMotion.getLimb());
     startEffort.setZero();
     jointMotion.updateStartEfforts(startEffort);
   } else if (positionIn && effortIn && !positionOut && effortOut) {
-    JointEfforts startEffort = adapter_->getJointEfforts(jointMotion.getLimb());
+    JointEffortsLeg startEffort = adapter_->getJointEffortsForLimb(jointMotion.getLimb());
     jointMotion.updateStartEfforts(startEffort);
   } //else if (positionIn && effortIn && positionOut && !effortOut) {
     // TODO: Decrease torque to zero in special step.
@@ -135,19 +135,19 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
 
     // Standard transitions.
     if (positionOut) {
-      JointPositions startPosition = state.getJointPositions(jointMotion.getLimb());
+      JointPositionsLeg startPosition = state.getJointPositionsForLimb(jointMotion.getLimb());
       jointMotion.updateStartPosition(startPosition);
     }
     if (velocityOut) {
-      JointVelocities startVelocity = state.getJointVelocities(jointMotion.getLimb());
+      JointVelocitiesLeg startVelocity = state.getJointVelocitiesForLimb(jointMotion.getLimb());
       jointMotion.updateStartVelocity(startVelocity);
     }
     if (accelerationOut) {
-      JointAccelerations startAcceleration = state.getJointAccelerations(jointMotion.getLimb());
+      JointAccelerationsLeg startAcceleration = state.getJointAccelerationsForLimb(jointMotion.getLimb());
       jointMotion.updateStartAcceleration(startAcceleration);
     }
     if (effortOut) {
-      JointEfforts startEffort = state.getJointEfforts(jointMotion.getLimb());
+      JointEffortsLeg startEffort = state.getJointEffortsForLimb(jointMotion.getLimb());
       jointMotion.updateStartEfforts(startEffort);
     }
 

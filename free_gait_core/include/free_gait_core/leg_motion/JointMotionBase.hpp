@@ -49,20 +49,20 @@ class JointMotionBase : public LegMotionBase
    * @param footStartPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  virtual void updateStartPosition(const JointPositions& startPosition);
-  virtual void updateStartVelocity(const JointVelocities& startVelocity);
-  virtual void updateStartAcceleration(const JointAccelerations& startAcceleration);
-  virtual void updateStartEfforts(const JointEfforts& startEffort);
+  virtual void updateStartPosition(const JointPositionsLeg& startPosition);
+  virtual void updateStartVelocity(const JointVelocitiesLeg& startVelocity);
+  virtual void updateStartAcceleration(const JointAccelerationsLeg& startAcceleration);
+  virtual void updateStartEfforts(const JointEffortsLeg& startEffort);
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  virtual const JointPositions evaluatePosition(const double time) const;
-  virtual const JointVelocities evaluateVelocity(const double time) const;
-  virtual const JointAccelerations evaluateAcceleration(const double time) const;
-  virtual const JointEfforts evaluateEffort(const double time) const;
+  virtual const JointPositionsLeg evaluatePosition(const double time) const;
+  virtual const JointVelocitiesLeg evaluateVelocity(const double time) const;
+  virtual const JointAccelerationsLeg evaluateAcceleration(const double time) const;
+  virtual const JointEffortsLeg evaluateEffort(const double time) const;
 
   bool isIgnoreForPoseAdaptation() const;
 

@@ -43,22 +43,22 @@ class State : public quadruped_model::QuadrupedState
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
 
-  const JointPositions getJointPositions(const LimbEnum& limb) const;
-  void setJointPositions(const LimbEnum& limb, const JointPositions& jointPositions);
+  const JointPositionsLeg getJointPositionsForLimb(const LimbEnum& limb) const;
+  void setJointPositionsForLimb(const LimbEnum& limb, const JointPositionsLeg& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
 
-  const JointVelocities getJointVelocities(const LimbEnum& limb) const;
-  void setJointVelocities(const LimbEnum& limb, const JointVelocities& jointVelocities);
+  const JointVelocitiesLeg getJointVelocitiesForLimb(const LimbEnum& limb) const;
+  void setJointVelocitiesForLimb(const LimbEnum& limb, const JointVelocitiesLeg& jointVelocities);
   void setAllJointVelocities(const JointVelocities& jointVelocities);
 
-  const JointAccelerations getJointAccelerations(const LimbEnum& limb) const;
+  const JointAccelerationsLeg getJointAccelerationsForLimb(const LimbEnum& limb) const;
   const JointAccelerations& getAllJointAccelerations() const;
-  void setJointAccelerations(const LimbEnum& limb, const JointAccelerations& jointAccelerations);
+  void setJointAccelerationsForLimb(const LimbEnum& limb, const JointAccelerationsLeg& jointAccelerations);
   void setAllJointAccelerations(const JointAccelerations& jointAccelerations);
 
-  const JointEfforts getJointEfforts(const LimbEnum& limb) const;
+  const JointEffortsLeg getJointEffortsForLimb(const LimbEnum& limb) const;
   const JointEfforts& getAllJointEfforts() const;
-  void setJointEfforts(const LimbEnum& limb, const JointEfforts& jointEfforts);
+  void setJointEffortsForLimb(const LimbEnum& limb, const JointEffortsLeg& jointEfforts);
   void setAllJointEfforts(const JointEfforts& jointEfforts);
 
   const ControlSetup& getControlSetup(const BranchEnum& branch) const;
