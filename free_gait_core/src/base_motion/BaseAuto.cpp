@@ -318,7 +318,7 @@ void BaseAuto::getAdaptiveTargetPose(
       positionForeFeetMidPointInWorld - positionHindFeetMidPointInWorld);
   desiredHeadingDirectionInWorld.z() = 0.0;
   RotationQuaternion desiredHeading;
-  desiredHeading.setFromVectors(Vector::UnitX().toImplementation(), desiredHeadingDirectionInWorld.toImplementation()); // Why is toImplementation() required here?
+  desiredHeading.setFromVectors(Vector::UnitX().toImplementation(), desiredHeadingDirectionInWorld.toImplementation()).invert(); // Why is toImplementation() required here?
 
   // Create target pose.
   targetPoseInWorld.getPosition() = targetPositionInWorld;

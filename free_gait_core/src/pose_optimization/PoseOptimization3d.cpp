@@ -10,7 +10,7 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <ooqp_eigen_interface/OoqpEigenInterface.hpp>
-#include <kindr/rotations/RotationEigen.hpp>
+#include <kindr/Core>
 
 using namespace Eigen;
 

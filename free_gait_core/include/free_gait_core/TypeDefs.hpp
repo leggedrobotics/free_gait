@@ -42,7 +42,7 @@ using quadruped_model::RotationVector;
 using quadruped_model::EulerAnglesXyz;
 using quadruped_model::EulerAnglesXyzDiff;
 using quadruped_model::Position;
-using Position2 = kindr::phys_quant::eigen_impl::Position<double, 2>;
+using Position2 = kindr::Position<double, 2>;
 using quadruped_model::LinearVelocity;
 using quadruped_model::LocalAngularVelocity;
 using quadruped_model::EulerAnglesZyxDiff;

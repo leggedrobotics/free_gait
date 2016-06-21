@@ -163,7 +163,7 @@ bool StepCompleter::complete(const State& state, const Step& step, const StepQue
       std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
       return false;
     }
-    Pose startPoseInWorld(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationWorldToBase());
+    Pose startPoseInWorld(state.getPositionWorldToBaseInWorldFrame(), state.getOrientationBaseToWorld().inverted());
     Pose startPose = adapter_->transformPose(adapter_->getWorldFrameId(), frameId, startPoseInWorld);
     baseMotion.updateStartPose(startPose);
   }
