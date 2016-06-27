@@ -289,8 +289,8 @@ void BaseAuto::getAdaptiveTargetPose(
   const double adaptationFactor = 0.5;
   terrainPitch = adaptationFactor * atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
   terrainRoll = adaptationFactor * atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
-  RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
-      * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
+  RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, 1.0, 0.0, 0.0))
+      * RotationQuaternion(AngleAxis(terrainPitch, 0.0, -1.0, 0.0));
 
   // Compute target height over terrain and determine target position.
   Position positionWorldToDesiredHeightAboveTerrainInTerrain(0.0, 0.0, *height_);
