@@ -113,6 +113,7 @@ class BaseAuto : public BaseMotionBase
   Stance footholdsToReach_, footholdsInSupport_;
   // In base frame.
   Stance nominalStanceInBaseFrame_;
+  Stance footholdsForOrientation_; // TODO Replace with full optimization.
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
   PoseOptimization poseOptimization_;
 

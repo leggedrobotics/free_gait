@@ -53,6 +53,7 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     footholdsInSupport_(other.footholdsInSupport_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
     footholdsForTerrain_(other.footholdsForTerrain_),
+    footholdsForOrientation_(other.footholdsForOrientation_),
     poseOptimization_(other.poseOptimization_),
     isComputed_(other.isComputed_)
 {
@@ -170,13 +171,6 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
 
 bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
-  // Footholds for orientation.
-//  footholdsForOrientation_.clear();
-//  for (auto leg : *legs_) {
-//    const auto& limb = quadrupedModel_->getLimbEnumFromLimbUInt((uint) leg->getId());
-//    footholdsForOrientation_.emplace(limb, leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame());
-//  }
-
   footholdsInSupport_.clear();
   bool prepareForNextStep = false;
   if (!step.hasLegMotion() && queue.size() > 1) {
@@ -225,9 +219,11 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
   // TODO: Delete as soon full pose optimization is done.
   footholdsForTerrain_ = footholdsToReach_;
-//  for (const auto& limb : adapter.getLimbs()) {
-//    if (footholdsForTerrain_.count(limb) == 0) footholdsForTerrain_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
-//  }
+
+  footholdsForOrientation_ = footholdsToReach_;
+  for (const auto& limb : adapter.getLimbs()) {
+    if (footholdsForOrientation_.count(limb) == 0) footholdsForOrientation_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+  }
 
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
@@ -312,8 +308,8 @@ void BaseAuto::getAdaptiveTargetPose(
 //  centerOfFeetInWorld.z() = 0.0;
 
   // Get desired heading direction with respect to the target feet.
-  const Position positionForeFeetMidPointInWorld = (footholdsForTerrain_[LimbEnum::LF_LEG] + footholdsForTerrain_[LimbEnum::RF_LEG]) * 0.5;
-  const Position positionHindFeetMidPointInWorld = (footholdsForTerrain_[LimbEnum::LH_LEG] + footholdsForTerrain_[LimbEnum::RH_LEG]) * 0.5;
+  const Position positionForeFeetMidPointInWorld = (footholdsForOrientation_[LimbEnum::LF_LEG] + footholdsForOrientation_[LimbEnum::RF_LEG]) * 0.5;
+  const Position positionHindFeetMidPointInWorld = (footholdsForOrientation_[LimbEnum::LH_LEG] + footholdsForOrientation_[LimbEnum::RH_LEG]) * 0.5;
   Vector desiredHeadingDirectionInWorld = Vector(
       positionForeFeetMidPointInWorld - positionHindFeetMidPointInWorld);
   desiredHeadingDirectionInWorld.z() = 0.0;
