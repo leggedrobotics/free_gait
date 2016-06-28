@@ -55,7 +55,7 @@ bool PoseOptimization::optimize(Pose& pose)
   unsigned int nFeet = stance_.size();
   MatrixXd A = MatrixXd::Zero(nDimensions_ * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(nDimensions_ * nFeet);
-  Matrix3d R_0 = RotationMatrix(pose.getRotation().inverted()).matrix();
+  Matrix3d R_0 = RotationMatrix(pose.getRotation()).matrix();
   Matrix3d Rstar;
   Rstar << 0.0, -1.0, 0.0,
            1.0,  0.0, 0.0,
@@ -100,7 +100,7 @@ bool PoseOptimization::optimize(Pose& pose)
   // Return optimized pose.
   pose.getPosition().vector() = x.head<3>();
   const double yaw = x.tail<1>()[0];
-  Eigen::Matrix3d rotationMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)).transpose());
+  Eigen::Matrix3d rotationMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)));
 
   // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
   // as discussed in https://github.com/ethz-asl/kindr/issues/55 ,

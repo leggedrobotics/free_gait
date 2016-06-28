@@ -164,7 +164,7 @@ bool Executor::resetStateWithRobot()
 //  state_->setAllJointAccelerations(adapter_->getAllJointAccelerations()); // TODO
   state_->setAllJointEfforts(adapter_->getAllJointEfforts());
   state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
-  state_->setOrientationBaseToWorld(adapter_->getOrientationWorldToBase().inverted());
+  state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
 
   for (const auto& limb : adapter_->getLimbs()) {
     state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
@@ -196,7 +196,7 @@ bool Executor::updateStateWithMeasurements()
   const auto& controlSetup = state_->getControlSetup(BranchEnum::BASE);
   if (!controlSetup.at(ControlLevel::Position)) {
     state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
-    state_->setOrientationBaseToWorld(adapter_->getOrientationWorldToBase().inverted());
+    state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
   }
 
   state_->setAllJointVelocities(adapter_->getAllJointVelocities());
@@ -344,7 +344,7 @@ bool Executor::writeTorsoMotion()
     }
     Pose poseInWorldFrame = adapter_->transformPose(frameId, adapter_->getWorldFrameId(), baseMotion.evaluatePose(time));
     state_->setPositionWorldToBaseInWorldFrame(poseInWorldFrame.getPosition());
-    state_->setOrientationBaseToWorld(poseInWorldFrame.getRotation().inverted());
+    state_->setOrientationBaseToWorld(poseInWorldFrame.getRotation());
   }
   if (controlSetup[ControlLevel::Velocity]) {
     // TODO Add frame handling.

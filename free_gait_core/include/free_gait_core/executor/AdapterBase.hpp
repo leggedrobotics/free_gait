@@ -53,9 +53,14 @@ class AdapterBase
   virtual JointEffortsLeg getJointEffortsForLimb(const LimbEnum& limb) const = 0;
   virtual JointEfforts getAllJointEfforts() const = 0;
   virtual Position getPositionWorldToBaseInWorldFrame() const = 0;
-  virtual RotationQuaternion getOrientationWorldToBase() const = 0;
+  virtual RotationQuaternion getOrientationBaseToWorld() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
+  /*!
+   * Transform is frameId to world => C_IF.
+   * @param frameId
+   * @return
+   */
   virtual Pose getFrameTransform(const std::string& frameId) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;
   virtual ControlSetup getControlSetup(const LimbEnum& limb) const = 0;

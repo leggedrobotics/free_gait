@@ -39,7 +39,7 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
     if (outputFrameId == "base") {
       transformedPosition = position;
     } else if (outputFrameId == getWorldFrameId()) {
-      transformedPosition = getPositionWorldToBaseInWorldFrame() + getOrientationWorldToBase().inverseRotate(position);
+      transformedPosition = getPositionWorldToBaseInWorldFrame() + getOrientationBaseToWorld().rotate(position);
     } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
       const Position positionInOdom = transformPosition(inputFrameId, getWorldFrameId(), position);
       transformedPosition = transformPosition(getWorldFrameId(), outputFrameId, positionInOdom);
@@ -50,14 +50,11 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
   } else if (inputFrameId == getWorldFrameId()) {
 
     if (outputFrameId == "base") {
-      transformedPosition = getOrientationWorldToBase().rotate(position - getPositionWorldToBaseInWorldFrame());
+      transformedPosition = getOrientationBaseToWorld().inverseRotate(position - getPositionWorldToBaseInWorldFrame());
     } else if (outputFrameId == getWorldFrameId()) {
       transformedPosition = position;
     } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
-      // TODO Why does this not work?
-//      transformedPosition = getFramePoseInWorld(outputFrameId).inverseTransform(position);
-      const Pose pose(getFrameTransform(outputFrameId));
-      transformedPosition = pose.getRotation().rotate((position - pose.getPosition()));
+      transformedPosition = getFrameTransform(outputFrameId).inverseTransform(position);
     } else {
       frameError = true;
     }
@@ -68,10 +65,7 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
       const Position positionInOdom = transformPosition(inputFrameId, getWorldFrameId(), position);
       transformedPosition = transformPosition(getWorldFrameId(), outputFrameId, positionInOdom);
     } else if (outputFrameId == getWorldFrameId()) {
-      // TODO Why does this not work?
-//      transformedPosition = getFramePoseInWorld(inputFrameId).transform(position);
-      const Pose pose(getFrameTransform(inputFrameId));
-      transformedPosition = pose.getRotation().inverseRotate(position) + pose.getPosition();
+      transformedPosition = getFrameTransform(inputFrameId).transform(position);
     } else {
       frameError = true;
     }
@@ -99,8 +93,8 @@ RotationQuaternion AdapterBase::transformOrientation(const std::string& inputFra
     if (outputFrameId == getWorldFrameId()) {
       transformedOrientation = orientation;
     } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
-      const Pose pose(getFrameTransform(outputFrameId));
-      transformedOrientation = orientation * pose.getRotation().inverted();
+      const Pose transform(getFrameTransform(outputFrameId));
+      transformedOrientation = transform.getRotation().inverted() * orientation;
     } else {
       frameError = true;
     }
@@ -108,8 +102,8 @@ RotationQuaternion AdapterBase::transformOrientation(const std::string& inputFra
   } else if (inputFrameId == "map" || inputFrameId == "map_ga") {
 
     if (outputFrameId == getWorldFrameId()) {
-      const Pose pose(getFrameTransform(inputFrameId));
-      transformedOrientation = orientation * pose.getRotation();
+      const Pose transform(getFrameTransform(inputFrameId));
+      transformedOrientation = transform.getRotation() * orientation;
     } else {
       frameError = true;
     }
