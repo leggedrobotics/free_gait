@@ -12,9 +12,7 @@
 #include "quadruped_model/QuadrupedModel.hpp"
 
 // Kindr
-#include "kindr/thirdparty/ros/RosGeometryMsgPhysicalQuantitiesEigen.hpp"
-#include "kindr/thirdparty/ros/RosGeometryMsgPoseEigen.hpp"
-#include "kindr/thirdparty/ros/RosGeometryMsgPhysicalQuantitiesEigen.hpp"
+#include "kindr_ros/kindr_ros.hpp"
 
 namespace free_gait {
 
@@ -96,7 +94,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
   // Target.
   footstep.frameId_ = message.target.header.frame_id;
   Position target;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target.point, target);
+  kindr_ros::convertFromRosGeometryMsg(message.target.point, target);
   footstep.target_ = target;
 
   // Profile.
@@ -108,7 +106,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 
   // Surface normal.
   Vector surfaceNormal;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   footstep.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
@@ -131,7 +129,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
   if (endEffectorTarget.controlSetup_[ControlLevel::Position]) {
     endEffectorTarget.frameIds_[ControlLevel::Position] = message.target_position[0].header.frame_id;
     Position target_position;
-    kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.target_position[0].point, target_position);
+    kindr_ros::convertFromRosGeometryMsg(message.target_position[0].point, target_position);
     endEffectorTarget.target_[ControlLevel::Position] = target_position.vector();
   }
 
@@ -145,7 +143,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
 
   // Surface normal.
   Vector surfaceNormal;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   endEffectorTarget.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
@@ -197,7 +195,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     for (const auto& point : message.trajectory.points) {
       if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
         Position position;
-        kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(point.transforms[0].translation, position);
+        kindr_ros::convertFromRosGeometryMsg(point.transforms[0].translation, position);
         endEffectorTrajectory.values_[controlSetup.first].push_back(position.vector());
       } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
 //        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
@@ -211,7 +209,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
 
   // Surface normal.
   Vector surfaceNormal;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   endEffectorTrajectory.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
@@ -239,7 +237,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMo
 
   // Surface normal.
   Vector surfaceNormal;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   legMode.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore for pose adaptation.
@@ -301,7 +299,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& messag
 
   // Surface normal.
   Vector surfaceNormal;
-  kindr::phys_quant::eigen_impl::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
+  kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   jointTrajectory.surfaceNormal_.reset(new Vector(surfaceNormal));
 
   // Ignore contact.
@@ -327,7 +325,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTarget& message,
   // Target.
   baseTarget.frameId_ = message.target.header.frame_id;
   Pose target;
-  kindr::poses::eigen_impl::convertFromRosGeometryMsg(message.target.pose, target);
+  kindr_ros::convertFromRosGeometryMsg(message.target.pose, target);
   target.getRotation() = target.getRotation().getUnique();
   baseTarget.target_ = target;
 
@@ -382,7 +380,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTrajectory& message
     for (const auto& point : message.trajectory.points) {
       if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
         BaseTrajectory::ValueType pose;
-        kindr::poses::eigen_impl::convertFromRosGeometryMsg(point.transforms[0], pose);
+        kindr_ros::convertFromRosGeometryMsg(point.transforms[0], pose);
         pose.getRotation() = pose.getRotation().getUnique();
         baseTrajectory.values_[controlSetup.first].push_back(pose);
       } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {

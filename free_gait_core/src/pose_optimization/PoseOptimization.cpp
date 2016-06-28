@@ -9,7 +9,7 @@
 #include <free_gait_core/PoseOptimization.hpp>
 #include <Eigen/Core>
 #include <ooqp_eigen_interface/OoqpEigenInterface.hpp>
-#include <kindr/rotations/RotationEigen.hpp>
+#include <kindr/Core>
 
 using namespace Eigen;
 
