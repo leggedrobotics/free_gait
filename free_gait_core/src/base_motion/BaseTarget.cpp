@@ -44,8 +44,7 @@ const ControlSetup BaseTarget::getControlSetup() const
 void BaseTarget::updateStartPose(const Pose& startPose)
 {
   isComputed_ = false;
-  start_.getPosition() = startPose.getPosition();
-  start_.getRotation() = startPose.getRotation().getUnique();
+  start_ = startPose;
 }
 
 bool BaseTarget::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)

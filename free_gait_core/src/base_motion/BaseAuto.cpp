@@ -74,8 +74,7 @@ const ControlSetup BaseAuto::getControlSetup() const
 void BaseAuto::updateStartPose(const Pose& startPose)
 {
   isComputed_ = false;
-  start_.getPosition() = startPose.getPosition();
-  start_.getRotation() = startPose.getRotation().getUnique();
+  start_ = startPose;
 }
 
 bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
