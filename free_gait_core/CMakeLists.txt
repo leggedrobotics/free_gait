@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   curves
   grid_map_core
   loco
+  robot_utils
 )
 
 ## System dependencies are found with CMake's conventions
@@ -35,6 +36,7 @@ catkin_package(
       curves
       grid_map_core
       loco
+      robot_utils
     DEPENDS
       Eigen3
 )
