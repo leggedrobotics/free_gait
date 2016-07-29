@@ -367,19 +367,26 @@ void MarkerManager::updateTrajectory(int legId, const std::string& markerName)
       geometry_msgs::Twist twist_vel;
       geometry_msgs::Twist twist_acc;
 
-      transform.translation.x = splines_.at(legId).evaluate(k*dt).x();
-      transform.translation.y = splines_.at(legId).evaluate(k*dt).y();
-      transform.translation.z = splines_.at(legId).evaluate(k*dt).z();
+      Eigen::Vector3d position;
+      splines_.at(legId).evaluate(position, k*dt);
+      transform.translation.x = position.x();
+      transform.translation.y = position.y();
+      transform.translation.z = position.z();
 
-      twist_vel.linear.x = splines_.at(legId).evaluateDerivative(k*dt,1).x();
-      twist_vel.linear.y = splines_.at(legId).evaluateDerivative(k*dt,1).y();
-      twist_vel.linear.z = splines_.at(legId).evaluateDerivative(k*dt,1).z();
+      Eigen::Vector3d linearVelocity;
+      splines_.at(legId).evaluateDerivative(linearVelocity, k*dt,1);
+      twist_vel.linear.x = linearVelocity.x();
+      twist_vel.linear.y = linearVelocity.y();
+      twist_vel.linear.z = linearVelocity.z();
 
       ROS_INFO_STREAM("vel: " << twist_vel.linear.x);
 
-      twist_acc.linear.x = splines_.at(legId).evaluateDerivative(k*dt,2).x();
-      twist_acc.linear.y = splines_.at(legId).evaluateDerivative(k*dt,2).y();
-      twist_acc.linear.z = splines_.at(legId).evaluateDerivative(k*dt,2).z();
+      Eigen::Vector3d linearAcc;
+      splines_.at(legId).evaluateDerivative(linearAcc, k*dt,2);
+      twist_acc.linear.x = linearAcc.x();
+      twist_acc.linear.y = linearAcc.y();
+      twist_acc.linear.z = linearAcc.z();
+
 
       point.transforms.push_back(transform);
       point.velocities.push_back(twist_vel);
