@@ -67,7 +67,9 @@ bool EndEffectorTarget::isComputed() const
 
 const Position EndEffectorTarget::evaluatePosition(const double time) const
 {
-  return Position(trajectory_.evaluate(time));
+  Position position;
+  trajectory_.evaluate(position.toImplementation(), time);
+  return position;
 }
 
 double EndEffectorTarget::getDuration() const

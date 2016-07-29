@@ -77,7 +77,9 @@ const std::string& BaseTarget::getFrameId(const ControlLevel& controlLevel) cons
 Pose BaseTarget::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
-  return trajectory_.evaluate(timeInRange);
+  Pose pose;
+  trajectory_.evaluate(pose, timeInRange);
+  return pose;
 }
 
 void BaseTarget::computeDuration(const Step& step, const AdapterBase& adapter)

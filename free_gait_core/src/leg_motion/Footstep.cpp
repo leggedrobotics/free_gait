@@ -91,7 +91,9 @@ bool Footstep::isComputed() const
 
 const Position Footstep::evaluatePosition(const double time) const
 {
-  return Position(trajectory_.evaluate(time));
+  Position position;
+  trajectory_.evaluate(position.toImplementation(), time);
+  return position;
 }
 
 double Footstep::getDuration() const

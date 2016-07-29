@@ -120,7 +120,7 @@ const JointPositionsLeg JointTrajectory::evaluatePosition(const double time) con
   const auto& trajectories = trajectories_.at(ControlLevel::Position);
   JointPositionsLeg jointPositions;
   for (size_t i = 0; i < trajectories.size(); ++i) {
-    jointPositions(i) = trajectories[i].evaluate(time);
+    trajectories[i].evaluate(jointPositions(i), time);
   }
   return jointPositions;
 }
@@ -143,7 +143,7 @@ const JointEffortsLeg JointTrajectory::evaluateEffort(const double time) const
   const auto& trajectories = trajectories_.at(ControlLevel::Effort);
   JointEffortsLeg jointEfforts;
   for (size_t i = 0; i < trajectories.size(); ++i) {
-    jointEfforts(i) = trajectories[i].evaluate(time);
+    trajectories[i].evaluate(jointEfforts(i), time);
   }
   return jointEfforts;
 }

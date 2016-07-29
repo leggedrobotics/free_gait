@@ -114,7 +114,10 @@ bool BaseAuto::isComputed() const
 Pose BaseAuto::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
-  return trajectory_.evaluate(timeInRange);
+  Pose pose;
+  trajectory_.evaluate(pose, timeInRange);
+  return pose;
+
 }
 
 Twist BaseAuto::evaluateTwist(const double time) const
