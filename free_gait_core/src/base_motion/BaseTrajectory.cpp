@@ -81,7 +81,9 @@ const std::string& BaseTrajectory::getFrameId(const ControlLevel& controlLevel) 
 
 Pose BaseTrajectory::evaluatePose(const double time) const
 {
-  return Pose(trajectory_.evaluate(time));
+  Pose pose;
+  trajectory_.evaluate(pose, time);
+  return pose;
 }
 
 std::ostream& operator<<(std::ostream& out, const BaseTrajectory& baseTrajectory)
