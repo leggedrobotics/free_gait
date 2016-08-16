@@ -10,7 +10,7 @@
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
 // Robot utils
-#include <robotUtils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
+#include <robot_utils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
 
 // Roco
 #include <roco/log/log_messages.hpp>
@@ -194,7 +194,7 @@ void Footstep::computeVelocities(const std::vector<Time>& times,
                                  std::vector<DerivativeType>& velocities,
                                  std::vector<DerivativeType>& accelerations) const
 {
-  DerivativeType undefined(DerivativeType::Constant(robotUtils::PolynomialSplineContainer::undefinedValue));
+  DerivativeType undefined(DerivativeType::Constant(robot_utils::PolynomialSplineContainer::undefinedValue));
   velocities.resize(times.size(), undefined);
   *(velocities.begin()) = DerivativeType(0.0, 0.0, liftOffVelocity_);
   *(velocities.end()-1) = DerivativeType(0.0, 0.0, touchdownVelocity_);
