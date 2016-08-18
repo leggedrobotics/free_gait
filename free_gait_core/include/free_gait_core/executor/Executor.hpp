@@ -16,7 +16,7 @@
 #include "free_gait_core/step/StepComputer.hpp"
 
 // Robot utils
-#include <robotUtils/timers/ChronoTimer.hpp>
+#include <robot_utils/timers/ChronoTimer.hpp>
 
 // STD
 #include <memory>

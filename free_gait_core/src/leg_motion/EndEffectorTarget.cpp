@@ -10,7 +10,7 @@
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
 // Robot utils
-#include <robotUtils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
+#include <robot_utils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
 
 // Roco
 #include <roco/log/log_messages.hpp>
