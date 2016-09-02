@@ -12,6 +12,7 @@
 #include "free_gait_core/free_gait_core.hpp"
 
 // ROS
+#include <free_gait_msgs/ExecuteStepsGoal.h>
 #include <free_gait_msgs/Step.h>
 #include <free_gait_msgs/Footstep.h>
 #include <free_gait_msgs/LegMode.h>
@@ -46,6 +47,11 @@ class StepRosConverter
   bool fromMessage(const free_gait_msgs::BaseAuto& message, BaseAuto& baseAuto);
   bool fromMessage(const free_gait_msgs::BaseTarget& message, BaseTarget& baseTarget);
   bool fromMessage(const free_gait_msgs::BaseTrajectory& message, BaseTrajectory& baseTrajectory);
+
+  bool toMessage(const StepQueue& stepQueue, free_gait_msgs::ExecuteStepsGoal::_steps_type& message);
+  bool toMessage(const Step& step, free_gait_msgs::Step& message);
+  bool toMessage(const Footstep& footstep, free_gait_msgs::Footstep& message);
+  bool toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message);
 
  private:
   std::shared_ptr<AdapterBase> adapter_;

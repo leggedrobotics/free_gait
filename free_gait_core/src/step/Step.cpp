@@ -161,6 +161,11 @@ const LegMotionBase& Step::getLegMotion(const LimbEnum& limb) const
   return *legMotions_.at(limb);
 }
 
+const Step::LegMotions& Step::getLegMotions() const
+{
+  return legMotions_;
+}
+
 bool Step::hasBaseMotion() const
 {
   return (bool)(baseMotion_);

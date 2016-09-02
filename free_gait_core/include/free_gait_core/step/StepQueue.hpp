@@ -81,6 +81,8 @@ class StepQueue
    */
   const Step& getNextStep() const;
 
+  const std::deque<Step>& getQueue() const;
+
   /*!
    * Returns the previous step. Returns null pointer
    * if no previous step is available.

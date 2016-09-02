@@ -146,6 +146,11 @@ const Step& StepQueue::getNextStep() const
   return *iterator;
 }
 
+const std::deque<Step>& StepQueue::getQueue() const
+{
+  return queue_;
+}
+
 bool StepQueue::previousStepExists() const
 {
  return (bool)previousStep_;
