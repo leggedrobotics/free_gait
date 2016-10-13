@@ -18,7 +18,6 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016.
             author = {Fankhauser, P{\'{e}}ter and Bellicoso, C. Dario and Gehring, Christian and Dub{\'{e}}, Renaud and Gawel, Abel and Hutter, Marco},
             booktitle = {IEEE-RAS International Conference on Humanoid Robots},
             title = {{Free Gait – An Architecture for the Versatile Control of Legged Robots}},
-            chapter = {5},
             year = {2016},
         }
 	
