@@ -17,14 +17,14 @@ FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle,
   state_ = ActionState::DONE;
 }
 
-void FreeGaitActionClient::sendGoal()
+void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal)
 {
   state_ = ActionState::PENDING;
   client_.cancelAllGoals();
   client_.waitForServer();
-  client_.sendGoal(goal_, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
-                    boost::bind(&FreeGaitActionClient::activeCallback_, this),
-                    boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
+  client_.sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
+                   boost::bind(&FreeGaitActionClient::activeCallback_, this),
+                   boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
 }
 
 void FreeGaitActionClient::waitForResult(double timeout)

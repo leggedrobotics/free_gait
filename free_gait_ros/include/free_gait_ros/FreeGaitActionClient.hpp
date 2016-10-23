@@ -23,7 +23,7 @@ public:
 	FreeGaitActionClient(ros::NodeHandle& nodeHandle, const std::string& name);
 	virtual ~FreeGaitActionClient() {};
 
-  void sendGoal();
+  void sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal);
 	void waitForResult(double timeout = 1e6); // TODO
 	const free_gait_msgs::ExecuteStepsResult& getResult();
 	ActionState getState();
@@ -32,8 +32,6 @@ protected:
 	virtual void activeCallback() {};
 	virtual void feedbackCallback(const free_gait_msgs::ExecuteStepsFeedbackConstPtr& feedback) {};
 	virtual void doneCallback(const actionlib::SimpleClientGoalState& state, const free_gait_msgs::ExecuteStepsResultConstPtr& result){};
-
-	free_gait_msgs::ExecuteStepsGoal goal_;
 
 private:
 	void activeCallback_();

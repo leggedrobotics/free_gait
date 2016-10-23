@@ -101,9 +101,20 @@ double Footstep::getDuration() const
   return trajectory_.getMaxTime() - trajectory_.getMinTime();
 }
 
+void Footstep::setTargetPosition(const Position target)
+{
+  target_ = target;
+}
+
 const Position Footstep::getTargetPosition() const
 {
   return target_;
+}
+
+void Footstep::setFrameId(const ControlLevel& controlLevel, const std::string& frameId)
+{
+  if (controlLevel != ControlLevel::Position) throw std::runtime_error("Footstep::setFrameId() is only valid for position.");
+  frameId_ = frameId;
 }
 
 const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const

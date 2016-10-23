@@ -32,35 +32,35 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& st
     const auto limb = adapter_->getLimbEnumFromLimbString(footstepMessage.name);
     Footstep footstep(limb);
     if (!fromMessage(footstepMessage, footstep)) return false;
-    step.addLegMotion(limb, footstep);
+    step.addLegMotion(footstep);
   }
 
   for (const auto& endEffectorTargetMessage : message.end_effector_target) {
     const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTargetMessage.name);
     EndEffectorTarget endEffectorTarget(limb);
     if (!fromMessage(endEffectorTargetMessage, endEffectorTarget)) return false;
-    step.addLegMotion(limb, endEffectorTarget);
+    step.addLegMotion(endEffectorTarget);
   }
 
   for (const auto& endEffectorTrajectoryMessage : message.end_effector_trajectory) {
     const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTrajectoryMessage.name);
     EndEffectorTrajectory endEffectorTrajectory(limb);
     if (!fromMessage(endEffectorTrajectoryMessage, endEffectorTrajectory)) return false;
-    step.addLegMotion(limb, endEffectorTrajectory);
+    step.addLegMotion(endEffectorTrajectory);
   }
 
   for (const auto& legModeMessage : message.leg_mode) {
       const auto limb = adapter_->getLimbEnumFromLimbString(legModeMessage.name);
       LegMode legMode(limb);
       if (!fromMessage(legModeMessage, legMode)) return false;
-      step.addLegMotion(limb, legMode);
+      step.addLegMotion(legMode);
     }
 
   for (const auto& jointTrajectoryMessage : message.joint_trajectory) {
     const auto limb = adapter_->getLimbEnumFromLimbString(jointTrajectoryMessage.name);
     JointTrajectory jointTrajectory(limb);
     if (!fromMessage(jointTrajectoryMessage, jointTrajectory)) return false;
-    step.addLegMotion(limb, jointTrajectory);
+    step.addLegMotion(jointTrajectory);
   }
 
   // Base motion.
