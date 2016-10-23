@@ -39,7 +39,7 @@ class ActionLoader:
         response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(actions)
         return response
 
-    def send_action(self, request):
+    def send_action(self, request, single_action=False):
         self.reset()
         self.request = request
         response = locomotion_controller_msgs.srv.SwitchControllerResponse()
@@ -72,6 +72,9 @@ class ActionLoader:
                 else:
                     rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
+
+                if not self.action.keep_alive and single_action:
+                    rospy.signal_shutdown("Action sent, shutting down.")
             except:
                 rospy.logerr('An exception occurred while reading the action.')
                 response.status = response.STATUS_ERROR
@@ -107,7 +110,6 @@ class ActionLoader:
         if self.action is not None:
             if self.action.state == ActionState.INITIALIZED:
                 self.action.start()
-                rospy.loginfo('Action started. Waiting for result.')
 
     def reset(self):
         if self.action:
@@ -143,23 +145,19 @@ if __name__ == '__main__':
 
         if load_file:
             request = locomotion_controller_msgs.srv.SwitchControllerRequest(file)
-            response = action_loader.send_action(request)
-            if response.status == response.STATUS_SWITCHED and action_loader.action.keep_alive:
-                rospy.loginfo("Action sent, keeping node alive due to action's request.")
-                rospy.spin()
-            else:
-                rospy.signal_shutdown("Action sent, shutting down.")
-
+            thread = threading.Thread(target=action_loader.send_action, args=(request, True))
+            thread.start()
         else:
             rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
             rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions)
             rospy.loginfo("Ready to load actions from service call.")
 
-        mate = rospy.Rate(10)
+        updateRate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            # This is required for having the actions run in the main thread.
+            # This is required for having the actions run in the main thread
+            # (instead through the thread by the service callback).
             action_loader.check_and_start_action()
-            mate.sleep()
+            updateRate.sleep()
 
     except rospy.ROSInterruptException:
-        rospy.logerr("Program interrupted before completion.")
+        pass
