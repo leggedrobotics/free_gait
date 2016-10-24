@@ -80,6 +80,7 @@ bool StepQueue::advance(double dt)
     if (queue_.empty()) {
       // End reached.
       active_ = false;
+      hasStartedStep_ = false;
       return true;
     }
     hasSwitchedStep_ = true;
