@@ -43,10 +43,9 @@ class Step
 
   /*!
    * Add swing data for a leg.
-   * @param legName the name of the leg.
    * @param data the step data.
    */
-  void addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion);
+  void addLegMotion(const LegMotionBase& legMotion);
 
   /*!
    * Add base shift data for a state.
@@ -75,6 +74,7 @@ class Step
   bool hasLegMotion() const;
   bool hasLegMotion(const LimbEnum& limb) const;
   const LegMotionBase& getLegMotion(const LimbEnum& limb) const;
+  const LegMotions& getLegMotions() const;
 
   bool hasBaseMotion() const;
   const BaseMotionBase& getBaseMotion() const;

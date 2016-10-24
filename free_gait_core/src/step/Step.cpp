@@ -74,9 +74,9 @@ std::unique_ptr<Step> Step::clone() const
   return pointer;
 }
 
-void Step::addLegMotion(const LimbEnum& limb, const LegMotionBase& legMotion)
+void Step::addLegMotion(const LegMotionBase& legMotion)
 {
-  legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(limb, std::move(legMotion.clone())));
+  legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(legMotion.getLimb(), std::move(legMotion.clone())));
   isUpdated_ = false;
   isComputed_ = false;
 }
@@ -159,6 +159,11 @@ const LegMotionBase& Step::getLegMotion(const LimbEnum& limb) const
 {
   if (!hasLegMotion(limb)) throw std::out_of_range("No leg motion for this limb in this step!");
   return *legMotions_.at(limb);
+}
+
+const Step::LegMotions& Step::getLegMotions() const
+{
+  return legMotions_;
 }
 
 bool Step::hasBaseMotion() const

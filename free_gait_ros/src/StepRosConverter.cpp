@@ -25,42 +25,42 @@ StepRosConverter::~StepRosConverter()
 {
 }
 
-bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, free_gait::Step& step)
+bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& step)
 {
   // Leg motion.
   for (const auto& footstepMessage : message.footstep) {
     const auto limb = adapter_->getLimbEnumFromLimbString(footstepMessage.name);
     Footstep footstep(limb);
     if (!fromMessage(footstepMessage, footstep)) return false;
-    step.addLegMotion(limb, footstep);
+    step.addLegMotion(footstep);
   }
 
   for (const auto& endEffectorTargetMessage : message.end_effector_target) {
     const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTargetMessage.name);
     EndEffectorTarget endEffectorTarget(limb);
     if (!fromMessage(endEffectorTargetMessage, endEffectorTarget)) return false;
-    step.addLegMotion(limb, endEffectorTarget);
+    step.addLegMotion(endEffectorTarget);
   }
 
   for (const auto& endEffectorTrajectoryMessage : message.end_effector_trajectory) {
     const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTrajectoryMessage.name);
     EndEffectorTrajectory endEffectorTrajectory(limb);
     if (!fromMessage(endEffectorTrajectoryMessage, endEffectorTrajectory)) return false;
-    step.addLegMotion(limb, endEffectorTrajectory);
+    step.addLegMotion(endEffectorTrajectory);
   }
 
   for (const auto& legModeMessage : message.leg_mode) {
       const auto limb = adapter_->getLimbEnumFromLimbString(legModeMessage.name);
       LegMode legMode(limb);
       if (!fromMessage(legModeMessage, legMode)) return false;
-      step.addLegMotion(limb, legMode);
+      step.addLegMotion(legMode);
     }
 
   for (const auto& jointTrajectoryMessage : message.joint_trajectory) {
     const auto limb = adapter_->getLimbEnumFromLimbString(jointTrajectoryMessage.name);
     JointTrajectory jointTrajectory(limb);
     if (!fromMessage(jointTrajectoryMessage, jointTrajectory)) return false;
-    step.addLegMotion(limb, jointTrajectory);
+    step.addLegMotion(jointTrajectory);
   }
 
   // Base motion.
@@ -391,6 +391,92 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTrajectory& message
     }
   }
 
+  return true;
+}
+
+bool StepRosConverter::toMessage(const StepQueue& stepQueue, free_gait_msgs::ExecuteStepsGoal::_steps_type& message)
+{
+  for (const Step& step : stepQueue.getQueue()) {
+    free_gait_msgs::Step stepMessage;
+    if (!toMessage(step, stepMessage)) return false;
+    message.push_back(stepMessage);
+  }
+
+  return true;
+}
+
+bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message)
+{
+  free_gait_msgs::Step& stepMessage = message;
+  // Leg motions.
+  for (const auto& legMotion : step.getLegMotions()) {
+
+    // Foostep.
+    if (legMotion.second->getType() == LegMotionBase::Type::Footstep) {
+      const Footstep& footstep = dynamic_cast<const Footstep&>(*(legMotion.second));
+      free_gait_msgs::Footstep message;
+      if (!toMessage(footstep, message)) return false;
+      stepMessage.footstep.push_back(message);
+    }
+
+  }
+
+  // Base motion.
+  if (step.hasBaseMotion()) {
+
+    const auto& baseMotion = step.getBaseMotion();
+
+    // Base Auto.
+    if (baseMotion.getType() == BaseMotionBase::Type::Auto) {
+      const BaseAuto& baseAuto = dynamic_cast<const BaseAuto&>(baseMotion);
+      free_gait_msgs::BaseAuto message;
+      if (!toMessage(baseAuto, message)) return false;
+      stepMessage.base_auto.push_back(message);
+    }
+  }
+
+  return true;
+}
+
+bool StepRosConverter::toMessage(const Footstep& footstep, free_gait_msgs::Footstep& message)
+{
+  // Limb.
+  message.name = adapter_->getLimbStringFromLimbEnum(footstep.limb_);
+
+  // Target.
+  message.target.header.frame_id = footstep.frameId_;
+  kindr_ros::convertToRosGeometryMsg(footstep.target_, message.target.point);
+
+  // Profile.
+  message.profile_height = footstep.profileHeight_;
+  message.profile_type = footstep.profileType_;
+
+  // Average Velocity.
+  message.average_velocity = footstep.averageVelocity_;
+
+  // Surface normal.
+  if (footstep.surfaceNormal_) {
+    kindr_ros::convertToRosGeometryMsg(*(footstep.surfaceNormal_), message.surface_normal.vector);
+  }
+
+  // Ignore contact.
+  message.ignore_contact = footstep.ignoreContact_;
+
+  // Ignore for pose adaptation.
+  message.ignore_for_pose_adaptation = footstep.ignoreForPoseAdaptation_;
+
+  return true;
+}
+
+bool StepRosConverter::toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message)
+{
+  if (baseAuto.height_) {
+    message.height = *(baseAuto.height_);
+  }
+  message.ignore_timing_of_leg_motion = baseAuto.ignoreTimingOfLegMotion_;
+  message.average_linear_velocity = baseAuto.averageLinearVelocity_;
+  message.average_angular_velocity = baseAuto.averageAngularVelocity_;
+  message.support_margin = baseAuto.supportMargin_;
   return true;
 }
 

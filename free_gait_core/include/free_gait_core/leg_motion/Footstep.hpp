@@ -64,12 +64,10 @@ class Footstep : public EndEffectorMotionBase
    */
   double getDuration() const;
 
-  /*!
-   * Return the target (end position) of the swing profile.
-   * @return the target.
-   */
+  void setTargetPosition(const Position target);
   const Position getTargetPosition() const;
 
+  void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   bool isIgnoreContact() const;

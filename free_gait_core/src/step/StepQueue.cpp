@@ -80,6 +80,7 @@ bool StepQueue::advance(double dt)
     if (queue_.empty()) {
       // End reached.
       active_ = false;
+      hasStartedStep_ = false;
       return true;
     }
     hasSwitchedStep_ = true;
@@ -144,6 +145,11 @@ const Step& StepQueue::getNextStep() const
   if (size() <= 1) throw std::out_of_range("StepQueue::getNextStep(): No next step in queue!");
   auto iterator = queue_.begin() + 1;
   return *iterator;
+}
+
+const std::deque<Step>& StepQueue::getQueue() const
+{
+  return queue_;
 }
 
 bool StepQueue::previousStepExists() const

@@ -1,19 +1,18 @@
 /*
- * ActionBase.hpp
+ * FreeGaitActionClient.hpp
  *
  *  Created on: Oct 21, 2015
- *      Author: Georg Wiedebach
+ *      Author: Georg Wiedebach, Péter Fankhauser
  */
 
-#ifndef WHOLE_BODY_CLIMBING_SRC_ACTIONBASE_HPP_
-#define WHOLE_BODY_CLIMBING_SRC_ACTIONBASE_HPP_
+#pragma once
 
 #include <free_gait_msgs/ExecuteStepsAction.h>
 #include <actionlib/client/simple_action_client.h>
 
 namespace free_gait {
 
-class ActionBase {
+class FreeGaitActionClient {
 public:
 	enum ActionState {
 		PENDING,
@@ -21,13 +20,12 @@ public:
 		DONE
 	};
 
-	ActionBase(actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>* client);
-	ActionBase(actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>* client, free_gait_msgs::ExecuteStepsGoal goal);
-	virtual ~ActionBase() {};
+	FreeGaitActionClient(ros::NodeHandle& nodeHandle, const std::string& name);
+	virtual ~FreeGaitActionClient() {};
 
-	void start();
-	void waitForResult(double timeout);
-	free_gait_msgs::ExecuteStepsResult getResult();
+  void sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal);
+	void waitForResult(double timeout = 1e6); // TODO
+	const free_gait_msgs::ExecuteStepsResult& getResult();
 	ActionState getState();
 
 protected:
@@ -35,19 +33,15 @@ protected:
 	virtual void feedbackCallback(const free_gait_msgs::ExecuteStepsFeedbackConstPtr& feedback) {};
 	virtual void doneCallback(const actionlib::SimpleClientGoalState& state, const free_gait_msgs::ExecuteStepsResultConstPtr& result){};
 
-	free_gait_msgs::ExecuteStepsGoal goal_;
-
 private:
-	void sendGoal();
 	void activeCallback_();
 	void feedbackCallback_(const free_gait_msgs::ExecuteStepsFeedbackConstPtr& feedback);
 	void doneCallback_(const actionlib::SimpleClientGoalState& state, const free_gait_msgs::ExecuteStepsResultConstPtr& result);
 
-	actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>* client_;
+	ros::NodeHandle& nodeHandle_;
+	actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction> client_;
 	ActionState state_;
 	free_gait_msgs::ExecuteStepsResult result_;
 };
 
 }
-
-#endif /* WHOLE_BODY_CLIMBING_SRC_ACTIONBASE_HPP_ */

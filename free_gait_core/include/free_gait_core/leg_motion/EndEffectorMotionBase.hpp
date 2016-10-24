@@ -63,10 +63,22 @@ class EndEffectorMotionBase : public LegMotionBase
   virtual const Force evaluateForce(const double time) const;
 
   /*!
+   * Set the target (end position) of the swing trajectory.
+   * @return the target.
+   */
+  virtual void setTargetPosition(const Position& target);
+
+  /*!
    * Return the target (end position) of the swing trajectory.
    * @return the target.
    */
   virtual const Position getTargetPosition() const;
+
+  /*!
+   * Set the frame id of the trajectory.
+   * @return the frame id.
+   */
+  virtual void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
 
   /*!
    * Returns the frame id of the trajectory.
