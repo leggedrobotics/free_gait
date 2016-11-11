@@ -32,6 +32,7 @@ using BranchEnum = quadruped_model::BranchEnum;
 using ContactEnum = quadruped_model::ContactEnum;
 
 // Import kindr aliases.
+using Transform = quadruped_model::Pose;
 using quadruped_model::Pose;
 using quadruped_model::Twist;
 using quadruped_model::RotationQuaternion;

@@ -97,6 +97,8 @@ class StepQueue
    */
   std::deque<Step>::size_type size() const;
 
+  friend class StepFrameConverter;
+
  private:
 
   //! Queue of step data.

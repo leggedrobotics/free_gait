@@ -138,10 +138,15 @@ const std::string& BaseAuto::getFrameId(const ControlLevel& controlLevel) const
   return frameId_;
 }
 
+void BaseAuto::setHeight(const double height)
+{
+  height_.reset(new double(height));
+}
+
 double BaseAuto::getHeight() const
 {
   if (height_) return *height_;
-  throw std::runtime_error("BaseAuto::getHeight() has not yet been computed.");
+  throw std::runtime_error("Height of BaseAuto has not been set yet.");
 }
 
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)

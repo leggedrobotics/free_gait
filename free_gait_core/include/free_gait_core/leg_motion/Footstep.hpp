@@ -77,6 +77,7 @@ class Footstep : public EndEffectorMotionBase
   friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
   friend class StepCompleter;
   friend class StepRosConverter;
+  friend class StepFrameConverter;
 
  private:
   void generateStraightKnots(std::vector<ValueType>& values) const;

@@ -62,6 +62,7 @@ class BaseAuto : public BaseMotionBase
 
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
+  void setHeight(const double height);
   double getHeight() const;
 
   /*!

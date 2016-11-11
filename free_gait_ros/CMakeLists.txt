@@ -57,6 +57,7 @@ include_directories(
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
    src/StepRosConverter.cpp
+   src/StepFrameConverter.cpp
    src/FreeGaitActionServer.cpp
    src/FreeGaitActionClient.cpp
 )
