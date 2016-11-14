@@ -58,6 +58,9 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
    */
   const Position evaluatePosition(const double time) const;
 
+  void addTime(Time time);
+
+  void addValue(const ControlLevel& controlLevel, const ValueType value);
   /*!
    * Returns the total duration of the trajectory.
    * @return the duration.
@@ -70,8 +73,10 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
    */
   const Position getTargetPosition() const;
 
+  void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
+  void setIgnoreContact(bool ignoreContact);
   bool isIgnoreContact() const;
 
   bool isIgnoreForPoseAdaptation() const;
