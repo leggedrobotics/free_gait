@@ -22,7 +22,9 @@ EndEffectorTrajectory::EndEffectorTrajectory(LimbEnum limb)
       duration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
-      isComputed_(false)
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 
@@ -78,6 +80,16 @@ const Position EndEffectorTrajectory::evaluatePosition(const double time) const
   return position;
 }
 
+void EndEffectorTrajectory::addTime(Time time)
+{
+  times_.push_back(time);
+}
+
+void EndEffectorTrajectory::addValue(const ControlLevel& controlLevel, const ValueType value)
+{
+  values_[controlLevel].push_back(value);
+}
+
 double EndEffectorTrajectory::getDuration() const
 {
   return trajectory_.getMaxTime() - trajectory_.getMinTime();
@@ -88,9 +100,20 @@ const Position EndEffectorTrajectory::getTargetPosition() const
   return Position(values_.at(ControlLevel::Position).back());
 }
 
+void EndEffectorTrajectory::setFrameId(const ControlLevel& controlLevel, const std::string& frameId)
+{
+  if (controlLevel != ControlLevel::Position) throw std::runtime_error("EndEffectorTrajectory::setFrameId() is only valid for position.");
+  frameIds_[controlLevel] = frameId;
+}
+
 const std::string& EndEffectorTrajectory::getFrameId(const ControlLevel& controlLevel) const
 {
   return frameIds_.at(controlLevel);
+}
+
+void EndEffectorTrajectory::setIgnoreContact(bool ignoreContact)
+{
+  ignoreContact_ = ignoreContact;
 }
 
 bool EndEffectorTrajectory::isIgnoreContact() const
