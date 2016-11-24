@@ -70,6 +70,9 @@ class Footstep : public EndEffectorMotionBase
   void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
+  void setProfileHeight(const double profileHeight);
+  double getProfileHeight() const;
+
   bool isIgnoreContact() const;
 
   bool isIgnoreForPoseAdaptation() const;

@@ -123,6 +123,16 @@ const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const
   return frameId_;
 }
 
+void Footstep::setProfileHeight(const double profileHeight)
+{
+  profileHeight_ = profileHeight;
+}
+
+double Footstep::getProfileHeight() const
+{
+  return profileHeight_;
+}
+
 bool Footstep::isIgnoreContact() const
 {
   return ignoreContact_;
