@@ -419,6 +419,14 @@ bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message
       stepMessage.footstep.push_back(message);
     }
 
+    // EndEffectorTajectory
+    if (legMotion.second->getType() == LegMotionBase::Type::EndEffectorTrajectory) {
+      const EndEffectorTrajectory& endEffectorTrajectory = dynamic_cast<const EndEffectorTrajectory&>(*(legMotion.second));
+      free_gait_msgs::EndEffectorTrajectory message;
+      if (!toMessage(endEffectorTrajectory, message)) return false;
+      stepMessage.end_effector_trajectory.push_back(message);
+    }
+
   }
 
   // Base motion.
@@ -467,6 +475,43 @@ bool StepRosConverter::toMessage(const Footstep& footstep, free_gait_msgs::Foots
 
   return true;
 }
+
+bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTrajectory, free_gait_msgs::EndEffectorTrajectory& message)
+{
+  // Limb.
+  message.name = adapter_->getLimbStringFromLimbEnum(endEffectorTrajectory.limb_);
+
+  //Trajectory
+  message.trajectory.header.frame_id = endEffectorTrajectory.frameIds_.at(ControlLevel::Position);
+
+  message.trajectory.points.resize(endEffectorTrajectory.times_.size());
+  for (int i = 0; i < endEffectorTrajectory.times_.size(); i++) {
+    message.trajectory.points[i].time_from_start = ros::Duration(endEffectorTrajectory.times_[i]);
+  }
+  
+  if(endEffectorTrajectory.controlSetup_.at(ControlLevel::Position)){
+    for(int i = 0; i < endEffectorTrajectory.values_.at(ControlLevel::Position).size(); i++){
+      message.trajectory.points[i].transforms.resize(1);
+      message.trajectory.points[i].transforms[0].translation.x = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][0];
+      message.trajectory.points[i].transforms[0].translation.y = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][1];
+      message.trajectory.points[i].transforms[0].translation.z = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][2];
+    }
+  }
+
+  // Surface normal.
+  if (endEffectorTrajectory.surfaceNormal_) {
+    kindr_ros::convertToRosGeometryMsg(*(endEffectorTrajectory.surfaceNormal_), message.surface_normal.vector);
+  }
+
+  // Ignore contact.
+  message.ignore_contact = endEffectorTrajectory.ignoreContact_;
+
+  // Ignore for pose adaptation.
+  message.ignore_for_pose_adaptation = endEffectorTrajectory.ignoreForPoseAdaptation_;
+
+  return true;
+}
+
 
 bool StepRosConverter::toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message)
 {
