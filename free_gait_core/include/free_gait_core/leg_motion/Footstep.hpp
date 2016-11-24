@@ -64,10 +64,8 @@ class Footstep : public EndEffectorMotionBase
    */
   double getDuration() const;
 
-  void setTargetPosition(const Position target);
+  void setTargetPosition(const std::string& frameId, const Position& target);
   const Position getTargetPosition() const;
-
-  void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   void setProfileHeight(const double profileHeight);

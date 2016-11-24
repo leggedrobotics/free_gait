@@ -164,11 +164,6 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
   // Trajectory.
   endEffectorTrajectory.frameIds_[ControlLevel::Position] = message.trajectory.header.frame_id;
 
-  endEffectorTrajectory.controlSetup_[ControlLevel::Position] = false;
-  endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = false;
-  endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
-  endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = false;
-
   for (const auto& point : message.trajectory.points) {
     if (!point.transforms.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Position] = true;
     if (!point.velocities.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = true;
@@ -251,7 +246,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& messag
   // Limb.
   jointTrajectory.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
 
-  // Trajectory.
+  // Trajectory. // TODO
   jointTrajectory.controlSetup_[ControlLevel::Position] = false;
   jointTrajectory.controlSetup_[ControlLevel::Velocity] = false;
   jointTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
@@ -348,6 +343,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTrajectory& message
 //    if (j == nJoints - 1) return false;  // Joint name not found.
 //  }
 
+  // TODO.
   baseTrajectory.controlSetup_[ControlLevel::Position] = false;
   baseTrajectory.controlSetup_[ControlLevel::Velocity] = false;
   baseTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
@@ -481,21 +477,21 @@ bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTraject
   // Limb.
   message.name = adapter_->getLimbStringFromLimbEnum(endEffectorTrajectory.limb_);
 
-  //Trajectory
+  // Trajectory.
   message.trajectory.header.frame_id = endEffectorTrajectory.frameIds_.at(ControlLevel::Position);
-
   message.trajectory.points.resize(endEffectorTrajectory.times_.size());
-  for (int i = 0; i < endEffectorTrajectory.times_.size(); i++) {
-    message.trajectory.points[i].time_from_start = ros::Duration(endEffectorTrajectory.times_[i]);
-  }
-  
-  if(endEffectorTrajectory.controlSetup_.at(ControlLevel::Position)){
-    for(int i = 0; i < endEffectorTrajectory.values_.at(ControlLevel::Position).size(); i++){
-      message.trajectory.points[i].transforms.resize(1);
-      message.trajectory.points[i].transforms[0].translation.x = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][0];
-      message.trajectory.points[i].transforms[0].translation.y = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][1];
-      message.trajectory.points[i].transforms[0].translation.z = endEffectorTrajectory.values_.at(ControlLevel::Position)[i][2];
+  size_t i = 0;
+  for (auto& point : message.trajectory.points) {
+    point.time_from_start = ros::Duration(endEffectorTrajectory.times_[i]);
+
+    if (endEffectorTrajectory.controlSetup_.at(ControlLevel::Position)) {
+      geometry_msgs::Transform transform;
+      Position position(endEffectorTrajectory.values_.at(ControlLevel::Position)[i]);
+      kindr_ros::convertToRosGeometryMsg(position, transform.translation);
+      point.transforms.push_back(transform);
     }
+
+    ++i;
   }
 
   // Surface normal.
@@ -512,12 +508,9 @@ bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTraject
   return true;
 }
 
-
 bool StepRosConverter::toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message)
 {
-  if (baseAuto.height_) {
-    message.height = *(baseAuto.height_);
-  }
+  if (baseAuto.height_) message.height = *(baseAuto.height_);
   message.ignore_timing_of_leg_motion = baseAuto.ignoreTimingOfLegMotion_;
   message.average_linear_velocity = baseAuto.averageLinearVelocity_;
   message.average_angular_velocity = baseAuto.averageAngularVelocity_;

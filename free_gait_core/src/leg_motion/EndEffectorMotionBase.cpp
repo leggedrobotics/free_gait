@@ -63,20 +63,9 @@ const Force EndEffectorMotionBase::evaluateForce(const double time) const
   throw std::runtime_error("EndEffectorMotionBase::evaluateForce() not implemented.");
 }
 
-void EndEffectorMotionBase::setTargetPosition(const Position& target)
-{
-  throw std::runtime_error("EndEffectorMotionBase::setTargetPosition() not implemented.");
-}
-
 const Position EndEffectorMotionBase::getTargetPosition() const
 {
   throw std::runtime_error("EndEffectorMotionBase::getTargetPosition() not implemented.");
-}
-
-void EndEffectorMotionBase::setFrameId(const ControlLevel& controlLevel,
-                                                  const std::string& frameId)
-{
-  throw std::runtime_error("EndEffectorMotionBase::setFrameId() not implemented.");
 }
 
 const std::string& EndEffectorMotionBase::getFrameId(const ControlLevel& controlLevel) const

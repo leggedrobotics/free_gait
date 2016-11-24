@@ -38,6 +38,23 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   std::unique_ptr<LegMotionBase> clone() const;
 
   /*!
+   * Set the entire trajectory at once.
+   * Note: Make sure to define a consistent trajectory with same control
+   * level definitions and same number of time/value pairs.
+   * Note: Alternatively, the `setFrameId(...)` and `addPositionTrajectoryPoint(...)`
+   * etc. methods can be used to add trajectory points individually.
+   * @param frameIds the frame Ids for each used control level.
+   * @param times the time vector.
+   * @param values the value vector associated with the time vector.
+   */
+  void setTrajectory(
+      const std::unordered_map<ControlLevel, std::string, EnumClassHash>& frameIds,
+      const std::vector<Time>& times,
+      const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash>& values);
+  void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
+  bool addPositionTrajectoryPoint(const Time& time, const Position& position);
+
+  /*!
    * Update the trajectory with the foot start position.
    * Do this to avoid jumps of the swing leg.
    * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
@@ -58,9 +75,6 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
    */
   const Position evaluatePosition(const double time) const;
 
-  void addTime(Time time);
-
-  void addValue(const ControlLevel& controlLevel, const ValueType value);
   /*!
    * Returns the total duration of the trajectory.
    * @return the duration.
@@ -73,7 +87,6 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
    */
   const Position getTargetPosition() const;
 
-  void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   void setIgnoreContact(bool ignoreContact);
@@ -86,11 +99,6 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   friend class StepRosConverter;
 
  private:
-  void generateStraightKnots(std::vector<ValueType>& values) const;
-  void generateTriangleKnots(std::vector<ValueType>& values) const;
-  void generateSquareKnots(std::vector<ValueType>& values) const;
-  void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
-
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
 

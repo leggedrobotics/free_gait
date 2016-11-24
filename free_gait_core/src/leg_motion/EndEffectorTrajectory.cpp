@@ -23,7 +23,7 @@ EndEffectorTrajectory::EndEffectorTrajectory(LimbEnum limb)
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       isComputed_(false),
-      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+      controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
@@ -36,6 +36,30 @@ std::unique_ptr<LegMotionBase> EndEffectorTrajectory::clone() const
 {
   std::unique_ptr<LegMotionBase> pointer(new EndEffectorTrajectory(*this));
   return pointer;
+}
+
+void EndEffectorTrajectory::setTrajectory(
+    const std::unordered_map<ControlLevel, std::string, EnumClassHash>& frameIds,
+    const std::vector<Time>& times,
+    const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash>& values)
+{
+  frameIds_ = frameIds;
+  times_ = times;
+  values_ = values;
+  for (const auto& value : values) controlSetup_[value.first] = true;
+}
+
+void EndEffectorTrajectory::setFrameId(const ControlLevel& controlLevel, const std::string& frameId)
+{
+  frameIds_[controlLevel] = frameId;
+}
+
+bool EndEffectorTrajectory::addPositionTrajectoryPoint(const Time& time, const Position& position)
+{
+  controlSetup_[ControlLevel::Position] = true;
+  times_.push_back(time);
+  values_[ControlLevel::Position].push_back(position.vector());
+  return true;
 }
 
 const ControlSetup EndEffectorTrajectory::getControlSetup() const
@@ -80,16 +104,6 @@ const Position EndEffectorTrajectory::evaluatePosition(const double time) const
   return position;
 }
 
-void EndEffectorTrajectory::addTime(Time time)
-{
-  times_.push_back(time);
-}
-
-void EndEffectorTrajectory::addValue(const ControlLevel& controlLevel, const ValueType value)
-{
-  values_[controlLevel].push_back(value);
-}
-
 double EndEffectorTrajectory::getDuration() const
 {
   return trajectory_.getMaxTime() - trajectory_.getMinTime();
@@ -98,12 +112,6 @@ double EndEffectorTrajectory::getDuration() const
 const Position EndEffectorTrajectory::getTargetPosition() const
 {
   return Position(values_.at(ControlLevel::Position).back());
-}
-
-void EndEffectorTrajectory::setFrameId(const ControlLevel& controlLevel, const std::string& frameId)
-{
-  if (controlLevel != ControlLevel::Position) throw std::runtime_error("EndEffectorTrajectory::setFrameId() is only valid for position.");
-  frameIds_[controlLevel] = frameId;
 }
 
 const std::string& EndEffectorTrajectory::getFrameId(const ControlLevel& controlLevel) const
