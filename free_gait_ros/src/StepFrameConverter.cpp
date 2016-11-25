@@ -70,10 +70,8 @@ bool StepFrameConverter::adaptCoordinates(Footstep& footstep, const std::string&
   Transform transform;
   if (footstep.getFrameId(ControlLevel::Position) == sourceFrameId) {
     if (!getTransform(sourceFrameId, targetFrameId, transformInTargetFrame, time, transform)) return false;
-    std::cout << "BEFORE" << footstep.target_ << std::endl;
     footstep.target_ = transform.transform(footstep.target_);
-//    footstep.setFrameId(ControlLevel::Position, targetFrameId); // TODO
-    std::cout << "AFTER" << footstep.target_ << std::endl;
+    footstep.frameId_ = targetFrameId;
   }
 
   return true;
