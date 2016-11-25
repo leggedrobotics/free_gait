@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_core
   loco
   robot_utils
+  message_logger
 )
 
 ## System dependencies are found with CMake's conventions
@@ -37,6 +38,7 @@ catkin_package(
       grid_map_core
       loco
       robot_utils
+      message_logger
     DEPENDS
       Eigen3
 )

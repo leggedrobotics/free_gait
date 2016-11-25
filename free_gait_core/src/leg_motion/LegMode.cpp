@@ -9,9 +9,6 @@
 #include <free_gait_core/leg_motion/LegMode.hpp>
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
-// Roco
-#include <roco/log/log_messages.hpp>
-
 namespace free_gait {
 
 LegMode::LegMode(LimbEnum limb)
@@ -105,4 +102,3 @@ std::ostream& operator<<(std::ostream& out, const LegMode& legMode)
 }
 
 } /* namespace */
-

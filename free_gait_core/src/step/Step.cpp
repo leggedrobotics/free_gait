@@ -9,9 +9,6 @@
 #include "free_gait_core/base_motion/base_motion.hpp"
 #include "free_gait_core/TypeDefs.hpp"
 
-// Roco
-#include <roco/log/log_messages.hpp>
-
 namespace free_gait {
 
 inline void boundToRange(double* v, double min, double max){

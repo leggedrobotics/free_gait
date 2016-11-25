@@ -12,7 +12,6 @@
 
 // TODO Move.
 #include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
-#include "roco/log/log_messages.hpp"
 
 #include <math.h>
 
@@ -404,4 +403,3 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
 }
 
 } /* namespace */
-

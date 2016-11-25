@@ -12,9 +12,6 @@
 // Robot utils
 #include <robot_utils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
 
-// Roco
-#include <roco/log/log_messages.hpp>
-
 namespace free_gait {
 
 EndEffectorTarget::EndEffectorTarget(LimbEnum limb)

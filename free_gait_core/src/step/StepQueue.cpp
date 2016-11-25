@@ -11,9 +11,6 @@
 // STD
 #include <stdexcept>
 
-// Roco
-#include <roco/log/log_messages.hpp>
-
 namespace free_gait {
 
 StepQueue::StepQueue()
