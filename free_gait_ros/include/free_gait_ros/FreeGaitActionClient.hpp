@@ -21,6 +21,7 @@ public:
 	};
 
 	FreeGaitActionClient(ros::NodeHandle& nodeHandle, const std::string& name);
+	FreeGaitActionClient(ros::NodeHandle& nodeHandle);
 	virtual ~FreeGaitActionClient() {};
 
   void sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal);
@@ -39,7 +40,7 @@ private:
 	void doneCallback_(const actionlib::SimpleClientGoalState& state, const free_gait_msgs::ExecuteStepsResultConstPtr& result);
 
 	ros::NodeHandle& nodeHandle_;
-	actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction> client_;
+	std::unique_ptr<actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>> client_;
 	ActionState state_;
 	free_gait_msgs::ExecuteStepsResult result_;
 };

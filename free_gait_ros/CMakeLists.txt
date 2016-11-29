@@ -60,6 +60,7 @@ add_library(${PROJECT_NAME}
    src/StepFrameConverter.cpp
    src/FreeGaitActionServer.cpp
    src/FreeGaitActionClient.cpp
+   src/AdapterRosInitializerBase.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

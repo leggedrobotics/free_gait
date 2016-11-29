@@ -11,25 +11,37 @@ namespace free_gait {
 
 FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle,
                                            const std::string& name)
-    : nodeHandle_(nodeHandle),
-      client_(nodeHandle, name)
+    : nodeHandle_(nodeHandle)
 {
+  client_.reset(new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(nodeHandle, name));
   state_ = ActionState::DONE;
+}
+
+FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle)
+    : nodeHandle_(nodeHandle)
+{
+  std::string actionServer;
+  if (nodeHandle.hasParam("free_gait/action_server")) {
+    nodeHandle.getParam("free_gait/action_server", actionServer);
+  } else {
+    throw std::runtime_error("Did not find ROS parameter for Free Gait Action Server 'free_gait/action_server'.");
+  }
+  FreeGaitActionClient(nodeHandle, actionServer);
 }
 
 void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal)
 {
   state_ = ActionState::PENDING;
-  client_.cancelAllGoals();
-  client_.waitForServer();
-  client_.sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
-                   boost::bind(&FreeGaitActionClient::activeCallback_, this),
-                   boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
+  client_->cancelAllGoals();
+  client_->waitForServer();
+  client_->sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
+                    boost::bind(&FreeGaitActionClient::activeCallback_, this),
+                    boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
 }
 
 void FreeGaitActionClient::waitForResult(double timeout)
 {
-  client_.waitForResult(ros::Duration(timeout));
+  client_->waitForResult(ros::Duration(timeout));
 }
 
 const free_gait_msgs::ExecuteStepsResult& FreeGaitActionClient::getResult()
