@@ -82,6 +82,7 @@ add_library(${PROJECT_NAME}
    src/executor/Executor.cpp
    src/executor/State.cpp
    src/executor/AdapterBase.cpp
+   src/preview/Preview.cpp
    src/pose_optimization/PoseOptimization3d.cpp
 )
 
