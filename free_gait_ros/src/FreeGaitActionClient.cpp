@@ -11,22 +11,28 @@ namespace free_gait {
 
 FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle,
                                            const std::string& name)
-    : nodeHandle_(nodeHandle)
+    : nodeHandle_(nodeHandle),
+      adapterRos_(nodeHandle)
 {
-  client_.reset(new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(nodeHandle, name));
-  state_ = ActionState::DONE;
-}
-
-FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle)
-    : nodeHandle_(nodeHandle)
-{
-  std::string actionServer;
-  if (nodeHandle.hasParam("free_gait/action_server")) {
-    nodeHandle.getParam("free_gait/action_server", actionServer);
-  } else {
-    throw std::runtime_error("Did not find ROS parameter for Free Gait Action Server 'free_gait/action_server'.");
+  // Get action server topic.
+  std::string actionServerTopic = name;
+  if (actionServerTopic.empty()) {
+    if (nodeHandle.hasParam("/free_gait/action_server")) {
+      nodeHandle.getParam("/free_gait/action_server", actionServerTopic);
+    } else {
+      throw std::runtime_error("Did not find ROS parameter for Free Gait Action Server '/free_gait/action_server'.");
+    }
   }
-  FreeGaitActionClient(nodeHandle, actionServer);
+
+  // Initialize action client.
+  client_.reset(new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(nodeHandle, actionServerTopic));
+  state_ = ActionState::DONE;
+
+  // Initialize converter tools.
+  rosConverter_.reset(new StepRosConverter(adapterRos_.getAdapter()));
+  tfBuffer_.reset(new tf2_ros::Buffer());
+  tfListener_.reset(new tf2_ros::TransformListener(*tfBuffer_));
+  frameConverter_.reset(new StepFrameConverter(tfBuffer_));
 }
 
 void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal)

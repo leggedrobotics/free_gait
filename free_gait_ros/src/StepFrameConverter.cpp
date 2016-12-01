@@ -93,6 +93,7 @@ bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
 
   geometry_msgs::TransformStamped transformStamped;
   try {
+    // TODO Not blocking?
     transformStamped = tfBuffer_->lookupTransform(targetFrameId, sourceFrameId, time, ros::Duration(10.0));
   } catch (tf2::TransformException &ex) {
     ROS_WARN("%s", ex.what());
