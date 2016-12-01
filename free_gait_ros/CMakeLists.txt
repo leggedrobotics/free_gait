@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   free_gait_msgs
   free_gait_core
   curves_ros
+  pluginlib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -31,6 +32,7 @@ catkin_package(
       free_gait_msgs
       free_gait_core
       curves_ros
+      pluginlib
     DEPENDS
       Eigen3
 )
@@ -60,6 +62,7 @@ add_library(${PROJECT_NAME}
    src/StepFrameConverter.cpp
    src/FreeGaitActionServer.cpp
    src/FreeGaitActionClient.cpp
+   src/AdapterRos.cpp
    src/AdapterRosInitializerBase.cpp
 )
 

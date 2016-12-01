@@ -12,4 +12,5 @@
   <depend>free_gait_msgs</depend>
   <depend>free_gait_core</depend>
   <depend>curves_ros</depend>
+  <depend>pluginlib</depend>
 </package>
