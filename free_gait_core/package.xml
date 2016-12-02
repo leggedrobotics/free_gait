@@ -15,4 +15,5 @@
   <depend>grid_map_core</depend>
   <depend>loco</depend>
   <depend>robot_utils</depend>
+  <depend>message_logger</depend>
 </package>
