@@ -8,33 +8,38 @@
 
 #pragma once
 
-#include <free_gait_ros/AdapterRosInitializerBase.hpp>
-
-// Free Gait
 #include <free_gait_core/executor/AdapterBase.hpp>
-
-// ROS
+#include <free_gait_ros/AdapterRosInterfaceBase.hpp>
 #include <ros/node_handle.h>
 #include <pluginlib/class_loader.h>
 
 // STD
 #include <memory>
+#include <string>
 
 namespace free_gait {
 
 class AdapterRos
 {
  public:
-  AdapterRos(const ros::NodeHandle& nodeHandle);
+  enum class AdapterType {
+    Base,
+    Preview
+  };
+
+  AdapterRos(const ros::NodeHandle& nodeHandle, const AdapterType type = AdapterType::Base);
   virtual ~AdapterRos();
+  bool subscribeToRobotState(const std::string& robotStateTopic = "");
+  bool updateAdapterWithState();
   std::shared_ptr<AdapterBase> getAdapter();
+
 
  private:
   ros::NodeHandle nodeHandle_;
   pluginlib::ClassLoader<AdapterBase> adapterLoader_;
   std::shared_ptr<AdapterBase> adapter_;
-  pluginlib::ClassLoader<AdapterRosInitializerBase> adapterRosInitializerLoader_;
-  std::shared_ptr<AdapterRosInitializerBase> adapterRosInitializer_;
+  pluginlib::ClassLoader<AdapterRosInterfaceBase> adapterRosInterfaceLoader_;
+  std::shared_ptr<AdapterRosInterfaceBase> adapterRosInterface_;
 };
 
 } /* namespace free_gait */

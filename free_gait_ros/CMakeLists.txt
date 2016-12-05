@@ -63,7 +63,7 @@ add_library(${PROJECT_NAME}
    src/FreeGaitActionServer.cpp
    src/FreeGaitActionClient.cpp
    src/AdapterRos.cpp
-   src/AdapterRosInitializerBase.cpp
+   src/AdapterRosInterfaceBase.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
