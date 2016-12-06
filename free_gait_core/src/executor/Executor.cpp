@@ -165,13 +165,8 @@ bool Executor::resetStateWithRobot()
   state_->setAllJointEfforts(adapter_->getAllJointEfforts());
   state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
   state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
-
-  for (const auto& limb : adapter_->getLimbs()) {
-    state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
-    state_->setIgnoreContact(limb, !adapter_->isLegGrounded(limb));
-  }
-
   state_->setRobotExecutionStatus(true);
+
   return true;
 }
 
