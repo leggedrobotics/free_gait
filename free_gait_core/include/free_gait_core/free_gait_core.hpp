@@ -13,5 +13,4 @@
 #include "free_gait_core/step/step.hpp"
 #include "free_gait_core/base_motion/base_motion.hpp"
 #include "free_gait_core/leg_motion/leg_motion.hpp"
-#include "free_gait_core/preview/preview.hpp"
 #include "free_gait_core/pose_optimization/pose_optimization.hpp"
