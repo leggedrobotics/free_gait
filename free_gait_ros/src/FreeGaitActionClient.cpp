@@ -12,24 +12,42 @@ namespace free_gait {
 FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle,
                                            const std::string& name)
     : nodeHandle_(nodeHandle),
-      client_(nodeHandle, name)
+      adapterRos_(nodeHandle)
 {
+  // Get action server topic.
+  std::string actionServerTopic = name;
+  if (actionServerTopic.empty()) {
+    if (nodeHandle.hasParam("/free_gait/action_server")) {
+      nodeHandle.getParam("/free_gait/action_server", actionServerTopic);
+    } else {
+      throw std::runtime_error("Did not find ROS parameter for Free Gait Action Server '/free_gait/action_server'.");
+    }
+  }
+
+  // Initialize action client.
+  client_.reset(new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(nodeHandle, actionServerTopic));
   state_ = ActionState::DONE;
+
+  // Initialize converter tools.
+  rosConverter_.reset(new StepRosConverter(adapterRos_.getAdapter()));
+  tfBuffer_.reset(new tf2_ros::Buffer());
+  tfListener_.reset(new tf2_ros::TransformListener(*tfBuffer_));
+  frameConverter_.reset(new StepFrameConverter(tfBuffer_));
 }
 
 void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal)
 {
   state_ = ActionState::PENDING;
-  client_.cancelAllGoals();
-  client_.waitForServer();
-  client_.sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
-                   boost::bind(&FreeGaitActionClient::activeCallback_, this),
-                   boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
+  client_->cancelAllGoals();
+  client_->waitForServer();
+  client_->sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback_, this, _1, _2),
+                    boost::bind(&FreeGaitActionClient::activeCallback_, this),
+                    boost::bind(&FreeGaitActionClient::feedbackCallback_, this, _1));
 }
 
 void FreeGaitActionClient::waitForResult(double timeout)
 {
-  client_.waitForResult(ros::Duration(timeout));
+  client_->waitForResult(ros::Duration(timeout));
 }
 
 const free_gait_msgs::ExecuteStepsResult& FreeGaitActionClient::getResult()

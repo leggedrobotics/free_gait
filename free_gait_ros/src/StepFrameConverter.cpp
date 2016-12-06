@@ -91,11 +91,15 @@ bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
     return true;
   }
 
+  // Adding this leads to blocking `lookupTransform`. Why?
+  std::string errorMessage;
+  tfBuffer_->canTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0), &errorMessage);
   geometry_msgs::TransformStamped transformStamped;
   try {
-    transformStamped = tfBuffer_->lookupTransform(targetFrameId, sourceFrameId, time, ros::Duration(10.0));
+    // TODO Why is `lookupTransform` not blocking here?
+    transformStamped = tfBuffer_->lookupTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0));
   } catch (tf2::TransformException &ex) {
-    ROS_WARN("%s", ex.what());
+    ROS_ERROR("%s", ex.what());
     return false;
   }
 

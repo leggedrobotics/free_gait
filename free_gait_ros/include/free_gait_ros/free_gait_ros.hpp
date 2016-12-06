@@ -8,11 +8,9 @@
 
 #pragma once
 
-#include "free_gait_ros/StepRosConverter.hpp"
-//#include <free_gait_ros/SwingFootTrajectoryRosWrapper.hpp>
+#include <free_gait_ros/AdapterRosInterfaceBase.hpp>
 #include "free_gait_ros/FreeGaitActionServer.hpp"
-//#include "free_gait_ros/SwingDataRosWrapper.hpp"
-//#include "free_gait_ros/SwingProfileRosWrapper.hpp"
-//#include "free_gait_ros/BaseShiftDataRosWrapper.hpp"
-//#include "free_gait_ros/BaseShiftSplineTrajectoryRosWrapper.hpp"
-//#include "free_gait_ros/BaseShiftProfileRosWrapper.hpp"
+#include "free_gait_ros/FreeGaitActionClient.hpp"
+#include "free_gait_ros/StepRosConverter.hpp"
+#include "free_gait_ros/StepFrameConverter.hpp"
+

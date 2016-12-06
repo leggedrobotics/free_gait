@@ -1,0 +1,78 @@
+/*
+ * AdapterRos.cpp
+ *
+ *  Created on: Dec 1, 2016
+ *      Author: Péter Fankhauser
+ *   Institute: ETH Zurich, Robotic Systems Lab
+ */
+
+#include "free_gait_ros/AdapterRos.hpp"
+
+namespace free_gait {
+
+AdapterRos::AdapterRos(const ros::NodeHandle& nodeHandle, const AdapterType type)
+    : nodeHandle_(nodeHandle),
+      adapterLoader_("free_gait_core", "free_gait::AdapterBase"),
+      adapterRosInterfaceLoader_("free_gait_ros", "free_gait::AdapterRosInterfaceBase")
+{
+  // Load and initialize adapter.
+  std::string adapterParameterName;
+  if (type == AdapterType::Base) {
+    adapterParameterName = "/free_gait/adapter_plugin/base";
+  } else if (type == AdapterType::Preview){
+    adapterParameterName = "/free_gait/adapter_plugin/preview";
+  }
+  std::string adapterPluginName;
+  nodeHandle.getParam(adapterParameterName, adapterPluginName);
+  try {
+    adapter_.reset(adapterLoader_.createUnmanagedInstance(adapterPluginName));
+  } catch (pluginlib::PluginlibException& ex) {
+    ROS_ERROR("The Free Gait adapter plugin failed to load. Error: %s", ex.what());
+    return;
+  }
+
+  std::string adapterRosInterfacePluginName;
+  nodeHandle.getParam("/free_gait/adapter_ros_interface_plugin", adapterRosInterfacePluginName);
+  try {
+    adapterRosInterface_.reset(adapterRosInterfaceLoader_.createUnmanagedInstance(adapterRosInterfacePluginName));
+  } catch (pluginlib::PluginlibException& ex) {
+    ROS_ERROR("The Free Gait adapter ROS initializer plugin failed to load. Error: %s", ex.what());
+    return;
+  }
+
+  adapterRosInterface_->setNodeHandle(nodeHandle_);
+  adapterRosInterface_->initializeAdapter(*adapter_);
+}
+
+AdapterRos::~AdapterRos()
+{
+}
+
+bool AdapterRos::subscribeToRobotState(const std::string& robotStateTopic)
+{
+  // Get topic name parameter.
+  std::string topic(robotStateTopic);
+  if (topic.empty()) {
+    if (nodeHandle_.hasParam("/free_gait/robot_state")) {
+      nodeHandle_.getParam("/free_gait/robot_state", topic);
+    } else {
+      ROS_ERROR("Did not find ROS parameter for robot state topic '/free_gait/robot_state'.");
+      return false;
+    }
+  }
+
+  // Subscribe.
+  return adapterRosInterface_->subscribeToRobotState(topic);
+}
+
+bool AdapterRos::updateAdapterWithState()
+{
+  return adapterRosInterface_->updateAdapterWithRobotState(*adapter_);
+}
+
+std::shared_ptr<AdapterBase> AdapterRos::getAdapter()
+{
+  return adapter_;
+}
+
+} /* namespace free_gait */
