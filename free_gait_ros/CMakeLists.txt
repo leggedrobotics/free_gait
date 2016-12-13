@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   free_gait_core
   curves_ros
   pluginlib
+  robot_state_publisher
+  kdl_parser
 )
 
 ## System dependencies are found with CMake's conventions
@@ -33,6 +35,8 @@ catkin_package(
       free_gait_core
       curves_ros
       pluginlib
+      robot_state_publisher
+      kdl_parser
     DEPENDS
       Eigen3
 )
@@ -64,6 +68,7 @@ add_library(${PROJECT_NAME}
    src/FreeGaitActionClient.cpp
    src/AdapterRos.cpp
    src/AdapterRosInterfaceBase.cpp
+   src/StateRosPublisher.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

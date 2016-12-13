@@ -13,4 +13,6 @@
   <depend>free_gait_core</depend>
   <depend>curves_ros</depend>
   <depend>pluginlib</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>kdl_parser</depend>
 </package>

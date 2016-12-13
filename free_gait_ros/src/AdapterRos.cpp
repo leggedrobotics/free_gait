@@ -41,6 +41,7 @@ AdapterRos::AdapterRos(const ros::NodeHandle& nodeHandle, const AdapterType type
   }
 
   adapterRosInterface_->setNodeHandle(nodeHandle_);
+  adapterRosInterface_->readRobotDescription();
   adapterRosInterface_->initializeAdapter(*adapter_);
 }
 

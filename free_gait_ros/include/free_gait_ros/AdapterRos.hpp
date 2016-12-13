@@ -33,7 +33,6 @@ class AdapterRos
   bool updateAdapterWithState();
   std::shared_ptr<AdapterBase> getAdapter();
 
-
  private:
   ros::NodeHandle nodeHandle_;
   pluginlib::ClassLoader<AdapterBase> adapterLoader_;
