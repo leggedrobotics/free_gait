@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS
     include
+    src
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
@@ -25,6 +26,7 @@ catkin_package(
 
 include_directories(
 	include
+    src
 	${catkin_INCLUDE_DIRS}
 )
 
@@ -64,12 +66,16 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## The generated MOC files are included automatically as headers.
 set(SOURCE_FILES
   src/FreeGaitPreviewDisplay.cpp
-  src/properties/buttonProperty.cpp
 )
 
 ## An rviz plugin is just a shared library, so here we declare the
 ## library to be called ${PROJECT_NAME} and specify the list of
 ## source files we collected above in ${SOURCE_FILES}.
+
+add_library(rviz_free_gait_additions
+  src/rviz/properties/button_property.cpp
+)
+
 add_library(${PROJECT_NAME}
 	${SOURCE_FILES}
 	${MOC_FILES}
@@ -79,9 +85,22 @@ add_library(${PROJECT_NAME}
 ## the find_package(Qt4 ...) line above, or by the
 ## set(QT_LIBRARIES Qt5::Widgets), and with whatever libraries
 ## catkin has included.
+
+target_link_libraries(rviz_free_gait_additions
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${QT_LIBRARIES}
+  ${OGRE_OV_LIBRARIES_ABS}
+  ${OPENGL_LIBRARIES}
+  ${rviz_ADDITIONAL_LIBRARIES}
+  ${X11_X11_LIB}
+  assimp
+)
+
 target_link_libraries(${PROJECT_NAME}
 	${QT_LIBRARIES}
 	${catkin_LIBRARIES}
+	rviz_free_gait_additions
 )
 
 ## Install rules

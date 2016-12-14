@@ -9,7 +9,6 @@
 #pragma once
 
 #ifndef Q_MOC_RUN
-//#include "free_gait_rviz_plugin/properties/buttonProperty.hpp"
 #include <boost/circular_buffer.hpp>
 #include <rviz/message_filter_display.h>
 #include <free_gait_msgs/ExecuteStepsActionGoal.h>
@@ -28,6 +27,7 @@ class FloatProperty;
 class IntProperty;
 class EnumProperty;
 class EditableEnumProperty;
+class ButtonProperty;
 }
 
 namespace free_gait_rviz_plugin {
@@ -70,7 +70,7 @@ Q_OBJECT
   boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
 
   // Property variables
-//  rviz::ButtonProperty* playButtonProperty_;
+  rviz::ButtonProperty* playButtonProperty_;
   rviz::FloatProperty* alphaProperty_;
   rviz::IntProperty* historyLengthProperty_;
   rviz::BoolProperty* showGridLinesProperty_;

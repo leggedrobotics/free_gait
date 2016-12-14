@@ -1,8 +1,6 @@
-#include "free_gait_rviz_plugin/properties/buttonProperty.hpp"
+#include "rviz/properties/button_property.h"
 
-//#include <QColor>
-
-namespace free_gait_rviz_plugin {
+namespace rviz {
 
 ButtonProperty::ButtonProperty(const QString& name, bool default_value, const QString& description,
                                Property* parent, const char *changed_slot, QObject* receiver)

@@ -22,6 +22,7 @@
 #include <rviz/properties/int_property.h>
 #include <rviz/properties/enum_property.h>
 #include <rviz/properties/editable_enum_property.h>
+#include <rviz/properties/button_property.h>
 
 namespace free_gait_rviz_plugin {
 
@@ -31,8 +32,8 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
 {
   playbackThread_ = std::thread(std::bind(&FreeGaitPreviewDisplay::runPlayback, this));
 
-//  playButtonProperty_ = new rviz::ButtonProperty("Play back", true, "Play back the motion.", this,
-//                                                 SLOT(updateVisualization()));
+  playButtonProperty_ = new rviz::ButtonProperty("Play back", true, "Play back the motion.", this,
+                                                 SLOT(updateVisualization()));
 
   alphaProperty_ = new rviz::FloatProperty("Alpha", 1.0,
                                            "0 is fully transparent, 1.0 is fully opaque.", this,

@@ -2,7 +2,7 @@
 
 #include "rviz/properties/property.h"
 
-namespace free_gait_rviz_plugin {
+namespace rviz {
 
 class ButtonProperty : public rviz::Property
 {
