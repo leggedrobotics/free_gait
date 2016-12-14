@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include <free_gait_ros/AdapterRosInterfaceBase.hpp>
+#include "free_gait_ros/message_traits.hpp"
+#include "free_gait_ros/AdapterRosInterfaceBase.hpp"
 #include "free_gait_ros/FreeGaitActionServer.hpp"
 #include "free_gait_ros/FreeGaitActionClient.hpp"
 #include "free_gait_ros/StepRosConverter.hpp"

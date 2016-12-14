@@ -1,0 +1,8 @@
+<library path="lib/libfree_gait_rviz_plugin">
+  <class name="free_gait_rviz_plugin/FreeGaitPreview"
+         type="free_gait_rviz_plugin::FreeGaitPreviewDisplay"
+         base_class_type="rviz::Display">
+    <description>Display to preview Free Gait actions.</description>
+    <message_type>free_gait_msgs/ExecuteStepsActionGoal</message_type>
+  </class>
+</library>
