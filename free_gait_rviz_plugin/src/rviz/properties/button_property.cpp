@@ -1,39 +1,64 @@
 #include "rviz/properties/button_property.h"
 
-namespace rviz {
+#include <QPainter>
+#include <QSlider>
+#include <QStringList>
+#include <QStyleOptionViewItem>
 
-ButtonProperty::ButtonProperty(const QString& name, bool default_value, const QString& description,
-                               Property* parent, const char *changed_slot, QObject* receiver)
+#include "rviz/properties/parse_color.h"
+#include "rviz/properties/color_property.h"
+#include "rviz/properties/color_editor.h"
+
+namespace rviz
+{
+
+ButtonProperty::ButtonProperty(const QString& name, const QString& default_value,
+                               const QString& description, Property* parent,
+                               const char *changed_slot, QObject* receiver)
     : Property(name, default_value, description, parent, changed_slot, receiver),
-      disable_children_if_false_(false)
+      label_(default_value)
 {
+  setShouldBeSaved(false);
 }
 
-ButtonProperty::~ButtonProperty()
+void ButtonProperty::setLabel(const std::string& label)
 {
+  label_ = QString::fromStdString(label);
 }
 
-bool ButtonProperty::getBool() const
+QVariant ButtonProperty::getViewData( int column, int role ) const
 {
-  return getValue().toBool();
-}
-
-void ButtonProperty::setDisableChildrenIfFalse(bool disable)
-{
-  disable_children_if_false_ = disable;
-}
-
-bool ButtonProperty::getDisableChildrenIfFalse()
-{
-  return disable_children_if_false_;
-}
-
-bool ButtonProperty::getDisableChildren()
-{
-  if (disable_children_if_false_) {
-    return !getBool() || Property::getDisableChildren();
+  if (column == 1) {
+    switch (role) {
+      case Qt::DisplayRole:
+        return label_;
+      case Qt::EditRole:
+      case Qt::CheckStateRole:
+        return QVariant();
+      default:
+        return Property::getViewData(column, role);
+    }
   }
-  return Property::getDisableChildren();
+  return Property::getViewData(column, role);
 }
 
-}  // end namespace
+Qt::ItemFlags ButtonProperty::getViewFlags( int column ) const
+{
+  Qt::ItemFlags enabled_flag = ( getParent() && getParent()->getDisableChildren() ) ? Qt::NoItemFlags : Qt::ItemIsEnabled;
+  if (column == 0) return Property::getViewFlags(column);
+  return Qt::ItemIsEditable | enabled_flag | Qt::ItemIsSelectable;
+}
+
+QWidget* ButtonProperty::createEditor(QWidget* parent, const QStyleOptionViewItem& option)
+{
+  QPushButton* button = new QPushButton(label_, parent);
+  connect(button, SIGNAL(released()), this, SLOT(buttonReleased()));
+  return button;
+}
+
+void ButtonProperty::buttonReleased()
+{
+  Q_EMIT changed();
+}
+
+} // end namespace rviz

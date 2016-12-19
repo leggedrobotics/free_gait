@@ -1,34 +1,32 @@
 #pragma once
 
+#include <QString>
+#include <QPushButton>
 #include "rviz/properties/property.h"
+#include <string>
 
-namespace rviz {
+namespace rviz
+{
 
-class ButtonProperty : public rviz::Property
+class ButtonProperty: public Property
 {
 Q_OBJECT
- public:
-  ButtonProperty(const QString& name = QString(), bool default_value = false,
+public:
+ButtonProperty(const QString& name = QString(), const QString& default_value = QString(),
                  const QString& description = QString(), Property* parent = 0,
-                 const char *changed_slot = 0, QObject* receiver = 0);
+                 const char* changed_slot = 0, QObject* receiver = 0);
 
-  virtual ~ButtonProperty();
-
-  virtual bool getBool() const;
-
-  //* If this is true, will disable it's children when it's own bool value is false */
-  void setDisableChildrenIfFalse(bool disable);
-
-  bool getDisableChildrenIfFalse();
-
-  //* Overridden from Property */
-  virtual bool getDisableChildren();
+  void setLabel(const std::string& label);
+  QVariant getViewData( int column, int role ) const;
+  Qt::ItemFlags getViewFlags( int column ) const;
+  virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option);
 
 public Q_SLOTS:
-  bool setBool( bool value ) { return setValue( value ); }
+  void buttonReleased();
 
- private:
-  bool disable_children_if_false_;
+private:
+  QString label_;
 };
 
-}  // end namespace
+} // end namespace rviz
+
