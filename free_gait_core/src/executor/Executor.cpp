@@ -7,7 +7,6 @@
  */
 
 #include "free_gait_core/executor/Executor.hpp"
-#include "free_gait_core/leg_motion/JointTrajectory.hpp"
 
 namespace free_gait {
 

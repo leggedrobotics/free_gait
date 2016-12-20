@@ -27,9 +27,21 @@ StepQueue::~StepQueue()
 
 StepQueue::StepQueue(const StepQueue& other)
     : queue_(other.queue_),
-      active_(other.active_)
+      active_(other.active_),
+      hasSwitchedStep_(other.hasSwitchedStep_),
+      hasStartedStep_(other.hasStartedStep_)
 {
   if (other.previousStep_) previousStep_ = std::move(other.previousStep_->clone());
+}
+
+StepQueue& StepQueue::operator=(const StepQueue& other)
+{
+  queue_ = other.queue_;
+  if (other.previousStep_) previousStep_ = std::move(other.previousStep_->clone());
+  active_ = other.active_;
+  hasSwitchedStep_ = other.hasSwitchedStep_;
+  hasStartedStep_ = other.hasStartedStep_;
+  return *this;
 }
 
 void StepQueue::add(const Step& step)
