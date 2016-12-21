@@ -18,7 +18,7 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
                                                  std::shared_ptr<free_gait::AdapterBase> adapter)
     : nodeHandle_(nodeHandle),
       adapter_(adapter),
-      playMode_(PlayMode::PAUSED),
+      playMode_(PlayMode::ONHOLD),
       time_(0.0),
       stateRosPublisher_(nodeHandle, adapter),
       updateSleepDuration_(0.03) // 30 Hz update rate.
@@ -59,15 +59,25 @@ void FreeGaitPreviewPlayback::run()
 
 void FreeGaitPreviewPlayback::stop()
 {
-  playMode_ = PlayMode::PAUSED;
+  playMode_ = PlayMode::STOPPED;
+}
+
+void FreeGaitPreviewPlayback::goToTime(const ros::Time& time)
+{
+  time_ = time;
 }
 
 void FreeGaitPreviewPlayback::clear()
 {
   Lock lock(dataMutex_);
-  playMode_ = PlayMode::PAUSED;
+  playMode_ = PlayMode::ONHOLD;
   time_.fromSec(0.0);
   stateBatch_.clear();
+}
+
+const free_gait::StateBatch& FreeGaitPreviewPlayback::getStateBatch() const
+{
+  return stateBatch_;
 }
 
 void FreeGaitPreviewPlayback::processingCallback(bool success)
@@ -76,7 +86,7 @@ void FreeGaitPreviewPlayback::processingCallback(bool success)
   Lock lock(dataMutex_);
   clear();
   stateBatch_ = batchExecutor_->getStateBatch();
-  time_.fromSec(stateBatch_.getBeginTime());
+  time_.fromSec(stateBatch_.getStartTime());
   newGoalCallback_();
 }
 
@@ -89,13 +99,20 @@ void FreeGaitPreviewPlayback::update()
         Lock lock(dataMutex_);
         time_ += ros::Duration(updateSleepDuration_.sec, updateSleepDuration_.nsec);
         if (time_ > ros::Time(stateBatch_.getEndTime())) {
-          playMode_ = PlayMode::PAUSED;
+          playMode_ = PlayMode::STOPPED;
           reachedEndCallback_();
         } else {
           publish(time_);
         }
+        break;
       }
-      case PlayMode::PAUSED:
+      case PlayMode::STOPPED:
+      {
+        publish(time_);
+        playMode_ = PlayMode::ONHOLD;
+        break;
+      }
+      case PlayMode::ONHOLD:
       default:
         break;
     }

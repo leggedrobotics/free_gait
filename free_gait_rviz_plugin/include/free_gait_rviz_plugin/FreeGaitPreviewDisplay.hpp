@@ -50,6 +50,7 @@ Q_OBJECT
  private Q_SLOTS:
   void updateVisualization();
   void startAndStopPlayback();
+  void jumpToTime();
   void newGoalAvailable();
   void previewReachedEnd();
 
@@ -58,7 +59,6 @@ Q_OBJECT
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
   void runPlayback();
 
-  bool active_;
   ros::NodeHandle nodeHandle_;
   free_gait::AdapterRos adapterRos_;
 
@@ -69,7 +69,7 @@ Q_OBJECT
   // Property variables
   rviz::RosTopicProperty* goalTopicProperty_;
   rviz::ButtonProperty* playButtonProperty_;
-  rviz::FloatSliderProperty* sliderProperty_;
+  rviz::FloatSliderProperty* timelimeSliderProperty_;
   rviz::BoolProperty* autoPlayProperty_;
 };
 

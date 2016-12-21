@@ -37,7 +37,7 @@ bool StateBatch::isValidTime(const double time) const
   return true;
 }
 
-double free_gait::StateBatch::getBeginTime() const
+double free_gait::StateBatch::getStartTime() const
 {
   if (states_.empty()) throw std::out_of_range("State batch error: Batch is empty.");
   return states_.begin()->first;

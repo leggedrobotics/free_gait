@@ -58,7 +58,7 @@ void BatchExecutor::processInThread()
 {
   stateBatch_.clear();
   free_gait::State state;
-  for (size_t i = 0; i < 100; ++i) {
+  for (size_t i = 0; i < 120; ++i) {
     state.setRandom();
     stateBatch_.addState((double) i/10.0, state);
   }

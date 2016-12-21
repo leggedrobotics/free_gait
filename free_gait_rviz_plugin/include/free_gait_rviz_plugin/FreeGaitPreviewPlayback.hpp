@@ -27,9 +27,10 @@ class FreeGaitPreviewPlayback
 {
  public:
   enum class PlayMode {
-    PAUSED,
+    STOPPED,
     FORWARD,
-    BACKWARD
+    BACKWARD,
+    ONHOLD
   };
 
   typedef std::lock_guard<std::recursive_mutex> Lock;
@@ -47,8 +48,10 @@ class FreeGaitPreviewPlayback
 
   void run();
   void stop();
-  void goToTime(const double time);
+  void goToTime(const ros::Time& time);
   void clear();
+
+  const free_gait::StateBatch& getStateBatch() const;
 
  private:
   void processingCallback(bool success);

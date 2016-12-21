@@ -49,11 +49,11 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
                                                  this, SLOT(startAndStopPlayback()));
 //  playButtonProperty_->setReadOnly(true);
 
-  sliderProperty_ = new rviz::FloatSliderProperty("Scroll", 0.0,
-                                                  "Scroll through the Free Gait motion.", this,
-                                                  SLOT(updateVisualization()));
-  sliderProperty_->setMin(0.0);
-  sliderProperty_->setMax(5.0);
+  timelimeSliderProperty_ = new rviz::FloatSliderProperty("Scroll", 0.0,
+                                                          "Scroll through the Free Gait motion.",
+                                                          this, SLOT(jumpToTime()));
+  timelimeSliderProperty_->setMin(0.0);
+  timelimeSliderProperty_->setMax(5.0);
 //  sliderProperty_->setReadOnly(true);
 }
 
@@ -86,9 +86,17 @@ void FreeGaitPreviewDisplay::startAndStopPlayback()
   playback_.process(free_gait::StepQueue());
 }
 
+void FreeGaitPreviewDisplay::jumpToTime()
+{
+  playback_.stop();
+  playback_.goToTime(ros::Time(timelimeSliderProperty_->getFloat()));
+}
+
 void FreeGaitPreviewDisplay::newGoalAvailable()
 {
   std::cout << "NEW GOAL!" << std::endl;
+  timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
+  timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
   playback_.run();
 }
 

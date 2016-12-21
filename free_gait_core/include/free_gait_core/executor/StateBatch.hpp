@@ -24,7 +24,7 @@ class StateBatch
   const std::map<double, State>& getStates() const;
   void addState(const double time, const State& state);
   bool isValidTime(const double time) const;
-  double getBeginTime() const;
+  double getStartTime() const;
   double getEndTime() const;
   const State& getState(const double time) const;
   void clear();
