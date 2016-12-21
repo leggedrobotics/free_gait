@@ -24,21 +24,11 @@ AdapterRos::AdapterRos(ros::NodeHandle& nodeHandle, const AdapterType type)
   }
   std::string adapterPluginName;
   nodeHandle.getParam(adapterParameterName, adapterPluginName);
-  try {
-    adapter_.reset(adapterLoader_.createUnmanagedInstance(adapterPluginName));
-  } catch (pluginlib::PluginlibException& ex) {
-    ROS_ERROR("The Free Gait adapter plugin failed to load. Error: %s", ex.what());
-    return;
-  }
+  adapter_.reset(adapterLoader_.createUnmanagedInstance(adapterPluginName));
 
   std::string adapterRosInterfacePluginName;
   nodeHandle.getParam("/free_gait/adapter_ros_interface_plugin", adapterRosInterfacePluginName);
-  try {
-    adapterRosInterface_.reset(adapterRosInterfaceLoader_.createUnmanagedInstance(adapterRosInterfacePluginName));
-  } catch (pluginlib::PluginlibException& ex) {
-    ROS_ERROR("The Free Gait adapter ROS initializer plugin failed to load. Error: %s", ex.what());
-    return;
-  }
+  adapterRosInterface_.reset(adapterRosInterfaceLoader_.createUnmanagedInstance(adapterRosInterfacePluginName));
 
   adapterRosInterface_->setNodeHandle(nodeHandle_);
   adapterRosInterface_->readRobotDescription();
