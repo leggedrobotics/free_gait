@@ -19,6 +19,7 @@
 #include <thread>
 #include <memory>
 #include <functional>
+#include <mutex>
 
 namespace free_gait_rviz_plugin {
 
@@ -30,6 +31,8 @@ class FreeGaitPreviewPlayback
     FORWARD,
     BACKWARD
   };
+
+  typedef std::lock_guard<std::recursive_mutex> Lock;
 
   FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
                           std::shared_ptr<free_gait::AdapterBase> adapter);
@@ -52,7 +55,7 @@ class FreeGaitPreviewPlayback
   void update();
   void publish(const ros::Time& time);
 
-  ros::NodeHandle nodeHandle_;
+  ros::NodeHandle& nodeHandle_;
   std::thread updateThread_;
   std::function<void()> newGoalCallback_;
   std::function<void()> reachedEndCallback_;
@@ -60,8 +63,10 @@ class FreeGaitPreviewPlayback
   std::unique_ptr<free_gait::BatchExecutor> batchExecutor_;
   std::shared_ptr<free_gait::State> executorState_;
   free_gait::StateBatch stateBatch_;
+  std::recursive_mutex dataMutex_;
   free_gait::StateRosPublisher stateRosPublisher_;
   PlayMode playMode_;
+  ros::WallDuration updateSleepDuration_;
   ros::Time time_;
 };
 

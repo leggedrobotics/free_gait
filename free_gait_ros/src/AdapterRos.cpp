@@ -10,7 +10,7 @@
 
 namespace free_gait {
 
-AdapterRos::AdapterRos(const ros::NodeHandle& nodeHandle, const AdapterType type)
+AdapterRos::AdapterRos(ros::NodeHandle& nodeHandle, const AdapterType type)
     : nodeHandle_(nodeHandle),
       adapterLoader_("free_gait_core", "free_gait::AdapterBase"),
       adapterRosInterfaceLoader_("free_gait_ros", "free_gait::AdapterRosInterfaceBase")

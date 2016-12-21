@@ -50,6 +50,7 @@ void BatchExecutor::cancelProcessing()
 
 StateBatch BatchExecutor::getStateBatch() const
 {
+  if (isProcessing_) throw std::runtime_error("Batch executor error: Cannot access state during processing.");
   return stateBatch_;
 }
 
@@ -61,9 +62,8 @@ void BatchExecutor::processInThread()
     state.setRandom();
     stateBatch_.addState((double) i/10.0, state);
   }
-  StateBatch testBatch(stateBatch_);
-  callback_(true);
   isProcessing_ = false;
+  callback_(true);
 }
 
 } /* namespace */

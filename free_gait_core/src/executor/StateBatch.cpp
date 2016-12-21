@@ -7,6 +7,9 @@
  */
 #include <free_gait_core/executor/StateBatch.hpp>
 
+// STD
+#include <stdexcept>
+
 namespace free_gait {
 
 StateBatch::StateBatch()
@@ -27,10 +30,30 @@ void StateBatch::addState(const double time, const State& state)
   states_[time] = state;
 }
 
-const State& StateBatch::getState(const double time)
+bool StateBatch::isValidTime(const double time) const
 {
-  std::map<double, State>::iterator iterator = states_.lower_bound(time);
-  return (*iterator).second;
+  if (states_.empty()) return false;
+  if (time < states_.begin()->first) return false;
+  return true;
+}
+
+double free_gait::StateBatch::getBeginTime() const
+{
+  if (states_.empty()) throw std::out_of_range("State batch error: Batch is empty.");
+  return states_.begin()->first;
+}
+
+double free_gait::StateBatch::getEndTime() const
+{
+  if (states_.empty()) throw std::out_of_range("State batch error: Batch is empty.");
+  return (--states_.end())->first;
+}
+
+const State& StateBatch::getState(const double time) const
+{
+  if (!isValidTime(time)) throw std::out_of_range("State batch error: No state available for requested time.");
+  if (time > (--states_.end())->first) return (--states_.end())->second;
+  return states_.lower_bound(time)->second;
 }
 
 void StateBatch::clear()

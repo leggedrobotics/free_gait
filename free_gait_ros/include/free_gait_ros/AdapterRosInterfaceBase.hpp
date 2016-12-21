@@ -23,7 +23,7 @@ class AdapterRosInterfaceBase
  public:
   AdapterRosInterfaceBase();
   virtual ~AdapterRosInterfaceBase();
-  void setNodeHandle(const ros::NodeHandle& nodeHandle);
+  void setNodeHandle(ros::NodeHandle& nodeHandle);
 
   virtual bool readRobotDescription();
   virtual bool subscribeToRobotState(const std::string& robotStateTopic) = 0;
@@ -33,7 +33,7 @@ class AdapterRosInterfaceBase
   virtual bool updateAdapterWithRobotState(AdapterBase& adapter) const = 0;
 
  protected:
-  ros::NodeHandle nodeHandle_;
+  ros::NodeHandle* nodeHandle_;
   std::string robotDescriptionUrdfString_;
 
 };

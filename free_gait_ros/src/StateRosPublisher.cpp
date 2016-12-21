@@ -20,7 +20,7 @@
 
 namespace free_gait {
 
-StateRosPublisher::StateRosPublisher(const ros::NodeHandle& nodeHandle,
+StateRosPublisher::StateRosPublisher(ros::NodeHandle& nodeHandle,
                                      std::shared_ptr<AdapterBase> adapter)
     : nodeHandle_(nodeHandle),
       adapter_(adapter)

@@ -20,7 +20,8 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
       adapter_(adapter),
       playMode_(PlayMode::PAUSED),
       time_(0.0),
-      stateRosPublisher_(nodeHandle, adapter)
+      stateRosPublisher_(nodeHandle, adapter),
+      updateSleepDuration_(0.03) // 30 Hz update rate.
 {
   std::shared_ptr<StepParameters> parameters(new StepParameters);
   std::shared_ptr<StepCompleter> completer(new StepCompleter(parameters, adapter_));
@@ -56,39 +57,57 @@ void FreeGaitPreviewPlayback::run()
   playMode_ = PlayMode::FORWARD;
 }
 
+void FreeGaitPreviewPlayback::stop()
+{
+  playMode_ = PlayMode::PAUSED;
+}
+
 void FreeGaitPreviewPlayback::clear()
 {
+  Lock lock(dataMutex_);
   playMode_ = PlayMode::PAUSED;
   time_.fromSec(0.0);
   stateBatch_.clear();
 }
 
-void FreeGaitPreviewPlayback::processingCallback(bool succcess)
+void FreeGaitPreviewPlayback::processingCallback(bool success)
 {
+  if (!success) return;
+  Lock lock(dataMutex_);
   clear();
   stateBatch_ = batchExecutor_->getStateBatch();
+  time_.fromSec(stateBatch_.getBeginTime());
   newGoalCallback_();
 }
 
 void FreeGaitPreviewPlayback::update()
 {
-  ros::WallDuration duration(0.03); // 30 Hz update rate.
   while (nodeHandle_.ok()) {
     switch (playMode_) {
       case PlayMode::FORWARD:
-        time_ += ros::Duration(duration.sec, duration.nsec);
-        publish(time_);
-        break;
+      {
+        Lock lock(dataMutex_);
+        time_ += ros::Duration(updateSleepDuration_.sec, updateSleepDuration_.nsec);
+        if (time_ > ros::Time(stateBatch_.getEndTime())) {
+          playMode_ = PlayMode::PAUSED;
+          reachedEndCallback_();
+        } else {
+          publish(time_);
+        }
+      }
+      case PlayMode::PAUSED:
       default:
         break;
     }
-    duration.sleep();
+    updateSleepDuration_.sleep();
   }
 }
 
 void FreeGaitPreviewPlayback::publish(const ros::Time& time)
 {
-  const State& state = stateBatch_.getState(time.toSec());
+  const double timeInDouble = time.toSec();
+  if (!stateBatch_.isValidTime(timeInDouble)) return;
+  const State& state = stateBatch_.getState(timeInDouble);
   stateRosPublisher_.publish(state);
 }
 

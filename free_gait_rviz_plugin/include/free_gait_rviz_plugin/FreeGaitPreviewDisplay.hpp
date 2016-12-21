@@ -10,7 +10,6 @@
 
 #ifndef Q_MOC_RUN
 #include "free_gait_rviz_plugin/FreeGaitPreviewPlayback.hpp"
-#include <boost/circular_buffer.hpp>
 #include <rviz/message_filter_display.h>
 #include <free_gait_msgs/ExecuteStepsActionGoal.h>
 #include <free_gait_ros/free_gait_ros.hpp>
@@ -29,13 +28,13 @@ class EnumProperty;
 class EditableEnumProperty;
 class ButtonProperty;
 class FloatSliderProperty;
+class RosTopicProperty;
 }
 
 namespace free_gait_rviz_plugin {
 
 class FreeGaitPreviewVisual;
-class FreeGaitPreviewDisplay : public rviz::MessageFilterDisplay<
-    free_gait_msgs::ExecuteStepsActionGoal>
+class FreeGaitPreviewDisplay : public rviz::Display
 {
 Q_OBJECT
  public:
@@ -59,15 +58,16 @@ Q_OBJECT
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
   void runPlayback();
 
+  bool active_;
   ros::NodeHandle nodeHandle_;
   free_gait::AdapterRos adapterRos_;
 
-
   // Circular buffer for visuals
-  boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
+//  boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
   FreeGaitPreviewPlayback playback_;
 
   // Property variables
+  rviz::RosTopicProperty* goalTopicProperty_;
   rviz::ButtonProperty* playButtonProperty_;
   rviz::FloatSliderProperty* sliderProperty_;
   rviz::BoolProperty* autoPlayProperty_;
