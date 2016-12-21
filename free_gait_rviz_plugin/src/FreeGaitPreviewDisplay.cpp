@@ -32,7 +32,8 @@ namespace free_gait_rviz_plugin {
 FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
     : nodeHandle_("~/free_gait_rviz_plugin"),
       adapterRos_(nodeHandle_, free_gait::AdapterRos::AdapterType::Base),
-      playback_(nodeHandle_, adapterRos_.getAdapter())
+      playback_(nodeHandle_, adapterRos_.getAdapter()),
+      stepRosConverter_(adapterRos_.getAdapter())
 {
   goalTopicProperty_ = new rviz::RosTopicProperty("Goal Topic", "", "", "", this, SLOT(updateTopic()));
   QString messageType = QString::fromStdString(ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionGoal>());
@@ -58,9 +59,7 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
 
 FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
 {
-  nodeHandle_.shutdown();
-//  unsubscribe();
-//  delete tf_filter_;
+  unsubscribe();
 }
 
 void FreeGaitPreviewDisplay::setTopic(const QString &topic, const QString &datatype)
@@ -80,13 +79,12 @@ void FreeGaitPreviewDisplay::onInitialize()
 
 void FreeGaitPreviewDisplay::onEnable()
 {
-  std::cout <<  "ENABLE" << std::endl;
-  //subscribe
+  subscribe();
 }
 
 void FreeGaitPreviewDisplay::onDisable()
 {
-//unsubscribe();
+  unsubscribe();
 //reset();
 }
 
@@ -101,10 +99,9 @@ void FreeGaitPreviewDisplay::reset()
 
 void FreeGaitPreviewDisplay::updateTopic()
 {
-//unsubscribe();
-//reset();
-//subscribe();
-//context_->queueRender();
+  unsubscribe();
+  reset();
+  subscribe();
 }
 
 void FreeGaitPreviewDisplay::updateVisualization()
@@ -142,17 +139,30 @@ void FreeGaitPreviewDisplay::previewReachedEnd()
   std::cout << "REACHE END!" << std::endl;
 }
 
+void FreeGaitPreviewDisplay::subscribe()
+{
+  if (!isEnabled()) {
+    return;
+  }
+
+  try {
+    goalSubscriber_ = nodeHandle_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
+    setStatus(rviz::StatusProperty::Ok, "Topic", "OK");
+  } catch (ros::Exception& e) {
+    setStatus(rviz::StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what());
+  }
+}
+
+void FreeGaitPreviewDisplay::unsubscribe()
+{
+  goalSubscriber_.shutdown();
+}
+
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
 {
-  free_gait::StateRosPublisher stateRosPublisher(nodeHandle_, adapterRos_.getAdapter());
-  free_gait::State state;
-
-  ros::Duration duration(0.2);
-  for (size_t i = 0; i < 100; ++i) {
-    state.setRandom();
-    stateRosPublisher.publish(state);
-    duration.sleep();
-  }
+  free_gait::StepQueue queue;
+  stepRosConverter_.fromMessage(message->goal.steps, queue);
+  playback_.process(queue);
 }
 
 }  // end namespace

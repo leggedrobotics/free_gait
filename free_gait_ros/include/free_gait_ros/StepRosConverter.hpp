@@ -24,6 +24,9 @@
 // Quadruped model
 #include "quadruped_model/QuadrupedModel.hpp"
 
+// STD
+#include <vector>
+
 namespace free_gait {
 
 class StepRosConverter
@@ -38,6 +41,7 @@ class StepRosConverter
    * @param[out] gridMap the step object to be initialized.
    * @return true if successful, false otherwise.
    */
+  bool fromMessage(const std::vector<free_gait_msgs::Step>& message, StepQueue& queue);
   bool fromMessage(const free_gait_msgs::Step& message, Step& step);
   bool fromMessage(const free_gait_msgs::Footstep& message, Footstep& footstep);
   bool fromMessage(const free_gait_msgs::EndEffectorTarget& message, EndEffectorTarget& endEffectorTarget);

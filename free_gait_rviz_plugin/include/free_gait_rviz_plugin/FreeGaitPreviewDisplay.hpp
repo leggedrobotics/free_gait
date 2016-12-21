@@ -69,9 +69,10 @@ Q_OBJECT
   ros::NodeHandle nodeHandle_;
   free_gait::AdapterRos adapterRos_;
 
-  // Circular buffer for visuals
 //  boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
   FreeGaitPreviewPlayback playback_;
+  free_gait::StepRosConverter stepRosConverter_;
+  ros::Subscriber goalSubscriber_;
 
   // Property variables
   rviz::RosTopicProperty* goalTopicProperty_;
