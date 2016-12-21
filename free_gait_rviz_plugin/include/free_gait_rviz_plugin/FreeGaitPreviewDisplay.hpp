@@ -43,21 +43,28 @@ Q_OBJECT
   // Destructor
   virtual ~FreeGaitPreviewDisplay();
 
+  void setTopic(const QString &topic, const QString &datatype);
+  void update(float wall_dt, float ros_dt);
+  void reset();
+
  protected:
-  virtual void onInitialize();
-  virtual void reset();
+  void onInitialize();
+  void onEnable();
+  void onDisable();
 
  private Q_SLOTS:
+  void updateTopic();
   void updateVisualization();
   void startAndStopPlayback();
   void jumpToTime();
   void newGoalAvailable();
+  void previewStateChanged(const ros::Time& time);
   void previewReachedEnd();
 
  private:
-  // Callback for incoming ROS messages
+  void subscribe();
+  void unsubscribe();
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
-  void runPlayback();
 
   ros::NodeHandle nodeHandle_;
   free_gait::AdapterRos adapterRos_;

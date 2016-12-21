@@ -24,8 +24,10 @@ class FloatSliderProperty : public FloatProperty
 
   virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option);
 
+  virtual bool setValuePassive(const QVariant& value);
+
 public Q_SLOTS:
-  void valueChanged(int value);
+  virtual void valueChanged(int value);
 
  private:
   int minIntValue_, maxIntValue_;

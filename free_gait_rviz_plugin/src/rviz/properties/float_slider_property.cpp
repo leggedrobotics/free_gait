@@ -26,6 +26,12 @@ FloatSliderProperty::FloatSliderProperty(const QString& name, float default_valu
   setMax(1.0);
 }
 
+bool FloatSliderProperty::setValuePassive(const QVariant& value)
+{
+  value_ = qBound(getMin(), value.toFloat(), getMax());
+  return true;
+}
+
 void FloatSliderProperty::valueChanged(int value)
 {
   const float floatValue = getMin() + (getMax() - getMin())

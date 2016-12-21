@@ -40,6 +40,7 @@ class FreeGaitPreviewPlayback
   virtual ~FreeGaitPreviewPlayback();
 
   void addNewGoalCallback(std::function<void()> callback);
+  void addStateChangedCallback(std::function<void(const ros::Time&)> callback);
   void addReachedEndCallback(std::function<void()> callback);
 
   bool process(const free_gait::StepQueue& queue);
@@ -52,15 +53,15 @@ class FreeGaitPreviewPlayback
   void clear();
 
   const free_gait::StateBatch& getStateBatch() const;
+  void update(double timeStep);
 
  private:
   void processingCallback(bool success);
-  void update();
   void publish(const ros::Time& time);
 
   ros::NodeHandle& nodeHandle_;
-  std::thread updateThread_;
   std::function<void()> newGoalCallback_;
+  std::function<void(const ros::Time&)> stateChangedCallback_;
   std::function<void()> reachedEndCallback_;
   std::shared_ptr<free_gait::AdapterBase> adapter_;
   std::unique_ptr<free_gait::BatchExecutor> batchExecutor_;
@@ -69,7 +70,6 @@ class FreeGaitPreviewPlayback
   std::recursive_mutex dataMutex_;
   free_gait::StateRosPublisher stateRosPublisher_;
   PlayMode playMode_;
-  ros::WallDuration updateSleepDuration_;
   ros::Time time_;
 };
 

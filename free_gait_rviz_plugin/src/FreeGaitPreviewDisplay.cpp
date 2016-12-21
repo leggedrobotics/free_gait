@@ -40,21 +40,20 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   goalTopicProperty_->setDescription(messageType + " topic to subscribe to.");
 
   playback_.addNewGoalCallback(std::bind(&FreeGaitPreviewDisplay::newGoalAvailable, this));
+  playback_.addStateChangedCallback(std::bind(&FreeGaitPreviewDisplay::previewStateChanged, this, std::placeholders::_1));
   playback_.addReachedEndCallback(std::bind(&FreeGaitPreviewDisplay::previewReachedEnd, this));
 
   autoPlayProperty_ = new rviz::BoolProperty("Auto-Play", true, "Play motion once received.", this,
                                             SLOT(updateVisualization()));
 
-  playButtonProperty_ = new rviz::ButtonProperty("Play", "Nothing to preview", "Play back the motion.",
+  playButtonProperty_ = new rviz::ButtonProperty("Play", "", "Play back the motion.",
                                                  this, SLOT(startAndStopPlayback()));
 //  playButtonProperty_->setReadOnly(true);
 
   timelimeSliderProperty_ = new rviz::FloatSliderProperty("Scroll", 0.0,
                                                           "Scroll through the Free Gait motion.",
                                                           this, SLOT(jumpToTime()));
-  timelimeSliderProperty_->setMin(0.0);
-  timelimeSliderProperty_->setMax(5.0);
-//  sliderProperty_->setReadOnly(true);
+  timelimeSliderProperty_->setReadOnly(true);
 }
 
 FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
@@ -64,16 +63,48 @@ FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
 //  delete tf_filter_;
 }
 
+void FreeGaitPreviewDisplay::setTopic(const QString &topic, const QString &datatype)
+{
+  goalTopicProperty_->setString(topic);
+}
+
+void FreeGaitPreviewDisplay::update(float wall_dt, float ros_dt)
+{
+  playback_.update(wall_dt);
+}
+
 void FreeGaitPreviewDisplay::onInitialize()
 {
-//  active_(true);
 //  MFDClass::onInitialize();	 //  "MFDClass" = typedef of "MessageFilterDisplay<message type>"
+}
+
+void FreeGaitPreviewDisplay::onEnable()
+{
+  std::cout <<  "ENABLE" << std::endl;
+  //subscribe
+}
+
+void FreeGaitPreviewDisplay::onDisable()
+{
+//unsubscribe();
+//reset();
 }
 
 void FreeGaitPreviewDisplay::reset()
 {
 //  MFDClass::reset();
 //  visuals_.clear();
+//  Display::reset();
+//  tf_filter_->clear();
+//  messages_received_ = 0;
+}
+
+void FreeGaitPreviewDisplay::updateTopic()
+{
+//unsubscribe();
+//reset();
+//subscribe();
+//context_->queueRender();
 }
 
 void FreeGaitPreviewDisplay::updateVisualization()
@@ -94,10 +125,16 @@ void FreeGaitPreviewDisplay::jumpToTime()
 
 void FreeGaitPreviewDisplay::newGoalAvailable()
 {
-  std::cout << "NEW GOAL!" << std::endl;
+  playButtonProperty_->setReadOnly(false);
   timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
   timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
+  timelimeSliderProperty_->setReadOnly(false);
   playback_.run();
+}
+
+void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
+{
+  timelimeSliderProperty_->setValuePassive(time.toSec());
 }
 
 void FreeGaitPreviewDisplay::previewReachedEnd()
