@@ -29,8 +29,12 @@ class StateBatch
   const State& getState(const double time) const;
   void clear();
 
+  friend class StateBatchComputer;
+
  private:
   std::map<double, State> states_;
+  std::map<double, Position> endEffectorPositions_;
+  std::map<double, Pose> basePoses;
 };
 
 } /* namespace free_gait */

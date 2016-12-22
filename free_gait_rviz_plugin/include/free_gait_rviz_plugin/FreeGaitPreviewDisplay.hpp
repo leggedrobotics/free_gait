@@ -10,6 +10,7 @@
 
 #ifndef Q_MOC_RUN
 #include "free_gait_rviz_plugin/FreeGaitPreviewPlayback.hpp"
+#include "free_gait_rviz_plugin/FreeGaitPreviewVisual.hpp"
 #include <rviz/message_filter_display.h>
 #include <free_gait_msgs/ExecuteStepsActionGoal.h>
 #include <free_gait_ros/free_gait_ros.hpp>
@@ -71,6 +72,7 @@ Q_OBJECT
 
 //  boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
   FreeGaitPreviewPlayback playback_;
+  FreeGaitPreviewVisual visual_;
   free_gait::StepRosConverter stepRosConverter_;
   ros::Subscriber goalSubscriber_;
 

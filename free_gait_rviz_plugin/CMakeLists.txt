@@ -67,6 +67,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 set(SOURCE_FILES
   src/FreeGaitPreviewDisplay.cpp
   src/FreeGaitPreviewPlayback.cpp
+  src/FreeGaitPreviewVisual.cpp
 )
 
 ## An rviz plugin is just a shared library, so here we declare the

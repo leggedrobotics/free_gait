@@ -6,8 +6,9 @@
  *  Institute: ETH Zurich, Robotic Systems Lab
  */
 
-#include <free_gait_rviz_plugin/FreeGaitPreviewGeometryVisual.hpp>
 #include "free_gait_rviz_plugin/FreeGaitPreviewDisplay.hpp"
+
+// OGRE
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
 
@@ -33,6 +34,7 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
     : nodeHandle_("~/free_gait_rviz_plugin"),
       adapterRos_(nodeHandle_, free_gait::AdapterRos::AdapterType::Preview),
       playback_(nodeHandle_, adapterRos_.getAdapter()),
+      visual_(context_->getSceneManager(), scene_node_),
       stepRosConverter_(adapterRos_.getAdapter())
 {
   topicsTree_ = new Property( "Topics", QVariant(), "", this);
@@ -139,11 +141,14 @@ void FreeGaitPreviewDisplay::jumpToTime()
 
 void FreeGaitPreviewDisplay::newGoalAvailable()
 {
+  // Play back.
   playButtonProperty_->setReadOnly(false);
   timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
   timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
   timelimeSliderProperty_->setReadOnly(false);
   playback_.run();
+
+  // Visuals.
 }
 
 void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
@@ -153,7 +158,6 @@ void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
 
 void FreeGaitPreviewDisplay::previewReachedEnd()
 {
-  std::cout << "REACHE END!" << std::endl;
 }
 
 void FreeGaitPreviewDisplay::subscribe()

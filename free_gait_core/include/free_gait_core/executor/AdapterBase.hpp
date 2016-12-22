@@ -77,6 +77,9 @@ class AdapterBase
                                                   const RotationQuaternion& orientation) const;
   virtual Pose transformPose(const std::string& inputFrameId, const std::string& outputFrameId,
                              const Pose& pose) const;
+
+  //! Hook to write data to internal robot representation from state.
+  virtual bool setInternalDataFromState(const State& state) = 0;
 };
 
 } /* namespace free_gait */

@@ -67,6 +67,7 @@ class FreeGaitPreviewPlayback
   std::unique_ptr<free_gait::BatchExecutor> batchExecutor_;
   std::shared_ptr<free_gait::State> executorState_;
   free_gait::StateBatch stateBatch_;
+  free_gait::StateBatchComputer stateBatchComputer_;
   std::recursive_mutex dataMutex_;
   free_gait::StateRosPublisher stateRosPublisher_;
   PlayMode playMode_;

@@ -37,6 +37,7 @@ class BatchExecutor
 
   StateBatch stateBatch_;
   std::shared_ptr<free_gait::Executor> executor_;
+
   std::function<void(bool)> callback_;
   double timeStep_;
   bool isProcessing_;

@@ -20,6 +20,7 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
       adapter_(adapter),
       playMode_(PlayMode::ONHOLD),
       time_(0.0),
+      stateBatchComputer_(adapter),
       stateRosPublisher_(nodeHandle, adapter)
 {
   std::shared_ptr<StepParameters> parameters(new StepParameters);
@@ -115,6 +116,7 @@ void FreeGaitPreviewPlayback::processingCallback(bool success)
   Lock lock(dataMutex_);
   clear();
   stateBatch_ = batchExecutor_->getStateBatch();
+  stateBatchComputer_.computeEndEffectorTrajectories(stateBatch_);
   time_.fromSec(stateBatch_.getStartTime());
   newGoalCallback_();
 }

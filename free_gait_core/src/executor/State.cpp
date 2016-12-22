@@ -108,7 +108,7 @@ void State::setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdap
 
 const JointPositionsLeg State::getJointPositionsForLimb(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
   return JointPositionsLeg(quadruped_model::QuadrupedState::getJointPositions().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
