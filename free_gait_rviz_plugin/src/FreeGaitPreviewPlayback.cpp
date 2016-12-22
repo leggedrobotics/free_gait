@@ -27,6 +27,7 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
   std::shared_ptr<StepComputer> computer(new StepComputer());
   executorState_.reset(new State());
   std::shared_ptr<Executor> executor(new Executor(completer, computer, adapter_, executorState_));
+  executor->initialize();
   batchExecutor_.reset(new BatchExecutor(executor));
   batchExecutor_->addProcessingCallback(std::bind(&FreeGaitPreviewPlayback::processingCallback, this, std::placeholders::_1));
 }
@@ -50,9 +51,9 @@ void FreeGaitPreviewPlayback::addReachedEndCallback(std::function<void()> callba
   reachedEndCallback_ = callback;
 }
 
-bool FreeGaitPreviewPlayback::process(const free_gait::StepQueue& queue)
+bool FreeGaitPreviewPlayback::process(const std::vector<free_gait::Step>& steps)
 {
-  return batchExecutor_->process(queue);
+  return batchExecutor_->process(steps);
 }
 
 void FreeGaitPreviewPlayback::run()

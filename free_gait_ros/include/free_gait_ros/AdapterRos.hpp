@@ -30,6 +30,7 @@ class AdapterRos
   AdapterRos(ros::NodeHandle& nodeHandle, const AdapterType type = AdapterType::Base);
   virtual ~AdapterRos();
   bool subscribeToRobotState(const std::string& robotStateTopic = "");
+  const std::string getRobotStateMessageType();
   bool updateAdapterWithState();
   std::shared_ptr<AdapterBase> getAdapter();
 

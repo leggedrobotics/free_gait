@@ -28,11 +28,12 @@ void BatchExecutor::addProcessingCallback(std::function<void(bool)> callback)
   callback_ = callback;
 }
 
-bool BatchExecutor::process(const free_gait::StepQueue& queue)
+bool BatchExecutor::process(const std::vector<free_gait::Step>& steps)
 {
   if (isProcessing_) return false;
   isProcessing_ = true;
-  queue_ = queue;
+  executor_->reset();
+  executor_->getQueue().add(steps);
   std::thread thread(std::bind(&BatchExecutor::processInThread, this));
   thread.detach();
   return true;
@@ -57,11 +58,13 @@ StateBatch BatchExecutor::getStateBatch() const
 void BatchExecutor::processInThread()
 {
   stateBatch_.clear();
-  free_gait::State state;
-  for (size_t i = 0; i < 120; ++i) {
-    state.setRandom();
-    stateBatch_.addState((double) i/10.0, state);
+  double time = 0.0;
+  while (!executor_->getQueue().empty() && !requestForCancelling_) {
+    executor_->advance(timeStep_);
+    time += timeStep_;
+    stateBatch_.addState(time, executor_->getState());
   }
+  requestForCancelling_ = false;
   isProcessing_ = false;
   callback_(true);
 }

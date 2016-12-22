@@ -43,7 +43,7 @@ class FreeGaitPreviewPlayback
   void addStateChangedCallback(std::function<void(const ros::Time&)> callback);
   void addReachedEndCallback(std::function<void()> callback);
 
-  bool process(const free_gait::StepQueue& queue);
+  bool process(const std::vector<free_gait::Step>& steps);
   bool isProcessing();
   void cancelProcessing();
 

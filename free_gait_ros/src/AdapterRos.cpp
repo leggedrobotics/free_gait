@@ -56,6 +56,11 @@ bool AdapterRos::subscribeToRobotState(const std::string& robotStateTopic)
   return adapterRosInterface_->subscribeToRobotState(topic);
 }
 
+const std::string AdapterRos::getRobotStateMessageType()
+{
+  return adapterRosInterface_->getRobotStateMessageType();
+}
+
 bool AdapterRos::updateAdapterWithState()
 {
   return adapterRosInterface_->updateAdapterWithRobotState(*adapter_);

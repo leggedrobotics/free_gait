@@ -31,14 +31,19 @@ namespace free_gait_rviz_plugin {
 
 FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
     : nodeHandle_("~/free_gait_rviz_plugin"),
-      adapterRos_(nodeHandle_, free_gait::AdapterRos::AdapterType::Base),
+      adapterRos_(nodeHandle_, free_gait::AdapterRos::AdapterType::Preview),
       playback_(nodeHandle_, adapterRos_.getAdapter()),
       stepRosConverter_(adapterRos_.getAdapter())
 {
   goalTopicProperty_ = new rviz::RosTopicProperty("Goal Topic", "", "", "", this, SLOT(updateTopic()));
-  QString messageType = QString::fromStdString(ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionGoal>());
-  goalTopicProperty_->setMessageType(messageType);
-  goalTopicProperty_->setDescription(messageType + " topic to subscribe to.");
+  QString goalMessageType = QString::fromStdString(ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionGoal>());
+  goalTopicProperty_->setMessageType(goalMessageType);
+  goalTopicProperty_->setDescription(goalMessageType + " topic to subscribe to.");
+
+  robotStateTopicProperty_ = new rviz::RosTopicProperty("Robot State Topic", "", "", "", this, SLOT(updateTopic()));
+  QString robotStateMessageType = QString::fromStdString(adapterRos_.getRobotStateMessageType());
+  robotStateTopicProperty_->setMessageType(robotStateMessageType);
+  robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
 
   playback_.addNewGoalCallback(std::bind(&FreeGaitPreviewDisplay::newGoalAvailable, this));
   playback_.addStateChangedCallback(std::bind(&FreeGaitPreviewDisplay::previewStateChanged, this, std::placeholders::_1));
@@ -111,7 +116,7 @@ void FreeGaitPreviewDisplay::updateVisualization()
 
 void FreeGaitPreviewDisplay::startAndStopPlayback()
 {
-  playback_.process(free_gait::StepQueue());
+//  playback_.process(free_gait::StepQueue());
 }
 
 void FreeGaitPreviewDisplay::jumpToTime()
@@ -147,6 +152,7 @@ void FreeGaitPreviewDisplay::subscribe()
 
   try {
     goalSubscriber_ = nodeHandle_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
+    adapterRos_.subscribeToRobotState(robotStateTopicProperty_->getStdString());
     setStatus(rviz::StatusProperty::Ok, "Topic", "OK");
   } catch (ros::Exception& e) {
     setStatus(rviz::StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what());
@@ -160,9 +166,10 @@ void FreeGaitPreviewDisplay::unsubscribe()
 
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
 {
-  free_gait::StepQueue queue;
-  stepRosConverter_.fromMessage(message->goal.steps, queue);
-  playback_.process(queue);
+  std::vector<free_gait::Step> steps;
+  stepRosConverter_.fromMessage(message->goal.steps, steps);
+  adapterRos_.updateAdapterWithState();
+  playback_.process(steps);
 }
 
 }  // end namespace

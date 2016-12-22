@@ -26,7 +26,7 @@ class BatchExecutor
   virtual ~BatchExecutor();
 
   void addProcessingCallback(std::function<void(bool)> callback);
-  bool process(const free_gait::StepQueue& queue);
+  bool process(const std::vector<free_gait::Step>& steps);
   bool isProcessing();
   void cancelProcessing();
 
@@ -38,7 +38,6 @@ class BatchExecutor
   StateBatch stateBatch_;
   std::shared_ptr<free_gait::Executor> executor_;
   std::function<void(bool)> callback_;
-  free_gait::StepQueue queue_;
   double timeStep_;
   bool isProcessing_;
   bool requestForCancelling_;

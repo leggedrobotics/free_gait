@@ -76,6 +76,7 @@ Q_OBJECT
 
   // Property variables
   rviz::RosTopicProperty* goalTopicProperty_;
+  rviz::RosTopicProperty* robotStateTopicProperty_;
   rviz::ButtonProperty* playButtonProperty_;
   rviz::FloatSliderProperty* timelimeSliderProperty_;
   rviz::BoolProperty* autoPlayProperty_;
