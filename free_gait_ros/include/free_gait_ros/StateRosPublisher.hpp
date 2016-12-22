@@ -17,6 +17,7 @@
 
 // STD
 #include <memory>
+#include <string>
 
 namespace free_gait {
 
@@ -32,6 +33,7 @@ class StateRosPublisher
   bool initializeRobotStatePublisher();
 
   ros::NodeHandle& nodeHandle_;
+  std::string tfPrefix_;
   std::unique_ptr<robot_state_publisher::RobotStatePublisher> robotStatePublisher_;
   std::shared_ptr<AdapterBase> adapter_;
   tf2_ros::TransformBroadcaster tfBroadcaster_;

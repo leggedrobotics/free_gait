@@ -25,6 +25,7 @@ StateRosPublisher::StateRosPublisher(ros::NodeHandle& nodeHandle,
     : nodeHandle_(nodeHandle),
       adapter_(adapter)
 {
+  tfPrefix_ = nodeHandle_.param("/free_gait/tf_prefix", std::string(""));
   initializeRobotStatePublisher();
 }
 
@@ -73,15 +74,14 @@ bool StateRosPublisher::publish(const State& state)
     jointPositionsMap[jointNames[i]] = jointPositions(i);
   }
 
-  const std::string tfPrefix;
-  robotStatePublisher_->publishTransforms(jointPositionsMap, time, tfPrefix);
-  robotStatePublisher_->publishFixedTransforms(tfPrefix);
+  robotStatePublisher_->publishTransforms(jointPositionsMap, time, tfPrefix_);
+  robotStatePublisher_->publishFixedTransforms(tfPrefix_);
 
   // Publish base position.
   geometry_msgs::TransformStamped tfTransform;
   tfTransform.header.stamp = time;
   tfTransform.header.frame_id = adapter_->getWorldFrameId();
-  tfTransform.child_frame_id = adapter_->getBaseFrameId();
+  tfTransform.child_frame_id = tf::resolve(tfPrefix_, adapter_->getBaseFrameId());
   kindr_ros::convertToRosGeometryMsg(state.getPositionWorldToBaseInWorldFrame(), tfTransform.transform.translation);
   kindr_ros::convertToRosGeometryMsg(state.getOrientationBaseToWorld(), tfTransform.transform.rotation);
   tfBroadcaster_.sendTransform(tfTransform);
@@ -93,7 +93,7 @@ bool StateRosPublisher::publish(const State& state)
     geometry_msgs::TransformStamped tfTransform;
     tfTransform.header.stamp = time;
     tfTransform.header.frame_id = adapter_->getWorldFrameId();
-    tfTransform.child_frame_id = frameId;
+    tfTransform.child_frame_id = tf::resolve(tfPrefix_, frameId);
     kindr_ros::convertToRosGeometryMsg(adapter_->getFrameTransform(frameId), tfTransform.transform);
     tfBroadcaster_.sendTransform(tfTransform);
   }

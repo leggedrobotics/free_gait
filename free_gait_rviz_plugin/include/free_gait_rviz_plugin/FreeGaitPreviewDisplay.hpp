@@ -75,11 +75,14 @@ Q_OBJECT
   ros::Subscriber goalSubscriber_;
 
   // Property variables
+  rviz::Property* topicsTree_;
   rviz::RosTopicProperty* goalTopicProperty_;
   rviz::RosTopicProperty* robotStateTopicProperty_;
+  rviz::BoolProperty* autoPlayProperty_;
+  rviz::FloatSliderProperty* playbackSpeedProperty_;
   rviz::ButtonProperty* playButtonProperty_;
   rviz::FloatSliderProperty* timelimeSliderProperty_;
-  rviz::BoolProperty* autoPlayProperty_;
+  rviz::FloatProperty* previewRateRoperty_;
 };
 
 }  // end namespace grid_map_rviz_plugin

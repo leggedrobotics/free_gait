@@ -35,12 +35,14 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       playback_(nodeHandle_, adapterRos_.getAdapter()),
       stepRosConverter_(adapterRos_.getAdapter())
 {
-  goalTopicProperty_ = new rviz::RosTopicProperty("Goal Topic", "", "", "", this, SLOT(updateTopic()));
+  topicsTree_ = new Property( "Topics", QVariant(), "", this);
+
+  goalTopicProperty_ = new rviz::RosTopicProperty("Goal Topic", "", "", "", topicsTree_, SLOT(updateTopic()), this);
   QString goalMessageType = QString::fromStdString(ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionGoal>());
   goalTopicProperty_->setMessageType(goalMessageType);
   goalTopicProperty_->setDescription(goalMessageType + " topic to subscribe to.");
 
-  robotStateTopicProperty_ = new rviz::RosTopicProperty("Robot State Topic", "", "", "", this, SLOT(updateTopic()));
+  robotStateTopicProperty_ = new rviz::RosTopicProperty("Robot State Topic", "", "", "", topicsTree_, SLOT(updateTopic()), this);
   QString robotStateMessageType = QString::fromStdString(adapterRos_.getRobotStateMessageType());
   robotStateTopicProperty_->setMessageType(robotStateMessageType);
   robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
@@ -52,14 +54,24 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   autoPlayProperty_ = new rviz::BoolProperty("Auto-Play", true, "Play motion once received.", this,
                                             SLOT(updateVisualization()));
 
+  playbackSpeedProperty_ = new rviz::FloatSliderProperty("Playback Speed", 1.0,
+                                                         "Playback speed factor.", this,
+                                                         SLOT(changePlaybackSpeed()));
+  playbackSpeedProperty_->setMin(0.0);
+  playbackSpeedProperty_->setMax(10.0);
+
   playButtonProperty_ = new rviz::ButtonProperty("Play", "", "Play back the motion.",
                                                  this, SLOT(startAndStopPlayback()));
 //  playButtonProperty_->setReadOnly(true);
 
-  timelimeSliderProperty_ = new rviz::FloatSliderProperty("Scroll", 0.0,
-                                                          "Scroll through the Free Gait motion.",
-                                                          this, SLOT(jumpToTime()));
+  timelimeSliderProperty_ = new rviz::FloatSliderProperty(
+      "Time", 0.0, "Determine the current time to visualize the motion.", this, SLOT(jumpToTime()));
   timelimeSliderProperty_->setReadOnly(true);
+
+  previewRateRoperty_ = new rviz::FloatProperty("Preview Rate", 1000.0,
+                                          "Rate in Hz at which to simulate the motion preview.",
+                                          this, SLOT(changePreviewRate()));
+  previewRateRoperty_->setMin(0.0);
 }
 
 FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
@@ -152,10 +164,16 @@ void FreeGaitPreviewDisplay::subscribe()
 
   try {
     goalSubscriber_ = nodeHandle_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
-    adapterRos_.subscribeToRobotState(robotStateTopicProperty_->getStdString());
-    setStatus(rviz::StatusProperty::Ok, "Topic", "OK");
+    setStatus(rviz::StatusProperty::Ok, "Goal Topic", "OK");
   } catch (ros::Exception& e) {
-    setStatus(rviz::StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what());
+    setStatus(rviz::StatusProperty::Error, "Goal Topic", QString("Error subscribing: ") + e.what());
+  }
+
+  try {
+    adapterRos_.subscribeToRobotState(robotStateTopicProperty_->getStdString());
+    setStatus(rviz::StatusProperty::Ok, "Robot State Topic", "OK");
+  } catch (ros::Exception& e) {
+    setStatus(rviz::StatusProperty::Error, "Robot State Topic", QString("Error subscribing: ") + e.what());
   }
 }
 
