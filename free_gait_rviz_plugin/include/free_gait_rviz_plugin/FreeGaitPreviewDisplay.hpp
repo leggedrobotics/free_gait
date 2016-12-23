@@ -67,12 +67,11 @@ Q_OBJECT
   void unsubscribe();
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
 
-  ros::NodeHandle nodeHandle_;
   free_gait::AdapterRos adapterRos_;
 
 //  boost::circular_buffer<boost::shared_ptr<FreeGaitPreviewVisual> > visuals_;
   FreeGaitPreviewPlayback playback_;
-  FreeGaitPreviewVisual visual_;
+  FreeGaitPreviewVisual* visual_;
   free_gait::StepRosConverter stepRosConverter_;
   ros::Subscriber goalSubscriber_;
 

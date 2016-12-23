@@ -31,10 +31,8 @@
 namespace free_gait_rviz_plugin {
 
 FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
-    : nodeHandle_("~/free_gait_rviz_plugin"),
-      adapterRos_(nodeHandle_, free_gait::AdapterRos::AdapterType::Preview),
-      playback_(nodeHandle_, adapterRos_.getAdapter()),
-      visual_(context_->getSceneManager(), scene_node_),
+    : adapterRos_(update_nh_, free_gait::AdapterRos::AdapterType::Preview),
+      playback_(update_nh_, adapterRos_.getAdapter()),
       stepRosConverter_(adapterRos_.getAdapter())
 {
   topicsTree_ = new Property( "Topics", QVariant(), "", this);
@@ -93,7 +91,7 @@ void FreeGaitPreviewDisplay::update(float wall_dt, float ros_dt)
 
 void FreeGaitPreviewDisplay::onInitialize()
 {
-//  MFDClass::onInitialize();	 //  "MFDClass" = typedef of "MessageFilterDisplay<message type>"
+  visual_ = new FreeGaitPreviewVisual(context_->getSceneManager(), scene_node_);
 }
 
 void FreeGaitPreviewDisplay::onEnable()
@@ -167,7 +165,7 @@ void FreeGaitPreviewDisplay::subscribe()
   }
 
   try {
-    goalSubscriber_ = nodeHandle_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
+    goalSubscriber_ = update_nh_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
     setStatus(rviz::StatusProperty::Ok, "Goal Topic", "OK");
   } catch (ros::Exception& e) {
     setStatus(rviz::StatusProperty::Error, "Goal Topic", QString("Error subscribing: ") + e.what());
