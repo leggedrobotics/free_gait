@@ -33,7 +33,8 @@ namespace free_gait_rviz_plugin {
 FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
     : adapterRos_(update_nh_, free_gait::AdapterRos::AdapterType::Preview),
       playback_(update_nh_, adapterRos_.getAdapter()),
-      stepRosConverter_(adapterRos_.getAdapter())
+      stepRosConverter_(adapterRos_.getAdapter()),
+      visual_(NULL)
 {
   topicsTree_ = new Property( "Topics", QVariant(), "", this);
 
@@ -147,6 +148,8 @@ void FreeGaitPreviewDisplay::newGoalAvailable()
   playback_.run();
 
   // Visuals.
+  visual_->setStateBatch(playback_.getStateBatch());
+  visual_->visualizeEndEffectorTrajectories(0.01, Ogre::ColourValue(1, 0, 0, 1));
 }
 
 void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)

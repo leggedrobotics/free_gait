@@ -25,6 +25,11 @@ const std::map<double, State>& StateBatch::getStates() const
   return states_;
 }
 
+std::vector<std::map<double, Position>> StateBatch::getEndEffectorPositions() const
+{
+  return endEffectorPositions_;
+}
+
 void StateBatch::addState(const double time, const State& state)
 {
   states_[time] = state;

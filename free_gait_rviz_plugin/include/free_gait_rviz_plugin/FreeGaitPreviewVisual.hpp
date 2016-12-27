@@ -26,9 +26,10 @@ class FreeGaitPreviewVisual
   FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode);
   virtual ~FreeGaitPreviewVisual();
 
+  void clear();
   void setStateBatch(const free_gait::StateBatch& stateBatch);
 
-  void visualizeEndEffectorTrajectories();
+  void visualizeEndEffectorTrajectories(const float width, const Ogre::ColourValue& color);
 
  private:
   Ogre::SceneManager* sceneManager_;
