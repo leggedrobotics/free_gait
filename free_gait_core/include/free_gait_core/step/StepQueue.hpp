@@ -27,6 +27,7 @@ class StepQueue
   StepQueue();
   virtual ~StepQueue();
   StepQueue(const StepQueue& other);
+  StepQueue& operator=(const StepQueue& other);
 
   /*!
    * Add a step to the queue.

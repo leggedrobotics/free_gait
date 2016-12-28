@@ -59,7 +59,7 @@ class FreeGaitActionClient
   void doneCallback_(const actionlib::SimpleClientGoalState& state,
                      const free_gait_msgs::ExecuteStepsResultConstPtr& result);
 
-  ros::NodeHandle nodeHandle_;
+  ros::NodeHandle& nodeHandle_;
   std::unique_ptr<actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>> client_;
   std::unique_ptr<tf2_ros::TransformListener> tfListener_;
   ActionState state_;

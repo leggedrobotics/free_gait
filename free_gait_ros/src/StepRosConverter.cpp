@@ -25,6 +25,17 @@ StepRosConverter::~StepRosConverter()
 {
 }
 
+bool StepRosConverter::fromMessage(const std::vector<free_gait_msgs::Step>& message, std::vector<free_gait::Step>& steps)
+{
+  steps.resize(message.size());
+  for (const auto& stepMessage : message) {
+    Step step;
+    fromMessage(stepMessage, step);
+    steps.push_back(step);
+  }
+  return true;
+}
+
 bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& step)
 {
   // Leg motion.

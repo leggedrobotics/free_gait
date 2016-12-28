@@ -14,6 +14,7 @@
 // STD
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 
 namespace free_gait {
 
@@ -70,10 +71,12 @@ class State : public quadruped_model::QuadrupedState
   void setEmptyControlSetup(const BranchEnum& branch);
   void setEmptyControlSetup(const LimbEnum& limb);
 
+  void getAllJointNames(std::vector<std::string>& jointNames) const;
+
   friend std::ostream& operator << (std::ostream& out, const State& state);
 
  private:
-  // TODO Extend QuadrupedState class with:
+  // TODO Extend QuadrupedState class with (switch to quadruped_model?):
   JointEfforts jointEfforts_;
   JointAccelerations jointAccelerations_;
   LinearAcceleration linearAccelerationBaseInWorldFrame_;

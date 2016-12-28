@@ -7,6 +7,7 @@
  */
 #include <free_gait_core/executor/State.hpp>
 #include <free_gait_core/TypePrints.hpp>
+#include <quadruped_model/common/topology.hpp>
 #include <quadruped_model/common/topology_conversions.hpp>
 #include <quadruped_model/common/quadruped_model_common.hpp>
 
@@ -16,6 +17,7 @@ State::State()
     : QuadrupedState(),
       robotExecutionStatus_(false)
 {
+  quadruped_model::initializeTopology();
 }
 
 State::~State()
@@ -106,8 +108,8 @@ void State::setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdap
 
 const JointPositionsLeg State::getJointPositionsForLimb(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointPositionsLeg(quadruped_model::QuadrupedState::getJointPositions().vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointPositionsLeg(quadruped_model::QuadrupedState::getJointPositions().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 void State::setJointPositionsForLimb(const LimbEnum& limb, const JointPositionsLeg& jointPositions)
@@ -125,8 +127,8 @@ void State::setAllJointPositions(const JointPositions& jointPositions)
 
 const JointVelocitiesLeg State::getJointVelocitiesForLimb(const LimbEnum& limb) const
 {
-  unsigned int startIndex = 3 * quadruped_model::getLimbUIntFromLimbEnum(limb);
-  return JointVelocitiesLeg(quadruped_model::QuadrupedState::getJointVelocities().vector().segment<3>(startIndex));
+  unsigned int startIndex = quadruped_model::numDofLeg * quadruped_model::getLimbUIntFromLimbEnum(limb);
+  return JointVelocitiesLeg(quadruped_model::QuadrupedState::getJointVelocities().vector().segment<quadruped_model::numDofLeg>(startIndex));
 }
 
 void State::setJointVelocitiesForLimb(const LimbEnum& limb, const JointVelocitiesLeg& jointVelocities)
@@ -236,6 +238,14 @@ void State::setEmptyControlSetup(const BranchEnum& branch)
 void State::setEmptyControlSetup(const LimbEnum& limb)
 {
   setEmptyControlSetup(quadruped_model::getBranchEnumFromLimbEnum(limb));
+}
+
+void State::getAllJointNames(std::vector<std::string>& jointNames) const
+{
+  jointNames.clear();
+  for (auto jointKey : quadruped_model::internal::jointKeys) { // TODO Make nicer.
+    jointNames.push_back(std::get<0>(jointKey.second));
+  }
 }
 
 std::ostream& operator<<(std::ostream& out, const State& state)

@@ -31,6 +31,7 @@ class AdapterBase
 
   //! State independent functions.
   virtual const std::string& getWorldFrameId() const = 0;
+  virtual const std::string& getBaseFrameId() const = 0;
   virtual const std::vector<LimbEnum>& getLimbs() const = 0;
   virtual const std::vector<BranchEnum>& getBranches() const = 0;
   virtual LimbEnum getLimbEnumFromLimbString(const std::string& limb) const = 0;
@@ -62,6 +63,7 @@ class AdapterBase
    * @param frameId
    * @return
    */
+  virtual void getAvailableFrameTransforms(std::vector<std::string>& frameTransforms) const = 0;
   virtual Pose getFrameTransform(const std::string& frameId) const = 0;
   virtual ControlSetup getControlSetup(const BranchEnum& branch) const = 0;
   virtual ControlSetup getControlSetup(const LimbEnum& limb) const = 0;
@@ -75,6 +77,9 @@ class AdapterBase
                                                   const RotationQuaternion& orientation) const;
   virtual Pose transformPose(const std::string& inputFrameId, const std::string& outputFrameId,
                              const Pose& pose) const;
+
+  //! Hook to write data to internal robot representation from state.
+  virtual bool setInternalDataFromState(const State& state) = 0;
 };
 
 } /* namespace free_gait */

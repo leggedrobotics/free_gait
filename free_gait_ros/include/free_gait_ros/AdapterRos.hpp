@@ -27,15 +27,15 @@ class AdapterRos
     Preview
   };
 
-  AdapterRos(const ros::NodeHandle& nodeHandle, const AdapterType type = AdapterType::Base);
+  AdapterRos(ros::NodeHandle& nodeHandle, const AdapterType type = AdapterType::Base);
   virtual ~AdapterRos();
   bool subscribeToRobotState(const std::string& robotStateTopic = "");
+  const std::string getRobotStateMessageType();
   bool updateAdapterWithState();
   std::shared_ptr<AdapterBase> getAdapter();
 
-
  private:
-  ros::NodeHandle nodeHandle_;
+  ros::NodeHandle& nodeHandle_;
   pluginlib::ClassLoader<AdapterBase> adapterLoader_;
   std::shared_ptr<AdapterBase> adapter_;
   pluginlib::ClassLoader<AdapterRosInterfaceBase> adapterRosInterfaceLoader_;

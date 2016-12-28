@@ -23,14 +23,13 @@ global client
 class ActionLoader:
 
     def __init__(self):
-        self.action_server_topic = '/loco_free_gait/execute_steps'
         self.request = None
         self._load_parameters()
         self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.action = None
 
     def _load_parameters(self):
-        self.action_server_topic = rospy.get_param('~action_server')
+        self.action_server_topic = rospy.get_param('/free_gait/action_server')
         self.directory = rospy.get_param('~directory')
 
     def list_actions(self, request):

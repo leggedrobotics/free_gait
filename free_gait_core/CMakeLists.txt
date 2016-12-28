@@ -82,7 +82,10 @@ add_library(${PROJECT_NAME}
    src/step/StepCompleter.cpp
    src/step/StepComputer.cpp
    src/executor/Executor.cpp
+   src/executor/BatchExecutor.cpp
    src/executor/State.cpp
+   src/executor/StateBatch.cpp
+   src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
    src/pose_optimization/PoseOptimization3d.cpp
 )

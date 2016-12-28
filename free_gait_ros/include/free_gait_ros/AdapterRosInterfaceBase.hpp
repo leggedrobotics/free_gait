@@ -13,6 +13,9 @@
 // ROS
 #include <ros/node_handle.h>
 
+// STD
+#include <string>
+
 namespace free_gait {
 
 class AdapterRosInterfaceBase
@@ -20,16 +23,19 @@ class AdapterRosInterfaceBase
  public:
   AdapterRosInterfaceBase();
   virtual ~AdapterRosInterfaceBase();
-  void setNodeHandle(const ros::NodeHandle& nodeHandle);
+  void setNodeHandle(ros::NodeHandle& nodeHandle);
 
+  virtual bool readRobotDescription();
   virtual bool subscribeToRobotState(const std::string& robotStateTopic) = 0;
+  virtual const std::string getRobotStateMessageType() = 0;
 
   //! Update adapter.
   virtual bool initializeAdapter(AdapterBase& adapter) const = 0;
   virtual bool updateAdapterWithRobotState(AdapterBase& adapter) const = 0;
 
  protected:
-  ros::NodeHandle nodeHandle_;
+  ros::NodeHandle* nodeHandle_;
+  std::string robotDescriptionUrdfString_;
 
 };
 
