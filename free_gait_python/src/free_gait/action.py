@@ -90,6 +90,26 @@ class ContinuousAction(ActionBase):
         self.result.status = self.result.RESULT_UNKNOWN
 
 
+class CommandedAction(ActionBase):
+
+    def __init__(self, client, msg_topic, msg_type, directory = None):
+        ActionBase.__init__(self, client, directory)
+        self.keep_alive = True
+        self.topic = msg_topic
+        self.type = msg_type
+        self.subscriber = rospy.Subscriber(self.topic, self.type, self.command_callback)
+
+    def start(self):
+        self.state = ActionState.PENDING
+
+    def wait_for_result(self):
+        # Immediate return because action runs in background.
+        self.result = free_gait_msgs.msg.ExecuteStepsResult()
+        self.result.status = self.result.RESULT_UNKNOWN
+
+    def command_callback(self, msg):
+        pass
+
 class ExternalAction(ActionBase):
 
     def __init__(self, client, file_path):
