@@ -5,7 +5,7 @@
   <arg name="file" default="" />
   <arg name="directory" default="" />
 
-  <node pkg="free_gait_python" type="action_loader.py" name="free_gait_action_loader" output="screen">
+  <node pkg="free_gait_action_loader" type="action_loader.py" name="free_gait_action_loader" output="screen">
   	<param name="directory" value="$(arg directory)" />
   	<param name="file" value="$(arg file)" />
   </node>

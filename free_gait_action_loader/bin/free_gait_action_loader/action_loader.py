@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import roslib
-roslib.load_manifest('free_gait_python')
+roslib.load_manifest('free_gait_action_loader')
 from math import cos, sin
 import rospy
 import tf
