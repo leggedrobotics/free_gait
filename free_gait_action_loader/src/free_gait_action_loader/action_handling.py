@@ -43,6 +43,7 @@ class ActionEntry:
         self.file = None
         self.type = None
         self.description = None
+        self.directory = None
         self._initialize(package_path, parameters);
 
     def __str__(self):
@@ -64,7 +65,7 @@ class ActionEntry:
             self.file = abspath(join(package_path, parameters['file']))
         if 'type' in parameters:
             self.type = ActionType.from_text(parameters['type'])
-
+        self.directory = dirname(abspath(self.file))
 
 class ActionList:
 
@@ -100,6 +101,8 @@ class ActionList:
 
             except Exception:
                 rospy.logwarn("Unable to load action [%s] from package [%s]."%(file_path, package))
+
+        return True
 
     def get_list_of_ids(self, collection = ""):
         ids = []

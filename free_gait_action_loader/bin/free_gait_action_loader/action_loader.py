@@ -11,6 +11,7 @@ import free_gait_msgs.msg
 import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
+import std_srvs.srv
 import locomotion_controller_msgs.srv
 import traceback
 from actionlib_msgs.msg import *
@@ -28,18 +29,24 @@ class ActionLoader:
         self.action_list = ActionList()
         self.action_list.update()
         self.action = None
+        self.directory = None # Action's directory.
 
     def _load_parameters(self):
         self.action_server_topic = rospy.get_param('/free_gait/action_server')
         self.collection = rospy.get_param('~collection')
 
+    def update_actions(self, request):
+        success = self.action_list.update()
+        response = std_srvs.srv.TriggerResponse()
+        response.success = success
+        return response
+
     def list_actions(self, request):
-        self.action_list.update()
         ids = self.action_list.get_list_of_ids()
         response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(ids)
         return response
 
-    def send_action(self, request, single_action=False):
+    def send_action(self, request):
         self.reset()
         self.request = request
         response = locomotion_controller_msgs.srv.SwitchControllerResponse()
@@ -49,9 +56,11 @@ class ActionLoader:
             response.status = response.STATUS_NOTFOUND
         else:
             try:
+                self.directory = action_entry.directory
+
                 if action_entry.type == ActionType.YAML:
                     self._load_yaml_action(action_entry.file)
-                elif file_type.type == ActionType.PYTHON:
+                elif action_entry.type == ActionType.PYTHON:
                     self._load_python_action(action_entry.file)
 
                 self.action.wait_for_result()
@@ -71,9 +80,7 @@ class ActionLoader:
                 else:
                     rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
-
-                if not self.action.keep_alive and single_action:
-                    rospy.signal_shutdown("Action sent, shutting down.")
+                
             except:
                 rospy.logerr('An exception occurred while reading the action.')
                 response.status = response.STATUS_ERROR
@@ -94,7 +101,7 @@ class ActionLoader:
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
         # action_locals = dict()
-        # Kind of nasty, but currently only way to make external imports work
+        # Kind of nasty, but currently only way to make external imports work.
         execfile(file_path, globals(), globals())
         self.action = action
 
@@ -127,8 +134,9 @@ if __name__ == '__main__':
         action_loader = ActionLoader()
         rospy.on_shutdown(action_loader.preempt)
 
-        rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
+        rospy.Service('~update_actions', std_srvs.srv.Trigger, action_loader.update_actions)
         rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions)
+        rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
         rospy.loginfo("Ready to load actions from service call.")
 
         updateRate = rospy.Rate(10)
