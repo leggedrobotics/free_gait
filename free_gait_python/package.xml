@@ -6,7 +6,7 @@
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
   <license>BSD</license>
-  <url type="website">https://bitbucket.org/ethz-asl-lr/loco_free_gait</url>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>

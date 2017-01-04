@@ -30,11 +30,11 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
 
   // subscriber
   subGoal_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionGoal>
-      ("/loco_free_gait/execute_steps/goal", 10, &FreeGaitPlugin::goalCallback, this);
+      ("/free_gait/execute_steps/goal", 10, &FreeGaitPlugin::goalCallback, this);
   subFeedback_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionFeedback>
-      ("/loco_free_gait/execute_steps/feedback", 10, &FreeGaitPlugin::feedbackCallback, this);
+      ("/free_gait/execute_steps/feedback", 10, &FreeGaitPlugin::feedbackCallback, this);
   subResult_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionResult>
-      ("/loco_free_gait/execute_steps/result", 10, &FreeGaitPlugin::resultCallback, this);
+      ("/free_gait/execute_steps/result", 10, &FreeGaitPlugin::resultCallback, this);
 
   // init gui
   ui_.label_name->setText("<none>");

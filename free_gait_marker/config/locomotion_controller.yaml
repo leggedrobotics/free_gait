@@ -1,4 +1,4 @@
-action_server_topic: "/loco_free_gait/execute_steps"
+action_server_topic: "/free_gait/execute_steps"
 wait_for_action_timeout: 5
 foothold:
   frame_id: "map"
