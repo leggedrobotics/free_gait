@@ -31,7 +31,7 @@ class ActionLoader:
 
     def _load_parameters(self):
         self.action_server_topic = rospy.get_param('/free_gait/action_server')
-        self.directory = rospy.get_param('~directory')
+        self.collection = rospy.get_param('~collection')
 
     def list_actions(self, request):
         self.action_list.update()
