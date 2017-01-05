@@ -10,6 +10,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
+  <depend>free_gait_python</depend>
   <depend>free_gait_msgs</depend>
   <depend>locomotion_controller_msgs</depend>
 

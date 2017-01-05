@@ -6,6 +6,8 @@ project(free_gait_action_loader)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    rospy
+    free_gait_python
     free_gait_msgs
     locomotion_controller_msgs
 )

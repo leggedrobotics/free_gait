@@ -4,6 +4,7 @@ import roslib
 roslib.load_manifest('free_gait_action_loader')
 from math import cos, sin
 from free_gait_action_loader import *
+from free_gait import *
 import rospy
 import tf
 import actionlib
@@ -15,7 +16,6 @@ import std_srvs.srv
 import locomotion_controller_msgs.srv
 import traceback
 from actionlib_msgs.msg import *
-from free_gait import *
 import threading
 
 global client
