@@ -13,7 +13,7 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
 import std_srvs.srv
-import locomotion_controller_msgs.srv
+import anymal_msgs.srv
 import traceback
 from actionlib_msgs.msg import *
 import threading
@@ -43,13 +43,13 @@ class ActionLoader:
 
     def list_actions(self, request):
         ids = self.action_list.get_list_of_ids()
-        response = locomotion_controller_msgs.srv.GetAvailableControllersResponse(ids)
+        response = anymal_msgs.srv.GetAvailableControllersResponse(ids)
         return response
 
     def send_action(self, request):
         self.reset()
         self.request = request
-        response = locomotion_controller_msgs.srv.SwitchControllerResponse()
+        response = anymal_msgs.srv.SwitchControllerResponse()
         action_entry = self.action_list.get(request.name)
         if action_entry.file is None:
             rospy.logerr('Action with name "' + request.name + '" does not exists.')
@@ -135,8 +135,8 @@ if __name__ == '__main__':
         rospy.on_shutdown(action_loader.preempt)
 
         rospy.Service('~update_actions', std_srvs.srv.Trigger, action_loader.update_actions)
-        rospy.Service('~list_actions', locomotion_controller_msgs.srv.GetAvailableControllers, action_loader.list_actions)
-        rospy.Service('~send_action', locomotion_controller_msgs.srv.SwitchController, action_loader.send_action)
+        rospy.Service('~list_actions', anymal_msgs.srv.GetAvailableControllers, action_loader.list_actions)
+        rospy.Service('~send_action', anymal_msgs.srv.SwitchController, action_loader.send_action)
         rospy.loginfo("Ready to load actions from service call.")
 
         updateRate = rospy.Rate(10)
