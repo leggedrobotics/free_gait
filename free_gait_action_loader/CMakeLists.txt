@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
     rospy
     free_gait_python
     free_gait_msgs
-    locomotion_controller_msgs
+    anymal_msgs
 )
 
 catkin_package(

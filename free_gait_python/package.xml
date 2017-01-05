@@ -11,6 +11,6 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
   <depend>free_gait_msgs</depend>
-  <depend>locomotion_controller_msgs</depend>
+  <depend>anymal_msgs</depend>
 
 </package>
