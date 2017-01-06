@@ -12,8 +12,9 @@
 #include <quadruped_model/common/enums.hpp>
 #include <quadruped_model/common/typedefs.hpp>
 
-// stl
+// STL
 #include <unordered_map>
+#include <map>
 
 namespace free_gait {
 
@@ -74,8 +75,16 @@ enum class ControlLevel
   Effort
 };
 
+const std::vector<LimbEnum> limbEnumCounterClockWiseOrder = { LimbEnum::LF_LEG,
+                                                              LimbEnum::LH_LEG,
+                                                              LimbEnum::RH_LEG,
+                                                              LimbEnum::RF_LEG };
+
 typedef std::unordered_map<ControlLevel, bool, EnumClassHash> ControlSetup;
 typedef std::unordered_map<LimbEnum, Position, EnumClassHash> Stance;
 typedef std::unordered_map<LimbEnum, Position2, EnumClassHash> PlanarStance;
+
+struct CompareByCounterClockwiseOrder;
+void getFootholdsCounterClockwiseOrdered(const Stance& stance, std::vector<Position>& footholds);
 
 } // namespace

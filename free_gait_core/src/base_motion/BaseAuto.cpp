@@ -332,8 +332,10 @@ bool BaseAuto::optimizePose(Pose& pose)
   poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
 
   grid_map::Polygon support;
-  for (auto foothold : footholdsInSupport_) {
-    support.addVertex(foothold.second.vector().head<2>());
+  std::vector<Position> footholdsOrdered;
+  getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
+  for (auto foothold : footholdsOrdered) {
+    support.addVertex(foothold.vector().head<2>());
   }
   support.offsetInward(supportMargin_);
   poseOptimization_.setSupportPolygon(support);

@@ -49,5 +49,5 @@ float64 phase
 # step ('LF_LEG', 'RH_LEG', etc.).
 string[] swing_leg_names
 
-# If action is ignoring state estimator or not.
+# If action is ignoring state estimator or not. (TODO Remove)
 bool ignoring_state_estimator

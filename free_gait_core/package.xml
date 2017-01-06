@@ -10,7 +10,7 @@
   <author email="pfankhauser@ethz.ch">Péter Fankhauser</author>
   <buildtool_depend>catkin</buildtool_depend>
   <depend>quadruped_model</depend>
-  <depend>ooqp_eigen_interface</depend>
+  <depend>numopt_quadprog</depend>
   <depend>curves</depend>
   <depend>grid_map_core</depend>
   <depend>loco</depend>

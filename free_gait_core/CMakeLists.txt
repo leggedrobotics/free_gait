@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   quadruped_model
-  ooqp_eigen_interface
+  numopt_quadprog
   curves
   grid_map_core
   loco
@@ -33,7 +33,7 @@ catkin_package(
       ${PROJECT_NAME}
     CATKIN_DEPENDS
       quadruped_model
-      ooqp_eigen_interface
+      numopt_quadprog
       curves
       grid_map_core
       loco
@@ -64,6 +64,7 @@ include_directories(
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
+   src/TypeDefs.cpp
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp

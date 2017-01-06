@@ -21,7 +21,7 @@
 
 using namespace free_gait;
 
-TEST(quadruped, symmetricUnconstrained)
+TEST(PoseOptimization, quadrupedSymmetricUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -47,7 +47,7 @@ TEST(quadruped, symmetricUnconstrained)
   kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, symmetricWithOffsetUnconstrained)
+TEST(PoseOptimization, quadrupedSymmetricWithOffsetUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -72,7 +72,7 @@ TEST(quadruped, symmetricWithOffsetUnconstrained)
   kindr::assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, asymmetricUnconstrained)
+TEST(PoseOptimization, quadrupedAsymmetricUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -102,7 +102,7 @@ TEST(quadruped, asymmetricUnconstrained)
   kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(quadruped, symmetricWithYawUnconstrained)
+TEST(PoseOptimization, quadrupedSymmetricWithYawUnconstrained)
 {
   PoseOptimization optimization;
 
@@ -163,35 +163,38 @@ TEST(quadruped, symmetricWithYawUnconstrained)
 //  assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 //}
 //
-//TEST(quadruped, constrained)
-//{
-//  PoseOptimization optimization;
-//
-//  optimization.setDesiredLegConfiguration( {
-//    Position(1.0, 0.5, 0.0),
-//    Position(-1.0, 0.5, 0.0),
-//    Position(-1.0, -0.5, 0.0),
-//    Position(1.0, -0.5, 0.0) });
-//
-//  std::vector<Position> feetPositions;
-//  kindr::rotations::eigen_impl::EulerAnglesXyzPD rotation(0.0, 0.0, 0.5);
-//  feetPositions.push_back(rotation.inverseRotate(Position(2.0, 0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, 0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(-1.0, -0.5, 0.0)));
-//  feetPositions.push_back(rotation.inverseRotate(Position(1.0, -0.5, 0.0)));
-//  optimization.setFeetPositions(feetPositions);
-//
-//  grid_map::Polygon supportPolygon;
-//  // Skipping LF.
-//  supportPolygon.addVertex(feetPositions[1].vector().head<2>());
-//  supportPolygon.addVertex(feetPositions[2].vector().head<2>());
-//  supportPolygon.addVertex(feetPositions[3].vector().head<2>());
-//  optimization.setSupportPolygon(supportPolygon);
-//
-//  Pose pose;
-//  pose.getRotation() = rotation;
-//  ASSERT_TRUE(optimization.optimize(pose));
-//
+TEST(PoseOptimization, constrained)
+{
+  PoseOptimization optimization;
+
+  optimization.setNominalStance( Stance({
+    {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
+    {LimbEnum::RF_LEG, Position(1.0, -0.5, 0.0)},
+    {LimbEnum::LH_LEG, Position(-1.0, -0.5, 0.0)},
+    {LimbEnum::RH_LEG, Position(-1.0, 0.5, 0.0)} }));
+
+  Stance feetPositions;
+  kindr::EulerAnglesZyxPD rotation(0.0, 0.0, 0.5);
+  feetPositions[LimbEnum::LF_LEG] = rotation.rotate(Position(2.0, 0.5, 0.0));
+  feetPositions[LimbEnum::LH_LEG] = rotation.rotate(Position(-1.0, 0.5, 0.0));
+  feetPositions[LimbEnum::RH_LEG] = rotation.rotate(Position(-1.0, -0.5, 0.0));
+  feetPositions[LimbEnum::RF_LEG] = rotation.rotate(Position(1.0, -0.5, 0.0));
+  optimization.setStance(feetPositions);
+
+  grid_map::Polygon supportPolygon;
+  // Skipping LF.
+  supportPolygon.addVertex(feetPositions[LimbEnum::LH_LEG].vector().head<2>());
+  supportPolygon.addVertex(feetPositions[LimbEnum::RH_LEG].vector().head<2>());
+  supportPolygon.addVertex(feetPositions[LimbEnum::RF_LEG].vector().head<2>());
+  optimization.setSupportPolygon(supportPolygon);
+
+  Pose pose;
+  pose.getRotation() = rotation;
+  ASSERT_TRUE(optimization.optimize(pose));
+
+  supportPolygon.offsetInward(-1e-5);
+  ASSERT_TRUE(supportPolygon.isInside(pose.getPosition().vector().head<2>()));
+
 //  Eigen::Matrix3d expectedOrientation;
 //  expectedOrientation <<  0.9255, 0.3917, 0.0,
 //                         -0.3917, 0.9255, 0.0,
@@ -199,9 +202,9 @@ TEST(quadruped, symmetricWithYawUnconstrained)
 //
 //  Eigen::Vector3d expectedPosition(0.2235, 0.0081, 0.0);
 //
-//  assertNear(expectedOrientation, RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
-//  assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
-//}
+//  kindr::assertNear(expectedOrientation, RotationMatrix(pose.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+//  kindr::assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+}
 //
 //TEST(quadruped, DebugLoco1)
 //{

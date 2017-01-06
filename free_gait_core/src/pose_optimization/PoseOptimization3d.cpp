@@ -9,8 +9,11 @@
 #include <free_gait_core/pose_optimization/PoseOptimization.hpp>
 #include <Eigen/Core>
 #include <Eigen/SVD>
-#include <ooqp_eigen_interface/OoqpEigenInterface.hpp>
 #include <kindr/Core>
+
+// Numerical Optimization
+#include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
+#include <numopt_common/ParameterizationIdentity.hpp>
 
 using namespace Eigen;
 
@@ -20,10 +23,21 @@ PoseOptimization::PoseOptimization()
     : nStates_(4),
       nDimensions_(3)
 {
+  solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
 PoseOptimization::~PoseOptimization()
 {
+}
+
+PoseOptimization::PoseOptimization(const PoseOptimization& other)
+    : nStates_(other.nStates_),
+      nDimensions_(other.nDimensions_),
+      stance_(other.stance_),
+      nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
+      supportPolygon_(other.supportPolygon_)
+{
+  solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
 void PoseOptimization::setStance(const Stance& stance)
@@ -89,12 +103,28 @@ bool PoseOptimization::optimize(Pose& pose)
   VectorXd q = -2 * A.transpose() * b;
 //  MatrixXd r = b.transpose() * b; // Not used.
 
+  // Cost function.
+  auto costFunction = std::shared_ptr<numopt_common::QuadraticObjectiveFunction>(new numopt_common::QuadraticObjectiveFunction());
+  numopt_common::SparseMatrix P_sparse = P.sparseView();
+  costFunction->setGlobalHessian(P_sparse);
+  costFunction->setLinearTerm(q);
+
+  // Constraints.
+  auto constraints = std::shared_ptr<numopt_common::LinearFunctionConstraints>(new numopt_common::LinearFunctionConstraints());
+  numopt_common::SparseMatrix G_sparse = G.sparseView();
+  constraints->setGlobalInequalityConstraintJacobian(G_sparse);
+  constraints->setInequalityConstraintMinValues(std::numeric_limits<double>::lowest() * numopt_common::Vector::Ones(h.size()));
+  constraints->setInequalityConstraintMaxValues(h);
+
   // Solve.
-  Eigen::SparseMatrix<double, Eigen::RowMajor> P_sparse = P.sparseView();
-  Eigen::SparseMatrix<double, Eigen::RowMajor> G_sparse = G.sparseView();
+  numopt_common::QuadraticProblem problem(costFunction, constraints);
+
   Eigen::VectorXd x;
-  if (!ooqpei::OoqpEigenInterface::solve(P_sparse, q, G_sparse, h, x))
-      return false;
+  numopt_common::ParameterizationIdentity params(x.size());
+  params.getParams() = x;
+  double cost = 0.0;
+  if (!solver_->minimize(&problem, params, cost)) return false;
+  x = params.getParams();
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.

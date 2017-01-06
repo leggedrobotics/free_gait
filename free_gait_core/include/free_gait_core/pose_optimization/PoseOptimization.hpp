@@ -15,6 +15,10 @@
 
 // STD
 #include <unordered_map>
+#include <memory>
+
+// Numerical Optimization
+#include <numopt_common/QuadraticProblemSolver.hpp>
 
 namespace free_gait {
 
@@ -23,6 +27,7 @@ class PoseOptimization
  public:
   PoseOptimization();
   virtual ~PoseOptimization();
+  PoseOptimization(const PoseOptimization& other);
 
   /*!
    * Set the positions of the feet of the robot in world coordinate system.
@@ -52,6 +57,7 @@ class PoseOptimization
   bool optimize(Pose& pose);
 
  private:
+  std::unique_ptr<numopt_common::QuadraticProblemSolver> solver_;
   unsigned int nStates_;
   unsigned int nDimensions_;
   Stance stance_;
