@@ -9,6 +9,7 @@ import rospy
 import tf
 import actionlib
 import free_gait_msgs.msg
+import free_gait_msgs.srv
 import geometry_msgs.msg
 import trajectory_msgs.msg
 import std_msgs.msg
@@ -26,8 +27,11 @@ class ActionLoader:
         self.request = None
         self._load_parameters()
         self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
-        self.action_list = ActionList()
+        self.name = rospy.get_name()[1:]
+        self.action_list = ActionList(self.name)
         self.action_list.update()
+        self.collection_list = CollectionList(self.name)
+        self.collection_list.update()
         self.action = None
         self.directory = None # Action's directory.
 
@@ -35,15 +39,26 @@ class ActionLoader:
         self.action_server_topic = rospy.get_param('/free_gait/action_server')
         self.collection = rospy.get_param('~collection')
 
-    def update_actions(self, request):
-        success = self.action_list.update()
+    def update(self, request):
+        success = self.action_list.update() and self.collection_list.update()
         response = std_srvs.srv.TriggerResponse()
         response.success = success
         return response
 
     def list_actions(self, request):
-        ids = self.action_list.get_list_of_ids()
-        response = anymal_msgs.srv.GetAvailableControllersResponse(ids)
+        response = free_gait_msgs.srv.GetActionsResponse()
+        action_ids = []
+        if request.collection_id:
+            collection = self.collection_list.get(request.collection_id)
+            if collection is None:
+                return response
+            action_ids = collection.action_ids
+        response.actions = self.action_list.to_ros_message(action_ids)
+        return response
+
+    def list_collections(self, request):
+        response = free_gait_msgs.srv.GetCollectionsResponse()
+        response.collections = self.collection_list.to_ros_message()
         return response
 
     def send_action(self, request):
@@ -80,7 +95,7 @@ class ActionLoader:
                 else:
                     rospy.loginfo('Action successfully executed.')
                 response.status = response.STATUS_SWITCHED
-                
+
             except:
                 rospy.logerr('An exception occurred while reading the action.')
                 response.status = response.STATUS_ERROR
@@ -134,8 +149,9 @@ if __name__ == '__main__':
         action_loader = ActionLoader()
         rospy.on_shutdown(action_loader.preempt)
 
-        rospy.Service('~update_actions', std_srvs.srv.Trigger, action_loader.update_actions)
-        rospy.Service('~list_actions', anymal_msgs.srv.GetAvailableControllers, action_loader.list_actions)
+        rospy.Service('~update', std_srvs.srv.Trigger, action_loader.update)
+        rospy.Service('~list_actions', free_gait_msgs.srv.GetActions, action_loader.list_actions)
+        rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, action_loader.list_collections)
         rospy.Service('~send_action', anymal_msgs.srv.SwitchController, action_loader.send_action)
         rospy.loginfo("Ready to load actions from service call.")
 

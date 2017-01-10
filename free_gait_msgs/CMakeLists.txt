@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
+   ActionDescription.msg
+   CollectionDescription.msg
    Step.msg
    BaseAuto.msg
    BaseTarget.msg
@@ -29,11 +31,11 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  GetActions.srv
+  GetCollections.srv
+)
 
 ## Generate actions in the 'action' folder
 add_action_files(
@@ -107,4 +109,3 @@ catkin_package(
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
-

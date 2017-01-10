@@ -1,0 +1,5 @@
+# Get available actions for this collection,
+# returns all actions if `collection_id` is empty.
+string collection_id
+---
+ActionDescription[] actions
