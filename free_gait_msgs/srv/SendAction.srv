@@ -1,0 +1,12 @@
+# This initializes and sends a specified action over the
+# action server. This service call is non-blocking will return
+# immediately after the message has been successfully sent or
+# the specified action could not be found.
+#
+# Note: If you need feedback about the progress or successful
+# execution of the action (outside of the action itself), subscribe
+# to the `feedback` and `result` of the Free Gait action server.
+
+free_gait_msgs/ExecuteActionGoal goal
+---
+free_gait_msgs/ExecuteActionResult result

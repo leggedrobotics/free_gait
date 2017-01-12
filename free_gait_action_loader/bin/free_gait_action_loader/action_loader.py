@@ -2,19 +2,13 @@
 
 import roslib
 roslib.load_manifest('free_gait_action_loader')
-from math import cos, sin
 from free_gait_action_loader import *
 from free_gait import *
 import rospy
-import tf
 import actionlib
 import free_gait_msgs.msg
 import free_gait_msgs.srv
-import geometry_msgs.msg
-import trajectory_msgs.msg
-import std_msgs.msg
 import std_srvs.srv
-import anymal_msgs.srv
 import traceback
 from actionlib_msgs.msg import *
 import threading
@@ -24,8 +18,7 @@ global client
 class ActionLoader:
 
     def __init__(self):
-        self.request = None
-        self._load_parameters()
+        self.action_server_topic = rospy.get_param('/free_gait/action_server')
         self.client = actionlib.SimpleActionClient(self.action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.name = rospy.get_name()[1:]
         self.action_list = ActionList(self.name)
@@ -34,10 +27,6 @@ class ActionLoader:
         self.collection_list.update()
         self.action = None
         self.directory = None # Action's directory.
-
-    def _load_parameters(self):
-        self.action_server_topic = rospy.get_param('/free_gait/action_server')
-        self.collection = rospy.get_param('~collection')
 
     def update(self, request):
         success = self.action_list.update() and self.collection_list.update()
@@ -63,43 +52,44 @@ class ActionLoader:
 
     def send_action(self, request):
         self.reset()
-        self.request = request
-        response = anymal_msgs.srv.SwitchControllerResponse()
-        action_entry = self.action_list.get(request.name)
+        response = free_gait_msgs.srv.SendActionResponse()
+        action_entry = self.action_list.get(request.goal.action_id)
+
+        if action_entry is None:
+            rospy.logerr('Action with id "' + request.goal.action_id + '" does not exists.')
+            response.result.status = response.result.RESULT_NOT_FOUND
+            return response
+
         if action_entry.file is None:
-            rospy.logerr('Action with name "' + request.name + '" does not exists.')
-            response.status = response.STATUS_NOTFOUND
-        else:
-            try:
-                self.directory = action_entry.directory
+            rospy.logerr('File for action with id "' + request.goal.action_id + '" does not exists.')
+            response.result.status = response.result.RESULT_NOT_FOUND
+            return response
 
-                if action_entry.type == ActionType.YAML:
-                    self._load_yaml_action(action_entry.file)
-                elif action_entry.type == ActionType.PYTHON:
-                    self._load_python_action(action_entry.file)
+        try:
+            self.directory = action_entry.directory
 
-                self.action.wait_for_result()
+            if action_entry.type == ActionType.YAML:
+                self._load_yaml_action(action_entry.file)
+            elif action_entry.type == ActionType.PYTHON:
+                self._load_python_action(action_entry.file)
 
-                if self.action.result is None:
-                    response.status = response.STATUS_ERROR
-                    rospy.logerr('An error occurred while reading the action.')
-                    return response
+            if self.action is None:
+                response.result.status = response.result.RESULT_UNKNOWN
+                rospy.logerr('An unkown state has been reached while reading the action.')
+                return response
 
-                if self.action.result.status == free_gait_msgs.msg.ExecuteStepsResult.RESULT_FAILED:
-                    response.status = response.STATUS_ERROR
-                    rospy.logerr('An error occurred while executing the action.')
-                    return response
+            if self.action.state == ActionState.ERROR or self.action.state == ActionState.UNINITIALIZED:
+                response.result.status = response.result.RESULT_ERROR
+                rospy.logerr('An error occurred while executing the action.')
+                return response
 
-                if self.action.keep_alive:
-                    rospy.loginfo("Action continues in the background.")
-                else:
-                    rospy.loginfo('Action successfully executed.')
-                response.status = response.STATUS_SWITCHED
+            rospy.loginfo('Action was successfully sent.')
+            response.result.status = response.result.RESULT_SUCCESS
 
-            except:
-                rospy.logerr('An exception occurred while reading the action.')
-                response.status = response.STATUS_ERROR
-                rospy.logerr(traceback.print_exc())
+        except:
+            rospy.logerr('An exception occurred while reading the action.')
+            response.result.status = response.result.RESULT_ERROR
+            rospy.logerr(traceback.print_exc())
 
         return response
 
@@ -152,8 +142,8 @@ if __name__ == '__main__':
         rospy.Service('~update', std_srvs.srv.Trigger, action_loader.update)
         rospy.Service('~list_actions', free_gait_msgs.srv.GetActions, action_loader.list_actions)
         rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, action_loader.list_collections)
-        rospy.Service('~send_action', anymal_msgs.srv.SwitchController, action_loader.send_action)
-        rospy.loginfo("Ready to load actions from service call.")
+        rospy.Service('~send_action', free_gait_msgs.srv.SendAction, action_loader.send_action)
+        rospy.loginfo('Ready to load actions from service call.')
 
         updateRate = rospy.Rate(10)
         while not rospy.is_shutdown():

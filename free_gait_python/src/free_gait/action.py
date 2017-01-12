@@ -8,6 +8,7 @@ import roslaunch
 
 
 class ActionState:
+    ERROR = -1
     UNINITIALIZED = 0
     INITIALIZED = 1
     PENDING = 2
@@ -19,19 +20,34 @@ class ActionBase(object):
 
     def __init__(self, client, directory = None):
         self.state = ActionState.UNINITIALIZED
+        self.feedback_callback = None
+        self.done_callback = None
         self.client = client
         self.directory = directory
         self.goal = None
         self.feedback = None
         self.result = None
         self.timeout = rospy.Duration()
-        # If true, action can run in background after state DONE.
-        self.keep_alive = False
-        self.state = ActionState.INITIALIZED
+        self._set_state(ActionState.INITIALIZED)
+
+    def _set_state(self, state):
+        self.state = state
+        if self.state == ActionState.ERROR \
+        or self.state == ActionState.INITIALIZED \
+        or self.state == ActionState.PENDING \
+        or self.state == ActionState.ACTIVE:
+            if self.feedback_callback:
+                self.feedback_callback()
+        elif self.state == ActionState.DONE:
+            if self.done_callback:
+                self.done_callback()
+
+    def register_callback(self, feedback_callback = None, done_callback = None):
+        self.feedback_callback = feedback_callback
+        self.done_callback = done_callback
 
     def start(self):
-        self.state = ActionState.PENDING
-        self._send_goal()
+        self._set_state(ActionState.PENDING)
 
     def wait_for_result(self):
         wait_for_done = WaitForDone(self)
@@ -44,7 +60,7 @@ class ActionBase(object):
         if self.goal is None:
             self.result = free_gait_msgs.msg.ExecuteStepsResult()
             self.result.status = free_gait_msgs.msg.ExecuteStepsResult.RESULT_UNKNOWN
-            self.state = ActionState.DONE
+            self._set_state(ActionState.DONE)
             return
 
         if self.client.gh:
@@ -56,13 +72,13 @@ class ActionBase(object):
                               feedback_cb=self._feedback_callback)
 
     def _active_callback(self):
-        self.state = ActionState.ACTIVE
+        self._set_state(ActionState.ACTIVE)
 
     def _feedback_callback(self, feedback):
         self.feedback = feedback
 
     def _done_callback(self, status, result):
-        self.state = ActionState.DONE
+        self._set_state(ActionState.DONE)
         self.result = result
         if status != GoalStatus.SUCCEEDED:
             self.stop()
@@ -74,20 +90,9 @@ class SimpleAction(ActionBase):
         ActionBase.__init__(self, client, None)
         self.goal = goal
 
-
-class ContinuousAction(ActionBase):
-
-    def __init__(self, client, directory = None):
-        ActionBase.__init__(self, client, directory)
-        self.keep_alive = True
-
     def start(self):
         self.state = ActionState.PENDING
-
-    def wait_for_result(self):
-        # Immediate return because action runs in background.
-        self.result = free_gait_msgs.msg.ExecuteStepsResult()
-        self.result.status = self.result.RESULT_UNKNOWN
+        self._send_goal()
 
 
 class ExternalAction(ActionBase):
@@ -95,7 +100,6 @@ class ExternalAction(ActionBase):
     def __init__(self, client, file_path):
         ActionBase.__init__(self, client, None)
         self.file_path = file_path
-        self.keep_alive = True
 
     def start(self):
         self.state = ActionState.PENDING
@@ -103,11 +107,6 @@ class ExternalAction(ActionBase):
         roslaunch.configure_logging(uuid)
         self.launch = roslaunch.parent.ROSLaunchParent(uuid, [self.file_path])
         self.launch.start()
-
-    def wait_for_result(self):
-        # Immediate return because action runs externally.
-        self.result = free_gait_msgs.msg.ExecuteStepsResult()
-        self.result.status = self.result.RESULT_UNKNOWN
 
     def stop(self):
         self.launch.shutdown()

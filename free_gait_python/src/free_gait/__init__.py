@@ -8,7 +8,6 @@ from free_gait import transform_position
 from action import ActionState
 from action import ActionBase
 from action import SimpleAction
-from action import ContinuousAction
 from action import ExternalAction
 from action import TriggerOnFeedback
 from action import WaitForDone
