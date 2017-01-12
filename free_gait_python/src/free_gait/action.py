@@ -13,7 +13,8 @@ class ActionState:
     INITIALIZED = 1
     PENDING = 2
     ACTIVE = 3
-    DONE = 4
+    IDLE = 4
+    DONE = 5
 
 
 class ActionBase(object):
@@ -35,7 +36,8 @@ class ActionBase(object):
         if self.state == ActionState.ERROR \
         or self.state == ActionState.INITIALIZED \
         or self.state == ActionState.PENDING \
-        or self.state == ActionState.ACTIVE:
+        or self.state == ActionState.ACTIVE \
+        or self.state == ActionState.IDLE:
             if self.feedback_callback:
                 self.feedback_callback()
         elif self.state == ActionState.DONE:
