@@ -8,13 +8,32 @@ import roslaunch
 
 
 class ActionState:
-    ERROR = -1
-    UNINITIALIZED = 0
-    INITIALIZED = 1
-    PENDING = 2
-    ACTIVE = 3
-    IDLE = 4
-    DONE = 5
+    ERROR = -1         # Error state.
+    UNINITIALIZED = 0  # Not initialized.
+    INITIALIZED = 1    # Successfully initialized.
+    PENDING = 2        # Waiting for previous action to finish.
+    ACTIVE = 3         # Action running.
+    IDLE = 4           # Waiting for input.
+    DONE = 5           # Successfully finished.
+
+    @staticmethod
+    def to_text(action_state):
+        if action_state == ActionState.ERROR:
+            return 'Error'
+        elif action_state == ActionState.UNINITIALIZED:
+            return 'Uninitialized'
+        elif action_state == ActionState.INITIALIZED:
+            return 'Initialized'
+        elif action_state == ActionState.PENDING:
+            return 'Pending'
+        elif action_state == ActionState.ACTIVE:
+            return 'Active'
+        elif action_state == ActionState.IDLE:
+            return 'Idle'
+        elif action_state == ActionState.DONE:
+            return 'Done'
+        else:
+            return None
 
 
 class ActionBase(object):
@@ -27,11 +46,12 @@ class ActionBase(object):
         self.directory = directory
         self.goal = None
         self.feedback = None
-        self.result = None
         self.timeout = rospy.Duration()
-        self._set_state(ActionState.INITIALIZED)
+        self.set_state(ActionState.INITIALIZED)
 
-    def _set_state(self, state):
+    def set_state(self, state):
+        if state == self.state:
+            return
         self.state = state
         if self.state == ActionState.ERROR \
         or self.state == ActionState.INITIALIZED \
@@ -49,11 +69,11 @@ class ActionBase(object):
         self.done_callback = done_callback
 
     def start(self):
-        self._set_state(ActionState.PENDING)
+        self.set_state(ActionState.PENDING)
 
-    def wait_for_result(self):
-        wait_for_done = WaitForDone(self)
-        wait_for_done.wait();
+    def wait_for_state(self, state):
+        wait_for_state = WaitForState(self, state)
+        wait_for_state.wait();
 
     def stop(self):
         pass
@@ -62,7 +82,7 @@ class ActionBase(object):
         if self.goal is None:
             self.result = free_gait_msgs.msg.ExecuteStepsResult()
             self.result.status = free_gait_msgs.msg.ExecuteStepsResult.RESULT_UNKNOWN
-            self._set_state(ActionState.DONE)
+            self.set_state(ActionState.DONE)
             return
 
         if self.client.gh:
@@ -74,13 +94,13 @@ class ActionBase(object):
                               feedback_cb=self._feedback_callback)
 
     def _active_callback(self):
-        self._set_state(ActionState.ACTIVE)
+        self.set_state(ActionState.ACTIVE)
 
     def _feedback_callback(self, feedback):
         self.feedback = feedback
 
     def _done_callback(self, status, result):
-        self._set_state(ActionState.DONE)
+        self.set_state(ActionState.DONE)
         self.result = result
         if status != GoalStatus.SUCCEEDED:
             self.stop()
@@ -93,7 +113,7 @@ class SimpleAction(ActionBase):
         self.goal = goal
 
     def start(self):
-        self.state = ActionState.PENDING
+        self.set_state(ActionState.PENDING)
         self._send_goal()
 
 
@@ -104,7 +124,7 @@ class ExternalAction(ActionBase):
         self.file_path = file_path
 
     def start(self):
-        self.state = ActionState.PENDING
+        self.set_state(ActionState.PENDING)
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
         self.launch = roslaunch.parent.ROSLaunchParent(uuid, [self.file_path])
@@ -129,10 +149,11 @@ class TriggerOnFeedback:
             return False
 
 
-class WaitForDone:
+class WaitForState:
 
-    def __init__(self, action, timeout = rospy.Duration(), loop_period = rospy.Duration(0.1)):
+    def __init__(self, action, state, timeout = rospy.Duration(), loop_period = rospy.Duration(0.1)):
         self.action = action
+        self.state = state
         self.timeout = timeout
         self.loop_period = loop_period
         self.done_condition = threading.Condition()
@@ -145,13 +166,17 @@ class WaitForDone:
                 time_left = timeout_time - rospy.get_rostime()
                 if self.timeout > rospy.Duration(0.0) and time_left <= rospy.Duration(0.0):
                     break
-
-                if self.action.state == ActionState.DONE:
-                    break
-
+                if len(self.state) == 1:
+                    if self.action.state == self.state:
+                        break
+                else:
+                    if self.action.state in self.state:
+                        break
                 if time_left > loop_period or self.timeout == rospy.Duration():
                     time_left = loop_period
-
                 self.done_condition.wait(time_left.to_sec())
 
-        return self.action.state == ActionState.DONE
+        if len(self.state) == 1:
+            return self.action.state == self.state
+        else:
+            return self.action.state in self.state

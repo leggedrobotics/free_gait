@@ -10,4 +10,4 @@ from action import ActionBase
 from action import SimpleAction
 from action import ExternalAction
 from action import TriggerOnFeedback
-from action import WaitForDone
+from action import WaitForState

@@ -13,8 +13,6 @@ import traceback
 from actionlib_msgs.msg import *
 import threading
 
-global client
-
 class ActionLoader:
 
     def __init__(self):
@@ -27,13 +25,13 @@ class ActionLoader:
         self.directory = None # Action's directory.
 
         step_action_server_topic = rospy.get_param('/free_gait/action_server')
-        self.step_action_client = actionlib.SimpleActionClient(step_action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
+        self.execute_steps_client = actionlib.SimpleActionClient(step_action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.action_server = actionlib.SimpleActionServer("~execute_action", free_gait_msgs.msg.ExecuteActionAction, \
-                                                          execute_cb=self.execute_action_callback, auto_start = False)
+                                                          execute_cb=self._execute_action_callback, auto_start = False)
         rospy.Service('~update', std_srvs.srv.Trigger, self.update)
         rospy.Service('~list_actions', free_gait_msgs.srv.GetActions, self.list_actions)
         rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, self.list_collections)
-        rospy.Service('~send_action', free_gait_msgs.srv.SendAction, self.send_action_callback)
+        rospy.Service('~send_action', free_gait_msgs.srv.SendAction, self._send_action_callback)
         rospy.on_shutdown(self.preempt)
 
     def update(self, request):
@@ -58,10 +56,10 @@ class ActionLoader:
         response.collections = self.collection_list.to_ros_message()
         return response
 
-    def execute_action_callback(self, goal):
+    def _execute_action_callback(self, goal):
         pass
 
-    def send_action_callback(self, request):
+    def _send_action_callback(self, request):
         response = free_gait_msgs.srv.SendActionResponse()
         response.result = self.send_action(request.goal.action_id)
         return response
@@ -94,17 +92,23 @@ class ActionLoader:
                 return response
 
             if self.action.state == ActionState.ERROR or self.action.state == ActionState.UNINITIALIZED:
-                response.status = response.RESULT_ERROR
-                rospy.logerr('An error occurred while executing the action.')
+                response.status = response.RESULT_FAILED
+                rospy.logerr('An error occurred while loading the action.')
                 return response
 
-            # WAIT FOR ACTIVE
-            rospy.loginfo('Action was successfully started.')
-            response.status = response.RESULT_STARTED
+            self.action.register_callback(self._action_feedback_callback, self._action_done_callback)
+            self.action.wait_for_state([ActionState.ERROR, ActionState.ACTIVE, ActionState.IDLE, ActionState.DONE])
+
+            if self.action.state == ActionState.ERROR:
+                response.status = response.RESULT_FAILED
+                rospy.logerr('An error occurred while initializing the action.')
+            else:
+                response.status = response.RESULT_STARTED
+                rospy.loginfo('Action was successfully started.')
 
         except:
-            rospy.logerr('An exception occurred while reading the action.')
-            response.status = response.RESULT_ERROR
+            rospy.logerr('An exception occurred while loading the action.')
+            response.status = response.RESULT_FAILED
             rospy.logerr(traceback.print_exc())
 
         return response
@@ -114,9 +118,10 @@ class ActionLoader:
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
         rospy.logdebug(goal)
+        self.action = SimpleAction(self.execute_steps_client, goal)
         if goal is None:
             rospy.logerr('Could not load action from YAML file.')
-        self.action = SimpleAction(self.step_action_client, goal)
+            self.action.set_state(ActionState.ERROR)
 
     def _load_python_action(self, file_path):
         # Load action from Python script.
@@ -126,7 +131,13 @@ class ActionLoader:
         execfile(file_path, globals(), globals())
         self.action = action
 
-    def check_and_start_action(self):
+    def _action_feedback_callback(self):
+        print "_action_feedback_callback: " + ActionState.to_text(self.action.state)
+
+    def _action_done_callback(self):
+        print "_action_done_callback: " + ActionState.to_text(self.action.state)
+
+    def _check_and_start_action(self):
         if self.action is not None:
             if self.action.state == ActionState.INITIALIZED:
                 self.action.start()
@@ -136,14 +147,14 @@ class ActionLoader:
             self.action.stop()
         del self.action
         self.action = None
-        if self.step_action_client.gh:
-            self.step_action_client.stop_tracking_goal()
+        if self.execute_steps_client.gh:
+            self.execute_steps_client.stop_tracking_goal()
 
     def preempt(self):
         try:
-            if self.step_action_client.gh:
-                if self.step_action_client.get_state() == GoalStatus.ACTIVE or self.step_action_client.get_state() == GoalStatus.PENDING:
-                    self.step_action_client.cancel_all_goals()
+            if self.execute_steps_client.gh:
+                if self.execute_steps_client.get_state() == GoalStatus.ACTIVE or self.execute_steps_client.get_state() == GoalStatus.PENDING:
+                    self.execute_steps_client.cancel_all_goals()
                     rospy.logwarn('Canceling action.')
         except NameError:
             rospy.logerr(traceback.print_exc())
@@ -159,7 +170,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             # This is required for having the actions run in the main thread
             # (instead through the thread by the service callback).
-            action_loader.check_and_start_action()
+            action_loader._check_and_start_action()
             updateRate.sleep()
 
     except rospy.ROSInterruptException:
