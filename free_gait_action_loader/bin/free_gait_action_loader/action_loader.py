@@ -26,8 +26,10 @@ class ActionLoader:
 
         step_action_server_topic = rospy.get_param('/free_gait/action_server')
         self.execute_steps_client = actionlib.SimpleActionClient(step_action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
-        self.action_server = actionlib.SimpleActionServer("~execute_action", free_gait_msgs.msg.ExecuteActionAction, \
+        self.execute_action_server = actionlib.SimpleActionServer("~execute_action", free_gait_msgs.msg.ExecuteActionAction, \
                                                           execute_cb=self._execute_action_callback, auto_start = False)
+        self.execute_action_server.start()
+
         rospy.Service('~update', std_srvs.srv.Trigger, self.update)
         rospy.Service('~list_actions', free_gait_msgs.srv.GetActions, self.list_actions)
         rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, self.list_collections)
@@ -57,7 +59,12 @@ class ActionLoader:
         return response
 
     def _execute_action_callback(self, goal):
-        pass
+        result = self.send_action(goal.action_id)
+        if result.status != result.RESULT_NOT_FOUND:
+            self.action.wait_for_state([ActionState.ERROR, ActionState.DONE])
+        if self.action.state == ActionState.DONE:
+            result.status = result.RESULT_DONE
+        self.execute_action_server.set_succeeded(result)
 
     def _send_action_callback(self, request):
         response = free_gait_msgs.srv.SendActionResponse()
@@ -67,17 +74,17 @@ class ActionLoader:
     def send_action(self, action_id):
         self.reset()
         action_entry = self.action_list.get(action_id)
-        response = free_gait_msgs.msg.ExecuteActionResult()
+        result = free_gait_msgs.msg.ExecuteActionResult()
 
         if action_entry is None:
             rospy.logerr('Action with id "' + action_id + '" does not exists.')
-            response.status = response.RESULT_NOT_FOUND
-            return response
+            result.status = result.RESULT_NOT_FOUND
+            return result
 
         if action_entry.file is None:
             rospy.logerr('File for action with id "' + action_id + '" does not exists.')
-            response.status = response.RESULT_NOT_FOUND
-            return response
+            result.status = result.RESULT_NOT_FOUND
+            return result
 
         try:
             self.directory = action_entry.directory
@@ -87,31 +94,31 @@ class ActionLoader:
                 self._load_python_action(action_entry.file)
 
             if self.action is None:
-                response.status = response.RESULT_UNKNOWN
+                result.status = result.RESULT_UNKNOWN
                 rospy.logerr('An unkown state has been reached while reading the action.')
-                return response
+                return result
 
             if self.action.state == ActionState.ERROR or self.action.state == ActionState.UNINITIALIZED:
-                response.status = response.RESULT_FAILED
+                result.status = result.RESULT_FAILED
                 rospy.logerr('An error occurred while loading the action.')
-                return response
+                return result
 
             self.action.register_callback(self._action_feedback_callback, self._action_done_callback)
             self.action.wait_for_state([ActionState.ERROR, ActionState.ACTIVE, ActionState.IDLE, ActionState.DONE])
 
             if self.action.state == ActionState.ERROR:
-                response.status = response.RESULT_FAILED
+                result.status = result.RESULT_FAILED
                 rospy.logerr('An error occurred while initializing the action.')
             else:
-                response.status = response.RESULT_STARTED
+                result.status = result.RESULT_STARTED
                 rospy.loginfo('Action was successfully started.')
 
         except:
             rospy.logerr('An exception occurred while loading the action.')
-            response.status = response.RESULT_FAILED
+            result.status = result.RESULT_FAILED
             rospy.logerr(traceback.print_exc())
 
-        return response
+        return result
 
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
@@ -132,10 +139,14 @@ class ActionLoader:
         self.action = action
 
     def _action_feedback_callback(self):
-        print "_action_feedback_callback: " + ActionState.to_text(self.action.state)
+        rospy.loginfo('Action switched to state: ' + ActionState.to_text(self.action.state) + '.')
+        if self.execute_action_server.is_active():
+            feedback = free_gait_msgs.msg.ExecuteActionFeedback()
+            feedback.status = self.action.state
+            self.execute_action_server.publish_feedback(feedback)
 
     def _action_done_callback(self):
-        print "_action_done_callback: " + ActionState.to_text(self.action.state)
+        rospy.loginfo('Action switched to state: ' + ActionState.to_text(self.action.state) + '.')
 
     def _check_and_start_action(self):
         if self.action is not None:
