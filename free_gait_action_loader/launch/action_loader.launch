@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<launch>
-  <arg name="collection" default="" />
-
-  <node pkg="free_gait_action_loader" type="action_loader.py" name="free_gait_action_loader" output="screen">
-  	<param name="collection" value="$(arg collection)" />
-  </node>
-</launch>

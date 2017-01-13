@@ -1,0 +1,23 @@
+## Goal
+string action_id
+
+---
+
+## Result
+int8 RESULT_FAILED  = -2
+int8 RESULT_NOT_FOUND =  -1
+int8 RESULT_UNKNOWN =  0
+int8 RESULT_STARTED =  1
+int8 RESULT_DONE =  2
+int8 status
+
+---
+
+## Feedback
+int8 STATE_ERROR = -1
+int8 STATE_UNINITIALIZED = 0
+int8 STATE_INITIALIZED = 1
+int8 STATE_PENDING = 2
+int8 STATE_ACTIVE = 3
+int8 STATE_IDLE = 4
+int8 status

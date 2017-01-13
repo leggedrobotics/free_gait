@@ -1,0 +1,10 @@
+# This sends a specified action to the step action server.
+# This service call is will only block until the action has been
+# successfully started or failed during initialization.
+# If you need feedback about the progress or successful
+# execution of the action (outside of the action itself), use
+# the `ExecuteAction` ROS action.
+
+free_gait_msgs/ExecuteActionGoal goal
+---
+free_gait_msgs/ExecuteActionResult result

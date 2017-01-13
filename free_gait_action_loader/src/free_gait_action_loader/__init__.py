@@ -1,3 +1,5 @@
 from action_handling import ActionType
-from action_handling import ActionList
 from action_handling import ActionEntry
+from action_handling import ActionList
+from collection_handling import Collection
+from collection_handling import CollectionList

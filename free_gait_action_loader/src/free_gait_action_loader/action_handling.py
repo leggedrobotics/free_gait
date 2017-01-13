@@ -6,6 +6,7 @@ import roslib
 import rospkg
 from rosparam import load_file
 from os.path import *
+import free_gait_msgs.msg
 
 class ActionType:
     YAML = 0
@@ -65,19 +66,30 @@ class ActionEntry:
             self.file = abspath(join(package_path, parameters['file']))
         if 'type' in parameters:
             self.type = ActionType.from_text(parameters['type'])
+        if 'description' in parameters:
+            self.description = parameters['description']
         self.directory = dirname(abspath(self.file))
+
+    def to_ros_message(self):
+        message = free_gait_msgs.msg.ActionDescription()
+        message.id = self.id
+        message.name = self.name
+        message.file = self.file
+        message.type =  ActionType.to_text(self.type)
+        message.description = self.description
+        return message
+
 
 class ActionList:
 
-    def __init__(self, name = "free_gait_action_loader"):
+    def __init__(self, name):
         self.name = name
         self.actions = []
-        self.collections = []
 
     def update(self):
         self.actions = []
         rospack = rospkg.RosPack()
-        packages = rospack.get_depends_on('free_gait_action_loader', implicit=False)
+        packages = rospack.get_depends_on(self.name, implicit=False)
         for package in packages:
             manifest = rospack.get_manifest(package)
             file_path = manifest.get_export(self.name, 'actions')
@@ -100,16 +112,37 @@ class ActionList:
                     self.actions.append(entry)
 
             except Exception:
-                rospy.logwarn("Unable to load action [%s] from package [%s]."%(file_path, package))
+                rospy.logwarn("Unable to load actions [%s] from package [%s]."%(file_path, package))
 
         return True
 
-    def get_list_of_ids(self, collection = ""):
-        ids = []
-        for entry in self.actions:
-            ids.append(entry.id)
-        return ids
+    # def get_list_of_ids(self, collection = ""):
+    #     ids = []
+    #     for entry in self.actions:
+    #         ids.append(entry.id)
+    #     return ids
 
     def get(self, id):
         entry = [ e for e in self.actions if (e.id == id) ]
+        if len(entry) == 0:
+            return None
         return entry[0]
+
+    def get_multiple(self, ids):
+        entries = []
+        for id in ids:
+            entry = self.get(id)
+            if entry:
+                entries.append(entry)
+        return entries
+
+    def to_ros_message(self, ids = []):
+        actions = []
+        if len(ids):
+            actions = self.get_multiple(ids)
+        else:
+            actions = self.actions
+        message = []
+        for action in actions:
+            message.append(action.to_ros_message())
+        return message

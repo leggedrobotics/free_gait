@@ -40,7 +40,10 @@ def load_action_from_file(file_path, placeholders=None):
                     orientation = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
 
     if is_adapt:
-        (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
+        try:
+            (position, orientation) = transform_coordinates(source_frame_id, target_frame_id, position, orientation)
+        except TypeError:
+            return None
 
     return parse_action(parameters, source_frame_id, position, orientation)
 
@@ -428,8 +431,9 @@ def adapt_coordinates_recursively(message, frame_id, transform):
 
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], tf_buffer = None):
 
-    (translation, rotation) = get_tf_transform(source_frame_id, target_frame_id, tf_buffer)
-    if not (translation or rotation):
+    try:
+        (translation, rotation) = get_tf_transform(source_frame_id, target_frame_id, tf_buffer)
+    except TypeError:
         return None
 
     transformed_position = translation + quaternion_matrix(rotation)[:3, :3].dot(position)
