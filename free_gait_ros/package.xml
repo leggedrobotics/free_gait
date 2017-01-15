@@ -15,4 +15,5 @@
   <depend>pluginlib</depend>
   <depend>robot_state_publisher</depend>
   <depend>kdl_parser</depend>
+  <depend>eigen</depend>
 </package>
