@@ -4,10 +4,10 @@ project(free_gait_rviz_plugin)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
-	rviz
-	free_gait_core
-	free_gait_ros
-	free_gait_msgs
+  rviz
+  free_gait_core
+  free_gait_ros
+  free_gait_msgs
 )
 
 catkin_package(
@@ -17,17 +17,17 @@ catkin_package(
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
-	rviz
-	free_gait_core
-	free_gait_ros
-	free_gait_msgs
+    rviz
+    free_gait_core
+    free_gait_ros
+    free_gait_msgs
   DEPENDS
 )
 
 include_directories(
-	include
-    src
-	${catkin_INCLUDE_DIRS}
+  include
+  src
+  ${catkin_INCLUDE_DIRS}
 )
 
 link_directories(${catkin_LIBRARY_DIRS})
@@ -36,7 +36,7 @@ link_directories(${catkin_LIBRARY_DIRS})
 set(CMAKE_AUTOMOC ON)
 
 set(INCLUDE_FILES
-	include/free_gait_rviz_plugin/FreeGaitPreviewDisplay.hpp
+  include/free_gait_rviz_plugin/FreeGaitPreviewDisplay.hpp
 )
 
 ## This plugin includes Qt widgets, so we must include Qt.
@@ -46,17 +46,17 @@ if(rviz_QT_VERSION VERSION_LESS "5")
   find_package(Qt4 ${rviz_QT_VERSION} EXACT REQUIRED QtCore QtGui)
   ## pull in all required include dirs, define QT_LIBRARIES, etc.
   include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_FILES
-  	${INCLUDE_FILES}
-	)
+    qt4_wrap_cpp(MOC_FILES
+    ${INCLUDE_FILES}
+  )
 else()
   message(STATUS "Using Qt5 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
   find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
   ## make target_link_libraries(${QT_LIBRARIES}) pull in all required dependencies
   set(QT_LIBRARIES Qt5::Widgets)
-	QT5_WRAP_CPP(MOC_FILES
-  	${INCLUDE_FILES}
-	)
+    QT5_WRAP_CPP(MOC_FILES
+    ${INCLUDE_FILES}
+  )
 endif()
 
 ## Avoid Qt signals and slots defining "emit", "slots", etc.
@@ -81,8 +81,8 @@ add_library(rviz_free_gait_additions
 )
 
 add_library(${PROJECT_NAME}
-	${SOURCE_FILES}
-	${MOC_FILES}
+  ${SOURCE_FILES}
+  ${MOC_FILES}
 )
 
 ## Link the executable with whatever Qt libraries have been defined by
@@ -102,35 +102,30 @@ target_link_libraries(rviz_free_gait_additions
 )
 
 target_link_libraries(${PROJECT_NAME}
-	${QT_LIBRARIES}
-	${catkin_LIBRARIES}
-	rviz_free_gait_additions
+  ${QT_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rviz_free_gait_additions
 )
 
 ## Install rules
 install(
-	DIRECTORY include/${PROJECT_NAME}
-	DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/${PROJECT_NAME}
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
 install(
 TARGETS ${PROJECT_NAME}
-	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(
-	FILES plugin_description.xml
-	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  FILES plugin_description.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(
-	DIRECTORY icons
-	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons
-)
-
-install(
-	DIRECTORY doc
-	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DIRECTORY icons
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons
 )
