@@ -3,11 +3,11 @@
   <name>free_gait_ros</name>
   <version>0.1.0</version>
   <description>ROS wrapper for free gait.</description>
-  <maintainer email="pfankhauser@ethz.ch">Péter Fankhauser</maintainer>
+  <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <license>BSD</license>
   <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
   <url type="bugtracker">https://bitbucket.org/ethz-asl-lr/free_gait/issues</url>
-  <author email="pfankhauser@ethz.ch">Péter Fankhauser</author>
+  <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
   <buildtool_depend>catkin</buildtool_depend>
   <depend>free_gait_msgs</depend>
   <depend>free_gait_core</depend>
