@@ -13,8 +13,7 @@ FreeGaitPreviewVisual::FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager,
                                              Ogre::SceneNode* parentNode)
     : sceneManager_(sceneManager),
       frameNode_(parentNode->createChildSceneNode()),
-      stateBatchPtr_(NULL),
-      endEffectorTrajectories_(sceneManager, frameNode_)
+      stateBatchPtr_(NULL)
 {
 }
 
@@ -26,7 +25,9 @@ FreeGaitPreviewVisual::~FreeGaitPreviewVisual()
 void FreeGaitPreviewVisual::clear()
 {
   stateBatchPtr_ = NULL;
-  endEffectorTrajectories_.clear();
+//  for (auto& trajectory : endEffectorTrajectories_) {
+//    trajectory->clear();
+//  }
 }
 
 void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatch)
@@ -36,37 +37,36 @@ void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatc
 
 void FreeGaitPreviewVisual::visualizeEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)
 {
-  const size_t maxPointsPerLine = 500;
-  endEffectorTrajectories_.setMaxPointsPerLine(maxPointsPerLine);
-  const size_t nLines = stateBatchPtr_->getEndEffectorPositions().size()
-      * std::ceil(stateBatchPtr_->getStates().size() / (double) maxPointsPerLine);
-  endEffectorTrajectories_.setNumLines(nLines);
-  std::cout << "ceil States: " << stateBatchPtr_->getStates().size() / maxPointsPerLine << std::endl;
-  std::cout << "Num liens: " << nLines << std::endl;
-  endEffectorTrajectories_.setLineWidth(width);
-  endEffectorTrajectories_.setColor(color.r, color.g, color.b, color.a);
-  bool firstLine = true;
-  for (const auto& positions : stateBatchPtr_->getEndEffectorPositions()) {
-    if (!firstLine) endEffectorTrajectories_.newLine();
-    std::cout << "visualizeEndEffectorTrajectories new Line " << std::endl;
+  // Define size.
+  const size_t nEndEffectors(stateBatchPtr_->getEndEffectorPositions().size());
+  const size_t nStates(stateBatchPtr_->getStates().size());
+
+  // Cleanup.
+  // TODO Segfaults. Whats the problem?
+//  if (endEffectorTrajectories_.size() != nEndEffectors) {
+//    endEffectorTrajectories_.clear();
+//    for (size_t i; i < nEndEffectors; ++i) {
+//      endEffectorTrajectories_.push_back(std::unique_ptr<rviz::BillboardLine>(new rviz::BillboardLine(sceneManager_, frameNode_)));
+//    }
+//  }
+
+  for (size_t i; i < nEndEffectors; ++i) {
+    // For each foot trajectory.
+    endEffectorTrajectories_.push_back(std::unique_ptr<rviz::BillboardLine>(new rviz::BillboardLine(sceneManager_, frameNode_)));
+    endEffectorTrajectories_[i]->clear();
+    endEffectorTrajectories_[i]->setLineWidth(width);
+    endEffectorTrajectories_[i]->setColor(color.r, color.g, color.b, color.a);
+    endEffectorTrajectories_[i]->setNumLines(1);
+    endEffectorTrajectories_[i]->setMaxPointsPerLine(nStates);
+
     free_gait::Position previousPosition;
-    size_t i = 0;
-    for (const auto& positionElement : positions) {
-      if (i >= maxPointsPerLine - 1) {
-        endEffectorTrajectories_.newLine();
-        std::cout << "BABYY " << i << std::endl;
-        i = 0;
-      }
-      const free_gait::Position position(positionElement.second);
-//      if ((position - previousPosition).norm() < 0.01) continue;
-      endEffectorTrajectories_.addPoint(Ogre::Vector3(position.x(), position.y(), position.z()));
-      previousPosition = position;
-      ++i;
-//      std::cout << position << std::endl;
+    for (const auto& positionElement : stateBatchPtr_->getEndEffectorPositions()[i]) {
+      auto& position = positionElement.second;
+      if ((position - previousPosition).norm() < 0.01) continue;
+      const auto point = Ogre::Vector3(position.x(), position.y(), position.z());
+      endEffectorTrajectories_[i]->addPoint(point);
     }
-    if (firstLine) firstLine = false;
   }
-  std::cout << "FINISH" << std::endl;
 }
 
 

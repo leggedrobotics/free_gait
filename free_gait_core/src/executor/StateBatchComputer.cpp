@@ -20,7 +20,6 @@ StateBatchComputer::~StateBatchComputer()
 
 void StateBatchComputer::computeEndEffectorTrajectories(StateBatch& stateBatch)
 {
-  std::cout << "computeEndEffectorTrajectories 111" << std::endl;
   stateBatch.endEffectorPositions_.clear();
   stateBatch.endEffectorPositions_.resize(adapter_->getLimbs().size());
   for (const auto& state : stateBatch.getStates()) {
@@ -31,7 +30,6 @@ void StateBatchComputer::computeEndEffectorTrajectories(StateBatch& stateBatch)
       stateBatch.endEffectorPositions_[i++][state.first] = position;
     }
   }
-  std::cout << "computeEndEffectorTrajectories 222" << std::endl;
 }
 
 } /* namespace free_gait */

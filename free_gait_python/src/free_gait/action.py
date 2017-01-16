@@ -38,12 +38,14 @@ class ActionState:
 
 class ActionBase(object):
 
-    def __init__(self, client, directory = None):
+    def __init__(self, client, directory = None, use_preview = False, preview_publisher = None):
         self.state = ActionState.UNINITIALIZED
         self.feedback_callback = None
         self.done_callback = None
         self.client = client
         self.directory = directory
+        self.use_preview = use_preview
+        self.preview_publisher = preview_publisher
         self.goal = None
         self.feedback = None
         self.timeout = rospy.Duration()
@@ -69,7 +71,10 @@ class ActionBase(object):
         self.done_callback = done_callback
 
     def start(self):
-        self.set_state(ActionState.PENDING)
+        if self.use_preview:
+            self.set_state(ActionState.ACTIVE)
+        else:
+            self.set_state(ActionState.PENDING)
 
     def wait_for_state(self, state):
         wait_for_state = WaitForState(self, state)
@@ -85,13 +90,18 @@ class ActionBase(object):
             self.set_state(ActionState.DONE)
             return
 
-        if self.client.gh:
-            self.client.stop_tracking_goal()
-        self.client.wait_for_server()
-        self.client.send_goal(self.goal,
-                              done_cb=self._done_callback,
-                              active_cb=self._active_callback,
-                              feedback_cb=self._feedback_callback)
+        if self.use_preview:
+            actionGoal = free_gait_msgs.msg.ExecuteStepsActionGoal()
+            actionGoal.goal = self.goal
+            self.preview_publisher.publish(actionGoal)
+        else:
+            if self.client.gh:
+                self.client.stop_tracking_goal()
+            self.client.wait_for_server()
+            self.client.send_goal(self.goal,
+                                  done_cb=self._done_callback,
+                                  active_cb=self._active_callback,
+                                  feedback_cb=self._feedback_callback)
 
     def _active_callback(self):
         self.set_state(ActionState.ACTIVE)
@@ -108,23 +118,23 @@ class ActionBase(object):
 
 class SimpleAction(ActionBase):
 
-    def __init__(self, client, goal):
-        ActionBase.__init__(self, client, None)
+    def __init__(self, client, goal, use_preview = False, preview_publisher = None):
+        ActionBase.__init__(self, client, None, use_preview, preview_publisher)
         self.goal = goal
 
     def start(self):
-        self.set_state(ActionState.PENDING)
+        ActionBase.start(self)
         self._send_goal()
 
 
 class ExternalAction(ActionBase):
 
-    def __init__(self, client, file_path):
-        ActionBase.__init__(self, client, None)
+    def __init__(self, client, file_path, use_preview = False, preview_publisher = None):
+        ActionBase.__init__(self, client, None, use_preview, preview_publisher)
         self.file_path = file_path
 
     def start(self):
-        self.set_state(ActionState.PENDING)
+        ActionBase.start(self)
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
         self.launch = roslaunch.parent.ROSLaunchParent(uuid, [self.file_path])

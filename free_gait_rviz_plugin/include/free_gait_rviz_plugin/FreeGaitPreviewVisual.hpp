@@ -18,6 +18,10 @@
 // OGRE
 #include <OGRE/Ogre.h>
 
+// STD
+#include <vector>
+#include <memory>
+
 namespace free_gait_rviz_plugin {
 
 class FreeGaitPreviewVisual
@@ -35,7 +39,7 @@ class FreeGaitPreviewVisual
   Ogre::SceneManager* sceneManager_;
   Ogre::SceneNode* frameNode_;
   const free_gait::StateBatch* stateBatchPtr_;
-  rviz::BillboardLine endEffectorTrajectories_;
+  std::vector<std::unique_ptr<rviz::BillboardLine>> endEffectorTrajectories_;
 };
 
 } /* namespace free_gait_rviz_plugin */

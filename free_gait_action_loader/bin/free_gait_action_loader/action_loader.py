@@ -30,10 +30,14 @@ class ActionLoader:
                                                           execute_cb=self._execute_action_callback, auto_start = False)
         self.execute_action_server.start()
 
+        step_preview_topic = rospy.get_param('/free_gait/preview_topic')
+        self.preview_publisher = rospy.Publisher(step_preview_topic, free_gait_msgs.msg.ExecuteStepsActionGoal, queue_size=1)
+
         rospy.Service('~update', std_srvs.srv.Trigger, self.update)
         rospy.Service('~list_actions', free_gait_msgs.srv.GetActions, self.list_actions)
         rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, self.list_collections)
         rospy.Service('~send_action', free_gait_msgs.srv.SendAction, self._send_action_callback)
+        rospy.Service('~preview_action', free_gait_msgs.srv.SendAction, self._preview_action_callback)
         rospy.on_shutdown(self.preempt)
 
     def update(self, request):
@@ -71,7 +75,12 @@ class ActionLoader:
         response.result = self.send_action(request.goal.action_id)
         return response
 
-    def send_action(self, action_id):
+    def _preview_action_callback(self, request):
+        response = free_gait_msgs.srv.SendActionResponse()
+        response.result = self.send_action(request.goal.action_id, True)
+        return response
+
+    def send_action(self, action_id, use_preview = False):
         self.reset()
         action_entry = self.action_list.get(action_id)
         result = free_gait_msgs.msg.ExecuteActionResult()
@@ -89,9 +98,9 @@ class ActionLoader:
         try:
             self.directory = action_entry.directory
             if action_entry.type == ActionType.YAML:
-                self._load_yaml_action(action_entry.file)
+                self._load_yaml_action(action_entry.file, use_preview)
             elif action_entry.type == ActionType.PYTHON:
-                self._load_python_action(action_entry.file)
+                self._load_python_action(action_entry.file, use_preview)
 
             if self.action is None:
                 result.status = result.RESULT_UNKNOWN
@@ -120,17 +129,17 @@ class ActionLoader:
 
         return result
 
-    def _load_yaml_action(self, file_path):
+    def _load_yaml_action(self, file_path, use_preview):
         # Load action from YAML file.
         rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
         rospy.logdebug(goal)
-        self.action = SimpleAction(self.execute_steps_client, goal)
+        self.action = SimpleAction(self.execute_steps_client, goal, use_preview, self.preview_publisher)
         if goal is None:
             rospy.logerr('Could not load action from YAML file.')
             self.action.set_state(ActionState.ERROR)
 
-    def _load_python_action(self, file_path):
+    def _load_python_action(self, file_path, use_preview):
         # Load action from Python script.
         rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
         # action_locals = dict()
