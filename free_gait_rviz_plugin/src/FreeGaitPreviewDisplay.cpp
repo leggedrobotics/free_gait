@@ -134,7 +134,6 @@ void FreeGaitPreviewDisplay::startAndStopPlayback()
 
 void FreeGaitPreviewDisplay::jumpToTime()
 {
-  playback_.stop();
   playback_.goToTime(ros::Time(timelimeSliderProperty_->getFloat()));
 }
 

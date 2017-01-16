@@ -63,7 +63,6 @@ class FreeGaitPreviewPlayback
   std::function<void()> newGoalCallback_;
   std::function<void(const ros::Time&)> stateChangedCallback_;
   std::function<void()> reachedEndCallback_;
-  std::shared_ptr<free_gait::AdapterBase> adapter_;
   std::unique_ptr<free_gait::BatchExecutor> batchExecutor_;
   std::shared_ptr<free_gait::State> executorState_;
   free_gait::StateBatch stateBatch_;

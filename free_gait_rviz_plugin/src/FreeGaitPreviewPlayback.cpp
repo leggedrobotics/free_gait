@@ -17,17 +17,16 @@ namespace free_gait_rviz_plugin {
 FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
                                                  std::shared_ptr<free_gait::AdapterBase> adapter)
     : nodeHandle_(nodeHandle),
-      adapter_(adapter),
       playMode_(PlayMode::ONHOLD),
       time_(0.0),
       stateBatchComputer_(adapter),
       stateRosPublisher_(nodeHandle, adapter)
 {
   std::shared_ptr<StepParameters> parameters(new StepParameters);
-  std::shared_ptr<StepCompleter> completer(new StepCompleter(parameters, adapter_));
+  std::shared_ptr<StepCompleter> completer(new StepCompleter(parameters, adapter));
   std::shared_ptr<StepComputer> computer(new StepComputer());
   executorState_.reset(new State());
-  std::shared_ptr<Executor> executor(new Executor(completer, computer, adapter_, executorState_));
+  std::shared_ptr<Executor> executor(new Executor(completer, computer, adapter, executorState_));
   executor->initialize();
   batchExecutor_.reset(new BatchExecutor(executor));
   batchExecutor_->addProcessingCallback(std::bind(&FreeGaitPreviewPlayback::processingCallback, this, std::placeholders::_1));
@@ -123,9 +122,11 @@ void FreeGaitPreviewPlayback::processingCallback(bool success)
 
 void FreeGaitPreviewPlayback::publish(const ros::Time& time)
 {
+  // TODO Increase speed by smarter locking.
+  Lock lock(dataMutex_);
   const double timeInDouble = time.toSec();
   if (!stateBatch_.isValidTime(timeInDouble)) return;
-  const State& state = stateBatch_.getState(timeInDouble);
+  const State state = stateBatch_.getState(timeInDouble);
   stateRosPublisher_.publish(state);
   stateChangedCallback_(time);
 }

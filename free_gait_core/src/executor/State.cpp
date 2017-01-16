@@ -17,7 +17,6 @@ State::State()
     : QuadrupedState(),
       robotExecutionStatus_(false)
 {
-  quadruped_model::initializeTopology();
 }
 
 State::~State()

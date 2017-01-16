@@ -25,9 +25,9 @@ FreeGaitPreviewVisual::~FreeGaitPreviewVisual()
 void FreeGaitPreviewVisual::clear()
 {
   stateBatchPtr_ = NULL;
-//  for (auto& trajectory : endEffectorTrajectories_) {
-//    trajectory->clear();
-//  }
+  for (auto& trajectory : endEffectorTrajectories_) {
+    trajectory->clear();
+  }
 }
 
 void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatch)
