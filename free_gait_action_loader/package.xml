@@ -12,6 +12,5 @@
   <depend>rospy</depend>
   <depend>free_gait_python</depend>
   <depend>free_gait_msgs</depend>
-  <depend>anymal_msgs</depend>
 
 </package>

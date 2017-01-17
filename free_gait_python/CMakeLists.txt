@@ -7,7 +7,6 @@ project(free_gait_python)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     free_gait_msgs
-    anymal_msgs
 )
 
 catkin_package(
