@@ -53,6 +53,7 @@ class FreeGaitPreviewPlayback
   void clear();
 
   const free_gait::StateBatch& getStateBatch() const;
+  const ros::Time& getTime() const;
   void update(double timeStep);
 
  private:

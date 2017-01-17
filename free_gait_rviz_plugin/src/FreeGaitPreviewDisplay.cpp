@@ -139,16 +139,26 @@ void FreeGaitPreviewDisplay::jumpToTime()
 
 void FreeGaitPreviewDisplay::newGoalAvailable()
 {
-  // Play back.
-  playButtonProperty_->setReadOnly(false);
-  timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
-  timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
-  timelimeSliderProperty_->setReadOnly(false);
-  playback_.run();
+  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: New preview available.");
 
   // Visuals.
+  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Drawing visualizations.");
   visual_->setStateBatch(playback_.getStateBatch());
   visual_->visualizeEndEffectorTrajectories(0.01, Ogre::ColourValue(1, 0, 0, 1));
+
+  // Play back.
+  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Setting up control.");
+  playButtonProperty_->setReadOnly(false);
+  timelimeSliderProperty_->setValuePassive(playback_.getTime().toSec());
+  timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
+  timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
+  ROS_DEBUG_STREAM("Setting slider min and max time to: " << timelimeSliderProperty_->getMin()
+                   << " & " << timelimeSliderProperty_->getMax() << ".");
+  timelimeSliderProperty_->setReadOnly(false);
+
+  // Play.
+  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Starting playback.");
+  playback_.run();
 }
 
 void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
@@ -158,6 +168,7 @@ void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
 
 void FreeGaitPreviewDisplay::previewReachedEnd()
 {
+  ROS_DEBUG("FreeGaitPreviewDisplay::previewReachedEnd: Reached end of preview.");
 }
 
 void FreeGaitPreviewDisplay::subscribe()
@@ -188,6 +199,7 @@ void FreeGaitPreviewDisplay::unsubscribe()
 
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
 {
+  ROS_DEBUG("FreeGaitPreviewDisplay::processMessage: Starting to process new goal.");
   std::vector<free_gait::Step> steps;
   stepRosConverter_.fromMessage(message->goal.steps, steps);
   adapterRos_.updateAdapterWithState();

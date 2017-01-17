@@ -58,17 +58,21 @@ bool FreeGaitPreviewPlayback::process(const std::vector<free_gait::Step>& steps)
 
 void FreeGaitPreviewPlayback::run()
 {
+  ROS_DEBUG("Set mode to PlayMode::FORWARD.");
   playMode_ = PlayMode::FORWARD;
 }
 
 void FreeGaitPreviewPlayback::stop()
 {
+  ROS_DEBUG("Set mode to PlayMode::STOPPED.");
   playMode_ = PlayMode::STOPPED;
 }
 
 void FreeGaitPreviewPlayback::goToTime(const ros::Time& time)
 {
+  ROS_DEBUG_STREAM("Jumping to time " << time << ".");
   time_ = time;
+  stop();
 }
 
 void FreeGaitPreviewPlayback::clear()
@@ -84,6 +88,11 @@ const free_gait::StateBatch& FreeGaitPreviewPlayback::getStateBatch() const
   return stateBatch_;
 }
 
+const ros::Time& FreeGaitPreviewPlayback::getTime() const
+{
+  return time_;
+}
+
 void FreeGaitPreviewPlayback::update(double timeStep)
 {
   switch (playMode_) {
@@ -91,7 +100,7 @@ void FreeGaitPreviewPlayback::update(double timeStep)
       Lock lock(dataMutex_);
       time_ += ros::Duration(timeStep);
       if (time_ > ros::Time(stateBatch_.getEndTime())) {
-        playMode_ = PlayMode::STOPPED;
+        stop();
         reachedEndCallback_();
       } else {
         publish(time_);
@@ -100,6 +109,7 @@ void FreeGaitPreviewPlayback::update(double timeStep)
     }
     case PlayMode::STOPPED: {
       publish(time_);
+      ROS_DEBUG("Set mode to PlayMode::ONHOLD.");
       playMode_ = PlayMode::ONHOLD;
       break;
     }
@@ -111,12 +121,14 @@ void FreeGaitPreviewPlayback::update(double timeStep)
 
 void FreeGaitPreviewPlayback::processingCallback(bool success)
 {
+  ROS_DEBUG("FreeGaitPreviewPlayback::processingCallback: Finished processing new goal, copying new data.");
   if (!success) return;
   Lock lock(dataMutex_);
   clear();
   stateBatch_ = batchExecutor_->getStateBatch();
   stateBatchComputer_.computeEndEffectorTrajectories(stateBatch_);
   time_.fromSec(stateBatch_.getStartTime());
+  ROS_DEBUG_STREAM("Resetting time to " << time_ << ".");
   newGoalCallback_();
 }
 
