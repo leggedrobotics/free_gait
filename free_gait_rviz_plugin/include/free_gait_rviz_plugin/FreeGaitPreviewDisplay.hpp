@@ -27,7 +27,7 @@ class FloatProperty;
 class IntProperty;
 class EnumProperty;
 class EditableEnumProperty;
-class ButtonProperty;
+class ButtonToggleProperty;
 class FloatSliderProperty;
 class RosTopicProperty;
 }
@@ -55,7 +55,8 @@ Q_OBJECT
 
  private Q_SLOTS:
   void updateTopic();
-  void updateVisualization();
+  void toggleAutoPlay();
+  void changePlaybackSpeed();
   void startAndStopPlayback();
   void jumpToTime();
   void newGoalAvailable();
@@ -81,7 +82,7 @@ Q_OBJECT
   rviz::RosTopicProperty* robotStateTopicProperty_;
   rviz::BoolProperty* autoPlayProperty_;
   rviz::FloatSliderProperty* playbackSpeedProperty_;
-  rviz::ButtonProperty* playButtonProperty_;
+  rviz::ButtonToggleProperty* playButtonProperty_;
   rviz::FloatSliderProperty* timelimeSliderProperty_;
   rviz::FloatProperty* previewRateRoperty_;
 };

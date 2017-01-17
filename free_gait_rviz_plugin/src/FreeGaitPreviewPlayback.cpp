@@ -20,7 +20,8 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
       playMode_(PlayMode::ONHOLD),
       time_(0.0),
       stateBatchComputer_(adapter),
-      stateRosPublisher_(nodeHandle, adapter)
+      stateRosPublisher_(nodeHandle, adapter),
+      speedFactor_(1.0)
 {
   std::shared_ptr<StepParameters> parameters(new StepParameters);
   std::shared_ptr<StepCompleter> completer(new StepCompleter(parameters, adapter));
@@ -93,12 +94,17 @@ const ros::Time& FreeGaitPreviewPlayback::getTime() const
   return time_;
 }
 
+void FreeGaitPreviewPlayback::setSpeedFactor(const double speedFactor)
+{
+  speedFactor_ = speedFactor;
+}
+
 void FreeGaitPreviewPlayback::update(double timeStep)
 {
   switch (playMode_) {
     case PlayMode::FORWARD: {
       Lock lock(dataMutex_);
-      time_ += ros::Duration(timeStep);
+      time_ += ros::Duration(speedFactor_ * timeStep);
       if (time_ > ros::Time(stateBatch_.getEndTime())) {
         stop();
         reachedEndCallback_();

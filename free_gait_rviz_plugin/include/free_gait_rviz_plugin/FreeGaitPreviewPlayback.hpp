@@ -55,6 +55,7 @@ class FreeGaitPreviewPlayback
   const free_gait::StateBatch& getStateBatch() const;
   const ros::Time& getTime() const;
   void update(double timeStep);
+  void setSpeedFactor(const double speedFactor);
 
  private:
   void processingCallback(bool success);
@@ -72,6 +73,7 @@ class FreeGaitPreviewPlayback
   free_gait::StateRosPublisher stateRosPublisher_;
   PlayMode playMode_;
   ros::Time time_;
+  double speedFactor_;
 };
 
 } /* namespace free_gait_rviz_plugin */

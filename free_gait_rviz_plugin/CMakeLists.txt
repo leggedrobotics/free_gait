@@ -76,6 +76,7 @@ set(SOURCE_FILES
 
 add_library(rviz_free_gait_additions
   src/rviz/properties/button_property.cpp
+  src/rviz/properties/button_toggle_property.cpp
   src/rviz/properties/float_slider_property.cpp
   src/rviz/properties/line_edit_with_slider.cpp
 )

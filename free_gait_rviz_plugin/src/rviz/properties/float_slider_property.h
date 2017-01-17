@@ -22,12 +22,13 @@ class FloatSliderProperty : public FloatProperty
                       const QString& description = QString(), Property* parent = 0,
                       const char* changed_slot = 0, QObject* receiver = 0);
 
-  virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option);
-
   virtual bool setValuePassive(const QVariant& value);
 
 public Q_SLOTS:
-  virtual void valueChanged(int value);
+  virtual void sliderValueChanged(int value);
+
+protected:
+  virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option);
 
  private:
   int minIntValue_, maxIntValue_;

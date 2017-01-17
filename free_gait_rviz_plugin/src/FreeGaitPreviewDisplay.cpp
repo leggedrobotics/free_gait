@@ -21,7 +21,7 @@
 #include <rviz/properties/int_property.h>
 #include <rviz/properties/enum_property.h>
 #include <rviz/properties/editable_enum_property.h>
-#include <rviz/properties/button_property.h>
+#include <rviz/properties/button_toggle_property.h>
 #include <rviz/properties/float_slider_property.h>
 #include <rviz/properties/ros_topic_property.h>
 
@@ -53,7 +53,7 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   playback_.addReachedEndCallback(std::bind(&FreeGaitPreviewDisplay::previewReachedEnd, this));
 
   autoPlayProperty_ = new rviz::BoolProperty("Auto-Play", true, "Play motion once received.", this,
-                                            SLOT(updateVisualization()));
+                                            SLOT(toggleAutoPlay()));
 
   playbackSpeedProperty_ = new rviz::FloatSliderProperty("Playback Speed", 1.0,
                                                          "Playback speed factor.", this,
@@ -61,12 +61,13 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   playbackSpeedProperty_->setMin(0.0);
   playbackSpeedProperty_->setMax(10.0);
 
-  playButtonProperty_ = new rviz::ButtonProperty("Play", "", "Play back the motion.",
-                                                 this, SLOT(startAndStopPlayback()));
-//  playButtonProperty_->setReadOnly(true);
+  playButtonProperty_ = new rviz::ButtonToggleProperty("Play", false, "Play back the motion.", this,
+                                                       SLOT(startAndStopPlayback()));
+  playButtonProperty_->setLabels("Play", "Pause");
+  playButtonProperty_->setReadOnly(true);
 
   timelimeSliderProperty_ = new rviz::FloatSliderProperty(
-      "Time", 0.0, "Determine the current time to visualize the motion.", this, SLOT(jumpToTime()));
+      "Time", 1.0, "Determine the current time to visualize the motion.", this, SLOT(jumpToTime()));
   timelimeSliderProperty_->setReadOnly(true);
 
   previewRateRoperty_ = new rviz::FloatProperty("Preview Rate", 1000.0,
@@ -122,14 +123,26 @@ void FreeGaitPreviewDisplay::updateTopic()
   subscribe();
 }
 
-void FreeGaitPreviewDisplay::updateVisualization()
+void FreeGaitPreviewDisplay::toggleAutoPlay()
 {
-  std::cout << "FreeGaitPreviewDisplay::updateVisualization()" << std::endl;
+  ROS_DEBUG_STREAM("Setting auto-play to " << (autoPlayProperty_->getBool() ? "True" : "False") << ".");
+}
+
+void FreeGaitPreviewDisplay::changePlaybackSpeed()
+{
+  ROS_DEBUG_STREAM("Setting playback speed to " << playbackSpeedProperty_->getFloat() << ".");
+  playback_.setSpeedFactor(playbackSpeedProperty_->getFloat());
 }
 
 void FreeGaitPreviewDisplay::startAndStopPlayback()
 {
-//  playback_.process(free_gait::StepQueue());
+  if (playButtonProperty_->getBool()) {
+    ROS_DEBUG("Pressed start.");
+    playback_.run();
+  } else {
+    ROS_DEBUG("Pressed stop.");
+    playback_.stop();
+  }
 }
 
 void FreeGaitPreviewDisplay::jumpToTime()
@@ -157,8 +170,11 @@ void FreeGaitPreviewDisplay::newGoalAvailable()
   timelimeSliderProperty_->setReadOnly(false);
 
   // Play.
-  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Starting playback.");
-  playback_.run();
+  if (autoPlayProperty_->getBool()) {
+    ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Starting playback.");
+    playback_.run();
+    playButtonProperty_->setLabel("Pause");
+  }
 }
 
 void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)

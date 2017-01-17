@@ -32,7 +32,7 @@ bool FloatSliderProperty::setValuePassive(const QVariant& value)
   return true;
 }
 
-void FloatSliderProperty::valueChanged(int value)
+void FloatSliderProperty::sliderValueChanged(int value)
 {
   const float floatValue = getMin() + (getMax() - getMin())
       * (value - minIntValue_) / (maxIntValue_ - minIntValue_);
@@ -47,7 +47,7 @@ QWidget* FloatSliderProperty::createEditor(QWidget* parent, const QStyleOptionVi
   const int intValue = minIntValue_ + (maxIntValue_ - minIntValue_)
       * (getValue().toFloat() - getMin()) / (getMax() - getMin());
   slider->slider()->setValue(intValue);
-  connect(slider->slider(), SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)));
+  connect(slider->slider(), SIGNAL(valueChanged(int)), this, SLOT(sliderValueChanged(int)));
   return slider;
 }
 
