@@ -56,6 +56,8 @@ class FreeGaitPreviewPlayback
   const ros::Time& getTime() const;
   void update(double timeStep);
   void setSpeedFactor(const double speedFactor);
+  void setRate(const double rate);
+  double getRate() const;
 
  private:
   void processingCallback(bool success);

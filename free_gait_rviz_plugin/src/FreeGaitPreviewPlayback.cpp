@@ -99,6 +99,16 @@ void FreeGaitPreviewPlayback::setSpeedFactor(const double speedFactor)
   speedFactor_ = speedFactor;
 }
 
+void FreeGaitPreviewPlayback::setRate(const double rate)
+{
+  batchExecutor_->setTimeStep(1.0/rate);
+}
+
+double FreeGaitPreviewPlayback::getRate() const
+{
+  return (1.0/batchExecutor_->getTimeStep());
+}
+
 void FreeGaitPreviewPlayback::update(double timeStep)
 {
   switch (playMode_) {

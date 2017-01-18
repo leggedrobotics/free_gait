@@ -70,7 +70,7 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       "Time", 1.0, "Determine the current time to visualize the motion.", this, SLOT(jumpToTime()));
   timelimeSliderProperty_->setReadOnly(true);
 
-  previewRateRoperty_ = new rviz::FloatProperty("Preview Rate", 1000.0,
+  previewRateRoperty_ = new rviz::FloatProperty("Preview Rate", playback_.getRate(),
                                           "Rate in Hz at which to simulate the motion preview.",
                                           this, SLOT(changePreviewRate()));
   previewRateRoperty_->setMin(0.0);
@@ -148,6 +148,12 @@ void FreeGaitPreviewDisplay::startAndStopPlayback()
 void FreeGaitPreviewDisplay::jumpToTime()
 {
   playback_.goToTime(ros::Time(timelimeSliderProperty_->getFloat()));
+}
+
+void FreeGaitPreviewDisplay::changePreviewRate()
+{
+  ROS_DEBUG_STREAM("Setting preview rate t0 " << previewRateRoperty_->getFloat() << ".");
+  playback_.setRate(previewRateRoperty_->getFloat());
 }
 
 void FreeGaitPreviewDisplay::newGoalAvailable()

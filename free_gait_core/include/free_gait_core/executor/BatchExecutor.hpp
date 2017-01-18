@@ -26,6 +26,8 @@ class BatchExecutor
   virtual ~BatchExecutor();
 
   void addProcessingCallback(std::function<void(bool)> callback);
+  void setTimeStep(const double timeStep);
+  double getTimeStep() const;
   bool process(const std::vector<free_gait::Step>& steps);
   bool isProcessing();
   void cancelProcessing();

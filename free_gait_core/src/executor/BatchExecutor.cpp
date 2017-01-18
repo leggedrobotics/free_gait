@@ -28,6 +28,17 @@ void BatchExecutor::addProcessingCallback(std::function<void(bool)> callback)
   callback_ = callback;
 }
 
+void BatchExecutor::setTimeStep(const double timeStep)
+{
+  if (isProcessing_) throw std::runtime_error("Batch executor error: Cannot change time step during processing.");
+  timeStep_ = timeStep;
+}
+
+double BatchExecutor::getTimeStep() const
+{
+  return timeStep_;
+}
+
 bool BatchExecutor::process(const std::vector<free_gait::Step>& steps)
 {
   if (isProcessing_) return false;

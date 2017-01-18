@@ -59,6 +59,7 @@ Q_OBJECT
   void changePlaybackSpeed();
   void startAndStopPlayback();
   void jumpToTime();
+  void changePreviewRate();
   void newGoalAvailable();
   void previewStateChanged(const ros::Time& time);
   void previewReachedEnd();
