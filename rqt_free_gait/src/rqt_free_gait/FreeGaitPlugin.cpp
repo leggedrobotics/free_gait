@@ -125,6 +125,9 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.pushButtonPause->setEnabled(false);
   ui_.pushButtonStop->setEnabled(false);
 
+  // Initialize navigation buttons.
+  updateNavigationButtonStates();
+
   // Connect signals and slots.
   connect(this,
           SIGNAL(updateGoalSignal(free_gait_msgs::ExecuteStepsActionGoal)),
@@ -139,6 +142,15 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
           SIGNAL(updateResultSignal(free_gait_msgs::ExecuteStepsActionResult)),
           this,
           SLOT(updateResult(free_gait_msgs::ExecuteStepsActionResult)));
+
+  connect(ui_.pushButtonGoTop, SIGNAL(clicked()),
+          this, SLOT(onPushButtonGoTop()));
+  connect(ui_.pushButtonGoUp, SIGNAL(clicked()),
+          this, SLOT(onPushButtonGoUp()));
+  connect(ui_.pushButtonGoDown, SIGNAL(clicked()),
+          this, SLOT(onPushButtonGoDown()));
+  connect(ui_.pushButtonGoBottom, SIGNAL(clicked()),
+          this, SLOT(onPushButtonGoBottom()));
 
   isActionRunning_ = false;
 }
@@ -193,6 +205,36 @@ void FreeGaitPlugin::resultCallback(
 }
 
 /*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
+
+void FreeGaitPlugin::updateNavigationButtonStates() {
+  if (descriptions_.size() > 0) {
+    ui_.labelStepNumber->setText(QString::number(descriptionIndex_));
+    ui_.labelStepMax->setText(QString::number(descriptions_.size() - 1));
+  } else {
+    ui_.labelStepNumber->setText("...");
+    ui_.labelStepMax->setText("...");
+  }
+
+  if (isOnTop_) {
+    ui_.pushButtonGoTop->setEnabled(false);
+    ui_.pushButtonGoUp->setEnabled(false);
+    ui_.pushButtonGoDown->setEnabled(descriptions_.size() > 1);
+    ui_.pushButtonGoBottom->setEnabled(descriptions_.size() > 1);
+    return;
+  }
+
+  ui_.pushButtonGoTop->setEnabled(true);
+  ui_.pushButtonGoUp->setEnabled(
+      descriptions_.size() > 1 && descriptionIndex_ != descriptions_.size()-1);
+  ui_.pushButtonGoDown->setEnabled(
+      descriptions_.size() > 1 && descriptionIndex_ != 0);
+  ui_.pushButtonGoBottom->setEnabled(
+      descriptions_.size() > 1 && descriptionIndex_ != 0);
+}
+
+/*****************************************************************************/
 /** Slots                                                                   **/
 /*****************************************************************************/
 
@@ -211,6 +253,15 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.progressBarStep->setMaximum(1);
   ui_.progressBarStep->setValue(0);
   ui_.progressBarStep->setFormat("");
+
+  // reset text
+  isOnTop_ = true;
+  descriptionIndex_ = 0;
+  descriptions_.clear();
+  updateNavigationButtonStates();
+
+  ui_.labelName->setText("<none>");
+  ui_.plainTextEditDescription->setPlainText(" ");
 
   // update status
   ui_.labelStatus->setPixmap(pixmapPlay_);
@@ -243,10 +294,13 @@ void FreeGaitPlugin::updateFeedback(
   ui_.progressBarStep->setFormat(QString::fromStdString(progressBarText.str()));
 
   // update text
-  mutexExtendText_.lock();
-  ui_.plainTextEditDescription->setPlainText(
-      QString::fromStdString(feedback.feedback.description));
-  mutexExtendText_.unlock();
+  descriptions_.push_back(QString::fromStdString(
+      feedback.feedback.description));
+  if (isOnTop_) {
+    descriptionIndex_ = descriptions_.size() - 1;
+    ui_.plainTextEditDescription->setPlainText(descriptions_.back());
+  }
+  updateNavigationButtonStates();
 
   // update legs
   if (std::find(feedback.feedback.swing_leg_names.begin(),
@@ -308,12 +362,6 @@ void FreeGaitPlugin::updateResult(
   ui_.progressBarStep->setValue(1);
   ui_.progressBarStep->setFormat("");
 
-  // reset text
-  ui_.labelName->setText("<none>");
-  mutexExtendText_.lock();
-  ui_.plainTextEditDescription->setPlainText(" ");
-  mutexExtendText_.unlock();
-
   // reset legs
   ui_.labelLF->setStyleSheet("QLabel {color: black;}");
   ui_.labelRF->setStyleSheet("QLabel {color: black;}");
@@ -335,6 +383,43 @@ void FreeGaitPlugin::updateResult(
       ui_.labelStatus->setPixmap(pixmapWarning_);
       break;
   }
+}
+
+void FreeGaitPlugin::onPushButtonGoTop() {
+  descriptionIndex_ = descriptions_.size() - 1;
+  ui_.plainTextEditDescription->setPlainText(descriptions_.back());
+  isOnTop_ = true;
+
+  updateNavigationButtonStates();
+}
+
+void FreeGaitPlugin::onPushButtonGoUp() {
+  descriptionIndex_ = (descriptionIndex_ + 1 < descriptions_.size() ?
+                       descriptionIndex_ + 1 : descriptions_.size() - 1);
+  ui_.plainTextEditDescription->setPlainText(
+      descriptions_.at(descriptionIndex_));
+  isOnTop_ = false;
+
+  updateNavigationButtonStates();
+}
+
+void FreeGaitPlugin::onPushButtonGoDown() {
+  descriptionIndex_ = (descriptionIndex_ - 1 >= 0 ?
+                       descriptionIndex_ - 1 : 0);
+  ui_.plainTextEditDescription->setPlainText(
+      descriptions_.at(descriptionIndex_));
+  isOnTop_ = false;
+
+  updateNavigationButtonStates();
+}
+
+void FreeGaitPlugin::onPushButtonGoBottom() {
+  descriptionIndex_ = 0;
+  ui_.plainTextEditDescription->setPlainText(
+      descriptions_.at(descriptionIndex_));
+  isOnTop_ = false;
+
+  updateNavigationButtonStates();
 }
 
 } // namespace

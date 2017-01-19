@@ -109,8 +109,6 @@ protected:
 
   std::atomic<bool> isActionRunning_;
 
-  std::mutex mutexExtendText_;
-
   QPixmap pixmapDone_;
   QPixmap pixmapFailed_;
   QPixmap pixmapPause_;
@@ -118,6 +116,10 @@ protected:
   QPixmap pixmapStop_;
   QPixmap pixmapUnknown_;
   QPixmap pixmapWarning_;
+
+  std::vector<QString> descriptions_;
+  unsigned long descriptionIndex_ = 0;
+  bool isOnTop_ = true;
 
   /***************************************************************************/
   /** Callbacks                                                             **/
@@ -135,21 +137,7 @@ protected:
   /** Methods                                                               **/
   /***************************************************************************/
 
-  bool containsString(std::string str, std::string subStr) {
-    return str.find(subStr) != std::string::npos;
-  }
-
-  bool splitString(std::string src, std::string &str1, std::string &str2,
-                   std::string delimiter) {
-    size_t pos = 0;
-    if ((pos = src.find(delimiter)) != std::string::npos) {
-      str1 = src.substr(0, pos);
-      src.erase(0, pos + delimiter.length());
-      str2 = src;
-      return true;
-    }
-    return false;
-  }
+  void updateNavigationButtonStates();
 
 protected slots:
 
@@ -162,6 +150,14 @@ protected slots:
   void updateFeedback(free_gait_msgs::ExecuteStepsActionFeedback feedback);
 
   void updateResult(free_gait_msgs::ExecuteStepsActionResult result);
+
+  void onPushButtonGoTop();
+
+  void onPushButtonGoUp();
+
+  void onPushButtonGoDown();
+
+  void onPushButtonGoBottom();
 
 signals:
 
