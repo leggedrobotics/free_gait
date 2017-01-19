@@ -51,7 +51,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QEvent>
-#include <QMouseEvent>
+#include <QWheelEvent>
 
 namespace rqt_free_gait {
 
@@ -118,7 +118,7 @@ protected:
   QPixmap pixmapWarning_;
 
   std::vector<QString> descriptions_;
-  unsigned long descriptionIndex_ = 0;
+  int descriptionIndex_ = 0;
   bool isOnTop_ = true;
 
   /***************************************************************************/
@@ -138,6 +138,12 @@ protected:
   /***************************************************************************/
 
   void updateNavigationButtonStates();
+
+  /***************************************************************************/
+  /** Events                                                                **/
+  /***************************************************************************/
+
+  bool eventFilter(QObject *object, QEvent *event);
 
 protected slots:
 

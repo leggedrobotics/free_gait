@@ -114,6 +114,11 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   pixmapWarning_ = QPixmap(s.c_str());
   ui_.labelStatus->setPixmap(pixmapDone_);
 
+  // TODO set the button icons (play, pause, stop, up, down, ...) from resource.
+//  QPixmap refreshPixmap(refreshIconPath.c_str());
+//  QIcon refreshIcon(refreshPixmap);
+//  ui_.pushButtonRefreshCollections->setIcon(refreshIcon);
+
   // Initialize foot labels.
   ui_.labelLF->setStyleSheet("QLabel {color: black;}");
   ui_.labelRF->setStyleSheet("QLabel {color: black;}");
@@ -127,6 +132,11 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
 
   // Initialize navigation buttons.
   updateNavigationButtonStates();
+  ui_.widgetScrollArea->installEventFilter(this);
+  ui_.pushButtonGoTop->installEventFilter(this);
+  ui_.pushButtonGoUp->installEventFilter(this);
+  ui_.pushButtonGoDown->installEventFilter(this);
+  ui_.pushButtonGoBottom->installEventFilter(this);
 
   // Connect signals and slots.
   connect(this,
@@ -235,6 +245,32 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
 }
 
 /*****************************************************************************/
+/** Events                                                                  **/
+/*****************************************************************************/
+
+bool FreeGaitPlugin::eventFilter(QObject *ob, QEvent *e) {
+  if (e->type() == QEvent::Wheel) {
+    QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(e);
+    int numDegrees = wheelEvent->delta() / 8;
+    int numSteps = numDegrees / 15;
+
+    descriptionIndex_ = descriptionIndex_ + numSteps;
+    if (descriptionIndex_ < 0) {
+      descriptionIndex_ = 0;
+    } else if (descriptionIndex_ >= descriptions_.size()) {
+      descriptionIndex_ = (int)descriptions_.size() - 1;
+    }
+    ui_.plainTextEditDescription->setPlainText(
+        descriptions_.at((unsigned long)descriptionIndex_));
+    isOnTop_ = false;
+    updateNavigationButtonStates();
+
+    wheelEvent->accept();
+  }
+  return QObject::eventFilter(ob, e);
+}
+
+/*****************************************************************************/
 /** Slots                                                                   **/
 /*****************************************************************************/
 
@@ -297,7 +333,7 @@ void FreeGaitPlugin::updateFeedback(
   descriptions_.push_back(QString::fromStdString(
       feedback.feedback.description));
   if (isOnTop_) {
-    descriptionIndex_ = descriptions_.size() - 1;
+    descriptionIndex_ = (int)descriptions_.size() - 1;
     ui_.plainTextEditDescription->setPlainText(descriptions_.back());
   }
   updateNavigationButtonStates();
@@ -386,7 +422,7 @@ void FreeGaitPlugin::updateResult(
 }
 
 void FreeGaitPlugin::onPushButtonGoTop() {
-  descriptionIndex_ = descriptions_.size() - 1;
+  descriptionIndex_ = (int)descriptions_.size() - 1;
   ui_.plainTextEditDescription->setPlainText(descriptions_.back());
   isOnTop_ = true;
 
@@ -394,10 +430,10 @@ void FreeGaitPlugin::onPushButtonGoTop() {
 }
 
 void FreeGaitPlugin::onPushButtonGoUp() {
-  descriptionIndex_ = (descriptionIndex_ + 1 < descriptions_.size() ?
-                       descriptionIndex_ + 1 : descriptions_.size() - 1);
+  descriptionIndex_ = (int)(descriptionIndex_ + 1 < descriptions_.size() ?
+                            descriptionIndex_ + 1 : descriptions_.size() - 1);
   ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at(descriptionIndex_));
+      descriptions_.at((unsigned long)descriptionIndex_));
   isOnTop_ = false;
 
   updateNavigationButtonStates();
@@ -407,7 +443,7 @@ void FreeGaitPlugin::onPushButtonGoDown() {
   descriptionIndex_ = (descriptionIndex_ - 1 >= 0 ?
                        descriptionIndex_ - 1 : 0);
   ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at(descriptionIndex_));
+      descriptions_.at((unsigned long)descriptionIndex_));
   isOnTop_ = false;
 
   updateNavigationButtonStates();
@@ -416,7 +452,7 @@ void FreeGaitPlugin::onPushButtonGoDown() {
 void FreeGaitPlugin::onPushButtonGoBottom() {
   descriptionIndex_ = 0;
   ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at(descriptionIndex_));
+      descriptions_.at((unsigned long)descriptionIndex_));
   isOnTop_ = false;
 
   updateNavigationButtonStates();
