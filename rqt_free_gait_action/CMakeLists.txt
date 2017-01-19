@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
+project(rqt_free_gait_action)
 
 # Flags
 SET(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-project(rqt_free_gait_action)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
   free_gait_msgs
@@ -113,4 +113,11 @@ install(PROGRAMS scripts/${PROJECT_NAME}
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+
+install(
+  DIRECTORY resource
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  FILES_MATCHING
+  PATTERN "*.svg"
 )

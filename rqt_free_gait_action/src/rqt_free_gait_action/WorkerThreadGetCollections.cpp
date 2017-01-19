@@ -56,7 +56,11 @@ void WorkerThreadGetCollections::run() {
     return;
   }
 
-  std::vector<Action> allActions;
+  // Add pseudo empty collection to get all available actions.
+  free_gait_msgs::CollectionDescription collectionDescription;
+  collectionDescription.id = "";
+  collectionsResponse.collections.push_back(collectionDescription);
+
   // Loop over the collections, get their actions and add them finally to the
   // collection model.
   for (auto collectionItem : collectionsResponse.collections) {
@@ -78,42 +82,24 @@ void WorkerThreadGetCollections::run() {
                     QString::fromStdString(actionItem.name),
                     QString::fromStdString(actionItem.description));
       actionModel->addAction(action);
-
-      // Check if action is already in the allActions vector.
-      bool isFirst = true;
-      for (auto allItem : allActions) {
-        if (allItem.getId().compare(action.getId()) == 0) {
-          isFirst = false;
-          break;
-        }
-      }
-      if (isFirst) {
-        // Add the actions to the allAction vector.
-        allActions.push_back(action);
-      }
     }
 
     // Sort the action names (ASC).
     actionModel->sortActions();
 
     // Add the action model to the collection.
-    Collection collection(QString::fromStdString(collectionItem.id),
-                          QString::fromStdString(collectionItem.name),
-                          actionModel);
+    QString collectionId = "all";
+    QString collectionName = "All";
+    if (collectionItem.id.length() != 0) {
+      collectionId = QString::fromStdString(collectionItem.id);
+      collectionName = QString::fromStdString(collectionItem.name);
+    }
+    Collection collection(collectionId, collectionName, actionModel);
 
     // Add the collection to the collection model.
     collectionModel->addCollection(collection);
   }
 
-  // Add all actions to the action model.
-  ActionModel *actionModel = new ActionModel();
-  for (auto item : allActions) {
-    actionModel->addAction(item);
-  }
-  // Add a new collection 'All', with all available actions,
-  // to the collection model.
-  Collection collection("all", "All", actionModel);
-  collectionModel->addCollection(collection);
   // Sort the collection names (ASC).
   // TODO Ensure that 'All' is always on top.
   collectionModel->sortCollections();
