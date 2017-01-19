@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>rqt_free_gait_action</name>
-  <version>0.3.10</version>
+  <version>0.0.1</version>
   <description>rqt_free_gait_action provides a GUI plugin to ...</description>
 
   <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
   <maintainer email="samuel.bachmann@gmail.com">Samuel Bachmann</maintainer>
   <license>BSD</license>
-  <url type="website">https://bitbucket.org/leggedrobotics/free_gait</url>
-  <url type="bugtracker">https://bitbucket.org/leggedrobotics/free_gait/issues</url>
+  <url type="website">https://github.com/leggedrobotics/free_gait</url>
+  <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
