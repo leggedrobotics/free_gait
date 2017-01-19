@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>free_gait_marker</name>
-  <version>0.1.0</version>
+  <version>0.0.1</version>
   <description>Interactive Rviz markers for </description>
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <license>BSD</license>
