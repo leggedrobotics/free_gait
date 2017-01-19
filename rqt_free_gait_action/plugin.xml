@@ -1,0 +1,19 @@
+<library path="lib/librqt_free_gait_action">
+  <class name="rqt_free_gait/FreeGaitActionPlugin"
+         type="rqt_free_gait::FreeGaitActionPlugin"
+         base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A GUI plugin to select and send free gait actions.
+    </description>
+    <qtgui>
+      <group>
+        <label>Robot Tools</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to...</statustip>
+      </group>
+      <label>Free Gait Actions</label>
+      <icon type="theme">applications-graphics</icon>
+      <statustip>A GUI plugin to select and send free gait actions.</statustip>
+    </qtgui>
+  </class>
+</library>
