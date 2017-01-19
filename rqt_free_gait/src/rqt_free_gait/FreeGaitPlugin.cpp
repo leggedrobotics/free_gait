@@ -61,12 +61,18 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   widget_->installEventFilter(this);
 
   // subscriber
-  subGoal_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionGoal>
-      ("/free_gait/execute_steps/goal", 10, &FreeGaitPlugin::goalCallback, this);
-  subFeedback_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionFeedback>
-      ("/free_gait/execute_steps/feedback", 10, &FreeGaitPlugin::feedbackCallback, this);
-  subResult_ = getNodeHandle().subscribe<free_gait_msgs::ExecuteStepsActionResult>
-      ("/free_gait/execute_steps/result", 10, &FreeGaitPlugin::resultCallback, this);
+  subGoal_ = getNodeHandle().subscribe<
+      free_gait_msgs::ExecuteStepsActionGoal>(
+      getNodeHandle().param<std::string>("/free_gait/action_server", "") +
+          "/goal", 10, &FreeGaitPlugin::goalCallback, this);
+  subFeedback_ = getNodeHandle().subscribe<
+      free_gait_msgs::ExecuteStepsActionFeedback>(
+      getNodeHandle().param<std::string>("/free_gait/action_server", "") +
+          "/feedback", 10, &FreeGaitPlugin::feedbackCallback, this);
+  subResult_ = getNodeHandle().subscribe<
+      free_gait_msgs::ExecuteStepsActionResult>(
+      getNodeHandle().param<std::string>("/free_gait/action_server", "") +
+          "/result", 10, &FreeGaitPlugin::resultCallback, this);
 
   // init gui
   ui_.label_name->setText("<none>");
@@ -76,8 +82,8 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.progressBar_free_gait->setValue(1);
   ui_.progressBar_free_gait->setFormat("");
 
-  std::string iconPath = ros::package::getPath("rqt_free_gait") +
-      "/resource/icons/16x16/";
+  std::string iconPath =
+      ros::package::getPath("rqt_free_gait") + "/resource/icons/16x16/";
   std::string s;
   s = iconPath + "done.svg";
   pixmapDone_ = QPixmap(s.c_str());
