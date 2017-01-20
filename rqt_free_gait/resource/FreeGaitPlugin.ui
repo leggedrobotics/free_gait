@@ -465,6 +465,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>plainTextEditDescription</tabstop>
+  <tabstop>pushButtonGoTop</tabstop>
+  <tabstop>pushButtonGoUp</tabstop>
+  <tabstop>pushButtonGoDown</tabstop>
+  <tabstop>pushButtonGoBottom</tabstop>
+  <tabstop>pushButtonPlay</tabstop>
+  <tabstop>pushButtonPause</tabstop>
+  <tabstop>pushButtonStop</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
  </resources>

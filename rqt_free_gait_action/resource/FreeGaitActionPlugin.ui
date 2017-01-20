@@ -200,6 +200,15 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <tabstops>
+  <tabstop>listViewCollections</tabstop>
+  <tabstop>listViewActions</tabstop>
+  <tabstop>pushButtonSend</tabstop>
+  <tabstop>pushButtonPreview</tabstop>
+  <tabstop>pushButtonRefreshCollections</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
