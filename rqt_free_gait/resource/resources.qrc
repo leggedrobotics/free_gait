@@ -1,0 +1,15 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file>icons/16x16/done.svg</file>
+    <file>icons/16x16/failed.svg</file>
+    <file>icons/16x16/go-bottom.svg</file>
+    <file>icons/16x16/go-down.svg</file>
+    <file>icons/16x16/go-top.svg</file>
+    <file>icons/16x16/go-up.svg</file>
+    <file>icons/16x16/pause.svg</file>
+    <file>icons/16x16/play.svg</file>
+    <file>icons/16x16/stop.svg</file>
+    <file>icons/16x16/unknown.svg</file>
+    <file>icons/16x16/warning.svg</file>
+  </qresource>
+</RCC>

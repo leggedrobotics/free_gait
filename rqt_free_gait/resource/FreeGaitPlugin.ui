@@ -241,6 +241,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/icons/16x16/done.svg</pixmap>
+       </property>
       </widget>
      </item>
     </layout>
@@ -326,7 +329,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="go-top"/>
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/16x16/go-top.svg</normaloff>:/icons/16x16/go-top.svg</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -352,7 +356,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="go-down"/>
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/16x16/go-down.svg</normaloff>:/icons/16x16/go-down.svg</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -381,7 +386,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="go-bottom"/>
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/16x16/go-bottom.svg</normaloff>:/icons/16x16/go-bottom.svg</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -394,7 +400,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset theme="go-up"/>
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/16x16/go-up.svg</normaloff>:/icons/16x16/go-up.svg</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -414,7 +421,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="stock_media-play"/>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/16x16/play.svg</normaloff>:/icons/16x16/play.svg</iconset>
        </property>
       </widget>
      </item>
@@ -424,7 +432,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="stock_media-pause"/>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/16x16/pause.svg</normaloff>:/icons/16x16/pause.svg</iconset>
        </property>
       </widget>
      </item>
@@ -434,7 +443,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="stock_media-stop"/>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/16x16/stop.svg</normaloff>:/icons/16x16/stop.svg</iconset>
        </property>
       </widget>
      </item>
@@ -455,6 +465,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

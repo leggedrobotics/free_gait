@@ -94,30 +94,8 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.progressBarStep->setValue(1);
   ui_.progressBarStep->setFormat("");
 
-  // Set icons.
-  std::string iconPath =
-      ros::package::getPath("rqt_free_gait") + "/resource/icons/16x16/";
-  std::string s;
-  s = iconPath + "done.svg";
-  pixmapDone_ = QPixmap(s.c_str());
-  s = iconPath + "failed.svg";
-  pixmapFailed_ = QPixmap(s.c_str());
-  s = iconPath + "pause.svg";
-  pixmapPause_ = QPixmap(s.c_str());
-  s = iconPath + "play.svg";
-  pixmapPlay_ = QPixmap(s.c_str());
-  s = iconPath + "stop.svg";
-  pixmapStop_ = QPixmap(s.c_str());
-  s = iconPath + "unknown.svg";
-  pixmapUnknown_ = QPixmap(s.c_str());
-  s = iconPath + "warning.svg";
-  pixmapWarning_ = QPixmap(s.c_str());
-  ui_.labelStatus->setPixmap(pixmapDone_);
-
-  // TODO set the button icons (play, pause, stop, up, down, ...) from resource.
-//  QPixmap refreshPixmap(refreshIconPath.c_str());
-//  QIcon refreshIcon(refreshPixmap);
-//  ui_.pushButtonRefreshCollections->setIcon(refreshIcon);
+  // Set icon.
+  ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/done.svg"));
 
   // Initialize foot labels.
   ui_.labelLF->setStyleSheet("QLabel {color: black;}");
@@ -300,7 +278,7 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.plainTextEditDescription->setPlainText(" ");
 
   // update status
-  ui_.labelStatus->setPixmap(pixmapPlay_);
+  ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/play.svg"));
 }
 
 void FreeGaitPlugin::updateFeedback(
@@ -371,16 +349,16 @@ void FreeGaitPlugin::updateFeedback(
   // update status
   switch (feedback.feedback.status) {
     case free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED:
-      ui_.labelStatus->setPixmap(pixmapPause_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/pause.svg"));
       break;
     case free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING:
-      ui_.labelStatus->setPixmap(pixmapPlay_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/play.svg"));
       break;
     case free_gait_msgs::ExecuteStepsFeedback::PROGRESS_UNKNOWN:
-      ui_.labelStatus->setPixmap(pixmapUnknown_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/unknown.svg"));
       break;
     default:
-      ui_.labelStatus->setPixmap(pixmapWarning_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/warning.svg"));
       break;
   }
 }
@@ -407,16 +385,16 @@ void FreeGaitPlugin::updateResult(
   // reset status
   switch (result.result.status) {
     case free_gait_msgs::ExecuteStepsResult::RESULT_REACHED:
-      ui_.labelStatus->setPixmap(pixmapDone_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/done.svg"));
       break;
     case free_gait_msgs::ExecuteStepsResult::RESULT_FAILED:
-      ui_.labelStatus->setPixmap(pixmapFailed_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/failed.svg"));
       break;
     case free_gait_msgs::ExecuteStepsResult::RESULT_UNKNOWN:
-      ui_.labelStatus->setPixmap(pixmapUnknown_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/unknown.svg"));
       break;
     default:
-      ui_.labelStatus->setPixmap(pixmapWarning_);
+      ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/warning.svg"));
       break;
   }
 }

@@ -109,14 +109,6 @@ protected:
 
   std::atomic<bool> isActionRunning_;
 
-  QPixmap pixmapDone_;
-  QPixmap pixmapFailed_;
-  QPixmap pixmapPause_;
-  QPixmap pixmapPlay_;
-  QPixmap pixmapStop_;
-  QPixmap pixmapUnknown_;
-  QPixmap pixmapWarning_;
-
   std::vector<QString> descriptions_;
   int descriptionIndex_ = 0;
   bool isOnTop_ = true;
