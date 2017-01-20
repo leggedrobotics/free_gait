@@ -35,6 +35,7 @@
 #include <rqt_gui_cpp/plugin.h>
 #include <ui_FreeGaitActionPlugin.h>
 
+#include <map>
 #include <string>
 
 #include <ros/ros.h>
@@ -44,9 +45,12 @@
 #include <QObject>
 #include <QItemSelection>
 #include <QStatusBar>
+#include <QResizeEvent>
+#include <QMenu>
 
 #include "rqt_free_gait_action/ActionModel.h"
 #include "rqt_free_gait_action/CollectionModel.h"
+#include "rqt_free_gait_action/FavoritePushButton.h"
 #include "rqt_free_gait_action/WorkerThreadGetCollections.h"
 #include "rqt_free_gait_action/WorkerThreadSendAction.h"
 #include "rqt_free_gait_action/WorkerThreadUpdateTrigger.h"
@@ -100,6 +104,9 @@ protected:
 
   const std::string TAG = "FreeGaitActionPlugin";
 
+  const QString FAVORITE_INFO = "No favorite collection selected. "
+      "Right click on a collection to set as favorite.";
+
   /***************************************************************************/
   /** Variables                                                             **/
   /***************************************************************************/
@@ -115,12 +122,16 @@ protected:
   ros::ServiceClient refreshCollectionsClient_;
 
   QString selectedAction_ = "";
+  QString favoriteCollectionId_ = "";
 
   ActionModel *currentActionModel_ = nullptr;
   CollectionModel *collectionModel_ = nullptr;
 
   bool isCollectionListViewConnected_ = false;
   bool isActionListViewConnected_ = false;
+  bool isSendingFavoriteAction_ = false;
+
+  std::vector<FavoritePushButton*> favoritesPushButtons_;
 
   /***************************************************************************/
   /** Methods                                                               **/
@@ -132,17 +143,86 @@ protected:
 
   void clearCollectionListView();
 
+  void evaluateFreeGaitActionResponse(
+      free_gait_msgs::SendActionResponse response);
+
+  void updateFavoritesInfo(QString info = "");
+
+  void setFavoriteActions(QString collectionId);
+
+  void generateGridLayout();
+
+  void cleanGridLayout(bool deleteWidgets);
+
+  /**
+   * @brief Helper function. Removes all layout items within the given @a layout
+   * which either span the given @a row or @a column. If @a deleteWidgets
+   * is true, all concerned child widgets become not only removed from the
+   * layout, but also deleted.
+   * https://goo.gl/dObpgP
+   * modified to detach widgets
+   */
+  void remove(QGridLayout *layout, int row, int column, bool deleteWidgets);
+
+  /**
+   * @brief Helper function. Deletes all child widgets of the given layout @a
+   * item.
+   * https://goo.gl/dObpgP
+   */
+  void deleteChildWidgets(QLayoutItem *item);
+
+  /**
+   * @brief Helper function. Detaches all child widgets of the given layout @a
+   * item by setting parent to 0.
+   */
+  void detachChildWidgets(QLayoutItem *item);
+
+  /**
+   * @brief Removes all layout items on the given @a row from the given grid
+   * @a layout. If @a deleteWidgets is true, all concerned child widgets
+   * become not only removed from the layout, but also deleted. Note that
+   * this function doesn't actually remove the row itself from the grid
+   * layout, as this isn't possible (i.e. the rowCount() and row indices
+   * will stay the same after this function has been called).
+   * https://goo.gl/dObpgP
+   */
+  void removeRow(QGridLayout *layout, int row, bool deleteWidgets);
+
+  /**
+   * @brief Removes all layout items on the given @a column from the given grid
+   * @a layout. If @a deleteWidgets is true, all concerned child widgets
+   * become not only removed from the layout, but also deleted. Note that
+   * this function doesn't actually remove the column itself from the grid
+   * layout, as this isn't possible (i.e. the columnCount() and column
+   * indices will stay the same after this function has been called).
+   * https://goo.gl/dObpgP
+   */
+  void removeColumn(QGridLayout *layout, int column, bool deleteWidgets);
+
+  /***************************************************************************/
+  /** Events                                                                **/
+  /***************************************************************************/
+
+  bool eventFilter(QObject *object, QEvent *event);
+
 protected slots:
 
   /***************************************************************************/
   /** Slots                                                                 **/
   /***************************************************************************/
 
+  void listViewCollectionsContextMenu(const QPoint &pos);
+
   void onSendActionClicked();
 
   void onSendPreviewClicked();
 
   void onRefreshCollectionsClicked();
+
+  void onFavoriteButtonClicked(Action action);
+
+  void onFavoriteButtonResult(bool isOk,
+                              free_gait_msgs::SendActionResponse response);
 
   void onCollectionSelectionChanged(const QItemSelection &selection);
 

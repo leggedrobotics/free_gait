@@ -66,6 +66,8 @@ public:
 
   void sortActions();
 
+  std::vector<Action> getActions();
+
 private:
 
   /***************************************************************************/

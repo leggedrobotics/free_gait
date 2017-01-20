@@ -38,6 +38,10 @@ namespace rqt_free_gait {
 /** Constructor/Destructor                                                  **/
 /*****************************************************************************/
 
+Action::Action() {
+
+}
+
 Action::Action(QString id, QString name, QString description)
     : id_(id),
       name_(name),

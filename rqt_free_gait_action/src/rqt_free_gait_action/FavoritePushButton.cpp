@@ -30,7 +30,7 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait_action/CollectionModel.h"
+#include "rqt_free_gait_action/FavoritePushButton.h"
 
 namespace rqt_free_gait {
 
@@ -38,70 +38,43 @@ namespace rqt_free_gait {
 /** Constructor/Destructor                                                  **/
 /*****************************************************************************/
 
-CollectionModel::CollectionModel(QObject *parent) : QAbstractListModel(parent) {
-
+FavoritePushButton::FavoritePushButton(QWidget *parent)
+    : QPushButton(parent) {
+  connectSignalsInternally();
 }
 
-CollectionModel::~CollectionModel() {
+FavoritePushButton::FavoritePushButton(Action action, QWidget *parent)
+    : QPushButton(parent),
+      action_(action) {
+  connectSignalsInternally();
 
+  setText(action_.getName());
 }
 
 /*****************************************************************************/
 /** Accessors                                                               **/
 /*****************************************************************************/
 
-void CollectionModel::addCollection(const Collection &collection) {
-  collections_.push_back(collection);
-  reset();
-}
+void FavoritePushButton::setAction(Action action) {
+  action_ = action;
 
-int CollectionModel::rowCount(const QModelIndex &/*parent*/) const {
-  return (int)collections_.size();
-}
-
-QVariant CollectionModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid()) {
-    return QVariant();
-  }
-
-  if (role == Qt::TextAlignmentRole) {
-    return int(Qt::AlignLeft | Qt::AlignVCenter);
-  } else if (role == Qt::DisplayRole) {
-    return collections_.at((unsigned long)index.row()).getName();
-  }
-
-  return QVariant();
-}
-
-ActionModel *CollectionModel::getActionModel(
-    const QModelIndex &index) {
-  return collections_.at((unsigned long)index.row()).getActionModel();
-}
-
-void CollectionModel::sortCollections() {
-  std::sort(collections_.begin(), collections_.end(),
-            CollectionModel::comparator);
-}
-
-std::vector<Action> CollectionModel::getActions(QString collectionId) {
-  for (int i = 0; i < collections_.size(); ++i) {
-    if (collections_[i].getId().compare(collectionId) == 0) {
-      return collections_[i].getActionModel()->getActions();
-    }
-  }
-  return std::vector<Action>();
-}
-
-QString CollectionModel::getCollectionId(const QModelIndex &index) {
-  return collections_.at((unsigned long)index.row()).getId();
+  setText(action_.getName());
 }
 
 /*****************************************************************************/
 /** Methods                                                                 **/
 /*****************************************************************************/
 
-bool CollectionModel::comparator(const Collection &l, const Collection &r) {
-  return l.getName() < r.getName();
+void FavoritePushButton::connectSignalsInternally() {
+  connect(this, SIGNAL(clicked()), this, SLOT(clickedInternal()));
+}
+
+/*****************************************************************************/
+/** Slots                                                                   **/
+/*****************************************************************************/
+
+void FavoritePushButton::clickedInternal() {
+  emit clicked(action_);
 }
 
 } // namespace

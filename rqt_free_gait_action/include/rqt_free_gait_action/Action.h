@@ -43,6 +43,8 @@ public:
   /** Constructor/Destructor                                                **/
   /***************************************************************************/
 
+  Action();
+
   Action(QString id, QString name, QString description);
 
   ~Action();

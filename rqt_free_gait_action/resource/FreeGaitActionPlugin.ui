@@ -13,6 +13,11 @@
     <height>499</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <italic>false</italic>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Free Gait Actions</string>
   </property>
@@ -22,6 +27,52 @@
      <property name="text">
       <string>&lt;b&gt;Send Action&lt;/b&gt;</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widgetFavorites" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Favorites</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelFavoritesInfo">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>Favorites Info</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayoutFavorites"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -85,6 +136,11 @@
    </item>
    <item>
     <widget class="QLabel" name="labelActionDescription">
+     <property name="font">
+      <font>
+       <italic>true</italic>
+      </font>
+     </property>
      <property name="text">
       <string>... action description ...</string>
      </property>

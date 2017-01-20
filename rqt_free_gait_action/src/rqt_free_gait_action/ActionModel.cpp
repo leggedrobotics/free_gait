@@ -81,6 +81,10 @@ void ActionModel::sortActions() {
   std::sort(actions_.begin(), actions_.end(), ActionModel::comparator);
 }
 
+std::vector<Action> ActionModel::getActions() {
+  return actions_;
+}
+
 /*****************************************************************************/
 /** Methods                                                                 **/
 /*****************************************************************************/

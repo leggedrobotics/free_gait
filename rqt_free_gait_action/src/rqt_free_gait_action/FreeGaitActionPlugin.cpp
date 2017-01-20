@@ -48,6 +48,7 @@ FreeGaitActionPlugin::FreeGaitActionPlugin()
       "free_gait_msgs::SendActionResponse");
   qRegisterMetaType<std_srvs::TriggerResponse>(
       "std_srvs::TriggerResponse");
+  qRegisterMetaType<Action>("Action");
 
   setObjectName("FreeGaitActionPlugin");
 }
@@ -65,8 +66,14 @@ void FreeGaitActionPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
   }
   context.addWidget(widget_);
 
+  // Install event filter.
+  ui_.widgetFavorites->installEventFilter(this);
+
   // Reset labels.
   ui_.labelActionDescription->setText("");
+
+  // Set up custom context menu for collections list view.
+  ui_.listViewCollections->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Initialize status bar.
   statusBar_ = new QStatusBar(widget_);
@@ -110,6 +117,12 @@ void FreeGaitActionPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
           this, SLOT(onRefreshCollectionsClicked()));
   connect(this, SIGNAL(statusMessage(std::string, MessageType, double)),
           this, SLOT(onStatusMessage(std::string, MessageType, double)));
+  connect(ui_.listViewCollections,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this, SLOT(listViewCollectionsContextMenu(const QPoint&)));
+
+  // Initialize favorites info.
+  updateFavoritesInfo(FAVORITE_INFO);
 
   // Get collections.
   getCollections();
@@ -130,11 +143,14 @@ void FreeGaitActionPlugin::shutdownPlugin() {
 void FreeGaitActionPlugin::saveSettings(
     qt_gui_cpp::Settings& plugin_settings,
     qt_gui_cpp::Settings& instance_settings) const {
+  instance_settings.setValue("favorite_collection_id", favoriteCollectionId_);
 }
 
 void FreeGaitActionPlugin::restoreSettings(
     const qt_gui_cpp::Settings& plugin_settings,
     const qt_gui_cpp::Settings& instance_settings) {
+  favoriteCollectionId_ =
+      instance_settings.value("favorite_collection_id", "").toString();
 }
 
 /*****************************************************************************/
@@ -164,6 +180,205 @@ void FreeGaitActionPlugin::clearCollectionListView() {
   }
   collectionModel_ = new CollectionModel(this);
   ui_.listViewCollections->setModel(collectionModel_);
+}
+
+void FreeGaitActionPlugin::evaluateFreeGaitActionResponse(
+    free_gait_msgs::SendActionResponse response) {
+  switch (response.result.status) {
+    case free_gait_msgs::ExecuteActionResult::RESULT_DONE:
+      emit statusMessage("Done", MessageType::SUCCESS, 2.0);
+      break;
+    case free_gait_msgs::ExecuteActionResult::RESULT_STARTED :
+      emit statusMessage("Started", MessageType::SUCCESS, 2.0);
+      break;
+    case free_gait_msgs::ExecuteActionResult::RESULT_FAILED:
+      emit statusMessage("Failed", MessageType::ERROR, 2.0);
+      break;
+    case free_gait_msgs::ExecuteActionResult::RESULT_NOT_FOUND:
+      emit statusMessage("Not found", MessageType::ERROR, 2.0);
+      break;
+    case free_gait_msgs::ExecuteActionResult::RESULT_UNKNOWN:
+      emit statusMessage("Unknown", MessageType::WARNING, 2.0);
+      break;
+    default:
+      break;
+  }
+}
+
+void FreeGaitActionPlugin::updateFavoritesInfo(QString info) {
+  ui_.labelFavoritesInfo->setText(info);
+  if (ui_.gridLayoutFavorites->count() > 0) {
+    ui_.labelFavoritesInfo->hide();
+  } else {
+    ui_.labelFavoritesInfo->show();
+  }
+}
+
+void FreeGaitActionPlugin::setFavoriteActions(QString collectionId) {
+  if (isSendingFavoriteAction_) {
+    statusMessage("Cannot change favorites while sending a favorite action.",
+                  MessageType::WARNING, 2.0);
+    return;
+  }
+  cleanGridLayout(true);
+  favoritesPushButtons_.clear();
+  if (collectionId.isEmpty()) {
+    updateFavoritesInfo(FAVORITE_INFO);
+    return;
+  }
+  // Set up favorites.
+  for (auto item : collectionModel_->getActions(collectionId)) {
+    favoritesPushButtons_.push_back(new FavoritePushButton(item));
+    connect(favoritesPushButtons_.back(), SIGNAL(clicked(Action)),
+            this, SLOT(onFavoriteButtonClicked(Action)));
+  }
+  generateGridLayout();
+  if (favoritesPushButtons_.empty()) {
+    favoriteCollectionId_ = "";
+    updateFavoritesInfo(FAVORITE_INFO);
+  } else {
+    updateFavoritesInfo();
+  }
+}
+
+void FreeGaitActionPlugin::remove(QGridLayout *layout, int row,
+                                  int column, bool deleteWidgets) {
+  // We avoid usage of QGridLayout::itemAtPosition() here
+  // to improve performance.
+  for (int i = layout->count() - 1; i >= 0; i--) {
+    int r, c, rs, cs;
+    layout->getItemPosition(i, &r, &c, &rs, &cs);
+    if ((r <= row && r + rs - 1 >= row) ||
+        (c <= column && c + cs - 1 >= column)) {
+      // This layout item is subject to deletion.
+      QLayoutItem *item = layout->takeAt(i);
+      if (deleteWidgets) {
+        deleteChildWidgets(item);
+      } else {
+        detachChildWidgets(item);
+      }
+      delete item;
+    }
+  }
+}
+
+void FreeGaitActionPlugin::deleteChildWidgets(QLayoutItem *item) {
+  if (item->layout()) {
+    // Process all child items recursively.
+    for (int i = 0; i < item->layout()->count(); i++) {
+      deleteChildWidgets(item->layout()->itemAt(i));
+    }
+  }
+  delete item->widget();
+}
+
+void FreeGaitActionPlugin::detachChildWidgets(QLayoutItem *item) {
+  if (item->layout()) {
+    // Process all child items recursively.
+    for (int i = 0; i < item->layout()->count(); i++) {
+      detachChildWidgets(item->layout()->itemAt(i));
+    }
+  } else {
+    item->widget()->setParent(0);
+  }
+}
+
+void FreeGaitActionPlugin::removeRow(QGridLayout *layout,
+                                     int row, bool deleteWidgets) {
+  remove(layout, row, -1, deleteWidgets);
+  layout->setRowMinimumHeight(row, 0);
+  layout->setRowStretch(row, 0);
+}
+
+void FreeGaitActionPlugin::removeColumn(QGridLayout *layout, int column,
+                                        bool deleteWidgets) {
+  remove(layout, -1, column, deleteWidgets);
+  layout->setColumnMinimumWidth(column, 0);
+  layout->setColumnStretch(column, 0);
+}
+
+void FreeGaitActionPlugin::cleanGridLayout(bool deleteWidgets) {
+  // Remove all widgets from grid layout.
+  if (ui_.gridLayoutFavorites->rowCount() > 0) {
+    for (int i = 0; i < ui_.gridLayoutFavorites->rowCount(); ++i) {
+      removeRow(ui_.gridLayoutFavorites, i, deleteWidgets);
+    }
+    ui_.gridLayoutFavorites->invalidate();
+  }
+}
+
+void FreeGaitActionPlugin::generateGridLayout() {
+  QFont myFont("Ubuntu", 11);
+  QFontMetrics fontMetrics(myFont);
+
+  int width = ui_.widgetFavorites->size().width();
+
+  cleanGridLayout(false);
+
+  // generate grid layout
+  if (favoritesPushButtons_.size() > 0) {
+    int minWidth = 0;
+    for (auto item : favoritesPushButtons_) {
+      int fontWidth = fontMetrics.width(item->text()) + 20;
+//      QFontMetrics fm = painter.fontMetrics();
+//      int width = fm.width(item.second);
+
+      if (fontWidth > minWidth) {
+        minWidth = fontWidth;
+      }
+    }
+    int numberOfColumns = 1;
+    while (true) {
+      // TODO 4 ???
+      if (numberOfColumns * minWidth +
+          (numberOfColumns - 1) * ui_.gridLayoutFavorites->horizontalSpacing() +
+          4 < width) {
+        numberOfColumns++;
+      } else {
+        numberOfColumns--;
+        break;
+      }
+      if (numberOfColumns == favoritesPushButtons_.size() &&
+          numberOfColumns * minWidth +
+          (numberOfColumns - 1) * ui_.gridLayoutFavorites->horizontalSpacing() +
+          4 < width) {
+        break;
+      }
+    }
+    if (numberOfColumns < 1) {
+      numberOfColumns = 1;
+    }
+    // Add widgets to the grid layout.
+    int numberOfComponents = (int)favoritesPushButtons_.size();
+    int row = 0;
+    unsigned long counter = 0;
+    while (numberOfComponents > 0) {
+      for (int i = 0; i < numberOfColumns; ++i) {
+        if (numberOfComponents > 0) {
+          // Add push button to grid layout
+          ui_.gridLayoutFavorites->addWidget(
+              favoritesPushButtons_.at(counter), row, i);
+          counter++;
+          numberOfComponents--;
+        }
+      }
+      row++;
+    }
+  }
+}
+
+/*****************************************************************************/
+/** Events                                                                  **/
+/*****************************************************************************/
+
+bool FreeGaitActionPlugin::eventFilter(QObject *object, QEvent *event) {
+  if (event->type() == QEvent::Resize) {
+    QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
+    if (resizeEvent->size().width() != resizeEvent->oldSize().width()) {
+      generateGridLayout();
+    }
+  }
+  return QObject::eventFilter(object, event);
 }
 
 /*****************************************************************************/
@@ -225,6 +440,8 @@ void FreeGaitActionPlugin::onGetCollectionsResult(
             SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(onCollectionSelectionChanged(QItemSelection)));
     isCollectionListViewConnected_ = true;
+
+    setFavoriteActions(favoriteCollectionId_);
   } else {
     // TODO clean collection and action list view?
   }
@@ -235,25 +452,7 @@ void FreeGaitActionPlugin::onSendActionResult(
   if (!isOk) {
     emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
   } else {
-    switch (response.result.status) {
-      case free_gait_msgs::ExecuteActionResult::RESULT_DONE:
-        emit statusMessage("Done", MessageType::SUCCESS, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_STARTED :
-        emit statusMessage("Started", MessageType::SUCCESS, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_FAILED:
-        emit statusMessage("Failed", MessageType::ERROR, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_NOT_FOUND:
-        emit statusMessage("Not found", MessageType::ERROR, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_UNKNOWN:
-        emit statusMessage("Unknown", MessageType::WARNING, 2.0);
-        break;
-      default:
-        break;
-    }
+    evaluateFreeGaitActionResponse(response);
   }
   ui_.pushButtonSend->setEnabled(true);
 }
@@ -310,25 +509,7 @@ void FreeGaitActionPlugin::onSendPreviewResult(
     emit statusMessage("Could not send preview action.",
                        MessageType::WARNING, 2.0);
   } else {
-    switch (response.result.status) {
-      case free_gait_msgs::ExecuteActionResult::RESULT_DONE:
-        emit statusMessage("Done", MessageType::SUCCESS, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_STARTED :
-        emit statusMessage("Started", MessageType::SUCCESS, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_FAILED:
-        emit statusMessage("Failed", MessageType::ERROR, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_NOT_FOUND:
-        emit statusMessage("Not found", MessageType::ERROR, 2.0);
-        break;
-      case free_gait_msgs::ExecuteActionResult::RESULT_UNKNOWN:
-        emit statusMessage("Unknown", MessageType::WARNING, 2.0);
-        break;
-      default:
-        break;
-    }
+    evaluateFreeGaitActionResponse(response);
   }
   ui_.pushButtonPreview->setEnabled(true);
 }
@@ -387,6 +568,64 @@ void FreeGaitActionPlugin::onStatusMessage(std::string message,
   }
   statusBar_->showMessage(QString::fromStdString(message),
                           (int)(displaySeconds * 1000));
+}
+
+void FreeGaitActionPlugin::listViewCollectionsContextMenu(const QPoint &pos) {
+  QPoint globalPos = ui_.listViewCollections->mapToGlobal(pos);
+
+  QModelIndex index = ui_.listViewCollections->indexAt(pos);
+
+  if (index.isValid()) {
+    QString collectionId = collectionModel_->getCollectionId(index);
+
+    QMenu menuForItem;
+    QAction* actionSetAsFavorite = menuForItem.addAction("Set as favorite");
+    QAction* actionResult;
+    actionResult = menuForItem.exec(globalPos);
+    if(actionResult) {
+      if(actionResult == actionSetAsFavorite) {
+        favoriteCollectionId_ = collectionId;
+        setFavoriteActions(favoriteCollectionId_);
+      }
+    }
+  }
+}
+
+void FreeGaitActionPlugin::onFavoriteButtonClicked(Action action) {
+  isSendingFavoriteAction_ = true;
+
+  free_gait_msgs::SendActionRequest request;
+  request.goal.action_id = action.getId().toStdString();
+
+  WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
+  connect(workerThreadSendAction,
+          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
+          this,
+          SLOT(onFavoriteButtonResult(bool,
+                                      free_gait_msgs::SendActionResponse)));
+  connect(workerThreadSendAction, SIGNAL(finished()),
+          workerThreadSendAction, SLOT(deleteLater()));
+  workerThreadSendAction->setClient(sendActionClient_);
+  workerThreadSendAction->setRequest(request);
+  workerThreadSendAction->start();
+
+  for (auto button : favoritesPushButtons_) {
+    button->setEnabled(false);
+  }
+}
+
+void FreeGaitActionPlugin::onFavoriteButtonResult(
+    bool isOk, free_gait_msgs::SendActionResponse response) {
+  if (!isOk) {
+    emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
+  } else {
+    evaluateFreeGaitActionResponse(response);
+  }
+  for (auto button : favoritesPushButtons_) {
+    button->setEnabled(true);
+  }
+
+  isSendingFavoriteAction_ = false;
 }
 
 } // namespace

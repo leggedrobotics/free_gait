@@ -36,6 +36,7 @@
 #include <vector>
 
 #include <QAbstractListModel>
+#include <QMouseEvent>
 
 #include "rqt_free_gait_action/Collection.h"
 
@@ -64,7 +65,11 @@ public:
 
   ActionModel *getActionModel(const QModelIndex &index);
 
+  QString getCollectionId(const QModelIndex &index);
+
   void sortCollections();
+
+  std::vector<Action> getActions(QString collectionId);
 
 private:
 

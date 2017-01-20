@@ -25,6 +25,7 @@ set(${PROJECT_NAME}_SRCS
   src/rqt_free_gait_action/ActionModel.cpp
   src/rqt_free_gait_action/Collection.cpp
   src/rqt_free_gait_action/CollectionModel.cpp
+  src/rqt_free_gait_action/FavoritePushButton.cpp
   src/rqt_free_gait_action/FreeGaitActionPlugin.cpp
   src/rqt_free_gait_action/WorkerThreadGetCollections.cpp
   src/rqt_free_gait_action/WorkerThreadSendAction.cpp
@@ -36,6 +37,7 @@ set(${PROJECT_NAME}_HDRS
   include/rqt_free_gait_action/ActionModel.h
   include/rqt_free_gait_action/Collection.h
   include/rqt_free_gait_action/CollectionModel.h
+  include/rqt_free_gait_action/FavoritePushButton.h
   include/rqt_free_gait_action/FreeGaitActionPlugin.h
   include/rqt_free_gait_action/WorkerThreadGetCollections.h
   include/rqt_free_gait_action/WorkerThreadSendAction.h

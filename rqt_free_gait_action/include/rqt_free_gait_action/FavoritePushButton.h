@@ -30,78 +30,62 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait_action/CollectionModel.h"
+#pragma once
+
+#include <QPushButton>
+
+#include "rqt_free_gait_action/Action.h"
 
 namespace rqt_free_gait {
 
-/*****************************************************************************/
-/** Constructor/Destructor                                                  **/
-/*****************************************************************************/
+class FavoritePushButton : public QPushButton {
+  Q_OBJECT
+public:
 
-CollectionModel::CollectionModel(QObject *parent) : QAbstractListModel(parent) {
+  /***************************************************************************/
+  /** Constructor/Destructor                                                **/
+  /***************************************************************************/
 
-}
+  FavoritePushButton(QWidget *parent = 0);
 
-CollectionModel::~CollectionModel() {
+  FavoritePushButton(Action action, QWidget *parent = 0);
 
-}
+  /***************************************************************************/
+  /** Accessors                                                             **/
+  /***************************************************************************/
 
-/*****************************************************************************/
-/** Accessors                                                               **/
-/*****************************************************************************/
+  void setAction(Action action);
 
-void CollectionModel::addCollection(const Collection &collection) {
-  collections_.push_back(collection);
-  reset();
-}
+private:
 
-int CollectionModel::rowCount(const QModelIndex &/*parent*/) const {
-  return (int)collections_.size();
-}
+  /***************************************************************************/
+  /** Variables                                                             **/
+  /***************************************************************************/
 
-QVariant CollectionModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid()) {
-    return QVariant();
-  }
+  Action action_;
 
-  if (role == Qt::TextAlignmentRole) {
-    return int(Qt::AlignLeft | Qt::AlignVCenter);
-  } else if (role == Qt::DisplayRole) {
-    return collections_.at((unsigned long)index.row()).getName();
-  }
+  /***************************************************************************/
+  /** Methods                                                               **/
+  /***************************************************************************/
 
-  return QVariant();
-}
+  void connectSignalsInternally();
 
-ActionModel *CollectionModel::getActionModel(
-    const QModelIndex &index) {
-  return collections_.at((unsigned long)index.row()).getActionModel();
-}
+protected slots:
 
-void CollectionModel::sortCollections() {
-  std::sort(collections_.begin(), collections_.end(),
-            CollectionModel::comparator);
-}
+  /***************************************************************************/
+  /** Slots                                                                 **/
+  /***************************************************************************/
 
-std::vector<Action> CollectionModel::getActions(QString collectionId) {
-  for (int i = 0; i < collections_.size(); ++i) {
-    if (collections_[i].getId().compare(collectionId) == 0) {
-      return collections_[i].getActionModel()->getActions();
-    }
-  }
-  return std::vector<Action>();
-}
+  void clickedInternal();
 
-QString CollectionModel::getCollectionId(const QModelIndex &index) {
-  return collections_.at((unsigned long)index.row()).getId();
-}
+signals:
 
-/*****************************************************************************/
-/** Methods                                                                 **/
-/*****************************************************************************/
+  /***************************************************************************/
+  /** Signals                                                               **/
+  /***************************************************************************/
 
-bool CollectionModel::comparator(const Collection &l, const Collection &r) {
-  return l.getName() < r.getName();
-}
+  void clicked(Action action);
+
+};
 
 } // namespace
