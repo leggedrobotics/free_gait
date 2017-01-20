@@ -48,6 +48,10 @@ set(${PROJECT_NAME}_UIS
   resource/FreeGaitActionPlugin.ui
 )
 
+set(${PROJECT_NAME}_QRC
+  resource/resources.qrc
+)
+
 set(${PROJECT_NAME}_INCLUDE_DIRECTORIES
   include
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -66,9 +70,11 @@ catkin_package(
 if ("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
   qt5_wrap_ui(${PROJECT_NAME}_UIS_H ${${PROJECT_NAME}_UIS})
+  qt5_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 else()
   qt4_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
   qt4_wrap_ui(${PROJECT_NAME}_UIS_H ${${PROJECT_NAME}_UIS})
+  qt4_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 endif()
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRECTORIES}
@@ -81,7 +87,9 @@ add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_HDRS}
   ${${PROJECT_NAME}_MOCS}
   ${${PROJECT_NAME}_UIS_H}
+  ${${PROJECT_NAME}_RCC}
 )
+
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )

@@ -82,15 +82,6 @@ void FreeGaitActionPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
   statusBar_->show();
   ui_.statusBarLayout->addWidget(statusBar_);
 
-  // Set icons.
-  std::string iconPath =
-      ros::package::getPath("rqt_free_gait_action") + "/resource/icons/16x16/";
-  std::string refreshIconPath = iconPath + "refresh.svg";
-  QPixmap refreshPixmap(refreshIconPath.c_str());
-  QIcon refreshIcon(refreshPixmap);
-  ui_.pushButtonRefreshCollections->setIcon(refreshIcon);
-  ui_.pushButtonRefreshCollections->setIconSize(refreshPixmap.rect().size());
-
   // Initialize service clients.
   collectionsClient_ = getNodeHandle().serviceClient<
       free_gait_msgs::GetCollections>(

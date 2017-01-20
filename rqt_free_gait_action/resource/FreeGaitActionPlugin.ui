@@ -121,9 +121,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="view-refresh">
-           <normaloff/>
-          </iconset>
+          <iconset resource="resources.qrc">
+           <normaloff>:/icons/16x16/refresh.svg</normaloff>:/icons/16x16/refresh.svg</iconset>
          </property>
          <property name="flat">
           <bool>true</bool>
