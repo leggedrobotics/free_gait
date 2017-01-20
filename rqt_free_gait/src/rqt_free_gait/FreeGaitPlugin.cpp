@@ -248,9 +248,9 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
 /** Events                                                                  **/
 /*****************************************************************************/
 
-bool FreeGaitPlugin::eventFilter(QObject *ob, QEvent *e) {
-  if (e->type() == QEvent::Wheel) {
-    QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(e);
+bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
+  if (event->type() == QEvent::Wheel) {
+    QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
     int numDegrees = wheelEvent->delta() / 8;
     int numSteps = numDegrees / 15;
 
@@ -267,7 +267,7 @@ bool FreeGaitPlugin::eventFilter(QObject *ob, QEvent *e) {
 
     wheelEvent->accept();
   }
-  return QObject::eventFilter(ob, e);
+  return QObject::eventFilter(object, event);
 }
 
 /*****************************************************************************/
