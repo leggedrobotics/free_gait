@@ -132,6 +132,9 @@ protected:
   bool isSendingFavoriteAction_ = false;
 
   std::vector<FavoritePushButton*> favoritesPushButtons_;
+  std::vector<FavoritePushButton*> favoritesPushButtonsLast_;
+
+  int numberOfColumnsLast_ = 0;
 
   /***************************************************************************/
   /** Methods                                                               **/

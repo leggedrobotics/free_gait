@@ -299,25 +299,42 @@ void FreeGaitActionPlugin::cleanGridLayout(bool deleteWidgets) {
 }
 
 void FreeGaitActionPlugin::generateGridLayout() {
+  // Set the used font.
   QFont myFont("Ubuntu", 11);
   QFontMetrics fontMetrics(myFont);
 
+  // Get available widget size.
   int width = ui_.widgetFavorites->size().width();
 
-  cleanGridLayout(false);
+  int numberOfComponents = (int)favoritesPushButtons_.size();
 
-  // generate grid layout
-  if (favoritesPushButtons_.size() > 0) {
+  // Check if it is necessary to regenerate the grid.
+  bool isNew = false;
+  if (numberOfComponents == favoritesPushButtonsLast_.size()) {
+    for (int i = 0; i < numberOfComponents; ++i) {
+      if (favoritesPushButtons_[i] != favoritesPushButtonsLast_[i]) {
+        isNew = true;
+      }
+    }
+  } else {
+    isNew = true;
+  }
+
+  if (favoritesPushButtons_.empty()) {
+    // No buttons, clean layout and delete all buttons.
+    cleanGridLayout(true);
+    numberOfColumnsLast_ = 0;
+  } else {
+    // Compute the minimum width of the buttons, depending on the button text.
     int minWidth = 0;
     for (auto item : favoritesPushButtons_) {
       int fontWidth = fontMetrics.width(item->text()) + 20;
-//      QFontMetrics fm = painter.fontMetrics();
-//      int width = fm.width(item.second);
-
       if (fontWidth > minWidth) {
         minWidth = fontWidth;
       }
     }
+    // Compute the number of columns that is possible with the given minimum
+    // width.
     int numberOfColumns = 1;
     while (true) {
       // TODO 4 ???
@@ -339,23 +356,39 @@ void FreeGaitActionPlugin::generateGridLayout() {
     if (numberOfColumns < 1) {
       numberOfColumns = 1;
     }
-    // Add widgets to the grid layout.
-    int numberOfComponents = (int)favoritesPushButtons_.size();
-    int row = 0;
-    unsigned long counter = 0;
-    while (numberOfComponents > 0) {
-      for (int i = 0; i < numberOfColumns; ++i) {
-        if (numberOfComponents > 0) {
-          // Add push button to grid layout
-          ui_.gridLayoutFavorites->addWidget(
-              favoritesPushButtons_.at(counter), row, i);
-          counter++;
-          numberOfComponents--;
-        }
-      }
-      row++;
+
+    // Check if and how to clean the grid layout (delete or not delete the
+    // buttons.
+    if (numberOfColumns != numberOfColumnsLast_ && !isNew) {
+      cleanGridLayout(false);
+    } else if (isNew) {
+      cleanGridLayout(true);
     }
+
+    // If new or the number of columns changed.
+    if (numberOfColumns != numberOfColumnsLast_ || isNew) {
+      // Add widgets to the grid layout.
+      int numberOfComponents = (int)favoritesPushButtons_.size();
+      int row = 0;
+      unsigned long counter = 0;
+      while (numberOfComponents > 0) {
+        for (int i = 0; i < numberOfColumns; ++i) {
+          if (numberOfComponents > 0) {
+            // Add push button to grid layout.
+            ui_.gridLayoutFavorites->addWidget(
+                favoritesPushButtons_.at(counter), row, i);
+            counter++;
+            numberOfComponents--;
+          }
+        }
+        row++;
+      }
+    }
+    // Set current number of columns as last.
+    numberOfColumnsLast_ = numberOfColumns;
   }
+  // Set current set of favorite buttons as last.
+  favoritesPushButtonsLast_ = favoritesPushButtons_;
 }
 
 /*****************************************************************************/
