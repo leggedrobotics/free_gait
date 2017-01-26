@@ -9,8 +9,8 @@
 #include <free_gait_core/leg_motion/EndEffectorTarget.hpp>
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
-// Robot utils
-#include <robot_utils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
+// Curves
+#include <curves/PolynomialSplineContainer.hpp>
 
 namespace free_gait {
 

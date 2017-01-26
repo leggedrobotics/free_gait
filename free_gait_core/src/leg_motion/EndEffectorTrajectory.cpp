@@ -10,7 +10,7 @@
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
 // Robot utils
-#include <robot_utils/function_approximators/polynomialSplines/PolynomialSplineContainer.hpp>
+#include <curves/PolynomialSplineContainer.hpp>
 
 namespace free_gait {
 
