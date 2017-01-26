@@ -27,18 +27,30 @@ namespace free_gait_rviz_plugin {
 class FreeGaitPreviewVisual
 {
  public:
+  enum class Modul {
+    EndEffectorTrajectories,
+    Footsteps
+  };
+
   FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode);
   virtual ~FreeGaitPreviewVisual();
 
   void clear();
   void setStateBatch(const free_gait::StateBatch& stateBatch);
+  void setEnabledModul(Modul modul, bool enable);
+  void showEnabled();
+  void hideEnabled();
 
-  void visualizeEndEffectorTrajectories(const float width, const Ogre::ColourValue& color);
+
+  void showEndEffectorTrajectories(const float width = 0.01, const Ogre::ColourValue& color =
+                                            Ogre::ColourValue(1, 0, 0, 1));
+  void hideEndEffectorTrajectories();
 
  private:
   Ogre::SceneManager* sceneManager_;
   Ogre::SceneNode* frameNode_;
   const free_gait::StateBatch* stateBatchPtr_;
+  std::list<Modul> enabledModuls_;
   std::vector<std::unique_ptr<rviz::BillboardLine>> endEffectorTrajectories_;
 };
 

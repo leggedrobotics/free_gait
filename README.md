@@ -22,6 +22,18 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016.
         }
 	
 ## Unit Tests
+
 	catkin build free_gait_core --no-deps --verbose --catkin-make-args run_tests
 	
+## FAQ
+
+### Actions Are Not Found
+
+If no Free Gait actions are found/loaded, this service call will return empty:
+
+	rosservice call /free_gait_action_loader/list_actions "collection_id: ''"
 	
+In this case, try [initializing rosdep](http://wiki.ros.org/rosdep#Initializing_rosdep) with:
+
+	sudo rosdep init
+	rosdep update
