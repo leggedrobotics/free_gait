@@ -111,7 +111,7 @@ protected:
 
   std::vector<QString> descriptions_;
   int descriptionIndex_ = 0;
-  bool isOnTop_ = true;
+  bool isOnBottom_ = true;
 
   /***************************************************************************/
   /** Callbacks                                                             **/

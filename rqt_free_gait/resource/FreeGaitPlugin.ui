@@ -323,7 +323,7 @@
         <item row="1" column="0">
          <widget class="QPushButton" name="pushButtonGoTop">
           <property name="toolTip">
-           <string>Show the latest step.</string>
+           <string>Show the first step</string>
           </property>
           <property name="text">
            <string/>
@@ -380,7 +380,7 @@
         <item row="4" column="0">
          <widget class="QPushButton" name="pushButtonGoBottom">
           <property name="toolTip">
-           <string>Show the first step.</string>
+           <string>Show the latest step</string>
           </property>
           <property name="text">
            <string/>
