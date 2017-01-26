@@ -27,7 +27,7 @@
 #include <vector>
 
 // Curves
-#include "curves/PolynomialSplineVectorSpaceCurve.hpp"
+#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
 
 // Markers
 #include "free_gait_marker/markers/MarkerKnot.hpp"

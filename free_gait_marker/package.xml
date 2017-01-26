@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>free_gait_marker</name>
   <version>0.0.1</version>
   <description>Interactive Rviz markers for </description>
@@ -10,22 +10,13 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
-  <build_depend>roscpp</build_depend>
-  <build_depend>interactive_markers</build_depend>
-  <build_depend>visualization_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>free_gait_msgs</build_depend>
-  <build_depend>curves</build_depend>
-  <build_depend>robot_utils</build_depend>
-  <build_depend>eigen</build_depend>
-  
-  <run_depend>roscpp</run_depend>
-  <run_depend>interactive_markers</run_depend>
-  <run_depend>visualization_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>free_gait_msgs</run_depend>
-  <run_depend>curves</run_depend>
-  <run_depend>multi_dof_joint_trajectory_rviz_plugins</run_depend>
-  <run_depend>robot_utils</run_depend>
+  <depend>roscpp</depend>
+  <depend>interactive_markers</depend>
+  <depend>visualization_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>free_gait_msgs</depend>
+  <depend>curves</depend>
+  <depend>eigen</depend>
+  <depend>multi_dof_joint_trajectory_rviz_plugins</depend>
   
 </package>
