@@ -15,6 +15,9 @@ FreeGaitPreviewVisual::FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager,
       frameNode_(parentNode->createChildSceneNode()),
       stateBatchPtr_(NULL)
 {
+  // Visible by default.
+  setEnabledModul(Modul::EndEffectorTrajectories, true);
+  setEnabledModul(Modul::Footsteps, true);
 }
 
 FreeGaitPreviewVisual::~FreeGaitPreviewVisual()
@@ -25,9 +28,7 @@ FreeGaitPreviewVisual::~FreeGaitPreviewVisual()
 void FreeGaitPreviewVisual::clear()
 {
   stateBatchPtr_ = NULL;
-  for (auto& trajectory : endEffectorTrajectories_) {
-    trajectory->clear();
-  }
+  hideEnabled();
 }
 
 void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatch)
@@ -35,8 +36,47 @@ void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatc
   stateBatchPtr_ = &stateBatch;
 }
 
-void FreeGaitPreviewVisual::visualizeEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)
+void FreeGaitPreviewVisual::setEnabledModul(Modul modul, bool enable)
 {
+  if (enable) {
+    auto iterator = std::find(enabledModuls_.begin(), enabledModuls_.end(), modul);
+    if (iterator != enabledModuls_.end()) return;
+    enabledModuls_.push_back(modul);
+  } else {
+    enabledModuls_.remove(modul);
+  }
+}
+
+void FreeGaitPreviewVisual::showEnabled()
+{
+  for (const auto& modul : enabledModuls_) {
+    switch (modul) {
+      case Modul::EndEffectorTrajectories:
+        showEndEffectorTrajectories();
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+void FreeGaitPreviewVisual::hideEnabled()
+{
+  for (const auto& modul : enabledModuls_) {
+    switch (modul) {
+      case Modul::EndEffectorTrajectories:
+        hideEndEffectorTrajectories();
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+void FreeGaitPreviewVisual::showEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)
+{
+  if (!stateBatchPtr_) return;
+
   // Define size.
   const size_t nEndEffectors(stateBatchPtr_->getEndEffectorPositions().size());
   const size_t nStates(stateBatchPtr_->getStates().size());
@@ -69,5 +109,11 @@ void FreeGaitPreviewVisual::visualizeEndEffectorTrajectories(const float width, 
   }
 }
 
+void FreeGaitPreviewVisual::hideEndEffectorTrajectories()
+{
+  for (auto& trajectory : endEffectorTrajectories_) {
+    trajectory->clear();
+  }
+}
 
 } /* namespace free_gait_rviz_plugin */
