@@ -51,7 +51,6 @@ Q_OBJECT
   void setTopic(const QString &topic, const QString &datatype);
   void update(float wall_dt, float ros_dt);
   void reset();
-  const unsigned int getIdentifier() const;
 
  protected:
   void onInitialize();
@@ -60,9 +59,11 @@ Q_OBJECT
 
  private Q_SLOTS:
   void updateTopic();
+  void changePreviewRate();
   void changeAutoPlay();
   void changeAutoEnableVisuals();
-  void changePreviewRate();
+  void changedRobotModel();
+  void changeAutoHideVisuals();
   void changePlaybackSpeed();
   void startAndStopPlayback();
   void jumpToTime();
@@ -76,8 +77,14 @@ Q_OBJECT
   void subscribe();
   void unsubscribe();
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
+  void resultCallback(const free_gait_msgs::ExecuteStepsActionResult::ConstPtr& message);
   void setEnabledRobotModel(bool enable);
   bool findAssociatedRobotModelPlugin();
+
+  enum AutoHideMode {
+    ReachedPreviewEnd = 0,
+    ReceivedResult = 1
+  };
 
   free_gait::AdapterRos adapterRos_;
 
@@ -85,14 +92,18 @@ Q_OBJECT
   FreeGaitPreviewVisual* visual_;
   free_gait::StepRosConverter stepRosConverter_;
   ros::Subscriber goalSubscriber_;
+  ros::Subscriber resultSubscriber_;
 
   // Property variables
   rviz::Property* settingsTree_;
   rviz::RosTopicProperty* goalTopicProperty_;
   rviz::RosTopicProperty* robotStateTopicProperty_;
+  rviz::FloatProperty* previewRateRoperty_;
   rviz::BoolProperty* autoPlayProperty_;
   rviz::BoolProperty* autoEnableVisualsProperty_;
-  rviz::FloatProperty* previewRateRoperty_;
+  rviz::EditableEnumProperty* robotModelProperty_;
+  rviz::EnumProperty* autoHideVisualsProperty_;
+  rviz::RosTopicProperty* resultTopicProperty_;
   rviz::Property* playbackTree_;
   rviz::FloatSliderProperty* playbackSpeedProperty_;
   rviz::ButtonToggleProperty* playButtonProperty_;
@@ -100,8 +111,7 @@ Q_OBJECT
   rviz::BoolProperty* visualsTree_;
   rviz::BoolProperty* showEndEffectorTrajectoriesProperty_;
 
-  unsigned int identifier_;
-  Display* robotModelRvizPlugin_;
+  rviz::Display* robotModelRvizPlugin_;
 };
 
 }  // end namespace grid_map_rviz_plugin
