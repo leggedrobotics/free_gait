@@ -205,20 +205,20 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
     ui_.labelStepMax->setText("...");
   }
 
-  if (isOnTop_) {
-    ui_.pushButtonGoTop->setEnabled(false);
-    ui_.pushButtonGoUp->setEnabled(false);
-    ui_.pushButtonGoDown->setEnabled(descriptions_.size() > 1);
-    ui_.pushButtonGoBottom->setEnabled(descriptions_.size() > 1);
+  if (isOnBottom_) {
+    ui_.pushButtonGoBottom->setEnabled(false);
+    ui_.pushButtonGoDown->setEnabled(false);
+    ui_.pushButtonGoUp->setEnabled(descriptions_.size() > 1);
+    ui_.pushButtonGoTop->setEnabled(descriptions_.size() > 1);
     return;
   }
 
-  ui_.pushButtonGoTop->setEnabled(true);
-  ui_.pushButtonGoUp->setEnabled(
-      descriptions_.size() > 1 && descriptionIndex_ != descriptions_.size()-1);
+  ui_.pushButtonGoBottom->setEnabled(true);
   ui_.pushButtonGoDown->setEnabled(
+      descriptions_.size() > 1 && descriptionIndex_ != descriptions_.size()-1);
+  ui_.pushButtonGoUp->setEnabled(
       descriptions_.size() > 1 && descriptionIndex_ != 0);
-  ui_.pushButtonGoBottom->setEnabled(
+  ui_.pushButtonGoTop->setEnabled(
       descriptions_.size() > 1 && descriptionIndex_ != 0);
 }
 
@@ -232,7 +232,7 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
     int numDegrees = wheelEvent->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    descriptionIndex_ = descriptionIndex_ + numSteps;
+    descriptionIndex_ = descriptionIndex_ - numSteps;
     if (descriptionIndex_ < 0) {
       descriptionIndex_ = 0;
     } else if (descriptionIndex_ >= descriptions_.size()) {
@@ -240,7 +240,7 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
     }
     ui_.plainTextEditDescription->setPlainText(
         descriptions_.at((unsigned long)descriptionIndex_));
-    isOnTop_ = false;
+    isOnBottom_ = false;
     updateNavigationButtonStates();
 
     wheelEvent->accept();
@@ -269,7 +269,7 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.progressBarStep->setFormat("");
 
   // reset text
-  isOnTop_ = true;
+  isOnBottom_ = true;
   descriptionIndex_ = 0;
   descriptions_.clear();
   updateNavigationButtonStates();
@@ -310,7 +310,7 @@ void FreeGaitPlugin::updateFeedback(
   // update text
   descriptions_.push_back(QString::fromStdString(
       feedback.feedback.description));
-  if (isOnTop_) {
+  if (isOnBottom_) {
     descriptionIndex_ = (int)descriptions_.size() - 1;
     ui_.plainTextEditDescription->setPlainText(descriptions_.back());
   }
@@ -400,44 +400,42 @@ void FreeGaitPlugin::updateResult(
 }
 
 void FreeGaitPlugin::onPushButtonGoTop() {
-  descriptionIndex_ = (int)descriptions_.size() - 1;
-  ui_.plainTextEditDescription->setPlainText(descriptions_.back());
-  isOnTop_ = true;
+  descriptionIndex_ = 0;
+  ui_.plainTextEditDescription->setPlainText(
+      descriptions_.at((unsigned long)descriptionIndex_));
+  isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoUp() {
-  descriptionIndex_ = (int)(descriptionIndex_ + 1 < descriptions_.size() ?
-                            descriptionIndex_ + 1 : descriptions_.size() - 1);
+  descriptionIndex_ = (descriptionIndex_ - 1 >= 0 ?
+                       descriptionIndex_ - 1 : 0);
   ui_.plainTextEditDescription->setPlainText(
       descriptions_.at((unsigned long)descriptionIndex_));
-  isOnTop_ = false;
+  isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoDown() {
-  descriptionIndex_ = (descriptionIndex_ - 1 >= 0 ?
-                       descriptionIndex_ - 1 : 0);
+  descriptionIndex_ = (int)(descriptionIndex_ + 1 < descriptions_.size() ?
+                            descriptionIndex_ + 1 : descriptions_.size() - 1);
   ui_.plainTextEditDescription->setPlainText(
       descriptions_.at((unsigned long)descriptionIndex_));
-  isOnTop_ = false;
+  isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoBottom() {
-  descriptionIndex_ = 0;
-  ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at((unsigned long)descriptionIndex_));
-  isOnTop_ = false;
+  descriptionIndex_ = (int)descriptions_.size() - 1;
+  ui_.plainTextEditDescription->setPlainText(descriptions_.back());
+  isOnBottom_ = true;
 
   updateNavigationButtonStates();
 }
 
 } // namespace
 
-PLUGINLIB_EXPORT_CLASS(rqt_free_gait::FreeGaitPlugin, rqt_gui_cpp::Plugin
-)
-
+PLUGINLIB_EXPORT_CLASS(rqt_free_gait::FreeGaitPlugin, rqt_gui_cpp::Plugin)

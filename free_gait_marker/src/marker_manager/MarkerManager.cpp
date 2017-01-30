@@ -322,7 +322,7 @@ void MarkerManager::clearTrajectory(int legId)
   trajectories_[legId].header.stamp = ros::Time::now();
   trajectories_[legId].header.frame_id = "map";
 
-  splines_[legId].clearCurve();
+  splines_[legId].clear();
   trajectoryIds_[legId] = 0;
 }
 

@@ -25,12 +25,17 @@ StateRosPublisher::StateRosPublisher(ros::NodeHandle& nodeHandle,
     : nodeHandle_(nodeHandle),
       adapter_(adapter)
 {
-  tfPrefix_ = nodeHandle_.param("/free_gait/tf_prefix", std::string(""));
+  tfPrefix_ = nodeHandle_.param("/free_gait/preview_tf_prefix", std::string(""));
   initializeRobotStatePublisher();
 }
 
 StateRosPublisher::~StateRosPublisher()
 {
+}
+
+void StateRosPublisher::setTfPrefix(const std::string tfPrefix)
+{
+  tfPrefix_ = tfPrefix;
 }
 
 bool StateRosPublisher::initializeRobotStatePublisher()
@@ -48,7 +53,7 @@ bool StateRosPublisher::initializeRobotStatePublisher()
 
   KDL::Tree tree;
   if (!kdl_parser::treeFromUrdfModel(model, tree)){
-    ROS_ERROR("Failed to extract kdl tree from xml robot description");
+    ROS_ERROR("Failed to extract KDL tree from XML robot description");
     return false;
   }
 

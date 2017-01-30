@@ -27,7 +27,6 @@
 
 // STD
 #include <functional>
-#include <stdlib.h>
 
 namespace free_gait_rviz_plugin {
 
@@ -38,9 +37,6 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       visual_(NULL),
       robotModelRvizPlugin_(NULL)
 {
-  srand(time(NULL));
-  identifier_ = rand();
-
   playback_.addNewGoalCallback(std::bind(&FreeGaitPreviewDisplay::newGoalAvailable, this));
   playback_.addStateChangedCallback(
       std::bind(&FreeGaitPreviewDisplay::previewStateChanged, this, std::placeholders::_1));
@@ -61,6 +57,16 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   robotStateTopicProperty_->setMessageType(robotStateMessageType);
   robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
 
+  tfPrefixProperty_ = new rviz::StringProperty(
+      "TF Prefix", "",
+      "TF prefix used for the preview. Set the same value in the robot model plugin.",
+      settingsTree_, SLOT(changeTfPrefix()), this);
+
+  previewRateRoperty_ = new rviz::FloatProperty(
+      "Preview Rate", playback_.getRate(), "Rate in Hz at which to simulate the motion preview.",
+      settingsTree_, SLOT(changePreviewRate()), this);
+  previewRateRoperty_->setMin(0.0);
+
   autoPlayProperty_ = new rviz::BoolProperty("Auto-Play", true, "Play motion once received.",
                                              settingsTree_, SLOT(changeAutoPlay()), this);
 
@@ -69,10 +75,25 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       "Automatically enable and disable visuals for the duration of the preview.", settingsTree_,
       SLOT(changeAutoEnableVisuals()), this);
 
-  previewRateRoperty_ = new rviz::FloatProperty(
-      "Preview Rate", playback_.getRate(), "Rate in Hz at which to simulate the motion preview.",
-      settingsTree_, SLOT(changePreviewRate()), this);
-  previewRateRoperty_->setMin(0.0);
+  robotModelProperty_ = new rviz::EditableEnumProperty(
+      "Robot Model", "", "Select the robot model used for preview. Robot model must be in the same RViz group.", settingsTree_,
+      SLOT(changeRobotModel()), this);
+  robotModelProperty_->hide();
+
+  autoHideVisualsProperty_ = new rviz::EnumProperty(
+      "Auto Hide When", "Reached End of Preview", "Select the event when to hide the visuals.",
+      settingsTree_, SLOT(changeAutoHideVisuals()), this);
+  autoHideVisualsProperty_->addOption("Reached End of Preview", 0);
+  autoHideVisualsProperty_->addOption("Received Action Result", 1);
+  autoHideVisualsProperty_->hide();
+
+  resultTopicProperty_ = new rviz::RosTopicProperty("Result Topic", "", "", "", settingsTree_,
+                                                    SLOT(updateTopic()), this);
+  QString resultMessageType = QString::fromStdString(
+      ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionResult>());
+  resultTopicProperty_->setMessageType(resultMessageType);
+  resultTopicProperty_->setDescription(resultMessageType + " topic to subscribe to.");
+  resultTopicProperty_->hide();
 
   playbackTree_ = new Property("Playback", QVariant(), "", this);
 
@@ -142,16 +163,23 @@ void FreeGaitPreviewDisplay::reset()
 //  messages_received_ = 0;
 }
 
-const unsigned int FreeGaitPreviewDisplay::getIdentifier() const
-{
-  return identifier_;
-}
-
 void FreeGaitPreviewDisplay::updateTopic()
 {
   unsubscribe();
   reset();
   subscribe();
+}
+
+void FreeGaitPreviewDisplay::changeTfPrefix()
+{
+  ROS_DEBUG_STREAM("Setting tf prefix to " << tfPrefixProperty_->getStdString() << ".");
+  playback_.setTfPrefix(tfPrefixProperty_->getStdString());
+}
+
+void FreeGaitPreviewDisplay::changePreviewRate()
+{
+  ROS_DEBUG_STREAM("Setting preview rate to " << previewRateRoperty_->getFloat() << ".");
+  playback_.setRate(previewRateRoperty_->getFloat());
 }
 
 void FreeGaitPreviewDisplay::changeAutoPlay()
@@ -162,13 +190,43 @@ void FreeGaitPreviewDisplay::changeAutoPlay()
 void FreeGaitPreviewDisplay::changeAutoEnableVisuals()
 {
   ROS_DEBUG_STREAM("Setting auto en/disable visuals to " << (autoEnableVisualsProperty_->getBool() ? "True" : "False") << ".");
-  if (autoEnableVisualsProperty_->getBool()) findAssociatedRobotModelPlugin();
+  if (autoEnableVisualsProperty_->getBool()) {
+    robotModelProperty_->show();
+    autoHideVisualsProperty_->show();
+    if (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult) resultTopicProperty_->show();
+    robotModelProperty_->clearOptions();
+    for (size_t i = 0; i < getParent()->numChildren(); ++i) {
+      rviz::Display* display = dynamic_cast<rviz::Display*>(getParent()->childAt(i));
+      if (display == NULL) continue;
+      if (display->getClassId() != "rviz/RobotModel") continue;
+      robotModelProperty_->addOption(display->getName());
+    }
+  } else {
+    robotModelProperty_->hide();
+    autoHideVisualsProperty_->hide();
+    resultTopicProperty_->hide();
+  }
 }
 
-void FreeGaitPreviewDisplay::changePreviewRate()
+void FreeGaitPreviewDisplay::changeRobotModel()
 {
-  ROS_DEBUG_STREAM("Setting preview rate to " << previewRateRoperty_->getFloat() << ".");
-  playback_.setRate(previewRateRoperty_->getFloat());
+  ROS_DEBUG_STREAM("Setting robot model name to " << robotModelProperty_->getStdString() << ".");
+  findAssociatedRobotModelPlugin();
+}
+
+void FreeGaitPreviewDisplay::changeAutoHideVisuals()
+{
+  ROS_DEBUG_STREAM("Changed auto-hide visuals event to " << autoHideVisualsProperty_->getStdString() << ".");
+  switch (autoHideVisualsProperty_->getOptionInt()) {
+    case AutoHideMode::ReachedPreviewEnd:
+      resultTopicProperty_->hide();
+      break;
+    case AutoHideMode::ReceivedResult:
+      resultTopicProperty_->show();
+      break;
+    default:
+      break;
+  }
 }
 
 void FreeGaitPreviewDisplay::changePlaybackSpeed()
@@ -233,7 +291,7 @@ void FreeGaitPreviewDisplay::previewStateChanged(const ros::Time& time)
 void FreeGaitPreviewDisplay::previewReachedEnd()
 {
   ROS_DEBUG("FreeGaitPreviewDisplay::previewReachedEnd: Reached end of preview.");
-  if (autoEnableVisualsProperty_->getBool()) {
+  if (autoEnableVisualsProperty_->getBool() && (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReachedPreviewEnd)) {
     setEnabledRobotModel(false);
     visualsTree_->setBool(false);
   }
@@ -273,6 +331,15 @@ void FreeGaitPreviewDisplay::subscribe()
     setStatus(rviz::StatusProperty::Error, "Goal Topic", QString("Error subscribing: ") + e.what());
   }
 
+  if (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult) {
+    try {
+      resultSubscriber_ = update_nh_.subscribe(resultTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::resultCallback, this);
+      setStatus(rviz::StatusProperty::Ok, "Result Topic", "OK");
+    } catch (ros::Exception& e) {
+      setStatus(rviz::StatusProperty::Error, "Result Topic", QString("Error subscribing: ") + e.what());
+    }
+  }
+
   try {
     adapterRos_.subscribeToRobotState(robotStateTopicProperty_->getStdString());
     setStatus(rviz::StatusProperty::Ok, "Robot State Topic", "OK");
@@ -284,6 +351,8 @@ void FreeGaitPreviewDisplay::subscribe()
 void FreeGaitPreviewDisplay::unsubscribe()
 {
   goalSubscriber_.shutdown();
+  resultSubscriber_.shutdown();
+  adapterRos_.unsubscribeFromRobotState();
 }
 
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
@@ -295,6 +364,15 @@ void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsAc
   playback_.process(steps);
 }
 
+void FreeGaitPreviewDisplay::resultCallback(const free_gait_msgs::ExecuteStepsActionResult::ConstPtr& message)
+{
+  ROS_DEBUG("FreeGaitPreviewDisplay::resultCallback: Received result callback.");
+  if (autoEnableVisualsProperty_->getBool() && (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult)) {
+    setEnabledRobotModel(false);
+    visualsTree_->setBool(false);
+  }
+}
+
 void FreeGaitPreviewDisplay::setEnabledRobotModel(bool enable)
 {
   if (robotModelRvizPlugin_ == NULL) return;
@@ -303,31 +381,10 @@ void FreeGaitPreviewDisplay::setEnabledRobotModel(bool enable)
 
 bool FreeGaitPreviewDisplay::findAssociatedRobotModelPlugin()
 {
-  ROS_DEBUG("Trying to find associated RobotModel RViz plugin.");
-  const int nPlugins = context_->getRootDisplayGroup()->numDisplays();
-  ROS_DEBUG("There are " << (std::string) nPlugins << " plugins to check.");
-  robotModelRvizPlugin_ = NULL;
-
-  // Find index of of this plugin.
-  size_t thisIndex;
-  for (size_t i = 0; i < context_->getRootDisplayGroup()->numDisplays(); ++i) {
-    Display* display = context_->getRootDisplayGroup()->getDisplayAt(i);
-    if (getClassId() != display->getClassId()) continue;
-    if (identifier_ != static_cast<FreeGaitPreviewDisplay*>(display)->getIdentifier()) continue;
-    thisIndex = i;
-  }
-  ROS_DEBUG_STREAM("This plugin has index number " << thisIndex << ".");
-
-  // Find next RobotModel plugin.
-  for (size_t i = thisIndex; i < context_->getRootDisplayGroup()->numDisplays(); ++i) {
-    Display* display = context_->getRootDisplayGroup()->getDisplayAt(i);
-    std::cout << display->getClassId().toStdString() << std::endl;
-    if (display->getClassId() != "rviz/RobotModel") continue;
-    robotModelRvizPlugin_ = display;
-    ROS_DEBUG_STREAM("Found RobotModel plugin at index " << i << ".");
-    break;
-  }
-
+  const QString name = robotModelProperty_->getString();
+  ROS_DEBUG_STREAM("Trying to find RobotModel RViz plugin with name " << name.toStdString() << ".");
+  auto property = getParent()->subProp(name);
+  robotModelRvizPlugin_ = dynamic_cast<rviz::Display*>(property);
   return (robotModelRvizPlugin_ != NULL);
 }
 
