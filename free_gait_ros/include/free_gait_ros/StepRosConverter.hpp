@@ -22,6 +22,7 @@
 #include <free_gait_msgs/BaseTrajectory.h>
 
 // Quadruped model
+#undef LOG
 #include "quadruped_model/QuadrupedModel.hpp"
 
 // STD
