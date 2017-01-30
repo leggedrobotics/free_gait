@@ -57,6 +57,11 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   robotStateTopicProperty_->setMessageType(robotStateMessageType);
   robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
 
+  tfPrefixProperty_ = new rviz::StringProperty(
+      "TF Prefix", "",
+      "TF prefix used for the preview. Set the same value in the robot model plugin.",
+      settingsTree_, SLOT(changeTfPrefix()), this);
+
   previewRateRoperty_ = new rviz::FloatProperty(
       "Preview Rate", playback_.getRate(), "Rate in Hz at which to simulate the motion preview.",
       settingsTree_, SLOT(changePreviewRate()), this);
@@ -71,8 +76,8 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       SLOT(changeAutoEnableVisuals()), this);
 
   robotModelProperty_ = new rviz::EditableEnumProperty(
-      "Robot Model", "", "Select the robot model used for preview.", settingsTree_,
-      SLOT(changedRobotModel()), this);
+      "Robot Model", "", "Select the robot model used for preview. Robot model must be in the same RViz group.", settingsTree_,
+      SLOT(changeRobotModel()), this);
   robotModelProperty_->hide();
 
   autoHideVisualsProperty_ = new rviz::EnumProperty(
@@ -165,6 +170,12 @@ void FreeGaitPreviewDisplay::updateTopic()
   subscribe();
 }
 
+void FreeGaitPreviewDisplay::changeTfPrefix()
+{
+  ROS_DEBUG_STREAM("Setting tf prefix to " << tfPrefixProperty_->getStdString() << ".");
+  playback_.setTfPrefix(tfPrefixProperty_->getStdString());
+}
+
 void FreeGaitPreviewDisplay::changePreviewRate()
 {
   ROS_DEBUG_STREAM("Setting preview rate to " << previewRateRoperty_->getFloat() << ".");
@@ -197,7 +208,7 @@ void FreeGaitPreviewDisplay::changeAutoEnableVisuals()
   }
 }
 
-void FreeGaitPreviewDisplay::changedRobotModel()
+void FreeGaitPreviewDisplay::changeRobotModel()
 {
   ROS_DEBUG_STREAM("Setting robot model name to " << robotModelProperty_->getStdString() << ".");
   findAssociatedRobotModelPlugin();

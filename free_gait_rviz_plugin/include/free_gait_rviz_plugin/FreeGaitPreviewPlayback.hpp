@@ -58,6 +58,7 @@ class FreeGaitPreviewPlayback
   void setSpeedFactor(const double speedFactor);
   void setRate(const double rate);
   double getRate() const;
+  void setTfPrefix(const std::string tfPrefix);
 
  private:
   void processingCallback(bool success);

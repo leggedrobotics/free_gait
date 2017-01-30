@@ -109,6 +109,11 @@ double FreeGaitPreviewPlayback::getRate() const
   return (1.0/batchExecutor_->getTimeStep());
 }
 
+void FreeGaitPreviewPlayback::setTfPrefix(const std::string tfPrefix)
+{
+  stateRosPublisher_.setTfPrefix(tfPrefix);
+}
+
 void FreeGaitPreviewPlayback::update(double timeStep)
 {
   switch (playMode_) {

@@ -27,6 +27,7 @@ class StateRosPublisher
   StateRosPublisher(ros::NodeHandle& nodeHandle, std::shared_ptr<AdapterBase> adapter);
   virtual ~StateRosPublisher();
 
+  void setTfPrefix(const std::string tfPrefix);
   bool publish(const State& state);
 
  private:
