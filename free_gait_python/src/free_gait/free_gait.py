@@ -30,7 +30,6 @@ def load_action_from_file(file_path, placeholders=None):
     if 'adapt_coordinates' in parameters[0][0]:
         is_adapt = True
         adapt_parameters = parameters[0][0]['adapt_coordinates'][0]['transform']
-        print adapt_parameters
         source_frame_id = adapt_parameters['source_frame']
         target_frame_id = adapt_parameters['target_frame']
         if 'transform_in_source_frame' in adapt_parameters:
