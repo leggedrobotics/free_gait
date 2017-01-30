@@ -24,18 +24,19 @@ def load_action_from_file(file_path, placeholders=None):
     # Adapt coordinates.
     is_adapt = False
     source_frame_id = ''
+    target_frame_id = ''
     position = [0, 0, 0]
     orientation = [0, 0, 0, 1]
     if 'adapt_coordinates' in parameters[0][0]:
-        adapt_parameters = parameters[0][0]['adapt_coordinates']
+        is_adapt = True
+        adapt_parameters = parameters[0][0]['adapt_coordinates'][0]['transform']
         source_frame_id = adapt_parameters['source_frame']
-        if 'target' in adapt_parameters:
-            is_adapt = True
-            target_frame_id = adapt_parameters['target']['frame']
-            if 'position' in adapt_parameters['target']:
-                position = adapt_parameters['target']['position']
-            if 'orientation' in adapt_parameters['target']:
-                orientation = adapt_parameters['target']['orientation']
+        target_frame_id = adapt_parameters['target_frame']
+        if 'transform_in_source_frame' in adapt_parameters:
+            if 'position' in adapt_parameters['transform_in_source_frame']:
+                position = adapt_parameters['transform_in_source_frame']['position']
+            if 'orientation' in adapt_parameters['transform_in_source_frame']:
+                orientation = adapt_parameters['transform_in_source_frame']['orientation']
                 if len(orientation) == 3:
                     orientation = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
 
@@ -45,7 +46,7 @@ def load_action_from_file(file_path, placeholders=None):
         except TypeError:
             return None
 
-    return parse_action(parameters, source_frame_id, position, orientation)
+    return parse_action(parameters, source_frame_id, target_frame_id, position, orientation)
 
 
 def load_action_from_file_and_transform(file_path, source_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
@@ -59,7 +60,7 @@ def load_action_from_file_and_transform(file_path, source_frame_id='', position=
     return parse_action(load_file(file_path), source_frame_id, position, orientation)
 
 
-def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
+def parse_action(yaml_object, source_frame_id='', target_frame_id='', position=[0, 0, 0], orientation=[0, 0, 0, 1]):
     goal = free_gait_msgs.msg.ExecuteStepsGoal()
 
     # For each step.
@@ -93,7 +94,7 @@ def parse_action(yaml_object, frame_id='', position=[0, 0, 0], orientation=[0, 0
 
     # Adapt to local coordinates if desired.
     if not (numpy.array_equal(position, [0, 0, 0]) and numpy.array_equal(orientation, [0, 0, 0, 1])):
-        adapt_coordinates(goal, frame_id, position, orientation)
+        adapt_coordinates(goal, source_frame_id, target_frame_id, position, orientation)
 
     # print goal
     return goal
@@ -374,7 +375,7 @@ def parse_joint_trajectories(yaml_object):
     return joint_trajectory
 
 
-def adapt_coordinates(goal, frame_id, position, orientation):
+def adapt_coordinates(goal, source_frame_id, target_frame_id, position, orientation):
     # For each step.
     translation = translation_matrix(position)
     yaw = 0
@@ -385,10 +386,10 @@ def adapt_coordinates(goal, frame_id, position, orientation):
     z_axis = [0, 0, 1]
     rotation = rotation_matrix(yaw, z_axis)
     transform = concatenate_matrices(translation, rotation)
-    adapt_coordinates_recursively(goal.steps, frame_id, transform)
+    adapt_coordinates_recursively(goal.steps, source_frame_id, target_frame_id, transform)
 
 
-def adapt_coordinates_recursively(message, frame_id, transform):
+def adapt_coordinates_recursively(message, source_frame_id, target_frame_id, transform):
 
     # Stop recursion for methods and primitive types.
     if hasattr(message, '__call__') or isinstance(message, int) or isinstance(message, str) or \
@@ -397,22 +398,26 @@ def adapt_coordinates_recursively(message, frame_id, transform):
 
     # Transform known geometries.
     if isinstance(message, geometry_msgs.msg.Vector3Stamped):
-        if check_if_vector_valid(message.vector) and message.header.frame_id == frame_id:
+        if check_if_vector_valid(message.vector) and message.header.frame_id == source_frame_id:
+            message.header.frame_id = target_frame_id
             vector = transform_vector(transform, message.vector)
             message.vector = vector
         return
     elif isinstance(message, geometry_msgs.msg.PointStamped):
-        if check_if_position_valid(message.point) and message.header.frame_id == frame_id:
+        if check_if_position_valid(message.point) and message.header.frame_id == source_frame_id:
+            message.header.frame_id = target_frame_id
             position = transform_position(transform, message.point)
             message.point = position
         return
     elif isinstance(message, geometry_msgs.msg.PoseStamped):
-        if check_if_pose_valid(message.pose) and message.header.frame_id == frame_id:
+        if check_if_pose_valid(message.pose) and message.header.frame_id == source_frame_id:
+            message.header.frame_id = target_frame_id
             pose = transform_pose(transform, message.pose)
             message.pose = pose
         return
     elif isinstance(message, trajectory_msgs.msg.MultiDOFJointTrajectory):
-        if message.header.frame_id == frame_id:
+        if message.header.frame_id == source_frame_id:
+            message.header.frame_id = target_frame_id
             for i, point in enumerate(message.points):
                 for j, transformation in enumerate(message.points[i].transforms):
                     t = transform_transformation(transform, transformation)
@@ -422,13 +427,13 @@ def adapt_coordinates_recursively(message, frame_id, transform):
     # Do recursion for lists and members.
     if hasattr(message, '__iter__'):
         for m in message:  # TODO Need enumerate?
-            adapt_coordinates_recursively(m, frame_id, transform)
+            adapt_coordinates_recursively(m, source_frame_id, target_frame_id, transform)
     else:
         for m in [a for a in dir(message) if not (a.startswith('__') or a.startswith('_') or \
                 a == 'deserialize' or a == 'deserialize_numpy' or a == 'serialize' or a == 'serialize_numpy')]:
-            adapt_coordinates_recursively(eval("message." + m), frame_id, transform)
+            adapt_coordinates_recursively(eval("message." + m), source_frame_id, target_frame_id, transform)
 
-
+# Position and orientation defined in source frame.
 def transform_coordinates(source_frame_id, target_frame_id, position = [0, 0, 0], orientation = [0, 0, 0, 1], tf_buffer = None):
 
     try:
@@ -456,7 +461,7 @@ def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
         listener = tf2_ros.TransformListener(tf_buffer)
 
     try:
-        transform = tf_buffer.lookup_transform(source_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        transform = tf_buffer.lookup_transform(target_frame_id, source_frame_id, rospy.Time(0), rospy.Duration(10.0))
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         rospy.logerr('Could not look up TF transformation from "' +
                      source_frame_id + '" to "' + target_frame_id + '".')
