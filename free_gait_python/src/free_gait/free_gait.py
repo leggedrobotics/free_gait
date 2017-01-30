@@ -24,6 +24,7 @@ def load_action_from_file(file_path, placeholders=None):
     # Adapt coordinates.
     is_adapt = False
     source_frame_id = ''
+    target_frame_id = ''
     position = [0, 0, 0]
     orientation = [0, 0, 0, 1]
     if 'adapt_coordinates' in parameters[0][0]:

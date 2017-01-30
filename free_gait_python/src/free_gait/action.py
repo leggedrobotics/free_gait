@@ -176,7 +176,7 @@ class WaitForState:
                 time_left = timeout_time - rospy.get_rostime()
                 if self.timeout > rospy.Duration(0.0) and time_left <= rospy.Duration(0.0):
                     break
-                if len(self.state) == 1:
+                if not isinstance(self.state, list):
                     if self.action.state == self.state:
                         break
                 else:
@@ -186,7 +186,7 @@ class WaitForState:
                     time_left = loop_period
                 self.done_condition.wait(time_left.to_sec())
 
-        if len(self.state) == 1:
+        if not isinstance(self.state, list):
             return self.action.state == self.state
         else:
             return self.action.state in self.state
