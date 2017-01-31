@@ -265,15 +265,17 @@ void FreeGaitPreviewDisplay::newGoalAvailable()
   visual_->setStateBatch(playback_.getStateBatch());
   visual_->showEnabled();
 
-  // Play back.
+  // Playback.
   ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Setting up control.");
   playButtonProperty_->setReadOnly(false);
-  timelimeSliderProperty_->setValuePassive(playback_.getTime().toSec());
+  const double midTime = (playback_.getStateBatch().getEndTime() - playback_.getStateBatch().getStartTime()) / 2.0;
+  timelimeSliderProperty_->setValuePassive(midTime); // This is required for not triggering value change signal.
   timelimeSliderProperty_->setMin(playback_.getStateBatch().getStartTime());
   timelimeSliderProperty_->setMax(playback_.getStateBatch().getEndTime());
+  timelimeSliderProperty_->setValuePassive(playback_.getTime().toSec());
+  timelimeSliderProperty_->setReadOnly(false);
   ROS_DEBUG_STREAM("Setting slider min and max time to: " << timelimeSliderProperty_->getMin()
                    << " & " << timelimeSliderProperty_->getMax() << ".");
-  timelimeSliderProperty_->setReadOnly(false);
 
   // Play.
   if (autoPlayProperty_->getBool()) {
@@ -376,6 +378,7 @@ void FreeGaitPreviewDisplay::resultCallback(const free_gait_msgs::ExecuteStepsAc
 void FreeGaitPreviewDisplay::setEnabledRobotModel(bool enable)
 {
   if (robotModelRvizPlugin_ == NULL) return;
+  ROS_DEBUG_STREAM("Setting robot model plugin to enabled " << (enable ? "True" : "False") << ".");
   robotModelRvizPlugin_->setEnabled(enable);
 }
 
