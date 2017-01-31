@@ -1,6 +1,6 @@
 <package>
   <name>rqt_free_gait</name>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <description>rqt_free_gait provides a GUI plugin to ...</description>
 
   <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
