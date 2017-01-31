@@ -1,2 +1,0 @@
-ROS messages for Quadruped
---------------------------
