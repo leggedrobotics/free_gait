@@ -1,14 +1,16 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_core</name>
   <version>0.1.1</version>
-  <description>Free gait for legged robots.</description>
+  <description>Free Gait for architecture for the control of legged robots.</description>
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
-  <license>BSD</license>
-  <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
-  <url type="bugtracker">https://bitbucket.org/ethz-asl-lr/free_gait/issues</url>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
+  <license>BSD</license>
+  <url type="website">https://github.com/leggedrobotics/free_gait</url>
+  <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>
+
   <buildtool_depend>catkin</buildtool_depend>
+
   <depend>quadruped_model</depend>
   <depend>numopt_quadprog</depend>
   <depend>curves</depend>

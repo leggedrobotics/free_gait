@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_python</name>
   <version>0.1.1</version>
@@ -6,10 +6,11 @@
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
   <license>BSD</license>
-  <url type="website">https://bitbucket.org/ethz-asl-lr/free_gait</url>
+  <url type="website">https://github.com/leggedrobotics/free_gait</url>
+  <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
+
   <depend>rospy</depend>
   <depend>free_gait_msgs</depend>
-
 </package>

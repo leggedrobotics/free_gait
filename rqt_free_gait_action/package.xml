@@ -2,10 +2,9 @@
 <package format="2">
   <name>rqt_free_gait_action</name>
   <version>0.1.1</version>
-  <description>rqt_free_gait_action provides a GUI plugin to ...</description>
-
-  <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
+  <description>A RQT plugin to select and execute Free Gait actions.</description>
   <maintainer email="samuel.bachmann@gmail.com">Samuel Bachmann</maintainer>
+  <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
   <license>BSD</license>
   <url type="website">https://github.com/leggedrobotics/free_gait</url>
   <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>

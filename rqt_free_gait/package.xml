@@ -1,31 +1,24 @@
-<package>
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="2">
   <name>rqt_free_gait</name>
   <version>0.1.1</version>
-  <description>rqt_free_gait provides a GUI plugin to ...</description>
-
-  <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
+  <description>A RQT plugin to monitor, pause, and stop Free Gait actions.</description>
   <maintainer email="samuel.bachmann@gmail.com">Samuel Bachmann</maintainer>
-  <license>TODO</license>
+  <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>
+  <license>BSD</license>
+  <url type="website">https://github.com/leggedrobotics/free_gait</url>
+  <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>rqt_gui</build_depend>
-  <build_depend>rqt_gui_cpp</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>free_gait_msgs</build_depend>
-  <build_depend>rqt_gui</build_depend>
-  <build_depend>rqt_gui_cpp</build_depend>
-
-  <run_depend>rqt_gui</run_depend>
-  <run_depend>rqt_gui_cpp</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>free_gait_msgs</run_depend>
-  <run_depend>rqt_gui</run_depend>
-  <run_depend>rqt_gui_cpp</run_depend>
+  <depend>rqt_gui</depend>
+  <depend>rqt_gui_cpp</depend>
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>free_gait_msgs</depend>
+  <depend>rqt_gui</depend>
+  <depend>rqt_gui_cpp</depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>

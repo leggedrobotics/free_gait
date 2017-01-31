@@ -1,23 +1,26 @@
-<package>
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="2">
   <name>free_gait_rviz_plugin</name>
   <version>0.1.1</version>
   <description>RViz plugin to preview Free Gait actions.</description>
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
-  <license>BSD</license>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
+  <license>BSD</license>
+  <url type="website">https://github.com/leggedrobotics/free_gait</url>
+  <url type="bugtracker">https://github.com/leggedrobotics/free_gait/issues</url>
+
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>qtbase5-dev</build_depend>
-  <build_depend>rviz</build_depend>
-  <build_depend>free_gait_core</build_depend>
-  <build_depend>free_gait_ros</build_depend>
-  <build_depend>free_gait_msgs</build_depend>
-  <run_depend>libqt5-core</run_depend>
-  <run_depend>libqt5-gui</run_depend>
-  <run_depend>libqt5-widgets</run_depend>
-  <run_depend>rviz</run_depend>
-  <run_depend>free_gait_core</run_depend>
-  <run_depend>free_gait_ros</run_depend>
-  <run_depend>free_gait_msgs</run_depend>
+
+  <depend>qtbase5-dev</depend>
+  <depend>rviz</run_depend>
+  <depend>free_gait_core</depend>
+  <depend>free_gait_ros</depend>
+  <depend>free_gait_msgs</depend>
+
+  <exec_depend>libqt5-core</exec_depend>
+  <exec_depend>libqt5-gui</exec_depend>
+  <exec_depend>libqt5-widgets</exec_depend>
+
   <export>
       <rviz plugin="${prefix}/plugin_description.xml"/>
   </export>
