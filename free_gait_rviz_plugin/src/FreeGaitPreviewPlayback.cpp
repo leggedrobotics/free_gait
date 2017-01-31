@@ -146,7 +146,7 @@ void FreeGaitPreviewPlayback::processingCallback(bool success)
   if (!success) return;
   Lock lock(dataMutex_);
   clear();
-  stateBatch_ = batchExecutor_->getStateBatch();
+  stateBatch_ = batchExecutor_->getStateBatch(); // Deep copy.
   stateBatchComputer_.computeEndEffectorTrajectories(stateBatch_);
   time_.fromSec(stateBatch_.getStartTime());
   ROS_DEBUG_STREAM("Resetting time to " << time_ << ".");

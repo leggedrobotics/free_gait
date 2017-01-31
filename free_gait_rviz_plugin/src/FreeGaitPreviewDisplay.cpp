@@ -254,16 +254,16 @@ void FreeGaitPreviewDisplay::jumpToTime()
 void FreeGaitPreviewDisplay::newGoalAvailable()
 {
   ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: New preview available.");
+
   // Auto-enable visuals.
+  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Drawing visualizations.");
+  visual_->setStateBatch(playback_.getStateBatch());
   if (autoEnableVisualsProperty_->getBool()) {
     setEnabledRobotModel(true);
     visualsTree_->setBool(true);
+  } else {
+    visual_->showEnabled();
   }
-
-  // Visuals.
-  ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Drawing visualizations.");
-  visual_->setStateBatch(playback_.getStateBatch());
-  visual_->showEnabled();
 
   // Playback.
   ROS_DEBUG("FreeGaitPreviewDisplay::newGoalAvailable: Setting up control.");

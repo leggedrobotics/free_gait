@@ -32,7 +32,7 @@ class BatchExecutor
   bool isProcessing();
   void cancelProcessing();
 
-  StateBatch getStateBatch() const;
+  const StateBatch& getStateBatch() const;
 
  private:
   void processInThread();

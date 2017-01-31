@@ -60,7 +60,7 @@ void BatchExecutor::cancelProcessing()
   requestForCancelling_ = true;
 }
 
-StateBatch BatchExecutor::getStateBatch() const
+const StateBatch& BatchExecutor::getStateBatch() const
 {
   if (isProcessing_) throw std::runtime_error("Batch executor error: Cannot access state during processing.");
   return stateBatch_;
