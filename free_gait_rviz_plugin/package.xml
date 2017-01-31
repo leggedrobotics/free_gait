@@ -12,7 +12,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>qtbase5-dev</depend>
-  <depend>rviz</run_depend>
+  <depend>rviz</depend>
   <depend>free_gait_core</depend>
   <depend>free_gait_ros</depend>
   <depend>free_gait_msgs</depend>
