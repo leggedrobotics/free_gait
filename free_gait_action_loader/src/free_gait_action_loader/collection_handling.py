@@ -77,6 +77,7 @@ class CollectionList:
             except Exception:
                 rospy.logwarn("Unable to load collections [%s] from package [%s]."%(file_path, package))
 
+        self.collections = sorted(self.collections, key = lambda x: (x.id))
         return True
 
     def get(self, id):

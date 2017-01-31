@@ -59,7 +59,8 @@ void WorkerThreadGetCollections::run() {
   // Add pseudo empty collection to get all available actions.
   free_gait_msgs::CollectionDescription collectionDescription;
   collectionDescription.id = "";
-  collectionsResponse.collections.push_back(collectionDescription);
+  collectionsResponse.collections.insert(collectionsResponse.collections.begin(),
+                                         collectionDescription);
 
   // Loop over the collections, get their actions and add them finally to the
   // collection model.
@@ -84,8 +85,6 @@ void WorkerThreadGetCollections::run() {
       actionModel->addAction(action);
     }
 
-    // Sort the action names (ASC).
-    actionModel->sortActions();
 
     // Add the action model to the collection.
     QString collectionId = "all";
@@ -99,10 +98,6 @@ void WorkerThreadGetCollections::run() {
     // Add the collection to the collection model.
     collectionModel->addCollection(collection);
   }
-
-  // Sort the collection names (ASC).
-  // TODO Ensure that 'All' is always on top.
-  collectionModel->sortCollections();
 
   // Return the collection model.
   emit result(true, collectionModel);

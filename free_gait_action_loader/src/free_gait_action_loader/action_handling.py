@@ -114,13 +114,8 @@ class ActionList:
             except Exception:
                 rospy.logwarn("Unable to load actions [%s] from package [%s]."%(file_path, package))
 
+        self.actions = sorted(self.actions, key = lambda x: (x.id))
         return True
-
-    # def get_list_of_ids(self, collection = ""):
-    #     ids = []
-    #     for entry in self.actions:
-    #         ids.append(entry.id)
-    #     return ids
 
     def get(self, id):
         entry = [ e for e in self.actions if (e.id == id) ]
