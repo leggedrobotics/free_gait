@@ -14,7 +14,7 @@ If you use this work in an academic context, please cite the following publicati
 
 * P. Fankhauser, D. Bellicoso, C. Gehring, R. Dubé, A. Gawel, M. Hutter,
 **"Free Gait – An Architecture for the Versatile Control of Legged Robots"**,
-in IEEE-RAS International Conference on Humanoid Robots, 2016.
+in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://www.researchgate.net/publication/312111333))
 
         @inproceedings{Fankhauser2016FreeGait,
             author = {Fankhauser, P{\'{e}}ter and Bellicoso, C. Dario and Gehring, Christian and Dub{\'{e}}, Renaud and Gawel, Abel and Hutter, Marco},
