@@ -17,8 +17,6 @@
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>free_gait_msgs</depend>
-  <depend>rqt_gui</depend>
-  <depend>rqt_gui_cpp</depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
