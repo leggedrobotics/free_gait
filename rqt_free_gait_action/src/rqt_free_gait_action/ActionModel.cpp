@@ -52,7 +52,15 @@ ActionModel::~ActionModel() {
 
 void ActionModel::addAction(const Action &action) {
   actions_.push_back(action);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+  // TODO reset model?
+//  beginResetModel();
+//  myData.clear();
+//  endResetModel();
+#else
   reset();
+#endif
 }
 
 int ActionModel::rowCount(const QModelIndex &parent) const {
