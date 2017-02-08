@@ -42,17 +42,11 @@ class FreeGaitActionServer
   void shutdown();
 
   bool isActive();
-
   void goalCallback();
-
   void preemptCallback();
-
   void publishFeedback();
-
   void setSucceeded();
-
   void setPreempted();
-
   void setAborted();
 
  private:
@@ -70,6 +64,9 @@ class FreeGaitActionServer
 
   //! True if in process of preempting.
   bool isPreempting_;
+
+  //! Number of steps of the current goal.
+  size_t nStepsInCurrentGoal_;
 };
 
 } /* namespace */

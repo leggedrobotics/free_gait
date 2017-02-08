@@ -24,7 +24,8 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
       executor_(executor),
       adapter_(adapter),
       server_(nodeHandle_, name_, false),
-      isPreempting_(false)
+      isPreempting_(false),
+      nStepsInCurrentGoal_(0)
 {
 }
 
@@ -102,6 +103,7 @@ void FreeGaitActionServer::goalCallback()
   }
   Executor::Lock lock(executor_->getMutex());
   executor_->getQueue().add(steps);
+  nStepsInCurrentGoal_ = goal->steps.size();
   lock.unlock();
 }
 
@@ -138,11 +140,12 @@ void FreeGaitActionServer::publishFeedback()
 
   feedback.duration = ros::Duration(step.getTotalDuration());
   feedback.phase = step.getTotalPhase();
-  for (const auto& leg : executor_->getAdapter().getLimbs()) {
-    if (step.hasLegMotion(leg)) {
-      const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(leg));
-      feedback.swing_leg_names.push_back(legName);
-    }
+  for (const auto& legMotion : step.getLegMotions()) {
+    const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(legMotion.first));
+    feedback.active_branches.push_back(legName);
+  }
+  if (step.hasBaseMotion()) {
+    const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(leg));
   }
   lock.unlock();
   server_.publishFeedback(feedback);

@@ -22,9 +22,13 @@ int8 status
 
 ## Feedback
 
-# The step number starting from 1, monotonically increasing during
-# action, resets to 1 if robot leaves action.
+# Step number starting from 1, monotonically increasing during
+# action, resets to 1 for new goal definition. Below 1 if new
+# goal has not started yet.
 uint8 step_number
+
+# Number of steps in a new/current goal.
+uint8 number_of_steps_in_goal
 
 # Number of steps in the queue including the current step.
 uint8 queue_size
@@ -45,9 +49,5 @@ duration duration
 # Phase (0-1) of the current step.
 float64 phase
 
-# Leg type identifiers of the swing legs of the current
-# step ('LF_LEG', 'RH_LEG', etc.).
-string[] swing_leg_names
-
-# If action is ignoring state estimator or not. (TODO Remove)
-bool ignoring_state_estimator
+# Names of the branches active in the current step ('LF_LEG', 'base', etc.).
+string[] active_branches
