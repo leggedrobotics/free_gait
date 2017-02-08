@@ -1,11 +1,17 @@
 #! /usr/bin/env python
 
 import rospy
+import rospkg
 import free_gait_msgs.msg
 from tf.transformations import *
 import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf2_ros
+
+
+def get_package_path(package):
+    rospack = rospkg.RosPack()
+    return rospack.get_path(package)
 
 
 def load_action_from_file(file_path, placeholders=None):
