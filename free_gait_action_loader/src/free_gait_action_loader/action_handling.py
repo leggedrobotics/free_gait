@@ -11,7 +11,7 @@ import free_gait_msgs.msg
 class ActionType:
     YAML = 0
     PYTHON = 1
-    LAUNCH_FILE = 2
+    LAUNCH = 2
 
     @staticmethod
     def to_text(action_type):
@@ -19,8 +19,8 @@ class ActionType:
             return 'yaml'
         elif action_type == ActionType.PYTHON:
             return 'python'
-        elif action_type == ActionType.LAUNCH_FILE:
-            return 'launch_file'
+        elif action_type == ActionType.LAUNCH:
+            return 'launch'
         else:
             return None
 
@@ -30,8 +30,8 @@ class ActionType:
             return ActionType.YAML
         elif action_type == 'python':
             return ActionType.PYTHON
-        elif action_type == 'launch_file':
-            return ActionType.LAUNCH_FILE
+        elif action_type == 'launch':
+            return ActionType.LAUNCH
         else:
             return None
 

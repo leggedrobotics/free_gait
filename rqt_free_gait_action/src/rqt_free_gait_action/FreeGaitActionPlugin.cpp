@@ -134,14 +134,14 @@ void FreeGaitActionPlugin::shutdownPlugin() {
 void FreeGaitActionPlugin::saveSettings(
     qt_gui_cpp::Settings& plugin_settings,
     qt_gui_cpp::Settings& instance_settings) const {
-  instance_settings.setValue("favorite_collection_id", favoriteCollectionId_);
+  plugin_settings.setValue("favorite_collection_id", favoriteCollectionId_);
 }
 
 void FreeGaitActionPlugin::restoreSettings(
     const qt_gui_cpp::Settings& plugin_settings,
     const qt_gui_cpp::Settings& instance_settings) {
   favoriteCollectionId_ =
-      instance_settings.value("favorite_collection_id", "").toString();
+      plugin_settings.value("favorite_collection_id", "").toString();
 }
 
 /*****************************************************************************/

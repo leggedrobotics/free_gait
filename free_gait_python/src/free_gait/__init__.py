@@ -1,3 +1,4 @@
+from free_gait import get_package_path
 from free_gait import load_action_from_file
 from free_gait import parse_action
 from free_gait import adapt_coordinates
@@ -8,6 +9,6 @@ from free_gait import transform_position
 from action import ActionState
 from action import ActionBase
 from action import SimpleAction
-from action import ExternalAction
+from action import LaunchAction
 from action import TriggerOnFeedback
 from action import WaitForState

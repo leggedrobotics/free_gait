@@ -52,7 +52,15 @@ CollectionModel::~CollectionModel() {
 
 void CollectionModel::addCollection(const Collection &collection) {
   collections_.push_back(collection);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+  // TODO reset model?
+//  beginResetModel();
+//  myData.clear();
+//  endResetModel();
+#else
   reset();
+#endif
 }
 
 int CollectionModel::rowCount(const QModelIndex &/*parent*/) const {
