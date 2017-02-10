@@ -145,7 +145,7 @@ void FreeGaitActionServer::publishFeedback()
     feedback.active_branches.push_back(legName);
   }
   if (step.hasBaseMotion()) {
-    const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(leg));
+    feedback.active_branches.push_back(executor_->getAdapter().getBaseString());
   }
   lock.unlock();
   server_.publishFeedback(feedback);
