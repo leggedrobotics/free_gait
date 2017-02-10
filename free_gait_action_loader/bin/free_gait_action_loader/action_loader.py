@@ -103,6 +103,8 @@ class ActionLoader:
                 self._load_yaml_action(action_entry.file)
             elif action_entry.type == ActionType.PYTHON:
                 self._load_python_action(action_entry.file)
+            elif action_entry.type == ActionType.LAUNCH:
+                self._load_launch_action(action_entry.file)
 
             if self.action is None:
                 result.status = result.RESULT_UNKNOWN
@@ -133,7 +135,7 @@ class ActionLoader:
 
     def _load_yaml_action(self, file_path):
         # Load action from YAML file.
-        rospy.loginfo('Loading free gait action from YAML file "' + file_path + '".')
+        rospy.loginfo('Loading Free Gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
         rospy.logdebug(goal)
         self.action = SimpleAction(self.execute_steps_client, goal, self.use_preview, self.preview_publisher)
@@ -143,11 +145,16 @@ class ActionLoader:
 
     def _load_python_action(self, file_path):
         # Load action from Python script.
-        rospy.loginfo('Loading free gait action from Python script "' + file_path + '".')
+        rospy.loginfo('Loading Free Gait action from Python script "' + file_path + '".')
         # action_locals = dict()
         # Kind of nasty, but currently only way to make external imports work.
         execfile(file_path, globals(), globals())
         self.action = action
+
+    def _load_launch_action(self, file_path):
+        # Load action with external launch file.
+        rospy.loginfo('Loading Free Gait action with launch file "' + file_path + '".')
+        self.action = LaunchAction(file_path, self.use_preview)
 
     def _action_feedback_callback(self):
         rospy.loginfo('Action switched to state: ' + ActionState.to_text(self.action.state) + '.')
@@ -196,4 +203,4 @@ if __name__ == '__main__':
             updateRate.sleep()
 
     except rospy.ROSInterruptException:
-        pass
+        rospy.logerr(traceback.print_exc())

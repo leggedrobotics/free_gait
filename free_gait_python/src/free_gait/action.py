@@ -5,6 +5,9 @@ from free_gait import *
 import threading
 from actionlib_msgs.msg import GoalStatus
 import roslaunch
+import tempfile
+import os
+import traceback
 
 
 class ActionState:
@@ -127,21 +130,43 @@ class SimpleAction(ActionBase):
         self._send_goal()
 
 
-class ExternalAction(ActionBase):
+class LaunchAction(ActionBase):
 
-    def __init__(self, client, file_path, use_preview = False, preview_publisher = None):
-        ActionBase.__init__(self, client, None, use_preview, preview_publisher)
-        self.file_path = file_path
-
-    def start(self):
-        ActionBase.start(self)
+    def __init__(self, file_path, use_preview = False):
+        ActionBase.__init__(self, None, None, use_preview, None)
+        launch_file = open(file_path, "r")
+        launch_text = launch_file.read()
+        launch_file.close()
+        self.temp_launch_file = tempfile.NamedTemporaryFile(mode='w+t', delete=False)
+        self.temp_launch_file.write(launch_text)
+        self.temp_launch_file.close()
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
-        self.launch = roslaunch.parent.ROSLaunchParent(uuid, [self.file_path])
-        self.launch.start()
+        self.listener = roslaunch.pmon.ProcessListener()
+        self.listener.process_died = self._process_died
+        self.launch = roslaunch.parent.ROSLaunchParent(uuid, [self.temp_launch_file.name], process_listeners=[self.listener])
+
+    def start(self):
+        try:
+            self.launch.start()
+        except roslaunch.core.RLException:
+            rospy.logerr(traceback.print_exc())
+            self.set_state(ActionState.ERROR)
+            return
+
+        self.set_state(ActionState.ACTIVE)
 
     def stop(self):
         self.launch.shutdown()
+        os.unlink(self.temp_launch_file.name)
+
+    def _process_died(self, process_name, exit_code):
+        # For now we assume only one process.
+        if exit_code == 0:
+            self.set_state(ActionState.DONE)
+        else:
+            self.set_state(ActionState.ERROR)
+        self.stop()
 
 
 class TriggerOnFeedback:
