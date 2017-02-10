@@ -137,6 +137,7 @@ class LaunchAction(ActionBase):
         launch_file = open(file_path, "r")
         launch_text = launch_file.read()
         launch_file.close()
+        launch_text = self._replace_preview_argument(launch_text)
         self.temp_launch_file = tempfile.NamedTemporaryFile(mode='w+t', delete=False)
         self.temp_launch_file.write(launch_text)
         self.temp_launch_file.close()
@@ -159,6 +160,17 @@ class LaunchAction(ActionBase):
     def stop(self):
         self.launch.shutdown()
         os.unlink(self.temp_launch_file.name)
+
+    def _replace_preview_argument(self, launch_text):
+        preview_argument = '<arg name="use_preview" value="'
+        if self.use_preview:
+            preview_argument += 'true'
+        else:
+            preview_argument += 'false'
+        preview_argument += '"/>'
+        new_text = launch_text.replace('<arg name="use_preview" default="true"/>', preview_argument, 1)
+        new_text = new_text.replace('<arg name="use_preview" default="false"/>', preview_argument, 1)
+        return new_text
 
     def _process_died(self, process_name, exit_code):
         # For now we assume only one process.
