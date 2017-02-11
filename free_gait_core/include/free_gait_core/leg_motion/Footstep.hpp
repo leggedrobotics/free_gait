@@ -13,7 +13,7 @@
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
 // Curves
-#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
+#include <curves/CubicHermiteE3Curve.hpp>
 
 // STD
 #include <string>
@@ -24,8 +24,8 @@ namespace free_gait {
 class Footstep : public EndEffectorMotionBase
 {
  public:
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::DerivativeType DerivativeType;
+  typedef typename curves::CubicHermiteE3Curve::ValueType ValueType;
+  typedef typename curves::CubicHermiteE3Curve::DerivativeType DerivativeType;
   typedef typename curves::Time Time;
 
   Footstep(LimbEnum limb);
@@ -47,6 +47,7 @@ class Footstep : public EndEffectorMotionBase
 
   const ControlSetup getControlSetup() const;
 
+  bool compute(bool isSupportLeg);
   bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
@@ -64,18 +65,25 @@ class Footstep : public EndEffectorMotionBase
    */
   double getDuration() const;
 
+  void setStartPosition(const std::string& frameId, const Position& start);
+  const Position getStartPosition() const;
   void setTargetPosition(const std::string& frameId, const Position& target);
   const Position getTargetPosition() const;
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
+  void setProfileType(const std::string& profileType);
+  const std::string& getProfileType() const;
   void setProfileHeight(const double profileHeight);
   double getProfileHeight() const;
+  double getAverageVelocity() const;
+  void setAverageVelocity(double averageVelocity);
 
   bool isIgnoreContact() const;
 
   bool isIgnoreForPoseAdaptation() const;
 
   friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
+
   friend class StepCompleter;
   friend class StepRosConverter;
   friend class StepFrameConverter;
@@ -84,6 +92,7 @@ class Footstep : public EndEffectorMotionBase
   void generateStraightKnots(std::vector<ValueType>& values) const;
   void generateTriangleKnots(std::vector<ValueType>& values) const;
   void generateSquareKnots(std::vector<ValueType>& values) const;
+  void generateTrapezoidKnots(std::vector<ValueType>& values) const;
   void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
   void computeVelocities(const std::vector<Time>& times, std::vector<DerivativeType>& velocities,
                          std::vector<DerivativeType>& accelerations) const;
@@ -92,8 +101,8 @@ class Footstep : public EndEffectorMotionBase
   Position target_;
   std::string frameId_;
   double profileHeight_;
-  double averageVelocity_;
   std::string profileType_;
+  double averageVelocity_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
   double liftOffVelocity_;
@@ -103,7 +112,7 @@ class Footstep : public EndEffectorMotionBase
   ControlSetup controlSetup_;
 
   //! Foot trajectory.
-  curves::PolynomialSplineQuinticVector3Curve trajectory_;
+  curves::CubicHermiteE3Curve trajectory_;
 
   //! If trajectory is updated.
   bool isComputed_;
