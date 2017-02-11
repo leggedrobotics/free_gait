@@ -203,4 +203,5 @@ if __name__ == '__main__':
             updateRate.sleep()
 
     except rospy.ROSInterruptException:
-        rospy.logerr(traceback.print_exc())
+        # rospy.logerr(traceback.print_exc())
+        pass
