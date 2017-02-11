@@ -22,11 +22,11 @@ StepFrameConverter::~StepFrameConverter()
 
 bool StepFrameConverter::adaptCoordinates(StepQueue& stepQueue, const std::string& sourceFrameId,
                                           const std::string& targetFrameId,
-                                          const Transform& transformInTargetFrame,
+                                          const Transform& transformInSourceFrame,
                                           const ros::Time& time)
 {
   for (Step& step : stepQueue.queue_) {
-    if (!adaptCoordinates(step, sourceFrameId, targetFrameId, transformInTargetFrame, time)) return false;
+    if (!adaptCoordinates(step, sourceFrameId, targetFrameId, transformInSourceFrame, time)) return false;
   }
   return true;
 }
@@ -34,7 +34,7 @@ bool StepFrameConverter::adaptCoordinates(StepQueue& stepQueue, const std::strin
 
 bool StepFrameConverter::adaptCoordinates(Step& step, const std::string& sourceFrameId,
                                           const std::string& targetFrameId,
-                                          const Transform& transformInTargetFrame,
+                                          const Transform& transformInSourceFrame,
                                           const ros::Time& time)
 {
   // Leg motions.
@@ -43,7 +43,7 @@ bool StepFrameConverter::adaptCoordinates(Step& step, const std::string& sourceF
     // Foostep.
     if (legMotion.second->getType() == LegMotionBase::Type::Footstep) {
       Footstep& footstep = dynamic_cast<Footstep&>(*(legMotion.second));
-      if (!adaptCoordinates(footstep, sourceFrameId, targetFrameId, transformInTargetFrame, time)) return false;
+      if (!adaptCoordinates(footstep, sourceFrameId, targetFrameId, transformInSourceFrame, time)) return false;
     }
 
   }
@@ -64,12 +64,12 @@ bool StepFrameConverter::adaptCoordinates(Step& step, const std::string& sourceF
 
 bool StepFrameConverter::adaptCoordinates(Footstep& footstep, const std::string& sourceFrameId,
                                           const std::string& targetFrameId,
-                                          const Transform& transformInTargetFrame,
+                                          const Transform& transformInSourceFrame,
                                           const ros::Time& time)
 {
   Transform transform;
   if (footstep.getFrameId(ControlLevel::Position) == sourceFrameId) {
-    if (!getTransform(sourceFrameId, targetFrameId, transformInTargetFrame, time, transform)) return false;
+    if (!getTransform(sourceFrameId, targetFrameId, transformInSourceFrame, time, transform)) return false;
     footstep.target_ = transform.transform(footstep.target_);
     footstep.frameId_ = targetFrameId;
   }
@@ -79,12 +79,12 @@ bool StepFrameConverter::adaptCoordinates(Footstep& footstep, const std::string&
 
 bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
                                       const std::string& targetFrameId,
-                                      const Transform& transformInTargetFrame,
+                                      const Transform& transformInSourceFrame,
                                       const ros::Time& time, Transform& transform)
 {
   if (sourceFrameId == cachedSourceFrameId_ && targetFrameId == cachedTargetFrameId_
-      && transformInTargetFrame.getPosition() == cachedTransformInTargetFrame_.getPosition()
-      && transformInTargetFrame.getRotation() == cachedTransformInTargetFrame_.getRotation()
+      && transformInSourceFrame.getPosition() == cachedTransformInSourceFrame_.getPosition()
+      && transformInSourceFrame.getRotation() == cachedTransformInSourceFrame_.getRotation()
       && time == cachedTime_) {
     // No lookup required if already cached.
     transform = cachedTransform_;
@@ -104,12 +104,12 @@ bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
   }
 
   kindr_ros::convertFromRosGeometryMsg(transformStamped.transform, transform);
-  transform = transform * transformInTargetFrame;
+  transform = transform * transformInSourceFrame;
 
   // Cache transform.
   cachedSourceFrameId_ = sourceFrameId;
   cachedTargetFrameId_ = targetFrameId;
-  cachedTransformInTargetFrame_ = transformInTargetFrame;
+  cachedTransformInSourceFrame_ = transformInSourceFrame;
   cachedTime_ = time;
   cachedTransform_ = transform;
 
