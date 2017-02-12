@@ -21,8 +21,8 @@ Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
       averageVelocity_(0.0),
-      liftOffVelocity_(0.0),
-      touchdownVelocity_(0.0),
+      liftOffSpeed_(0.0),
+      touchdownSpeed_(0.0),
       minimumDuration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
@@ -72,11 +72,17 @@ bool Footstep::compute(bool isSupportLeg)
   std::vector<Time> times;
   computeTiming(values, times);
   std::vector<DerivativeType> velocities, accelerations;
-  if (!ignoreContact_) touchdownVelocity_ = 0.0;
-  if (!isSupportLeg) liftOffVelocity_ = 0.0;
-  computeVelocities(times, velocities, accelerations);
-
-  trajectory_.fitCurveWithDerivatives(times, values, DerivativeType(0.0, 0.0, liftOffVelocity_), DerivativeType(0.0, 0.0, touchdownVelocity_));
+  if (!ignoreContact_) touchdownSpeed_ = 0.0;
+  if (!isSupportLeg) liftOffSpeed_ = 0.0;
+  Vector surfaceNormal;
+  if (surfaceNormal_) {
+    surfaceNormal = *surfaceNormal_;
+  } else {
+    surfaceNormal =  Vector::UnitZ();
+  }
+  DerivativeType liftOffVelocity = liftOffSpeed_ * surfaceNormal.vector();
+  DerivativeType touchdownVelocity = -touchdownSpeed_ * surfaceNormal.vector();
+  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity);
   isComputed_ = true;
   return true;
 }
@@ -207,7 +213,6 @@ void Footstep::generateTriangleKnots(std::vector<ValueType>& values) const
   // Apex height.
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
   knot2.z() = basis + profileHeight_;
-  std::cout << knot2 << std::endl;
   values.push_back(knot2.vector());
 
   // Knot 3.
@@ -267,19 +272,6 @@ void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<T
     duration = duration < minimumDuration_ ? minimumDuration_ : duration;
     times.push_back(times[i-1] + duration);
   }
-}
-
-void Footstep::computeVelocities(const std::vector<Time>& times,
-                                 std::vector<DerivativeType>& velocities,
-                                 std::vector<DerivativeType>& accelerations) const
-{
-  DerivativeType undefined(DerivativeType::Constant(static_cast<double>(curves::PolynomialSplineContainer::undefinedValue)));
-  velocities.resize(times.size(), undefined);
-  *(velocities.begin()) = DerivativeType(0.0, 0.0, liftOffVelocity_);
-  *(velocities.end()-1) = DerivativeType(0.0, 0.0, touchdownVelocity_);
-  accelerations.resize(times.size(), undefined);
-  *(accelerations.begin()) = DerivativeType::Zero();
-  *(accelerations.end() - 1) = DerivativeType::Zero();
 }
 
 } /* namespace */

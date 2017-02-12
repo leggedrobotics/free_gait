@@ -94,8 +94,6 @@ class Footstep : public EndEffectorMotionBase
   void generateSquareKnots(std::vector<ValueType>& values) const;
   void generateTrapezoidKnots(std::vector<ValueType>& values) const;
   void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
-  void computeVelocities(const std::vector<Time>& times, std::vector<DerivativeType>& velocities,
-                         std::vector<DerivativeType>& accelerations) const;
 
   Position start_;
   Position target_;
@@ -105,8 +103,8 @@ class Footstep : public EndEffectorMotionBase
   double averageVelocity_;
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
-  double liftOffVelocity_;
-  double touchdownVelocity_;
+  double liftOffSpeed_;
+  double touchdownSpeed_;
   double minimumDuration_;
 
   ControlSetup controlSetup_;
