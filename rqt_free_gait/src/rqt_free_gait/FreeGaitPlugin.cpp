@@ -53,6 +53,8 @@ FreeGaitPlugin::FreeGaitPlugin()
       ("free_gait_msgs::ExecuteStepsActionResult");
   qRegisterMetaType<std_srvs::SetBoolResponse>
       ("std_srvs::SetBoolResponse");
+  qRegisterMetaType<std_srvs::TriggerResponse>
+      ("std_srvs::TriggerResponse");
 }
 
 /*****************************************************************************/
@@ -86,6 +88,10 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   pauseClient_ = getNodeHandle().serviceClient<std_srvs::SetBool>(
       getNodeHandle().param<std::string>(
           "/free_gait/pause_execution_service", ""), false);
+
+  stopClient_ = getNodeHandle().serviceClient<std_srvs::Trigger>(
+      getNodeHandle().param<std::string>(
+          "/free_gait/stop_execution_service", ""), false);
 
   // Initialize progress bar.
   ui_.progressBarAll->setMinimum(0);
@@ -274,6 +280,7 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.plainTextEditDescription->setPlainText(" ");
 
   // pause/play button
+  ui_.pushButtonStop->setEnabled(true);
   ui_.pushButtonPause->setEnabled(true);
   ui_.pushButtonPlay->setEnabled(false);
 
@@ -383,6 +390,7 @@ void FreeGaitPlugin::updateResult(
   }
 
   // pause/play button
+  ui_.pushButtonStop->setEnabled(false);
   ui_.pushButtonPause->setEnabled(false);
   ui_.pushButtonPlay->setEnabled(false);
 }
@@ -458,7 +466,19 @@ void FreeGaitPlugin::onPushButtonPause() {
 }
 
 void FreeGaitPlugin::onPushButtonStop() {
+  ui_.pushButtonStop->setEnabled(false);
+  ui_.pushButtonPause->setEnabled(false);
+  ui_.pushButtonPlay->setEnabled(false);
 
+  WorkerThreadStop *workerThreadStop = new WorkerThreadStop;
+  connect(workerThreadStop,
+          SIGNAL(result(bool, std_srvs::TriggerResponse)),
+          this,
+          SLOT(onPushButtonStopResult(bool, std_srvs::TriggerResponse)));
+  connect(workerThreadStop, SIGNAL(finished()),
+          workerThreadStop, SLOT(deleteLater()));
+  workerThreadStop->setClient(stopClient_);
+  workerThreadStop->start();
 }
 
 void FreeGaitPlugin::onPushButtonPlayResult(
@@ -483,8 +503,17 @@ void FreeGaitPlugin::onPushButtonPauseResult(
   }
 }
 
-void FreeGaitPlugin::onPushButtonStopResult() {
-
+void FreeGaitPlugin::onPushButtonStopResult(
+    bool isOk, std_srvs::TriggerResponse response) {
+  if (isOk && response.success) {
+    ui_.pushButtonStop->setEnabled(false);
+    ui_.pushButtonPause->setEnabled(false);
+    ui_.pushButtonPlay->setEnabled(false);
+  } else {
+    ui_.pushButtonStop->setEnabled(true);
+    ui_.pushButtonPause->setEnabled(true);
+    ui_.pushButtonPlay->setEnabled(false);
+  }
 }
 
 } // namespace

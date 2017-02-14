@@ -34,6 +34,7 @@
 
 #include "rqt_free_gait/CircularBuffer.h"
 #include "rqt_free_gait/WorkerThreadPausePlay.h"
+#include "rqt_free_gait/WorkerThreadStop.h"
 
 #include <rqt_gui_cpp/plugin.h>
 #include <ui_FreeGaitPlugin.h>
@@ -178,7 +179,7 @@ protected slots:
 
   void onPushButtonPauseResult(bool isOk, std_srvs::SetBoolResponse response);
 
-  void onPushButtonStopResult();
+  void onPushButtonStopResult(bool isOk, std_srvs::TriggerResponse response);
 
 signals:
 

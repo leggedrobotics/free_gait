@@ -30,12 +30,14 @@ set(${PROJECT_NAME}_SRCS
   src/${PROJECT_NAME}/FreeGaitPlugin.cpp
   src/rqt_free_gait/CircularBuffer.cpp
   src/rqt_free_gait/WorkerThreadPausePlay.cpp
+  src/rqt_free_gait/WorkerThreadStop.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
   include/${PROJECT_NAME}/FreeGaitPlugin.h
   include/rqt_free_gait/CircularBuffer.h
   include/rqt_free_gait/WorkerThreadPausePlay.h
+  include/rqt_free_gait/WorkerThreadStop.h
 )
 
 set(${PROJECT_NAME}_UIS
