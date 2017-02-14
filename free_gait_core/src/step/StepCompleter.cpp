@@ -192,8 +192,8 @@ void StepCompleter::setParameters(Footstep& footstep) const
   if (footstep.averageVelocity_ == 0.0)
     footstep.averageVelocity_ = parameters.averageVelocity;
 
-  footstep.liftOffVelocity_ = parameters.liftOffVelocity;
-  footstep.touchdownVelocity_ = parameters.touchdownVelocity;
+  footstep.liftOffSpeed_ = parameters.liftOffSpeed;
+  footstep.touchdownSpeed_ = parameters.touchdownSpeed;
   footstep.minimumDuration_ = parameters.minimumDuration_;
 }
 

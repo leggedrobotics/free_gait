@@ -28,8 +28,8 @@ class StepParameters
     std::string profileType = "triangle";
     double profileHeight = 0.05;
     double averageVelocity = 0.15;
-    double liftOffVelocity = 0.05;
-    double touchdownVelocity = -0.07;
+    double liftOffSpeed = 0.05;
+    double touchdownSpeed = 0.07;
     double minimumDuration_ = 0.5;
   } footTargetParameters;
 

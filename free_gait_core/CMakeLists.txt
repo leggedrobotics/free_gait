@@ -116,6 +116,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
   test/StepTest.cpp
+  test/FootstepTest.cpp
   test/PoseOptimization3dTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
