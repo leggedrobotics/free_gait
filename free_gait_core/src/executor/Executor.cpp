@@ -51,10 +51,10 @@ bool Executor::advance(double dt)
   bool executionStatus = adapter_->isExecutionOk();
 
   if (executionStatus) {
-    if (!state_->getRobotExecutionStatus()) std::cout << "Continuing with free gait execution." << std::endl;
+    if (!state_->getRobotExecutionStatus()) addToFeedback("Continuing with Free Gait execution.");
     state_->setRobotExecutionStatus(true);
   } else {
-    if (state_->getRobotExecutionStatus()) std::cout << "Robot status is not OK, not continuing with free gait execution." << std::endl;
+    if (state_->getRobotExecutionStatus()) addToFeedback("Robot status is not OK, not continuing with Free Gait execution.");
     state_->setRobotExecutionStatus(false);
     return true;
   }
@@ -67,7 +67,6 @@ bool Executor::advance(double dt)
 
   // Advance queue.
   if (!queue_.advance(dt)) return false;
-
   if (!adapter_->updateExtrasBefore(queue_, *state_)) return false;
 
   // For a new switch in step, do some work on step for the transition.
@@ -92,8 +91,9 @@ bool Executor::advance(double dt)
   }
 
   if (queue_.hasStartedStep()) {
-    std::cout << "Switched step to:" << std::endl;
-    std::cout << queue_.getCurrentStep() << std::endl;
+    std::ostringstream stream;
+    stream << "Switched step to:" << std::endl << queue_.getCurrentStep();
+    addToFeedback(stream.str());
   }
 
   if (!writeIgnoreContact()) return false;
@@ -106,6 +106,21 @@ bool Executor::advance(double dt)
 //  std::cout << *state_ << std::endl;
 
   return true;
+}
+
+void Executor::addToFeedback(const std::string& feedbackDescription)
+{
+  feedbackDescription_ += "\n\n---\n\n" + feedbackDescription;
+}
+
+const std::string& Executor::getFeedbackDescription() const
+{
+  return feedbackDescription_;
+}
+
+void Executor::clearFeedbackDescription()
+{
+  feedbackDescription_.clear();
 }
 
 void Executor::reset()
