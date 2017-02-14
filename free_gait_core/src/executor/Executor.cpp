@@ -19,7 +19,8 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       adapter_(adapter),
       state_(state),
       isInitialized_(false),
-      isPausing_(false)
+      isPausing_(false),
+      preemptionType_(PreemptionType::PREEMPT_STEP)
 {
 }
 
@@ -115,6 +116,28 @@ bool Executor::advance(double dt)
 void Executor::pause(bool shouldPause)
 {
   isPausing_ = shouldPause;
+}
+
+bool Executor::stop()
+{
+  addToFeedback("Request received for stopping execution.");
+  Executor::Lock lock(getMutex());
+
+  switch (preemptionType_) {
+    case PreemptionType::PREEMPT_STEP:
+      if (getQueue().empty()) return false;
+      if (getQueue().size() <= 1) return false;
+      getQueue().clearNextSteps();
+      return true;
+    case PreemptionType::PREEMPT_IMMEDIATE:
+      if (getQueue().empty()) return false;
+      getQueue().clear();
+      return true;
+    case PreemptionType::PREEMPT_NO:
+      return false;
+    default:
+      return false;
+  }
 }
 
 void Executor::addToFeedback(const std::string& feedbackDescription)

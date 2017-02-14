@@ -53,6 +53,14 @@ class Executor
   bool advance(double dt);
   void pause(bool shouldPause);
 
+  /*!
+   * Stop the current steps. Depending on the preemption type,
+   * this method returns `true` if action was actually stopped,
+   * or `false` if it cannot be stopped.
+   * @return true if action is stopped, false otherwise.
+   */
+  bool stop();
+
   void addToFeedback(const std::string& feedbackDescription);
   const std::string& getFeedbackDescription() const;
   void clearFeedbackDescription();
@@ -70,6 +78,12 @@ class Executor
   const State& getState() const;
   const AdapterBase& getAdapter() const;
 
+  enum class PreemptionType {
+    PREEMPT_IMMEDIATE,
+    PREEMPT_STEP,
+    PREEMPT_NO
+  };
+
  private:
   bool completeCurrentStep(bool multiThreaded = false);
   bool resetStateWithRobot();
@@ -84,12 +98,14 @@ class Executor
   Mutex mutex_;
   bool isInitialized_;
   bool isPausing_;
+  PreemptionType preemptionType_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<StepComputer> computer_;
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
   std::string feedbackDescription_;
+
 };
 
 } /* namespace free_gait */
