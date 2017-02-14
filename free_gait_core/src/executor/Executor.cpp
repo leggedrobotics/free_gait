@@ -18,7 +18,8 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       computer_(computer),
       adapter_(adapter),
       state_(state),
-      isInitialized_(false)
+      isInitialized_(false),
+      isPausing_(false)
 {
 }
 
@@ -48,13 +49,16 @@ bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
-  bool executionStatus = adapter_->isExecutionOk();
+  bool executionStatus = adapter_->isExecutionOk() && !isPausing_;
 
   if (executionStatus) {
-    if (!state_->getRobotExecutionStatus()) addToFeedback("Continuing with Free Gait execution.");
+    if (!state_->getRobotExecutionStatus()) addToFeedback("Continuing with execution.");
     state_->setRobotExecutionStatus(true);
   } else {
-    if (state_->getRobotExecutionStatus()) addToFeedback("Robot status is not OK, not continuing with Free Gait execution.");
+    if (state_->getRobotExecutionStatus()) {
+      if (!adapter_->isExecutionOk()) addToFeedback("Robot status is not OK, paused execution and trying to recover.");
+      if (isPausing_) addToFeedback("Paused execution.");
+    }
     state_->setRobotExecutionStatus(false);
     return true;
   }
@@ -108,9 +112,14 @@ bool Executor::advance(double dt)
   return true;
 }
 
+void Executor::pause(bool shouldPause)
+{
+  isPausing_ = shouldPause;
+}
+
 void Executor::addToFeedback(const std::string& feedbackDescription)
 {
-  feedbackDescription_ += "\n\n---\n\n" + feedbackDescription;
+  feedbackDescription_ += "\n\n--------\n\n" + feedbackDescription;
 }
 
 const std::string& Executor::getFeedbackDescription() const

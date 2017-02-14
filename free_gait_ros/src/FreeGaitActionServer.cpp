@@ -127,7 +127,7 @@ void FreeGaitActionServer::publishFeedback()
   feedback.number_of_steps_in_goal = nStepsInCurrentGoal_;
   feedback.step_number = feedback.number_of_steps_in_goal - feedback.queue_size + 1;
 
-  if (executor_->getAdapter().isExecutionOk() == false) {
+  if (executor_->getState().getRobotExecutionStatus() == false) {
     feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
   } else {
       feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
