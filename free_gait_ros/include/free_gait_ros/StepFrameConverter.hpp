@@ -28,23 +28,23 @@ class StepFrameConverter
 
   bool adaptCoordinates(StepQueue& stepQueue, const std::string& sourceFrameId,
                         const std::string& targetFrameId,
-                        const Transform& transformInTargetFrame = Transform(),
+                        const Transform& transformInSourceFrame = Transform(),
                         const ros::Time& time = ros::Time(0));
 
   bool adaptCoordinates(Step& step, const std::string& sourceFrameId,
                         const std::string& targetFrameId,
-                        const Transform& transformInTargetFrame = Transform(),
+                        const Transform& transformInSourceFrame = Transform(),
                         const ros::Time& time = ros::Time(0));
 
   bool adaptCoordinates(Footstep& footstep, const std::string& sourceFrameId,
                         const std::string& targetFrameId,
-                        const Transform& transformInTargetFrame = Transform(),
+                        const Transform& transformInSourceFrame = Transform(),
                         const ros::Time& time = ros::Time(0));
 
  private:
 
   bool getTransform(const std::string& sourceFrameId, const std::string& targetFrameId,
-                    const Transform& transformInTargetFrame, const ros::Time& time,
+                    const Transform& transformInSourceFrame, const ros::Time& time,
                     Transform& transform);
 
   /// TF buffer used to read the transformations.
@@ -55,7 +55,7 @@ class StepFrameConverter
   /// Cached transform for faster conversion.
   std::string cachedTargetFrameId_, cachedSourceFrameId_;
   ros::Time cachedTime_;
-  Transform cachedTransformInTargetFrame_;
+  Transform cachedTransformInSourceFrame_;
   Transform cachedTransform_;
 };
 

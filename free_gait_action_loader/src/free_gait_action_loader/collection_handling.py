@@ -49,6 +49,7 @@ class CollectionList:
     def __init__(self, name):
         self.name = name
         self.collections = []
+        self.collections_to_merge = []
 
     def update(self):
         self.collections = []
@@ -71,12 +72,17 @@ class CollectionList:
 
                 parameters = load_file(file_path)
                 for collections_parameters in parameters[0][0]['collections']:
-                    collection = Collection(collections_parameters['collection'])
-                    self.collections.append(collection)
+                    if 'collection' in collections_parameters:
+                        collection = Collection(collections_parameters['collection'])
+                        self.collections.append(collection)
+                    elif 'add_to_collection' in collections_parameters:
+                        collection = Collection(collections_parameters['add_to_collection'])
+                        self.collections_to_merge.append(collection)
 
             except Exception:
                 rospy.logwarn("Unable to load collections [%s] from package [%s]."%(file_path, package))
 
+        self._merge_collections()
         self.collections = sorted(self.collections, key = lambda x: (x.id))
         return True
 
@@ -91,3 +97,11 @@ class CollectionList:
         for collection in self.collections:
             message.append(collection.to_ros_message())
         return message
+
+    def _merge_collections(self):
+        for collection_to_merge in self.collections_to_merge:
+            collection = self.get(collection_to_merge.id)
+            if not collection:
+                rospy.logwarn('Could not find collection with id "%s" to add actions to.'%(collection_to_merge.id))
+                continue
+            collection.action_ids.extend(collection_to_merge.action_ids)

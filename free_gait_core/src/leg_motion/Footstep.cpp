@@ -21,8 +21,8 @@ Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
       averageVelocity_(0.0),
-      liftOffVelocity_(0.0),
-      touchdownVelocity_(0.0),
+      liftOffSpeed_(0.0),
+      touchdownSpeed_(0.0),
       minimumDuration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
@@ -53,7 +53,7 @@ void Footstep::updateStartPosition(const Position& startPosition)
   start_ = startPosition;
 }
 
-bool Footstep::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
+bool Footstep::compute(bool isSupportLeg)
 {
   std::vector<ValueType> values;
   if (profileType_ == "triangle") {
@@ -62,6 +62,8 @@ bool Footstep::prepareComputation(const State& state, const Step& step, const Ad
     generateSquareKnots(values);
   } else if (profileType_ == "straight") {
     generateStraightKnots(values);
+  } else if (profileType_ == "trapezoid") {
+    generateTrapezoidKnots(values);
   } else {
     MELO_ERROR_STREAM("Swing profile of type '" << profileType_ << "' not supported.");
     return false;
@@ -70,13 +72,24 @@ bool Footstep::prepareComputation(const State& state, const Step& step, const Ad
   std::vector<Time> times;
   computeTiming(values, times);
   std::vector<DerivativeType> velocities, accelerations;
-  if (!ignoreContact_) touchdownVelocity_ = 0.0;
-  if (!state.isSupportLeg(limb_)) liftOffVelocity_ = 0.0;
-  computeVelocities(times, velocities, accelerations);
-
-  trajectory_.fitCurve(times, values, velocities, accelerations);
+  if (!ignoreContact_) touchdownSpeed_ = 0.0;
+  if (!isSupportLeg) liftOffSpeed_ = 0.0;
+  Vector surfaceNormal;
+  if (surfaceNormal_) {
+    surfaceNormal = *surfaceNormal_;
+  } else {
+    surfaceNormal =  Vector::UnitZ();
+  }
+  DerivativeType liftOffVelocity = liftOffSpeed_ * surfaceNormal.vector();
+  DerivativeType touchdownVelocity = -touchdownSpeed_ * surfaceNormal.vector();
+  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity);
   isComputed_ = true;
   return true;
+}
+
+bool Footstep::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
+{
+  return compute(state.isSupportLeg(limb_));
 }
 
 bool Footstep::needsComputation() const
@@ -101,6 +114,17 @@ double Footstep::getDuration() const
   return trajectory_.getMaxTime() - trajectory_.getMinTime();
 }
 
+void Footstep::setStartPosition(const std::string& frameId, const Position& start)
+{
+  frameId_ = frameId;
+  start_ = start;
+}
+
+const Position Footstep::getStartPosition() const
+{
+  return start_;
+}
+
 void Footstep::setTargetPosition(const std::string& frameId, const Position& target)
 {
   frameId_ = frameId;
@@ -118,6 +142,16 @@ const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const
   return frameId_;
 }
 
+void Footstep::setProfileType(const std::string& profileType)
+{
+  profileType_ = profileType;
+}
+
+const std::string& Footstep::getProfileType() const
+{
+  return profileType_;
+}
+
 void Footstep::setProfileHeight(const double profileHeight)
 {
   profileHeight_ = profileHeight;
@@ -126,6 +160,16 @@ void Footstep::setProfileHeight(const double profileHeight)
 double Footstep::getProfileHeight() const
 {
   return profileHeight_;
+}
+
+double Footstep::getAverageVelocity() const
+{
+  return averageVelocity_;
+}
+
+void Footstep::setAverageVelocity(double averageVelocity)
+{
+  averageVelocity_ = averageVelocity;
 }
 
 bool Footstep::isIgnoreContact() const
@@ -195,6 +239,30 @@ void Footstep::generateSquareKnots(std::vector<ValueType>& values) const
   values.push_back(target_.vector());
 }
 
+void Footstep::generateTrapezoidKnots(std::vector<ValueType>& values) const
+{
+  // Knot 1.
+  values.push_back(start_.vector());
+
+  // Knot 2.
+  Position knot2 = start_ + 0.1 * (target_ - start_);
+  knot2.z() = start_.z() + profileHeight_;
+  values.push_back(knot2.vector());
+
+  // Knot 4.
+  Position knot4 = start_ + 0.9 * (target_ - start_);
+  knot4.z() = target_.z() + profileHeight_;
+
+  // Knot 3.
+  Position knot3 = knot2 + 0.5 * (knot4 - knot2);
+  knot3.z() = knot4.z();
+  values.push_back(knot3.vector());
+  values.push_back(knot4.vector());
+
+  // Knot 6.
+  values.push_back(target_.vector());
+}
+
 void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const
 {
   times.push_back(0.0);
@@ -204,19 +272,6 @@ void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<T
     duration = duration < minimumDuration_ ? minimumDuration_ : duration;
     times.push_back(times[i-1] + duration);
   }
-}
-
-void Footstep::computeVelocities(const std::vector<Time>& times,
-                                 std::vector<DerivativeType>& velocities,
-                                 std::vector<DerivativeType>& accelerations) const
-{
-  DerivativeType undefined(DerivativeType::Constant(static_cast<double>(curves::PolynomialSplineContainer::undefinedValue)));
-  velocities.resize(times.size(), undefined);
-  *(velocities.begin()) = DerivativeType(0.0, 0.0, liftOffVelocity_);
-  *(velocities.end()-1) = DerivativeType(0.0, 0.0, touchdownVelocity_);
-  accelerations.resize(times.size(), undefined);
-  *(accelerations.begin()) = DerivativeType::Zero();
-  *(accelerations.end() - 1) = DerivativeType::Zero();
 }
 
 } /* namespace */
