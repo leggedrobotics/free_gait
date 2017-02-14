@@ -41,7 +41,7 @@ namespace rqt_free_gait {
 /*****************************************************************************/
 
 FreeGaitPlugin::FreeGaitPlugin()
-    : rqt_gui_cpp::Plugin(), widget_(0) {
+    : rqt_gui_cpp::Plugin(), widget_(0), descriptions_(20) {
 
   setObjectName("FreeGaitPlugin");
 
@@ -80,9 +80,6 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
       getNodeHandle().param<std::string>("/free_gait/action_server", "") +
           "/result", 10, &FreeGaitPlugin::resultCallback, this);
 
-  // Initialize name.
-  ui_.labelName->setText("<none>");
-
   // Initialize progress bar.
   ui_.progressBarAll->setMinimum(0);
   ui_.progressBarAll->setMaximum(1);
@@ -96,12 +93,6 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
 
   // Set icon.
   ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/done.svg"));
-
-  // Initialize foot labels.
-  ui_.labelLF->setStyleSheet("QLabel {color: black;}");
-  ui_.labelRF->setStyleSheet("QLabel {color: black;}");
-  ui_.labelLH->setStyleSheet("QLabel {color: black;}");
-  ui_.labelRH->setStyleSheet("QLabel {color: black;}");
 
   // Initialize buttons.
   ui_.pushButtonPlay->setEnabled(false);
@@ -198,7 +189,7 @@ void FreeGaitPlugin::resultCallback(
 
 void FreeGaitPlugin::updateNavigationButtonStates() {
   if (descriptions_.size() > 0) {
-    ui_.labelStepNumber->setText(QString::number(descriptionIndex_));
+    ui_.labelStepNumber->setText(QString::number(descriptions_.index()));
     ui_.labelStepMax->setText(QString::number(descriptions_.size() - 1));
   } else {
     ui_.labelStepNumber->setText("...");
@@ -215,11 +206,12 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
 
   ui_.pushButtonGoBottom->setEnabled(true);
   ui_.pushButtonGoDown->setEnabled(
-      descriptions_.size() > 1 && descriptionIndex_ != descriptions_.size()-1);
+      descriptions_.size() > 1 && descriptions_.index() !=
+                                      descriptions_.size()-1);
   ui_.pushButtonGoUp->setEnabled(
-      descriptions_.size() > 1 && descriptionIndex_ != 0);
+      descriptions_.size() > 1 && descriptions_.index() != 0);
   ui_.pushButtonGoTop->setEnabled(
-      descriptions_.size() > 1 && descriptionIndex_ != 0);
+      descriptions_.size() > 1 && descriptions_.index() != 0);
 }
 
 /*****************************************************************************/
@@ -232,14 +224,8 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
     int numDegrees = wheelEvent->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    descriptionIndex_ = descriptionIndex_ - numSteps;
-    if (descriptionIndex_ < 0) {
-      descriptionIndex_ = 0;
-    } else if (descriptionIndex_ >= descriptions_.size()) {
-      descriptionIndex_ = (int)descriptions_.size() - 1;
-    }
-    ui_.plainTextEditDescription->setPlainText(
-        descriptions_.at((unsigned long)descriptionIndex_));
+    descriptions_.moveIndex(-numSteps);
+    ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
     isOnBottom_ = false;
     updateNavigationButtonStates();
 
@@ -269,12 +255,8 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.progressBarStep->setFormat("");
 
   // reset text
-  isOnBottom_ = true;
-  descriptionIndex_ = 0;
-  descriptions_.clear();
   updateNavigationButtonStates();
 
-  ui_.labelName->setText("<none>");
   ui_.plainTextEditDescription->setPlainText(" ");
 
   // update status
@@ -308,43 +290,30 @@ void FreeGaitPlugin::updateFeedback(
   ui_.progressBarStep->setFormat(QString::fromStdString(progressBarText.str()));
 
   // update text
-  descriptions_.push_back(QString::fromStdString(
-      feedback.feedback.description));
-  if (isOnBottom_) {
-    descriptionIndex_ = (int)descriptions_.size() - 1;
-    ui_.plainTextEditDescription->setPlainText(descriptions_.back());
+  if (!feedback.feedback.description.empty()) {
+    description_t description;
+    description.message = QString::fromStdString(
+        feedback.feedback.description);
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    std::string timestamp = boost::posix_time::to_simple_string(now);
+    description.timestamp = QString::fromStdString(timestamp);
+    descriptions_.push_back(description);
+
+    if (isOnBottom_) {
+      descriptions_.moveIndexBack();
+      ui_.plainTextEditDescription->setPlainText(descriptions_.backQString());
+    } else {
+      ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+    }
   }
   updateNavigationButtonStates();
 
   // update legs
-  if (std::find(feedback.feedback.active_branches.begin(),
-                feedback.feedback.active_branches.end(), "LF_LEG") !=
-      feedback.feedback.active_branches.end()) {
-    ui_.labelLF->setStyleSheet("QLabel {color: green;}");
-  } else {
-    ui_.labelLF->setStyleSheet("QLabel {color: black;}");
+  QString activeBranches = "";
+  for (auto active_branch : feedback.feedback.active_branches) {
+    activeBranches += QString::fromStdString(active_branch) + "  ";
   }
-  if (std::find(feedback.feedback.active_branches.begin(),
-                feedback.feedback.active_branches.end(), "RF_LEG") !=
-      feedback.feedback.active_branches.end()) {
-    ui_.labelRF->setStyleSheet("QLabel {color: green;}");
-  } else {
-    ui_.labelRF->setStyleSheet("QLabel {color: black;}");
-  }
-  if (std::find(feedback.feedback.active_branches.begin(),
-                feedback.feedback.active_branches.end(), "LH_LEG") !=
-      feedback.feedback.active_branches.end()) {
-    ui_.labelLH->setStyleSheet("QLabel {color: green;}");
-  } else {
-    ui_.labelLH->setStyleSheet("QLabel {color: black;}");
-  }
-  if (std::find(feedback.feedback.active_branches.begin(),
-                feedback.feedback.active_branches.end(), "RH_LEG") !=
-      feedback.feedback.active_branches.end()) {
-    ui_.labelRH->setStyleSheet("QLabel {color: green;}");
-  } else {
-    ui_.labelRH->setStyleSheet("QLabel {color: black;}");
-  }
+  ui_.labelActiveBranches->setText(activeBranches);
 
   // update status
   switch (feedback.feedback.status) {
@@ -377,10 +346,7 @@ void FreeGaitPlugin::updateResult(
   ui_.progressBarStep->setFormat("");
 
   // reset legs
-  ui_.labelLF->setStyleSheet("QLabel {color: black;}");
-  ui_.labelRF->setStyleSheet("QLabel {color: black;}");
-  ui_.labelLH->setStyleSheet("QLabel {color: black;}");
-  ui_.labelRH->setStyleSheet("QLabel {color: black;}");
+  ui_.labelActiveBranches->setText("...");
 
   // reset status
   switch (result.result.status) {
@@ -400,37 +366,32 @@ void FreeGaitPlugin::updateResult(
 }
 
 void FreeGaitPlugin::onPushButtonGoTop() {
-  descriptionIndex_ = 0;
-  ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at((unsigned long)descriptionIndex_));
+  descriptions_.moveIndexFront();
+  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoUp() {
-  descriptionIndex_ = (descriptionIndex_ - 1 >= 0 ?
-                       descriptionIndex_ - 1 : 0);
-  ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at((unsigned long)descriptionIndex_));
+  descriptions_.moveIndex(-1);
+  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoDown() {
-  descriptionIndex_ = (int)(descriptionIndex_ + 1 < descriptions_.size() ?
-                            descriptionIndex_ + 1 : descriptions_.size() - 1);
-  ui_.plainTextEditDescription->setPlainText(
-      descriptions_.at((unsigned long)descriptionIndex_));
+  descriptions_.moveIndex(1);
+  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
 }
 
 void FreeGaitPlugin::onPushButtonGoBottom() {
-  descriptionIndex_ = (int)descriptions_.size() - 1;
-  ui_.plainTextEditDescription->setPlainText(descriptions_.back());
+  descriptions_.moveIndexBack();
+  ui_.plainTextEditDescription->setPlainText(descriptions_.backQString());
   isOnBottom_ = true;
 
   updateNavigationButtonStates();

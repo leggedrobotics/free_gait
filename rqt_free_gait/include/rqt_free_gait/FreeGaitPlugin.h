@@ -32,11 +32,15 @@
 
 #pragma once
 
+#include "rqt_free_gait/CircularBuffer.h"
+
 #include <rqt_gui_cpp/plugin.h>
 #include <ui_FreeGaitPlugin.h>
 
 #include <atomic>
 #include <mutex>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -109,9 +113,9 @@ protected:
 
   std::atomic<bool> isActionRunning_;
 
-  std::vector<QString> descriptions_;
-  int descriptionIndex_ = 0;
   bool isOnBottom_ = true;
+
+  CircularBuffer descriptions_;
 
   /***************************************************************************/
   /** Callbacks                                                             **/

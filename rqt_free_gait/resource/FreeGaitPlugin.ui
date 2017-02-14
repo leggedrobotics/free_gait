@@ -26,7 +26,7 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="2">
+     <item row="0" column="1">
       <widget class="QProgressBar" name="progressBarAll">
        <property name="enabled">
         <bool>true</bool>
@@ -39,7 +39,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="2" column="1">
       <widget class="QProgressBar" name="progressBarStep">
        <property name="value">
         <number>24</number>
@@ -49,7 +49,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="label_6">
        <property name="minimumSize">
         <size>
@@ -62,7 +62,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="minimumSize">
         <size>
@@ -75,7 +75,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label_4">
        <property name="minimumSize">
         <size>
@@ -88,14 +88,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="labelName">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="label_8">
        <property name="minimumSize">
         <size>
@@ -104,120 +97,26 @@
         </size>
        </property>
        <property name="text">
-        <string>Swing Legs</string>
+        <string>Active Branches</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
+     <item row="1" column="1">
+      <widget class="QLabel" name="labelStatus">
        <property name="text">
-        <string>Name</string>
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/icons/16x16/done.svg</pixmap>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>5</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="4" column="2">
+     <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="labelLF">
+        <widget class="QLabel" name="labelActiveBranches">
          <property name="text">
-          <string>LF</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="labelRF">
-         <property name="text">
-          <string>RF</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="labelLH">
-         <property name="text">
-          <string>LH</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="labelRH">
-         <property name="text">
-          <string>RH</string>
+          <string>...</string>
          </property>
         </widget>
        </item>
@@ -235,16 +134,6 @@
         </spacer>
        </item>
       </layout>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="labelStatus">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="resources.qrc">:/icons/16x16/done.svg</pixmap>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>

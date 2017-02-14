@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   rqt_gui_cpp
 )
 
+find_package(Boost REQUIRED COMPONENTS date_time)
+
 if ("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)
 else()
@@ -25,10 +27,12 @@ endif()
 
 set(${PROJECT_NAME}_SRCS
   src/${PROJECT_NAME}/FreeGaitPlugin.cpp
+  src/rqt_free_gait/CircularBuffer.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
   include/${PROJECT_NAME}/FreeGaitPlugin.h
+  include/rqt_free_gait/CircularBuffer.h
 )
 
 set(${PROJECT_NAME}_UIS
@@ -45,9 +49,19 @@ set(${PROJECT_NAME}_INCLUDE_DIRECTORIES
 )
 
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS
+    include
 #  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS rqt_gui rqt_gui_cpp roscpp rospy std_msgs free_gait_msgs rqt_gui rqt_gui_cpp
+  CATKIN_DEPENDS
+    rqt_gui
+    rqt_gui_cpp
+    roscpp rospy
+    std_msgs
+    free_gait_msgs
+    rqt_gui
+    rqt_gui_cpp
+  DEPENDS
+    boost
 )
 catkin_python_setup()
 
@@ -63,7 +77,8 @@ endif()
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRECTORIES} 
   ${catkin_INCLUDE_DIRS} 
-  include 
+  include
+  ${Boost_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -76,6 +91,7 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 if ("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
