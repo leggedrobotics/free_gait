@@ -111,9 +111,7 @@ void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
   Executor::Lock lock(executor_->getMutex());
-  if (executor_->getQueue().empty()) return;
-  if (executor_->getQueue().size() <= 1) return;
-  executor_->getQueue().clearNextSteps();
+  if (!executor_->stop()) return;
   isPreempting_ = true;
 }
 
