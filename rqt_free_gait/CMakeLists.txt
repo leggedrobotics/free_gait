@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  std_srvs
   free_gait_msgs
   rqt_gui
   rqt_gui_cpp
@@ -28,11 +29,13 @@ endif()
 set(${PROJECT_NAME}_SRCS
   src/${PROJECT_NAME}/FreeGaitPlugin.cpp
   src/rqt_free_gait/CircularBuffer.cpp
+  src/rqt_free_gait/WorkerThreadPausePlay.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
   include/${PROJECT_NAME}/FreeGaitPlugin.h
   include/rqt_free_gait/CircularBuffer.h
+  include/rqt_free_gait/WorkerThreadPausePlay.h
 )
 
 set(${PROJECT_NAME}_UIS
@@ -57,6 +60,7 @@ catkin_package(
     rqt_gui_cpp
     roscpp rospy
     std_msgs
+    std_srvs
     free_gait_msgs
     rqt_gui
     rqt_gui_cpp

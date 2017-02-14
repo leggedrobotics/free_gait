@@ -33,6 +33,7 @@
 #pragma once
 
 #include "rqt_free_gait/CircularBuffer.h"
+#include "rqt_free_gait/WorkerThreadPausePlay.h"
 
 #include <rqt_gui_cpp/plugin.h>
 #include <ui_FreeGaitPlugin.h>
@@ -48,6 +49,9 @@
 #include <free_gait_msgs/ExecuteStepsActionGoal.h>
 #include <free_gait_msgs/ExecuteStepsActionFeedback.h>
 #include <free_gait_msgs/ExecuteStepsActionResult.h>
+
+#include <std_srvs/SetBool.h>
+#include <std_srvs/Trigger.h>
 
 #include <QWidget>
 #include <QObject>
@@ -108,6 +112,9 @@ protected:
   ros::Subscriber feedbackSubscriber_;
   ros::Subscriber resultSubscriber_;
 
+  ros::ServiceClient pauseClient_;
+  ros::ServiceClient stopClient_;
+
   const double progressBarMultiplicator_ = 1000.0;
   int totalSteps_ = 0;
 
@@ -160,6 +167,18 @@ protected slots:
   void onPushButtonGoDown();
 
   void onPushButtonGoBottom();
+
+  void onPushButtonPlay();
+
+  void onPushButtonPause();
+
+  void onPushButtonStop();
+
+  void onPushButtonPlayResult(bool isOk, std_srvs::SetBoolResponse response);
+
+  void onPushButtonPauseResult(bool isOk, std_srvs::SetBoolResponse response);
+
+  void onPushButtonStopResult();
 
 signals:
 

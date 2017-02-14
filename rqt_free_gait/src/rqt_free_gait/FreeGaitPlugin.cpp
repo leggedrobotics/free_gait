@@ -41,7 +41,7 @@ namespace rqt_free_gait {
 /*****************************************************************************/
 
 FreeGaitPlugin::FreeGaitPlugin()
-    : rqt_gui_cpp::Plugin(), widget_(0), descriptions_(20) {
+    : rqt_gui_cpp::Plugin(), widget_(0), descriptions_(1000) {
 
   setObjectName("FreeGaitPlugin");
 
@@ -51,6 +51,8 @@ FreeGaitPlugin::FreeGaitPlugin()
       ("free_gait_msgs::ExecuteStepsActionFeedback");
   qRegisterMetaType<free_gait_msgs::ExecuteStepsActionResult>
       ("free_gait_msgs::ExecuteStepsActionResult");
+  qRegisterMetaType<std_srvs::SetBoolResponse>
+      ("std_srvs::SetBoolResponse");
 }
 
 /*****************************************************************************/
@@ -79,6 +81,11 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
       free_gait_msgs::ExecuteStepsActionResult>(
       getNodeHandle().param<std::string>("/free_gait/action_server", "") +
           "/result", 10, &FreeGaitPlugin::resultCallback, this);
+
+  // Initialize service clients.
+  pauseClient_ = getNodeHandle().serviceClient<std_srvs::SetBool>(
+      getNodeHandle().param<std::string>(
+          "/free_gait/pause_execution_service", ""), false);
 
   // Initialize progress bar.
   ui_.progressBarAll->setMinimum(0);
@@ -130,6 +137,13 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
           this, SLOT(onPushButtonGoDown()));
   connect(ui_.pushButtonGoBottom, SIGNAL(clicked()),
           this, SLOT(onPushButtonGoBottom()));
+
+  connect(ui_.pushButtonPlay, SIGNAL(clicked()),
+          this, SLOT(onPushButtonPlay()));
+  connect(ui_.pushButtonPause, SIGNAL(clicked()),
+          this, SLOT(onPushButtonPause()));
+  connect(ui_.pushButtonStop, SIGNAL(clicked()),
+          this, SLOT(onPushButtonStop()));
 
   isActionRunning_ = false;
 }
@@ -259,6 +273,10 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
 
   ui_.plainTextEditDescription->setPlainText(" ");
 
+  // pause/play button
+  ui_.pushButtonPause->setEnabled(true);
+  ui_.pushButtonPlay->setEnabled(false);
+
   // update status
   ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/play.svg"));
 }
@@ -363,6 +381,10 @@ void FreeGaitPlugin::updateResult(
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/warning.svg"));
       break;
   }
+
+  // pause/play button
+  ui_.pushButtonPause->setEnabled(false);
+  ui_.pushButtonPlay->setEnabled(false);
 }
 
 void FreeGaitPlugin::onPushButtonGoTop() {
@@ -395,6 +417,74 @@ void FreeGaitPlugin::onPushButtonGoBottom() {
   isOnBottom_ = true;
 
   updateNavigationButtonStates();
+}
+
+void FreeGaitPlugin::onPushButtonPlay() {
+  ui_.pushButtonPause->setEnabled(false);
+  ui_.pushButtonPlay->setEnabled(false);
+
+  std_srvs::SetBoolRequest request;
+  request.data = false;
+
+  WorkerThreadPausePlay *workerThreadPausePlay = new WorkerThreadPausePlay;
+  connect(workerThreadPausePlay,
+          SIGNAL(result(bool, std_srvs::SetBoolResponse)),
+          this,
+          SLOT(onPushButtonPlayResult(bool, std_srvs::SetBoolResponse)));
+  connect(workerThreadPausePlay, SIGNAL(finished()),
+          workerThreadPausePlay, SLOT(deleteLater()));
+  workerThreadPausePlay->setClient(pauseClient_);
+  workerThreadPausePlay->setRequest(request);
+  workerThreadPausePlay->start();
+}
+
+void FreeGaitPlugin::onPushButtonPause() {
+  ui_.pushButtonPause->setEnabled(false);
+  ui_.pushButtonPlay->setEnabled(false);
+
+  std_srvs::SetBoolRequest request;
+  request.data = true;
+
+  WorkerThreadPausePlay *workerThreadPausePlay = new WorkerThreadPausePlay;
+  connect(workerThreadPausePlay,
+          SIGNAL(result(bool, std_srvs::SetBoolResponse)),
+          this,
+          SLOT(onPushButtonPauseResult(bool, std_srvs::SetBoolResponse)));
+  connect(workerThreadPausePlay, SIGNAL(finished()),
+          workerThreadPausePlay, SLOT(deleteLater()));
+  workerThreadPausePlay->setClient(pauseClient_);
+  workerThreadPausePlay->setRequest(request);
+  workerThreadPausePlay->start();
+}
+
+void FreeGaitPlugin::onPushButtonStop() {
+
+}
+
+void FreeGaitPlugin::onPushButtonPlayResult(
+    bool isOk, std_srvs::SetBoolResponse response) {
+  if (isOk && response.success) {
+    ui_.pushButtonPause->setEnabled(true);
+    ui_.pushButtonPlay->setEnabled(false);
+  } else {
+    ui_.pushButtonPause->setEnabled(false);
+    ui_.pushButtonPlay->setEnabled(true);
+  }
+}
+
+void FreeGaitPlugin::onPushButtonPauseResult(
+    bool isOk, std_srvs::SetBoolResponse response) {
+  if (isOk && response.success) {
+    ui_.pushButtonPause->setEnabled(false);
+    ui_.pushButtonPlay->setEnabled(true);
+  } else {
+    ui_.pushButtonPause->setEnabled(true);
+    ui_.pushButtonPlay->setEnabled(false);
+  }
+}
+
+void FreeGaitPlugin::onPushButtonStopResult() {
+
 }
 
 } // namespace
