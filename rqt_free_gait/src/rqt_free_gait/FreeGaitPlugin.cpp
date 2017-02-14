@@ -317,30 +317,30 @@ void FreeGaitPlugin::updateFeedback(
   updateNavigationButtonStates();
 
   // update legs
-  if (std::find(feedback.feedback.swing_leg_names.begin(),
-                feedback.feedback.swing_leg_names.end(), "LF_LEG") !=
-      feedback.feedback.swing_leg_names.end()) {
+  if (std::find(feedback.feedback.active_branches.begin(),
+                feedback.feedback.active_branches.end(), "LF_LEG") !=
+      feedback.feedback.active_branches.end()) {
     ui_.labelLF->setStyleSheet("QLabel {color: green;}");
   } else {
     ui_.labelLF->setStyleSheet("QLabel {color: black;}");
   }
-  if (std::find(feedback.feedback.swing_leg_names.begin(),
-                feedback.feedback.swing_leg_names.end(), "RF_LEG") !=
-      feedback.feedback.swing_leg_names.end()) {
+  if (std::find(feedback.feedback.active_branches.begin(),
+                feedback.feedback.active_branches.end(), "RF_LEG") !=
+      feedback.feedback.active_branches.end()) {
     ui_.labelRF->setStyleSheet("QLabel {color: green;}");
   } else {
     ui_.labelRF->setStyleSheet("QLabel {color: black;}");
   }
-  if (std::find(feedback.feedback.swing_leg_names.begin(),
-                feedback.feedback.swing_leg_names.end(), "LH_LEG") !=
-      feedback.feedback.swing_leg_names.end()) {
+  if (std::find(feedback.feedback.active_branches.begin(),
+                feedback.feedback.active_branches.end(), "LH_LEG") !=
+      feedback.feedback.active_branches.end()) {
     ui_.labelLH->setStyleSheet("QLabel {color: green;}");
   } else {
     ui_.labelLH->setStyleSheet("QLabel {color: black;}");
   }
-  if (std::find(feedback.feedback.swing_leg_names.begin(),
-                feedback.feedback.swing_leg_names.end(), "RH_LEG") !=
-      feedback.feedback.swing_leg_names.end()) {
+  if (std::find(feedback.feedback.active_branches.begin(),
+                feedback.feedback.active_branches.end(), "RH_LEG") !=
+      feedback.feedback.active_branches.end()) {
     ui_.labelRH->setStyleSheet("QLabel {color: green;}");
   } else {
     ui_.labelRH->setStyleSheet("QLabel {color: black;}");

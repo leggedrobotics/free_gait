@@ -20,6 +20,7 @@
 
 // STD
 #include <memory>
+#include <string>
 
 // Boost
 #include <boost/thread/recursive_mutex.hpp>
@@ -50,6 +51,11 @@ class Executor
    * @return true if successful, false otherwise.
    */
   bool advance(double dt);
+  void pause(bool shouldPause);
+
+  void addToFeedback(const std::string& feedbackDescription);
+  const std::string& getFeedbackDescription() const;
+  void clearFeedbackDescription();
 
   void reset();
 
@@ -77,11 +83,13 @@ class Executor
 
   Mutex mutex_;
   bool isInitialized_;
+  bool isPausing_;
   StepQueue queue_;
   std::shared_ptr<StepCompleter> completer_;
   std::shared_ptr<StepComputer> computer_;
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
+  std::string feedbackDescription_;
 };
 
 } /* namespace free_gait */

@@ -36,6 +36,7 @@ class AdapterBase
   virtual const std::vector<BranchEnum>& getBranches() const = 0;
   virtual LimbEnum getLimbEnumFromLimbString(const std::string& limb) const = 0;
   virtual std::string getLimbStringFromLimbEnum(const LimbEnum& limb) const = 0;
+  virtual std::string getBaseString() const = 0;
   virtual bool getLimbJointPositionsFromPositionBaseToFootInBaseFrame(
       const Position& positionBaseToFootInBaseFrame, const LimbEnum& limb,
       JointPositionsLeg& jointPositions) const = 0;
