@@ -107,8 +107,6 @@ protected:
   Ui::FreeGaitPluginWidget ui_;
   QWidget *widget_;
 
-  ros::NodeHandle nh_;
-
   ros::Subscriber goalSubscriber_;
   ros::Subscriber feedbackSubscriber_;
   ros::Subscriber resultSubscriber_;
@@ -117,9 +115,6 @@ protected:
   ros::ServiceClient stopClient_;
 
   const double progressBarMultiplicator_ = 1000.0;
-  int totalSteps_ = 0;
-
-  std::atomic<bool> isActionRunning_;
 
   bool isOnBottom_ = true;
 

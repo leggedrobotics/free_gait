@@ -33,6 +33,7 @@
 #pragma once
 
 #include <QString>
+#include <QRegExp>
 #include <deque>
 
 namespace rqt_free_gait {
@@ -91,6 +92,11 @@ private:
   unsigned int length_;
   std::deque<description_t> descriptions_;
 
+  /***************************************************************************/
+  /** Methods                                                               **/
+  /***************************************************************************/
+
+  QString composeDescription(description_t description);
 };
 
 } // namespace

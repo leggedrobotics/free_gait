@@ -51,6 +51,10 @@ CircularBuffer::~CircularBuffer() {
 /*****************************************************************************/
 
 void CircularBuffer::push_back(description_t description) {
+  QRegExp regExp("\n");
+  regExp.setPatternSyntax(QRegExp::FixedString);
+  description.timestamp.replace(regExp, "<br>");
+  description.message.replace(regExp, "<br>");
   descriptions_.push_back(description);
   if (descriptions_.size() > length_) {
     descriptions_.pop_front();
@@ -86,21 +90,15 @@ description_t CircularBuffer::current() {
 }
 
 QString CircularBuffer::backQString() {
-  return descriptions_.back().timestamp +
-      "\n" +
-      descriptions_.back().message;
+  return composeDescription(descriptions_.back());
 }
 
 QString CircularBuffer::frontQString() {
-  return descriptions_.front().timestamp +
-      "\n" +
-      descriptions_.front().message;
+  return composeDescription(descriptions_.front());
 }
 
 QString CircularBuffer::currentQString() {
-  return descriptions_[index_].timestamp +
-      "\n" +
-      descriptions_[index_].message;
+  return composeDescription(descriptions_[index_]);
 }
 
 int CircularBuffer::index() {
@@ -115,6 +113,12 @@ int CircularBuffer::moveIndexBack() {
 int CircularBuffer::moveIndexFront() {
   index_ = 0;
   return index_;
+}
+
+QString CircularBuffer::composeDescription(description_t description) {
+  QString str = "<html><b>" + description.timestamp + "</b>" + "<br>" +
+      description.message + "</html>";
+  return str;
 }
 
 } // namespace

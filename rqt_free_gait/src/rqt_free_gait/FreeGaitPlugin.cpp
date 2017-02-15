@@ -150,8 +150,6 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
           this, SLOT(onPushButtonPause()));
   connect(ui_.pushButtonStop, SIGNAL(clicked()),
           this, SLOT(onPushButtonStop()));
-
-  isActionRunning_ = false;
 }
 
 void FreeGaitPlugin::shutdownPlugin() {
@@ -180,26 +178,16 @@ void FreeGaitPlugin::restoreSettings(
 
 void FreeGaitPlugin::goalCallback(
     const free_gait_msgs::ExecuteStepsActionGoalConstPtr &goal) {
-  totalSteps_ = goal->goal.steps.size();
-
   emit updateGoalSignal(*goal);
-
-  isActionRunning_ = true;
 }
 
 void FreeGaitPlugin::feedbackCallback(
     const free_gait_msgs::ExecuteStepsActionFeedbackConstPtr &feedback) {
-  if (!isActionRunning_) {
-    return;
-  }
-
   emit updateFeedbackSignal(*feedback);
 }
 
 void FreeGaitPlugin::resultCallback(
     const free_gait_msgs::ExecuteStepsActionResultConstPtr &result) {
-  isActionRunning_ = false;
-
   emit updateResultSignal(*result);
 }
 
@@ -245,7 +233,7 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
     int numSteps = numDegrees / 15;
 
     descriptions_.moveIndex(-numSteps);
-    ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+    ui_.plainTextEditDescription->setText(descriptions_.currentQString());
     isOnBottom_ = false;
     updateNavigationButtonStates();
 
@@ -260,12 +248,13 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
 
 void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   // init progress bar
+  int totalSteps = (int)goal.goal.steps.size();
   ui_.progressBarAll->setMinimum(0);
   ui_.progressBarAll->setMaximum(
-      (int)(progressBarMultiplicator_ * totalSteps_));
+      (int)(progressBarMultiplicator_ * totalSteps));
   ui_.progressBarAll->setValue(0);
   std::stringstream progressBarTextFreeGait;
-  progressBarTextFreeGait << 0 << "/" << totalSteps_ << " steps";
+  progressBarTextFreeGait << 0 << "/" << totalSteps << " steps";
   ui_.progressBarAll->setFormat(QString::fromStdString(
       progressBarTextFreeGait.str()));
 
@@ -277,7 +266,7 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   // reset text
   updateNavigationButtonStates();
 
-  ui_.plainTextEditDescription->setPlainText(" ");
+  ui_.plainTextEditDescription->setText(" ");
 
   // pause/play button
   ui_.pushButtonStop->setEnabled(true);
@@ -291,13 +280,18 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
 void FreeGaitPlugin::updateFeedback(
     free_gait_msgs::ExecuteStepsActionFeedback feedback) {
   // update progress bar
-  double freeGaitProgress = ((double)totalSteps_ -
-      (double)feedback.feedback.queue_size) + feedback.feedback.phase;
+  double totalSteps = (double)feedback.feedback.number_of_steps_in_goal;
+  double stepNumber = (double)feedback.feedback.step_number;
+  if (stepNumber < 0.0) {
+    stepNumber = 0.0;
+  }
+  double freeGaitProgress = stepNumber + feedback.feedback.phase;
+  ui_.progressBarAll->setMaximum((int)(progressBarMultiplicator_ * totalSteps));
   ui_.progressBarAll->setValue((int)(
       progressBarMultiplicator_ * freeGaitProgress));
   std::stringstream progressBarTextFreeGait;
-  progressBarTextFreeGait << (totalSteps_ - feedback.feedback.queue_size)
-                          << "/" << totalSteps_ << " steps";
+  progressBarTextFreeGait << (int)stepNumber << "/"
+                          << (int)totalSteps << " steps";
   ui_.progressBarAll->setFormat(QString::fromStdString(
       progressBarTextFreeGait.str()));
 
@@ -326,9 +320,9 @@ void FreeGaitPlugin::updateFeedback(
 
     if (isOnBottom_) {
       descriptions_.moveIndexBack();
-      ui_.plainTextEditDescription->setPlainText(descriptions_.backQString());
+      ui_.plainTextEditDescription->setText(descriptions_.backQString());
     } else {
-      ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+      ui_.plainTextEditDescription->setText(descriptions_.currentQString());
     }
   }
   updateNavigationButtonStates();
@@ -374,6 +368,7 @@ void FreeGaitPlugin::updateResult(
   ui_.labelActiveBranches->setText("...");
 
   // reset status
+  bool setButtons = true;
   switch (result.result.status) {
     case free_gait_msgs::ExecuteStepsResult::RESULT_REACHED:
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/done.svg"));
@@ -382,6 +377,7 @@ void FreeGaitPlugin::updateResult(
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/failed.svg"));
       break;
     case free_gait_msgs::ExecuteStepsResult::RESULT_UNKNOWN:
+      setButtons = false;
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/unknown.svg"));
       break;
     default:
@@ -389,15 +385,17 @@ void FreeGaitPlugin::updateResult(
       break;
   }
 
-  // pause/play button
-  ui_.pushButtonStop->setEnabled(false);
-  ui_.pushButtonPause->setEnabled(false);
-  ui_.pushButtonPlay->setEnabled(false);
+  if (setButtons) {
+    // pause/play button
+    ui_.pushButtonStop->setEnabled(false);
+    ui_.pushButtonPause->setEnabled(false);
+    ui_.pushButtonPlay->setEnabled(false);
+  }
 }
 
 void FreeGaitPlugin::onPushButtonGoTop() {
   descriptions_.moveIndexFront();
-  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+  ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
@@ -405,7 +403,7 @@ void FreeGaitPlugin::onPushButtonGoTop() {
 
 void FreeGaitPlugin::onPushButtonGoUp() {
   descriptions_.moveIndex(-1);
-  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+  ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
@@ -413,7 +411,7 @@ void FreeGaitPlugin::onPushButtonGoUp() {
 
 void FreeGaitPlugin::onPushButtonGoDown() {
   descriptions_.moveIndex(1);
-  ui_.plainTextEditDescription->setPlainText(descriptions_.currentQString());
+  ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
 
   updateNavigationButtonStates();
@@ -421,7 +419,7 @@ void FreeGaitPlugin::onPushButtonGoDown() {
 
 void FreeGaitPlugin::onPushButtonGoBottom() {
   descriptions_.moveIndexBack();
-  ui_.plainTextEditDescription->setPlainText(descriptions_.backQString());
+  ui_.plainTextEditDescription->setText(descriptions_.backQString());
   isOnBottom_ = true;
 
   updateNavigationButtonStates();
