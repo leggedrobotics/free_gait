@@ -20,7 +20,8 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       state_(state),
       isInitialized_(false),
       isPausing_(false),
-      preemptionType_(PreemptionType::PREEMPT_STEP)
+      preemptionType_(PreemptionType::PREEMPT_STEP),
+      firstFeedbackDescription_(true)
 {
 }
 
@@ -142,7 +143,9 @@ bool Executor::stop()
 
 void Executor::addToFeedback(const std::string& feedbackDescription)
 {
-  feedbackDescription_ += "\n\n--------\n\n" + feedbackDescription;
+  if (!firstFeedbackDescription_) feedbackDescription_ += "\n\n--------\n\n";
+  feedbackDescription_ += feedbackDescription;
+  firstFeedbackDescription_ = false;
 }
 
 const std::string& Executor::getFeedbackDescription() const
@@ -153,6 +156,7 @@ const std::string& Executor::getFeedbackDescription() const
 void Executor::clearFeedbackDescription()
 {
   feedbackDescription_.clear();
+  firstFeedbackDescription_ = true;
 }
 
 void Executor::reset()
@@ -160,6 +164,7 @@ void Executor::reset()
   queue_.clear();
   resetStateWithRobot();
   adapter_->resetExtrasWithRobot(queue_, *state_);
+  clearFeedbackDescription();
 }
 
 const StepQueue& Executor::getQueue() const

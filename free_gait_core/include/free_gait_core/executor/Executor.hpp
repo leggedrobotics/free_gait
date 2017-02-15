@@ -105,7 +105,7 @@ class Executor
   std::shared_ptr<AdapterBase> adapter_;
   std::shared_ptr<State> state_;
   std::string feedbackDescription_;
-
+  bool firstFeedbackDescription_;
 };
 
 } /* namespace free_gait */
