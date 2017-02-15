@@ -51,9 +51,10 @@ CircularBuffer::~CircularBuffer() {
 /*****************************************************************************/
 
 void CircularBuffer::push_back(description_t description) {
-  QRegExp regExp("\n");
-  regExp.setPatternSyntax(QRegExp::FixedString);
-  description.timestamp.replace(regExp, "<br>");
+  QRegExp regExp;
+  regExp.setPattern("\\n[-]{3,10}\\n");
+  description.message.replace(regExp, "<hr>");
+  regExp.setPattern("\\n");
   description.message.replace(regExp, "<br>");
   descriptions_.push_back(description);
   if (descriptions_.size() > length_) {
@@ -116,7 +117,7 @@ int CircularBuffer::moveIndexFront() {
 }
 
 QString CircularBuffer::composeDescription(description_t description) {
-  QString str = "<html><b>" + description.timestamp + "</b>" + "<br>" +
+  QString str = "<html><b>" + description.timestamp + "</b>" + "<hr>" +
       description.message + "</html>";
   return str;
 }
