@@ -97,6 +97,7 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   friend std::ostream& operator << (std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory);
   friend class StepCompleter;
   friend class StepRosConverter;
+  friend class StepFrameConverter;
 
  private:
   bool ignoreContact_;

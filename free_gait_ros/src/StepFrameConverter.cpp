@@ -46,6 +46,12 @@ bool StepFrameConverter::adaptCoordinates(Step& step, const std::string& sourceF
       if (!adaptCoordinates(footstep, sourceFrameId, targetFrameId, transformInSourceFrame, time)) return false;
     }
 
+    // EndEffectorTrajectory.
+    if (legMotion.second->getType() == LegMotionBase::Type::EndEffectorTrajectory) {
+      EndEffectorTrajectory& endEffectorTrajectory = dynamic_cast<EndEffectorTrajectory&>(*(legMotion.second));
+      if (!adaptCoordinates(endEffectorTrajectory, sourceFrameId, targetFrameId, transformInSourceFrame, time)) return false;
+    }
+
   }
 
 //  // Base motion.
@@ -72,6 +78,23 @@ bool StepFrameConverter::adaptCoordinates(Footstep& footstep, const std::string&
     if (!getTransform(sourceFrameId, targetFrameId, transformInSourceFrame, time, transform)) return false;
     footstep.target_ = transform.transform(footstep.target_);
     footstep.frameId_ = targetFrameId;
+  }
+
+  return true;
+}
+
+bool StepFrameConverter::adaptCoordinates(EndEffectorTrajectory& endEffectorTrajectory, const std::string& sourceFrameId,
+                                          const std::string& targetFrameId,
+                                          const Transform& transformInSourceFrame,
+                                          const ros::Time& time)
+{
+  Transform transform;
+  if (endEffectorTrajectory.getFrameId(ControlLevel::Position) == sourceFrameId) {
+    if (!getTransform(sourceFrameId, targetFrameId, transformInSourceFrame, time, transform)) return false;
+    for (auto& knot : endEffectorTrajectory.values_.at(ControlLevel::Position)){
+      knot = (transform.transform(Position(knot))).vector();
+    }
+    endEffectorTrajectory.frameIds_.at(ControlLevel::Position) = targetFrameId;
   }
 
   return true;

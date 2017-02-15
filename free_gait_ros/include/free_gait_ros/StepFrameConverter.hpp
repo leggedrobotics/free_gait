@@ -41,6 +41,11 @@ class StepFrameConverter
                         const Transform& transformInSourceFrame = Transform(),
                         const ros::Time& time = ros::Time(0));
 
+  bool adaptCoordinates(EndEffectorTrajectory& endEffectorTrajectory, const std::string& sourceFrameId,
+                        const std::string& targetFrameId,
+                        const Transform& transformInSourceFrame = Transform(),
+                        const ros::Time& time = ros::Time(0));
+
  private:
 
   bool getTransform(const std::string& sourceFrameId, const std::string& targetFrameId,
