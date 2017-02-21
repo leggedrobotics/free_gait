@@ -82,6 +82,7 @@ add_library(${PROJECT_NAME}
    src/step/StepQueue.cpp
    src/step/StepCompleter.cpp
    src/step/StepComputer.cpp
+   src/step/CustomCommand.cpp
    src/executor/Executor.cpp
    src/executor/BatchExecutor.cpp
    src/executor/State.cpp

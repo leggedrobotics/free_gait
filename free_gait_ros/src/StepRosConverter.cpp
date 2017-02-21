@@ -93,6 +93,13 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& st
     step.addBaseMotion(baseTrajectory);
   }
 
+  // Custom command.
+  for (const auto& customCommandMessage : message.custom_command) {
+    CustomCommand customCommand;
+    if (!fromMessage(customCommandMessage, customCommand)) return false;
+    step.addCustomCommand(customCommand);
+  }
+
   return true;
 }
 
@@ -398,6 +405,14 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseTrajectory& message
     }
   }
 
+  return true;
+}
+
+bool StepRosConverter::fromMessage(const free_gait_msgs::CustomCommand& message, CustomCommand& customCommand)
+{
+  customCommand.type_ = message.type;
+  customCommand.command_ = message.command;
+  customCommand.duration_ = ros::Duration(message.duration).toSec();
   return true;
 }
 

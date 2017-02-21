@@ -32,6 +32,7 @@ Step::Step()
 {
   legMotions_.clear();
   baseMotion_.reset();
+  customCommands_.clear();
 }
 
 Step::~Step()
@@ -42,7 +43,8 @@ Step::Step(const Step& other) :
     time_(other.time_),
     totalDuration_(other.totalDuration_),
     isUpdated_(other.isUpdated_),
-    isComputed_(other.isComputed_)
+    isComputed_(other.isComputed_),
+    customCommands_(other.customCommands_)
 {
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
@@ -57,6 +59,7 @@ Step& Step::operator=(const Step& other)
   totalDuration_ = other.time_;
   isUpdated_ = other.isUpdated_;
   isComputed_ = other.isComputed_;
+  customCommands_ = other.customCommands_;
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
   for (const auto& legMotion : other.legMotions_) {
@@ -81,6 +84,13 @@ void Step::addLegMotion(const LegMotionBase& legMotion)
 void Step::addBaseMotion(const BaseMotionBase& baseMotion)
 {
   baseMotion_ = std::move(baseMotion.clone());
+  isUpdated_ = false;
+  isComputed_ = false;
+}
+
+void Step::addCustomCommand(const CustomCommand& customCommand)
+{
+  customCommands_.push_back(customCommand);
   isUpdated_ = false;
   isComputed_ = false;
 }
@@ -131,6 +141,10 @@ bool Step::update()
     if (baseMotion_->getDuration() > totalDuration_)
       totalDuration_ = baseMotion_->getDuration();
   }
+  for (const auto& customCommand : customCommands_) {
+    if (customCommand.getDuration() > totalDuration_)
+      totalDuration_ = customCommand.getDuration();
+  }
   return isUpdated_ = true;
 }
 
@@ -172,6 +186,16 @@ const BaseMotionBase& Step::getBaseMotion() const
 {
   if (!hasBaseMotion()) throw std::out_of_range("No base motion in this step!");
   return *baseMotion_;
+}
+
+bool Step::hasCustomCommand() const
+{
+  return !customCommands_.empty();
+}
+
+const std::vector<CustomCommand>& Step::getCustomCommands() const
+{
+  return customCommands_;
 }
 
 double Step::getTime() const
@@ -290,6 +314,11 @@ std::ostream& operator<<(std::ostream& out, const Step& step)
     out << "---" << std::endl;
     out << "Base motion: " << std::endl;
     out << *(step.baseMotion_) << std::endl;
+  }
+  if (step.hasCustomCommand()) {
+    out << "---" << std::endl;
+    out << "Custom commands (" << step.customCommands_.size() << "):" << std::endl;
+    for (const auto& customCommand : step.customCommands_) out << "-" << std::endl << customCommand << std::endl;
   }
   return out;
 }

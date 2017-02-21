@@ -19,6 +19,7 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/leg_motion/LegMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
+#include "free_gait_core/step/CustomCommand.hpp"
 
 namespace free_gait {
 
@@ -38,7 +39,6 @@ class Step
    */
   typedef std::unordered_map<LimbEnum, std::unique_ptr<LegMotionBase>, EnumClassHash> LegMotions;
 
-
   std::unique_ptr<Step> clone() const;
 
   /*!
@@ -53,6 +53,8 @@ class Step
    * @param data the base shift data.
    */
   void addBaseMotion(const BaseMotionBase& baseMotion);
+
+  void addCustomCommand(const CustomCommand& customCommand);
 
   bool needsComputation() const;
   bool compute();
@@ -79,6 +81,9 @@ class Step
   bool hasBaseMotion() const;
   const BaseMotionBase& getBaseMotion() const;
 
+  bool hasCustomCommand() const;
+  const std::vector<CustomCommand>& getCustomCommands() const;
+
   /*!
    * Return the current time of the step, starting at 0.0 for each step.
    * @return the current time.
@@ -100,6 +105,7 @@ class Step
  protected:
   LegMotions legMotions_;
   std::unique_ptr<BaseMotionBase> baseMotion_;
+  std::vector<CustomCommand> customCommands_;
 
  private:
   //! Current time, starts at 0.0 at each step.

@@ -31,3 +31,8 @@ free_gait_msgs/BaseTarget[] base_target
 
 # Move base along a trajectory.
 free_gait_msgs/BaseTrajectory[] base_trajectory
+
+###################
+# Defines a custom command:
+
+free_gait_msgs/CustomCommand[] custom_command

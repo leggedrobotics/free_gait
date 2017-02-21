@@ -28,6 +28,7 @@ add_message_files(
    EndEffectorTrajectory.msg
    JointTarget.msg
    JointTrajectory.msg
+   CustomCommand.msg
 )
 
 ## Generate services in the 'srv' folder

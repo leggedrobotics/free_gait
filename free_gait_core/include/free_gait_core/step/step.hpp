@@ -13,3 +13,4 @@
 #include "free_gait_core/step/StepCompleter.hpp"
 #include "free_gait_core/step/StepComputer.hpp"
 #include "free_gait_core/step/StepParameters.hpp"
+#include "free_gait_core/step/CustomCommand.hpp"

@@ -95,6 +95,8 @@ def parse_action(yaml_object, source_frame_id='', target_frame_id='', position=[
                 step.base_target.append(parse_base_target(motion_parameter['base_target']))
             if 'base_trajectory' in motion_parameter:
                 step.base_trajectory.append(parse_base_trajectory(motion_parameter['base_trajectory']))
+            if 'custom_command' in motion_parameter:
+                step.custom_command.append(parse_custom_command(motion_parameter['custom_command']))
 
         goal.steps.append(step)
 
@@ -259,6 +261,19 @@ def parse_base_trajectory(yaml_object):
     if 'trajectory' in yaml_object:
         base_trajectory.trajectory = parse_multi_dof_trajectory('base', yaml_object['trajectory'])
     return base_trajectory
+
+
+def parse_custom_command(yaml_object):
+    custom_command = free_gait_msgs.msg.CustomCommand()
+    if not yaml_object:
+        return custom_command
+    if 'type' in yaml_object:
+        custom_command.type = yaml_object['type']
+    if 'duration' in yaml_object:
+        custom_command.duration = parse_duration(yaml_object['duration'])
+    if 'command' in yaml_object:
+        custom_command.command = yaml_object['command']
+    return custom_command
 
 
 def parse_duration(duration):
