@@ -56,6 +56,8 @@ class AdapterBase
   virtual JointEfforts getAllJointEfforts() const = 0;
   virtual Position getPositionWorldToBaseInWorldFrame() const = 0;
   virtual RotationQuaternion getOrientationBaseToWorld() const = 0;
+  virtual LinearVelocity getLinearVelocityBaseInBaseFrame() const = 0;
+  virtual LocalAngularVelocity getAngularVelocityBaseInBaseFrame() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
 
@@ -78,6 +80,16 @@ class AdapterBase
                                                   const RotationQuaternion& orientation) const;
   virtual Pose transformPose(const std::string& inputFrameId, const std::string& outputFrameId,
                              const Pose& pose) const;
+  virtual LinearVelocity transformLinearVelocity(const std::string& inputFrameId,
+                                                 const std::string& outputFrameId,
+                                                 const LinearVelocity& linearVelocity) const;
+  virtual LocalAngularVelocity transformAngularVelocity(
+      const std::string& inputFrameId, const std::string& outputFrameId,
+      const LocalAngularVelocity& angularVelocity) const;
+  virtual Twist transformTwist(const std::string& inputFrameId, const std::string& outputFrameId,
+                               const Twist& twist) const;
+  virtual Vector transformVector(const std::string& inputFrameId, const std::string& outputFrameId,
+                                 const Vector& vector) const;
 
   //! Hook to write data to internal robot representation from state.
   virtual bool setInternalDataFromState(const State& state) = 0;

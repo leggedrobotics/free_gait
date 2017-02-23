@@ -66,11 +66,17 @@ class BaseAuto : public BaseMotionBase
   double getHeight() const;
 
   /*!
-   * Evaluate the base shift pose at a given time.
-   * @param time the time value.
-   * @return the pose of the base shift trajectory.
+   * Evaluate the base pose at a given time.
+   * @param time the time evakyate the pose at.
+   * @return the pose of the base in the defined frame id.
    */
   Pose evaluatePose(const double time) const;
+
+  /*!
+   * Evaluate the base twist at a given time.
+   * @param time the time to evaluate the twist at.
+   * @return the twist of the base in the defined frame id.
+   */
   Twist evaluateTwist(const double time) const;
 
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);

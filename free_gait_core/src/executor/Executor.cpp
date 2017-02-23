@@ -216,8 +216,11 @@ bool Executor::resetStateWithRobot()
   state_->setAllJointEfforts(adapter_->getAllJointEfforts());
   state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
   state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
+  state_->setLinearVelocityBaseInWorldFrame(
+          adapter_->getOrientationBaseToWorld().rotate(adapter_->getLinearVelocityBaseInBaseFrame()));
+  state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
   state_->setRobotExecutionStatus(true);
-
+  // TODO Add base velocities.
   return true;
 }
 
@@ -243,6 +246,11 @@ bool Executor::updateStateWithMeasurements()
   if (!controlSetup.at(ControlLevel::Position)) {
     state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
     state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
+  }
+  if (!controlSetup.at(ControlLevel::Velocity)) {
+    state_->setLinearVelocityBaseInWorldFrame(
+        adapter_->getOrientationBaseToWorld().rotate(adapter_->getLinearVelocityBaseInBaseFrame()));
+    state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
   }
 
   state_->setAllJointVelocities(adapter_->getAllJointVelocities());
@@ -393,7 +401,11 @@ bool Executor::writeTorsoMotion()
     state_->setOrientationBaseToWorld(poseInWorldFrame.getRotation());
   }
   if (controlSetup[ControlLevel::Velocity]) {
-    // TODO Add frame handling.
+    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
+    if (!adapter_->frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
+      return false;
+    }
     Twist twist = baseMotion.evaluateTwist(time);
     state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
     state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());

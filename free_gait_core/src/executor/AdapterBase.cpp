@@ -128,4 +128,77 @@ Pose AdapterBase::transformPose(const std::string& inputFrameId, const std::stri
   return transformedPose;
 }
 
+LinearVelocity AdapterBase::transformLinearVelocity(const std::string& inputFrameId,
+                                                    const std::string& outputFrameId,
+                                                    const LinearVelocity& linearVelocity) const
+{
+
+}
+
+LocalAngularVelocity AdapterBase::transformAngularVelocity(
+    const std::string& inputFrameId, const std::string& outputFrameId,
+    const LocalAngularVelocity& angularVelocity) const
+{
+
+}
+
+Twist AdapterBase::transformTwist(const std::string& inputFrameId, const std::string& outputFrameId,
+                                  const Twist& twist) const
+{
+
+}
+
+Vector AdapterBase::transformVector(const std::string& inputFrameId,
+                                    const std::string& outputFrameId, const Vector& vector) const
+{
+  Vector transformedVector;
+  bool frameError = false;
+
+  if (inputFrameId == "base") {
+
+    if (outputFrameId == "base") {
+      transformedVector = vector;
+    } else if (outputFrameId == getWorldFrameId()) {
+      transformedVector = getOrientationBaseToWorld().rotate(vector);
+    } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
+      const Vector vectorInOdom = transformVector(inputFrameId, getWorldFrameId(), vector);
+      transformedVector = transformVector(getWorldFrameId(), outputFrameId, vectorInOdom);
+    } else {
+      frameError = true;
+    }
+
+  } else if (inputFrameId == getWorldFrameId()) {
+
+    if (outputFrameId == "base") {
+      transformedVector = getOrientationBaseToWorld().inverseRotate(vector);
+    } else if (outputFrameId == getWorldFrameId()) {
+      transformedVector = vector;
+    } else if (outputFrameId == "map" || outputFrameId == "map_ga" ) {
+      transformedVector = getFrameTransform(outputFrameId).getRotation().rotate(vector);
+    } else {
+      frameError = true;
+    }
+
+  } else if (inputFrameId == "map" || inputFrameId == "map_ga") {
+
+    if (outputFrameId == "base") {
+      const Vector vectorInOdom = transformVector(inputFrameId, getWorldFrameId(), vector);
+      transformedVector = transformVector(getWorldFrameId(), outputFrameId, vectorInOdom);
+    } else if (outputFrameId == getWorldFrameId()) {
+      transformedVector = getFrameTransform(inputFrameId).getRotation().rotate(vector);
+    } else {
+      frameError = true;
+    }
+
+  } else {
+    frameError = true;
+  }
+
+  if (frameError) {
+    const std::string message = "Invalid frame for transforming vector (input frame: " + inputFrameId + ", output frame: " + outputFrameId + ").";
+    throw std::invalid_argument(message);
+  }
+  return transformedVector;
+}
+
 } /* namespace free_gait */

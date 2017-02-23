@@ -26,7 +26,7 @@ BaseAuto::BaseAuto()
       supportMargin_(0.0),
       minimumDuration_(0.0),
       isComputed_(false),
-      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
@@ -116,15 +116,16 @@ Pose BaseAuto::evaluatePose(const double time) const
   Pose pose;
   trajectory_.evaluate(pose, timeInRange);
   return pose;
-
 }
 
 Twist BaseAuto::evaluateTwist(const double time) const
 {
-  // TODO
-//  double timeInRange = time <= duration_ ? time : duration_;
-//  return trajectory_.evaluateDerivative(timeInRange, 1);
-  return Twist();
+  double timeInRange = time <= duration_ ? time : duration_;
+  curves::CubicHermiteSE3Curve::DerivativeType derivative;
+  trajectory_.evaluateDerivative(derivative, timeInRange, 1);
+  Twist twist(derivative.getTranslationalVelocity().vector(),
+              derivative.getRotationalVelocity().vector());
+  return twist;
 }
 
 double BaseAuto::getDuration() const

@@ -11,6 +11,8 @@
 #include <quadruped_model/common/topology_conversions.hpp>
 #include <quadruped_model/common/quadruped_model_common.hpp>
 
+#include <stdexcept>
+
 namespace free_gait {
 
 State::State()
