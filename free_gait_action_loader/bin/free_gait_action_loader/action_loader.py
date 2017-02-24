@@ -22,13 +22,14 @@ class ActionLoader:
         self.collection_list = CollectionList(self.name)
         self.collection_list.update()
         self.action = None
-        self.directory = None # Action's directory.
-        self.use_preview = None
+        # Reference to the action client or preview publisher.
+        self.execute_steps_relay = None
 
         step_action_server_topic = rospy.get_param('/free_gait/action_server')
         self.execute_steps_client = actionlib.SimpleActionClient(step_action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
         self.execute_action_server = actionlib.SimpleActionServer("~execute_action", free_gait_msgs.msg.ExecuteActionAction, \
                                                           execute_cb=self._execute_action_callback, auto_start = False)
+        self.execute_action_server.register_preempt_callback(self.preempt)
         self.execute_action_server.start()
 
         step_preview_topic = rospy.get_param('/free_gait/preview_topic')
@@ -83,6 +84,11 @@ class ActionLoader:
 
     def send_action(self, action_id, use_preview):
         self.reset()
+        if use_preview:
+            self.execute_steps_relay = self.preview_publisher
+        else:
+            self.execute_steps_relay = self.execute_steps_client
+
         action_entry = self.action_list.get(action_id)
         result = free_gait_msgs.msg.ExecuteActionResult()
 
@@ -97,8 +103,6 @@ class ActionLoader:
             return result
 
         try:
-            self.directory = action_entry.directory
-            self.use_preview = use_preview
             if action_entry.type == ActionType.YAML:
                 self._load_yaml_action(action_entry.file)
             elif action_entry.type == ActionType.PYTHON:
@@ -138,7 +142,7 @@ class ActionLoader:
         rospy.loginfo('Loading Free Gait action from YAML file "' + file_path + '".')
         goal = load_action_from_file(file_path)
         rospy.logdebug(goal)
-        self.action = SimpleAction(self.execute_steps_client, goal, self.use_preview, self.preview_publisher)
+        self.action = SimpleAction(self.execute_steps_relay, goal)
         if goal is None:
             rospy.logerr('Could not load action from YAML file.')
             self.action.set_state(ActionState.ERROR)
@@ -172,21 +176,18 @@ class ActionLoader:
                 self.action.start()
 
     def reset(self):
-        if self.action:
-            self.action.stop()
-        del self.action
-        self.action = None
-        if self.execute_steps_client.gh:
-            self.execute_steps_client.stop_tracking_goal()
-
-    def preempt(self):
+        self.execute_steps_relay = None
         try:
-            if self.execute_steps_client.gh:
-                if self.execute_steps_client.get_state() == GoalStatus.ACTIVE or self.execute_steps_client.get_state() == GoalStatus.PENDING:
-                    self.execute_steps_client.cancel_all_goals()
-                    rospy.logwarn('Canceling action.')
+            if self.action:
+                self.action.stop()
+            del self.action
+            self.action = None
+            rospy.logwarn('Canceling action.')
         except NameError:
             rospy.logerr(traceback.print_exc())
+
+    def preempt(self):
+        self.reset()
 
 
 if __name__ == '__main__':

@@ -369,14 +369,17 @@ void FreeGaitPlugin::updateResult(
 
   // reset status
   bool setButtons = true;
-  switch (result.result.status) {
-    case free_gait_msgs::ExecuteStepsResult::RESULT_REACHED:
+  switch (result.status.status) {
+    case actionlib_msgs::GoalStatus::SUCCEEDED:
+    case actionlib_msgs::GoalStatus::PREEMPTED:
+    case actionlib_msgs::GoalStatus::RECALLED:
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/done.svg"));
       break;
-    case free_gait_msgs::ExecuteStepsResult::RESULT_FAILED:
+    case actionlib_msgs::GoalStatus::ABORTED:
+    case actionlib_msgs::GoalStatus::REJECTED:
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/failed.svg"));
       break;
-    case free_gait_msgs::ExecuteStepsResult::RESULT_UNKNOWN:
+    case actionlib_msgs::GoalStatus::LOST:
       setButtons = false;
       ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/unknown.svg"));
       break;

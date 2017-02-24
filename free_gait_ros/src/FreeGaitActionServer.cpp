@@ -156,7 +156,6 @@ void FreeGaitActionServer::setSucceeded()
 {
   ROS_INFO("StepAction succeeded.");
   free_gait_msgs::ExecuteStepsResult result;
-  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_REACHED;
   server_.setSucceeded(result, "Step action has been reached.");
 }
 
@@ -164,7 +163,6 @@ void FreeGaitActionServer::setPreempted()
 {
   ROS_INFO("StepAction preempted.");
   free_gait_msgs::ExecuteStepsResult result;
-  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
   server_.setPreempted(result, "Step action has been preempted.");
   isPreempting_ = false;
 }
@@ -173,7 +171,6 @@ void FreeGaitActionServer::setAborted()
 {
   ROS_INFO("StepAction aborted.");
   free_gait_msgs::ExecuteStepsResult result;
-  result.status = free_gait_msgs::ExecuteStepsResult::RESULT_FAILED;
   server_.setAborted(result, "Step action has failed (aborted).");
 }
 

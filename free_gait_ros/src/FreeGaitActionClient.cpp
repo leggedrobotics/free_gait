@@ -73,7 +73,6 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
     state_ = ActionState::ACTIVE;
     actionlib::SimpleClientGoalState state(actionlib::SimpleClientGoalState::ACTIVE);
     free_gait_msgs::ExecuteStepsResult result;
-    result.status = free_gait_msgs::ExecuteStepsResult::RESULT_REACHED;
     doneCallback_(state, result);
   } else {
     state_ = ActionState::PENDING;

@@ -11,12 +11,7 @@ int8 preempt
 ---
 
 ## Result
-
-# Status
-int8 RESULT_FAILED  = -1
-int8 RESULT_UNKNOWN =  0
-int8 RESULT_REACHED =  1
-int8 status
+# See goal status.
 
 ---
 

@@ -17,7 +17,7 @@ class ActionState:
     PENDING = 2        # Waiting for previous action to finish.
     ACTIVE = 3         # Action running.
     IDLE = 4           # Waiting for input.
-    DONE = 5           # Successfully finished.
+    DONE = 5           # Finished (success or preempted).
 
     @staticmethod
     def to_text(action_state):
@@ -41,14 +41,11 @@ class ActionState:
 
 class ActionBase(object):
 
-    def __init__(self, client, directory = None, use_preview = False, preview_publisher = None):
+    def __init__(self, relay):
         self.state = ActionState.UNINITIALIZED
         self.feedback_callback = None
         self.done_callback = None
-        self.client = client
-        self.directory = directory
-        self.use_preview = use_preview
-        self.preview_publisher = preview_publisher
+        self.relay = relay
         self.goal = None
         self.feedback = None
         self.timeout = rospy.Duration()
@@ -74,7 +71,7 @@ class ActionBase(object):
         self.done_callback = done_callback
 
     def start(self):
-        if self.use_preview:
+        if self._use_preview():
             self.set_state(ActionState.ACTIVE)
         else:
             self.set_state(ActionState.PENDING)
@@ -84,24 +81,24 @@ class ActionBase(object):
         wait_for_state.wait();
 
     def stop(self):
-        pass
+        if not self._use_preview():
+            self.relay.stop_tracking_goal()
 
     def _send_goal(self):
         if self.goal is None:
             self.result = free_gait_msgs.msg.ExecuteStepsResult()
-            self.result.status = free_gait_msgs.msg.ExecuteStepsResult.RESULT_UNKNOWN
             self.set_state(ActionState.DONE)
             return
 
-        if self.use_preview:
+        if self._use_preview():
             actionGoal = free_gait_msgs.msg.ExecuteStepsActionGoal()
             actionGoal.goal = self.goal
-            self.preview_publisher.publish(actionGoal)
+            self.relay.publish(actionGoal)
         else:
-            if self.client.gh:
-                self.client.stop_tracking_goal()
-            self.client.wait_for_server()
-            self.client.send_goal(self.goal,
+            if self.relay.gh:
+                self.relay.stop_tracking_goal()
+            self.relay.wait_for_server()
+            self.relay.send_goal(self.goal,
                                   done_cb=self._done_callback,
                                   active_cb=self._active_callback,
                                   feedback_cb=self._feedback_callback)
@@ -116,13 +113,19 @@ class ActionBase(object):
         self.set_state(ActionState.DONE)
         self.result = result
         if status != GoalStatus.SUCCEEDED:
+            # Something is gone wrong.
             self.stop()
 
+    def _use_preview(self):
+        if type(self.relay) == rospy.topics.Publisher:
+            return True
+        else:
+            return False
 
 class SimpleAction(ActionBase):
 
-    def __init__(self, client, goal, use_preview = False, preview_publisher = None):
-        ActionBase.__init__(self, client, None, use_preview, preview_publisher)
+    def __init__(self, relay, goal):
+        ActionBase.__init__(self, relay)
         self.goal = goal
 
     def start(self):
@@ -133,7 +136,7 @@ class SimpleAction(ActionBase):
 class LaunchAction(ActionBase):
 
     def __init__(self, file_path, use_preview = False):
-        ActionBase.__init__(self, None, None, use_preview, None)
+        ActionBase.__init__(self, None)
         launch_file = open(file_path, "r")
         launch_text = launch_file.read()
         launch_file.close()
