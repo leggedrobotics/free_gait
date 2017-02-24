@@ -20,7 +20,7 @@ AdapterBase::~AdapterBase()
 
 bool AdapterBase::frameIdExists(const std::string& frameId) const
 {
-  if (frameId == "base") return true;
+  if (frameId == getBaseFrameId()) return true;
   if (frameId == getWorldFrameId()) return true;
   if (frameId == "map") return true;
   if (frameId == "map_ga") return true;
@@ -34,9 +34,9 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
   Position transformedPosition;
   bool frameError = false;
 
-  if (inputFrameId == "base") {
+  if (inputFrameId == getBaseFrameId()) {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       transformedPosition = position;
     } else if (outputFrameId == getWorldFrameId()) {
       transformedPosition = getPositionWorldToBaseInWorldFrame() + getOrientationBaseToWorld().rotate(position);
@@ -49,7 +49,7 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
 
   } else if (inputFrameId == getWorldFrameId()) {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       transformedPosition = getOrientationBaseToWorld().inverseRotate(position - getPositionWorldToBaseInWorldFrame());
     } else if (outputFrameId == getWorldFrameId()) {
       transformedPosition = position;
@@ -61,7 +61,7 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
 
   } else if (inputFrameId == "map" || inputFrameId == "map_ga") {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       const Position positionInOdom = transformPosition(inputFrameId, getWorldFrameId(), position);
       transformedPosition = transformPosition(getWorldFrameId(), outputFrameId, positionInOdom);
     } else if (outputFrameId == getWorldFrameId()) {
@@ -132,20 +132,29 @@ LinearVelocity AdapterBase::transformLinearVelocity(const std::string& inputFram
                                                     const std::string& outputFrameId,
                                                     const LinearVelocity& linearVelocity) const
 {
-
+  LinearVelocity transformedLinearVelocity(
+      transformVector(inputFrameId, outputFrameId, Vector(linearVelocity)));
+  return transformedLinearVelocity;
 }
 
 LocalAngularVelocity AdapterBase::transformAngularVelocity(
     const std::string& inputFrameId, const std::string& outputFrameId,
     const LocalAngularVelocity& angularVelocity) const
 {
-
+  Vector transformedVector = transformVector(inputFrameId, outputFrameId, Vector(angularVelocity.vector()));
+  LocalAngularVelocity transformedAngularVelocity(transformedVector.toImplementation());
+  return transformedAngularVelocity;
 }
 
 Twist AdapterBase::transformTwist(const std::string& inputFrameId, const std::string& outputFrameId,
                                   const Twist& twist) const
 {
-
+  Twist transformedTwist;
+  transformedTwist.getTranslationalVelocity() = transformLinearVelocity(
+      inputFrameId, outputFrameId, twist.getTranslationalVelocity());
+  transformedTwist.getRotationalVelocity() = transformAngularVelocity(
+      inputFrameId, outputFrameId, twist.getRotationalVelocity());
+  return transformedTwist;
 }
 
 Vector AdapterBase::transformVector(const std::string& inputFrameId,
@@ -154,9 +163,9 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
   Vector transformedVector;
   bool frameError = false;
 
-  if (inputFrameId == "base") {
+  if (inputFrameId == getBaseFrameId()) {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       transformedVector = vector;
     } else if (outputFrameId == getWorldFrameId()) {
       transformedVector = getOrientationBaseToWorld().rotate(vector);
@@ -169,7 +178,7 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
 
   } else if (inputFrameId == getWorldFrameId()) {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       transformedVector = getOrientationBaseToWorld().inverseRotate(vector);
     } else if (outputFrameId == getWorldFrameId()) {
       transformedVector = vector;
@@ -181,7 +190,7 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
 
   } else if (inputFrameId == "map" || inputFrameId == "map_ga") {
 
-    if (outputFrameId == "base") {
+    if (outputFrameId == getBaseFrameId()) {
       const Vector vectorInOdom = transformVector(inputFrameId, getWorldFrameId(), vector);
       transformedVector = transformVector(getWorldFrameId(), outputFrameId, vectorInOdom);
     } else if (outputFrameId == getWorldFrameId()) {

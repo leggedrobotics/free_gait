@@ -396,19 +396,24 @@ bool Executor::writeTorsoMotion()
       std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
       return false;
     }
-    Pose poseInWorldFrame = adapter_->transformPose(frameId, adapter_->getWorldFrameId(), baseMotion.evaluatePose(time));
+    Pose poseInWorldFrame = adapter_->transformPose(frameId, adapter_->getWorldFrameId(),
+                                                    baseMotion.evaluatePose(time));
     state_->setPositionWorldToBaseInWorldFrame(poseInWorldFrame.getPosition());
     state_->setOrientationBaseToWorld(poseInWorldFrame.getRotation());
   }
   if (controlSetup[ControlLevel::Velocity]) {
-    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
+    const std::string& frameId = baseMotion.getFrameId(ControlLevel::Velocity);
     if (!adapter_->frameIdExists(frameId)) {
       std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
       return false;
     }
     Twist twist = baseMotion.evaluateTwist(time);
-    state_->setLinearVelocityBaseInWorldFrame(twist.getTranslationalVelocity());
-    state_->setAngularVelocityBaseInBaseFrame(twist.getRotationalVelocity());
+    LinearVelocity linearVelocityInWorldFrame = adapter_->transformLinearVelocity(
+        frameId, adapter_->getWorldFrameId(), twist.getTranslationalVelocity());
+    LocalAngularVelocity angularVelocityInBaseFrame = adapter_->transformAngularVelocity(
+        frameId, adapter_->getBaseFrameId(), twist.getRotationalVelocity());
+    state_->setLinearVelocityBaseInWorldFrame(linearVelocityInWorldFrame);
+    state_->setAngularVelocityBaseInBaseFrame(angularVelocityInBaseFrame);
   }
   // TODO Set more states.
   return true;
