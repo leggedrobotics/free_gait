@@ -83,6 +83,13 @@ class BaseTrajectory : public BaseMotionBase
   Pose evaluatePose(const double time) const;
 
   /*!
+   * Evaluate the base twist at a given time.
+   * @param time the time to evaluate the twist at.
+   * @return the twist of the base in the defined frame id.
+   */
+  Twist evaluateTwist(const double time) const;
+
+  /*!
    * Print the contents to console for debugging.
    * @param out the output stream.
    * @param baseTrajectory the base shift trajectory to debug.

@@ -66,6 +66,13 @@ class BaseTarget : public BaseMotionBase
    */
   Pose evaluatePose(const double time) const;
 
+  /*!
+   * Evaluate the base twist at a given time.
+   * @param time the time to evaluate the twist at.
+   * @return the twist of the base in the defined frame id.
+   */
+  Twist evaluateTwist(const double time) const;
+
   friend std::ostream& operator << (std::ostream& out, const BaseTarget& baseTarget);
   friend class StepCompleter;
   friend class StepRosConverter;
