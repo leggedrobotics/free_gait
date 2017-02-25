@@ -48,7 +48,12 @@ void BaseTrajectory::updateStartPose(const Pose& startPose)
 bool BaseTrajectory::prepareComputation(const State& state, const Step& step,
                                         const StepQueue& queue, const AdapterBase& adapter)
 {
-  trajectory_.fitCurve(times_[ControlLevel::Position], values_[ControlLevel::Position]);
+  if (controlSetup_[ControlLevel::Position]) {
+    trajectory_.fitCurve(times_[ControlLevel::Position], values_[ControlLevel::Position]);
+    // Curves implementation provides velocities.
+    controlSetup_[ControlLevel::Velocity] = true;
+    frameIds_[ControlLevel::Velocity] = frameIds_[ControlLevel::Position];
+  }
 
   duration_ = 0.0;
   for (const auto& times : times_) {
@@ -84,6 +89,16 @@ Pose BaseTrajectory::evaluatePose(const double time) const
   Pose pose;
   trajectory_.evaluate(pose, time);
   return pose;
+}
+
+Twist BaseTrajectory::evaluateTwist(const double time) const
+{
+  double timeInRange = time <= duration_ ? time : duration_;
+  curves::CubicHermiteSE3Curve::DerivativeType derivative;
+  trajectory_.evaluateDerivative(derivative, timeInRange, 1);
+  Twist twist(derivative.getTranslationalVelocity().vector(),
+              derivative.getRotationalVelocity().vector());
+  return twist;
 }
 
 std::ostream& operator<<(std::ostream& out, const BaseTrajectory& baseTrajectory)

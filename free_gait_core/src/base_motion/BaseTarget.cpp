@@ -73,13 +73,22 @@ const std::string& BaseTarget::getFrameId(const ControlLevel& controlLevel) cons
   return frameId_;
 }
 
-
 Pose BaseTarget::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
   Pose pose;
   trajectory_.evaluate(pose, timeInRange);
   return pose;
+}
+
+Twist BaseTarget::evaluateTwist(const double time) const
+{
+  double timeInRange = time <= duration_ ? time : duration_;
+  curves::CubicHermiteSE3Curve::DerivativeType derivative;
+  trajectory_.evaluateDerivative(derivative, timeInRange, 1);
+  Twist twist(derivative.getTranslationalVelocity().vector(),
+              derivative.getRotationalVelocity().vector());
+  return twist;
 }
 
 void BaseTarget::computeDuration(const Step& step, const AdapterBase& adapter)
@@ -115,6 +124,10 @@ bool BaseTarget::computeTrajectory()
   values.push_back(target_);
 
   trajectory_.fitCurve(times, values);
+
+  // Curves implementation provides velocities.
+  controlSetup_[ControlLevel::Velocity] = true;
+
   return true;
 }
 

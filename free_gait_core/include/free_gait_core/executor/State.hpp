@@ -76,6 +76,7 @@ class State : public quadruped_model::QuadrupedState
   friend std::ostream& operator << (std::ostream& out, const State& state);
 
  private:
+  LocalAngularVelocity angularVelocityBaseInWorldFrame_;
   // TODO Extend QuadrupedState class with (switch to quadruped_model?):
   JointEfforts jointEfforts_;
   JointAccelerations jointAccelerations_;

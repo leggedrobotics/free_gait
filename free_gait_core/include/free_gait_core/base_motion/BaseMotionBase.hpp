@@ -88,11 +88,17 @@ class BaseMotionBase
   virtual const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   /*!
-   * Evaluate the base motion at a given time.
-   * @param time the time value.
-   * @return the pose of the base.
+   * Evaluate the base pose at a given time.
+   * @param time the time evakyate the pose at.
+   * @return the pose of the base in the defined frame id.
    */
   virtual Pose evaluatePose(const double time) const;
+
+  /*!
+   * Evaluate the base twist at a given time.
+   * @param time the time to evaluate the twist at.
+   * @return the twist of the base in the defined frame id.
+   */
   virtual Twist evaluateTwist(const double time) const;
   virtual Twist evaluateAcceleration(const double time) const;
   virtual Force evaluateForce(const double time) const;
