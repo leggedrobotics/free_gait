@@ -23,6 +23,7 @@ Footstep::Footstep(LimbEnum limb)
       averageVelocity_(0.0),
       liftOffSpeed_(0.0),
       touchdownSpeed_(0.0),
+      duration_(0.0),
       minimumDuration_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
@@ -83,6 +84,7 @@ bool Footstep::compute(bool isSupportLeg)
   DerivativeType liftOffVelocity = liftOffSpeed_ * surfaceNormal.vector();
   DerivativeType touchdownVelocity = -touchdownSpeed_ * surfaceNormal.vector();
   trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity);
+  duration_ = trajectory_.getMaxTime() - trajectory_.getMinTime();
   isComputed_ = true;
   return true;
 }
@@ -104,14 +106,15 @@ bool Footstep::isComputed() const
 
 const Position Footstep::evaluatePosition(const double time) const
 {
+  double timeInRange = time <= getDuration() ? time : getDuration();
   Position position;
-  trajectory_.evaluate(position.toImplementation(), time);
+  trajectory_.evaluate(position.toImplementation(), timeInRange);
   return position;
 }
 
 double Footstep::getDuration() const
 {
-  return trajectory_.getMaxTime() - trajectory_.getMinTime();
+  return duration_;
 }
 
 void Footstep::setStartPosition(const std::string& frameId, const Position& start)
@@ -190,6 +193,7 @@ std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
   out << "Type: " << footstep.profileType_ << std::endl;
   out << "Start Position: " << footstep.start_ << std::endl;
   out << "Target Position: " << footstep.target_ << std::endl;
+  out << "Duration: " << footstep.getDuration() << std::endl;
   return out;
 }
 
