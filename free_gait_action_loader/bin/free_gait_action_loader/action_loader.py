@@ -68,9 +68,6 @@ class ActionLoader:
         result = self.send_action(goal.action_id, False)
         if result.status != result.RESULT_NOT_FOUND:
             self.action.wait_for_state([ActionState.ERROR, ActionState.DONE])
-        # Comment: self.action is None at this point if reset() has been called.
-        #if self.action.state == ActionState.DONE:
-        #    result.status = result.RESULT_DONE
         result.status = result.RESULT_DONE
         self.execute_action_server.set_succeeded(result)
 
@@ -85,7 +82,6 @@ class ActionLoader:
         return response
 
     def send_action(self, action_id, use_preview):
-        print 'send_action'
         self.reset()
         if use_preview:
             self.execute_steps_relay = self.preview_publisher
@@ -179,7 +175,6 @@ class ActionLoader:
                 self.action.start()
 
     def reset(self):
-        print 'reset'
         self.execute_steps_relay = None
         try:
             if self.action:
@@ -191,7 +186,6 @@ class ActionLoader:
             rospy.logerr(traceback.print_exc())
 
     def preempt(self):
-        print 'preempt'
         self.reset()
 
 

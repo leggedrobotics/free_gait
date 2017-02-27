@@ -40,8 +40,11 @@ class ActionState:
 
 
 class ActionBase(object):
+    """Base class for generic actions. See specialized implementations below."""
 
     def __init__(self, relay):
+        """Initialization of the action. Implement here subscribers, service
+        servers etc."""
         self.state = ActionState.UNINITIALIZED
         self.feedback_callback = None
         self.done_callback = None
@@ -52,6 +55,7 @@ class ActionBase(object):
         self.set_state(ActionState.INITIALIZED)
 
     def set_state(self, state):
+        """Set the state of the robot and call according callback functions."""
         if state == self.state:
             return
         self.state = state
@@ -67,24 +71,34 @@ class ActionBase(object):
                 self.done_callback()
 
     def register_callback(self, feedback_callback = None, done_callback = None):
+        """The action loader registers here its callback methods. These are called
+        upon change of state in `set_state(...)`."""
         self.feedback_callback = feedback_callback
         self.done_callback = done_callback
 
     def start(self):
+        """Action is started from the action loader if the actions state is
+        `ActionState.INITIALIZED`."""
         if self._use_preview():
             self.set_state(ActionState.ACTIVE)
         else:
             self.set_state(ActionState.PENDING)
 
     def wait_for_state(self, state):
+        """Helper method to wait for a state of the action."""
         wait_for_state = WaitForState(self, state)
         wait_for_state.wait();
 
     def stop(self):
+        """Action is stopped from the action loader. Implement here destruction
+        and shutdown procedures."""
         if not self._use_preview():
             self.relay.stop_tracking_goal()
+        self.set_state(ActionState.DONE)
 
     def _send_goal(self):
+        """Sends the `self.goal` object to the Free Gait execute steps action server.
+        Typically, do not overwrite this method."""
         if self.goal is None:
             self.result = free_gait_msgs.msg.ExecuteStepsResult()
             self.set_state(ActionState.DONE)
@@ -104,33 +118,64 @@ class ActionBase(object):
                                   feedback_cb=self._feedback_callback)
 
     def _active_callback(self):
+        """Callback from the execute steps action server when action becomes active
+        after it has been sent."""
         self.set_state(ActionState.ACTIVE)
 
     def _feedback_callback(self, feedback):
+        """Feedback callback from the execute steps action server on the progress
+        of execution."""
         self.feedback = feedback
 
     def _done_callback(self, status, result):
-        self.set_state(ActionState.DONE)
+        """Done callback from the execute steps action server when action has finished."""
         self.result = result
-        if status != GoalStatus.SUCCEEDED:
-            # Something is gone wrong.
-            self.stop()
+        if status != GoalStatus.SUCCEEDED \
+           and status != GoalStatus.PREEMPTED \
+           and status != GoalStatus.RECALLED:
+            self.set_state(ActionState.ERROR)
+        else:
+            self.set_state(ActionState.DONE)
 
     def _use_preview(self):
+        """Helper method to figure out if this actions is run for preview or not."""
         if type(self.relay) == rospy.topics.Publisher:
             return True
         else:
             return False
 
 class SimpleAction(ActionBase):
+    """Base class for simple actions with one known goal at initialization."""
 
     def __init__(self, relay, goal):
+        """Initialization of the simple action with storing the goal."""
         ActionBase.__init__(self, relay)
         self.goal = goal
 
     def start(self):
+        """Sends the goal at start to the execute steps action server."""
         ActionBase.start(self)
         self._send_goal()
+
+
+class ContinuousAction(ActionBase):
+    """Base class for actions the run forever if not stopped or preempted."""
+
+    def start(self):
+        """Sends the goal at start to the execute steps action server."""
+        ActionBase.start(self)
+        self._send_goal()
+
+    def _done_callback(self, status, result):
+        """Done callback from the execute steps action server when action has finished.
+        Insted of switching to state `DONE, continuous actions switch to state `IDLE`."""
+        self.result = result
+        if status != GoalStatus.SUCCEEDED \
+           and status != GoalStatus.PREEMPTED \
+           and status != GoalStatus.RECALLED:
+            self.set_state(ActionState.ERROR)
+        else:
+            self.set_state(ActionState.IDLE)
 
 
 class LaunchAction(ActionBase):
