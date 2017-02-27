@@ -68,8 +68,7 @@ class ActionLoader:
         result = self.send_action(goal.action_id, False)
         if result.status != result.RESULT_NOT_FOUND:
             self.action.wait_for_state([ActionState.ERROR, ActionState.DONE])
-        if self.action.state == ActionState.DONE:
-            result.status = result.RESULT_DONE
+        result.status = result.RESULT_DONE
         self.execute_action_server.set_succeeded(result)
 
     def _send_action_callback(self, request):
