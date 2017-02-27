@@ -78,11 +78,7 @@ class ActionBase(object):
 
     def start(self):
         """Action is started from the action loader if the actions state is
-        `ActionState.INITIALIZED`."""
-        if self._use_preview():
-            self.set_state(ActionState.ACTIVE)
-        else:
-            self.set_state(ActionState.PENDING)
+        `ActionState.INITIALIZED`. Start here the computation of your action."""
 
     def wait_for_state(self, state):
         """Helper method to wait for a state of the action."""
@@ -108,6 +104,7 @@ class ActionBase(object):
             actionGoal = free_gait_msgs.msg.ExecuteStepsActionGoal()
             actionGoal.goal = self.goal
             self.relay.publish(actionGoal)
+            self.set_state(ActionState.ACTIVE)
         else:
             if self.relay.gh:
                 self.relay.stop_tracking_goal()
@@ -116,6 +113,7 @@ class ActionBase(object):
                                   done_cb=self._done_callback,
                                   active_cb=self._active_callback,
                                   feedback_cb=self._feedback_callback)
+            self.set_state(ActionState.PENDING)
 
     def _active_callback(self):
         """Callback from the execute steps action server when action becomes active
