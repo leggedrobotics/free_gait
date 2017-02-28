@@ -27,6 +27,17 @@ std::unique_ptr<BaseMotionBase> BaseTrajectory::clone() const
   return pointer;
 }
 
+void BaseTrajectory::setTrajectory(
+    const std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds,
+    const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash> times,
+    const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash> values)
+{
+  frameIds_ = frameIds;
+  times_ = times;
+  values_ = values;
+  for (const auto& value : values) controlSetup_[value.first] = true;
+}
+
 const ControlSetup BaseTrajectory::getControlSetup() const
 {
   return controlSetup_;
