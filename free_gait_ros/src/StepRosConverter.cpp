@@ -463,6 +463,14 @@ bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message
       if (!toMessage(baseAuto, message)) return false;
       stepMessage.base_auto.push_back(message);
     }
+
+    // Base Trajectory.
+    if (baseMotion.getType() == BaseMotionBase::Type::Trajectory) {
+      const BaseTrajectory& baseTrajectory = dynamic_cast<const BaseTrajectory&>(baseMotion);
+      free_gait_msgs::BaseTrajectory message;
+      if (!toMessage(baseTrajectory, message)) return false;
+      stepMessage.base_trajectory.push_back(message);
+    }
   }
 
   return true;
@@ -541,6 +549,25 @@ bool StepRosConverter::toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseA
   message.average_linear_velocity = baseAuto.averageLinearVelocity_;
   message.average_angular_velocity = baseAuto.averageAngularVelocity_;
   message.support_margin = baseAuto.supportMargin_;
+  return true;
+}
+
+bool StepRosConverter::toMessage(const BaseTrajectory& baseTrajectory, free_gait_msgs::BaseTrajectory& message)
+{
+  message.trajectory.header.frame_id = baseTrajectory.frameIds_.at(ControlLevel::Position);
+  message.trajectory.points.resize(baseTrajectory.values_.at(ControlLevel::Position).size());
+  size_t i = 0;
+  for (auto& point : message.trajectory.points) {
+    if (baseTrajectory.controlSetup_.at(ControlLevel::Position)) {
+      point.time_from_start = ros::Duration(baseTrajectory.times_.at(ControlLevel::Position)[i]);
+      geometry_msgs::Transform transform;
+      BaseTrajectory::ValueType pose(baseTrajectory.values_.at(ControlLevel::Position)[i]);
+      kindr_ros::convertToRosGeometryMsg(pose, transform);
+      point.transforms.push_back(transform);
+    }
+    ++i;
+  }
+
   return true;
 }
 
