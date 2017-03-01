@@ -54,17 +54,23 @@ bool StepFrameConverter::adaptCoordinates(Step& step, const std::string& sourceF
 
   }
 
-//  // Base motion.
-//  if (step.hasBaseMotion()) {
-//
-//    const auto& baseMotion = step.getBaseMotion();
-//
-//    // Base Auto.
+  // Base motion.
+  if (step.hasBaseMotion()) {
+
+    const auto& baseMotion = step.getBaseMotion();
+
+    // Base Auto.
 //    if (baseMotion.getType() == BaseMotionBase::Type::Auto) {
 //      BaseAuto& baseAuto = dynamic_cast<BaseAuto&>(baseMotion);
 //      if (!adaptCoordinates(baseAuto, sourceFrameId, targetFrameId, transformInTargetFrame, time)) return false;
 //    }
-//  }
+
+    // Base Trajectory.
+    if (baseMotion.getType() == BaseMotionBase::Type::Trajectory){
+      const BaseTrajectory& baseTrajectory = dynamic_cast<const BaseTrajectory&>(baseMotion);
+      if (!adaptCoordinates(const_cast<BaseTrajectory&> (baseTrajectory), sourceFrameId, targetFrameId, transformInSourceFrame, time)) return false;
+    }
+  }
   return true;
 }
 
@@ -95,6 +101,24 @@ bool StepFrameConverter::adaptCoordinates(EndEffectorTrajectory& endEffectorTraj
       knot = (transform.transform(Position(knot))).vector();
     }
     endEffectorTrajectory.frameIds_.at(ControlLevel::Position) = targetFrameId;
+  }
+
+  return true;
+}
+
+bool StepFrameConverter::adaptCoordinates(BaseTrajectory& baseTrajectory, const std::string& sourceFrameId,
+                                          const std::string& targetFrameId,
+                                          const Transform& transformInSourceFrame,
+                                          const ros::Time& time)
+{
+  Transform transform;
+  if (baseTrajectory.getFrameId(ControlLevel::Position) == sourceFrameId) {
+    if (!getTransform(sourceFrameId, targetFrameId, transformInSourceFrame, time, transform)) return false;
+    for (auto& knot : baseTrajectory.values_.at(ControlLevel::Position)){
+      knot.getPosition() = transform.transform(knot.getPosition());
+      knot.getRotation() = transform.getRotation()*knot.getRotation();
+    }
+    baseTrajectory.frameIds_.at(ControlLevel::Position) = targetFrameId;
   }
 
   return true;

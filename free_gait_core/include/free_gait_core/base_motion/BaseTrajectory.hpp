@@ -21,6 +21,7 @@ namespace free_gait {
 
 class StepRosConverter;
 class StepCompleter;
+class StepFrameConverter;
 
 /*!
  * Implementation of a base trajectory as polynomial spline.
@@ -104,6 +105,7 @@ class BaseTrajectory : public BaseMotionBase
 
   friend class StepCompleter;
   friend class StepRosConverter;
+  friend class StepFrameConverter;
 
  protected:
 
