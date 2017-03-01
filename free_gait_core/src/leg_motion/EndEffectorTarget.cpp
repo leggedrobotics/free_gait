@@ -64,9 +64,18 @@ bool EndEffectorTarget::isComputed() const
 
 const Position EndEffectorTarget::evaluatePosition(const double time) const
 {
+  double timeInRange = time <= getDuration() ? time : getDuration();
   Position position;
   trajectory_.evaluate(position.toImplementation(), time);
   return position;
+}
+
+const LinearVelocity EndEffectorTarget::evaluateVelocity(const double time) const
+{
+  double timeInRange = time <= getDuration() ? time : getDuration();
+  LinearVelocity velocity;
+  trajectory_.evaluateDerivative(velocity.toImplementation(), timeInRange, 1);
+  return velocity;
 }
 
 double EndEffectorTarget::getDuration() const
@@ -111,6 +120,10 @@ bool EndEffectorTarget::computeTrajectory()
 
   times.push_back(duration_);
   values.push_back(target_.at(ControlLevel::Position));
+
+  // Curves implementation provides velocities.
+  controlSetup_[ControlLevel::Velocity] = true;
+  frameIds_[ControlLevel::Velocity] = frameIds_[ControlLevel::Position];
 
   trajectory_.fitCurve(times, values);
   return true;

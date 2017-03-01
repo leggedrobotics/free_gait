@@ -216,8 +216,7 @@ bool Executor::resetStateWithRobot()
   state_->setAllJointEfforts(adapter_->getAllJointEfforts());
   state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
   state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
-  state_->setLinearVelocityBaseInWorldFrame(
-          adapter_->getOrientationBaseToWorld().rotate(adapter_->getLinearVelocityBaseInBaseFrame()));
+  state_->setLinearVelocityBaseInWorldFrame(adapter_->getLinearVelocityBaseInWorldFrame());
   state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
   state_->setRobotExecutionStatus(true);
   // TODO Add base velocities.
@@ -248,8 +247,7 @@ bool Executor::updateStateWithMeasurements()
     state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
   }
   if (!controlSetup.at(ControlLevel::Velocity)) {
-    state_->setLinearVelocityBaseInWorldFrame(
-        adapter_->getOrientationBaseToWorld().rotate(adapter_->getLinearVelocityBaseInBaseFrame()));
+    state_->setLinearVelocityBaseInWorldFrame(adapter_->getLinearVelocityBaseInWorldFrame());
     state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
   }
 
@@ -350,13 +348,24 @@ bool Executor::writeLegMotion()
             std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
             return false;
           }
-          Position positionInBaseFrame = adapter_->transformPosition(frameId, "base", endEffectorMotion.evaluatePosition(time));
+          Position positionInBaseFrame = adapter_->transformPosition(frameId, adapter_->getBaseFrameId(), endEffectorMotion.evaluatePosition(time));
           JointPositionsLeg jointPositions;
           if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
             std::cerr << "Failed to compute joint positions from end effector position for " <<limb << "." << std::endl;
             return false;
           }
           state_->setJointPositionsForLimb(limb, jointPositions);
+        }
+        if (controlSetup[ControlLevel::Velocity]) {
+          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
+          if (!adapter_->frameIdExists(frameId)) {
+            std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+            return false;
+          }
+          LinearVelocity velocityInWorldFrame = adapter_->transformLinearVelocity(
+              frameId, adapter_->getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
+          const JointVelocitiesLeg jointVelocities = adapter_->getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
+          state_->setJointVelocitiesForLimb(limb, jointVelocities);
         }
         break;
       }
@@ -365,7 +374,7 @@ bool Executor::writeLegMotion()
       {
         const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) state_->setJointPositionsForLimb(limb, jointMotion.evaluatePosition(time));
-//        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocities(limb, jointMotion.evaluateVelocity(time));
+        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocitiesForLimb(limb, jointMotion.evaluateVelocity(time));
 //        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
         if (controlSetup[ControlLevel::Effort]) state_->setJointEffortsForLimb(limb, jointMotion.evaluateEffort(time));
         break;

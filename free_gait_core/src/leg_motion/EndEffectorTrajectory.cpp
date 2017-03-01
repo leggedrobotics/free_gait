@@ -80,6 +80,11 @@ bool EndEffectorTrajectory::prepareComputation(const State& state, const Step& s
 {
   duration_ = times_.back();
   trajectory_.fitCurve(times_, values_.at(ControlLevel::Position));
+
+  // Curves implementation provides velocities.
+  controlSetup_[ControlLevel::Velocity] = true;
+  frameIds_[ControlLevel::Velocity] = frameIds_[ControlLevel::Position];
+
   isComputed_ = true;
   return true;
 }
@@ -96,14 +101,23 @@ bool EndEffectorTrajectory::isComputed() const
 
 const Position EndEffectorTrajectory::evaluatePosition(const double time) const
 {
+  double timeInRange = time <= getDuration() ? time : getDuration();
   Position position;
   trajectory_.evaluate(position.toImplementation(), time);
   return position;
 }
 
+const LinearVelocity EndEffectorTrajectory::evaluateVelocity(const double time) const
+{
+  double timeInRange = time <= getDuration() ? time : getDuration();
+  LinearVelocity velocity;
+  trajectory_.evaluateDerivative(velocity.toImplementation(), timeInRange, 1);
+  return velocity;
+}
+
 double EndEffectorTrajectory::getDuration() const
 {
-  return trajectory_.getMaxTime() - trajectory_.getMinTime();
+  return duration_;
 }
 
 const Position EndEffectorTrajectory::getTargetPosition() const
