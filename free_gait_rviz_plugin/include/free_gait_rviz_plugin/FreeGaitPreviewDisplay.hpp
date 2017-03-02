@@ -72,6 +72,7 @@ Q_OBJECT
   void previewStateChanged(const ros::Time& time);
   void previewReachedEnd();
   void changeShowAllVisuals();
+  void changeShowEndEffectorTargets();
   void changeShowEndEffectorTrajectories();
 
  private:
@@ -111,6 +112,8 @@ Q_OBJECT
   rviz::ButtonToggleProperty* playButtonProperty_;
   rviz::FloatSliderProperty* timelimeSliderProperty_;
   rviz::BoolProperty* visualsTree_;
+  rviz::BoolProperty* showEndEffectorTargetsProperty_;
+  rviz::ColorProperty* endEffectorTargetsColorProperty_;
   rviz::BoolProperty* showEndEffectorTrajectoriesProperty_;
 
   rviz::Display* robotModelRvizPlugin_;

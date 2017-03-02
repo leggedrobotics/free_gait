@@ -16,8 +16,8 @@ FreeGaitPreviewVisual::FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager,
       stateBatchPtr_(NULL)
 {
   // Visible by default.
+  setEnabledModul(Modul::EndEffectorTargets, true);
   setEnabledModul(Modul::EndEffectorTrajectories, true);
-  setEnabledModul(Modul::Footsteps, true);
 }
 
 FreeGaitPreviewVisual::~FreeGaitPreviewVisual()
@@ -52,6 +52,9 @@ void FreeGaitPreviewVisual::showEnabled()
   ROS_DEBUG("FreeGaitPreviewVisual::showEnabled()");
   for (const auto& modul : enabledModuls_) {
     switch (modul) {
+      case Modul::EndEffectorTargets:
+        showEndEffectorTargets();
+        break;
       case Modul::EndEffectorTrajectories:
         showEndEffectorTrajectories();
         break;
@@ -65,6 +68,9 @@ void FreeGaitPreviewVisual::hideEnabled()
 {
   for (const auto& modul : enabledModuls_) {
     switch (modul) {
+      case Modul::EndEffectorTargets:
+        hideEndEffectorTargets();
+        break;
       case Modul::EndEffectorTrajectories:
         hideEndEffectorTrajectories();
         break;
@@ -72,6 +78,33 @@ void FreeGaitPreviewVisual::hideEnabled()
         break;
     }
   }
+}
+
+void FreeGaitPreviewVisual::showEndEffectorTargets(const float diameter, const Ogre::ColourValue& color)
+{
+  ROS_DEBUG("Rendering end effector targets.");
+  if (!stateBatchPtr_) return;
+  endEffectorTargets_.clear();
+  const size_t nEndEffectors(stateBatchPtr_->getEndEffectorTargets().size());
+
+  for (size_t i = 0; i < nEndEffectors; ++i) {
+    endEffectorTargets_.push_back(std::vector<std::unique_ptr<rviz::Shape>>());
+    // For each limb.
+    for (const auto& target : stateBatchPtr_->getEndEffectorTargets()[i]) {
+      // For each target.
+      const auto& targetPosition = target.second;
+      std::unique_ptr<rviz::Shape> shape(new rviz::Shape(rviz::Shape::Type::Sphere, sceneManager_, frameNode_));
+      shape->setPosition(Ogre::Vector3(targetPosition.x(), targetPosition.y(), targetPosition.z()));
+      shape->setColor(color);
+      shape->setScale(Ogre::Vector3(diameter));
+      endEffectorTargets_[i].push_back(std::move(shape));
+    }
+  }
+}
+
+void FreeGaitPreviewVisual::hideEndEffectorTargets()
+{
+  endEffectorTargets_.clear();
 }
 
 void FreeGaitPreviewVisual::showEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)

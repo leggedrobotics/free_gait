@@ -13,6 +13,7 @@
 #include <free_gait_core/free_gait_core.hpp>
 
 // RViz
+#include <rviz/ogre_helpers/shape.h>
 #include <rviz/ogre_helpers/billboard_line.h>
 
 // OGRE
@@ -28,8 +29,8 @@ class FreeGaitPreviewVisual
 {
  public:
   enum class Modul {
-    EndEffectorTrajectories,
-    Footsteps
+    EndEffectorTargets,
+    EndEffectorTrajectories
   };
 
   FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode);
@@ -42,6 +43,10 @@ class FreeGaitPreviewVisual
   void hideEnabled();
 
 
+  void showEndEffectorTargets(const float diameter = 0.04, const Ogre::ColourValue& color =
+                                  Ogre::ColourValue(1, 0, 0, 1));
+  void hideEndEffectorTargets();
+
   void showEndEffectorTrajectories(const float width = 0.01, const Ogre::ColourValue& color =
                                             Ogre::ColourValue(1, 0, 0, 1));
   void hideEndEffectorTrajectories();
@@ -51,6 +56,7 @@ class FreeGaitPreviewVisual
   Ogre::SceneNode* frameNode_;
   const free_gait::StateBatch* stateBatchPtr_;
   std::list<Modul> enabledModuls_;
+  std::vector<std::vector<std::unique_ptr<rviz::Shape>>> endEffectorTargets_;
   std::vector<std::unique_ptr<rviz::BillboardLine>> endEffectorTrajectories_;
 };
 

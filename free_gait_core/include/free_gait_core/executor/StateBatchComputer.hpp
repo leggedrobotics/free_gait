@@ -20,6 +20,7 @@ class StateBatchComputer
   virtual ~StateBatchComputer();
 
   void computeEndEffectorTrajectories(StateBatch& stateBatch);
+  void computeEndEffectorTargets(StateBatch& stateBatch);
   void computeBaseTrajectories(StateBatch& stateBatch);
 
  private:

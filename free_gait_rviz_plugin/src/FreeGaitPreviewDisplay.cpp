@@ -118,9 +118,19 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
                                         SLOT(changeShowAllVisuals()));
   visualsTree_->setDisableChildrenIfFalse(true);
 
+  showEndEffectorTargetsProperty_ = new rviz::BoolProperty(
+      "End Effector Targets", true, "Show target position of end effector motions.",
+      visualsTree_, SLOT(changeShowEndEffectorTargets()), this);
+  showEndEffectorTargetsProperty_->setDisableChildrenIfFalse(true);
+
+  endEffectorTargetsColorProperty_ = new rviz::ColorProperty(
+      "Color", true, "Set the color of the end effector targets.",
+      showEndEffectorTargetsProperty_, SLOT(changeShowAllVisuals()), this);
+
   showEndEffectorTrajectoriesProperty_ = new rviz::BoolProperty(
       "End Effector Trajectories", true, "Draw a trace for the end effector trajectory.",
       visualsTree_, SLOT(changeShowEndEffectorTrajectories()), this);
+  showEndEffectorTrajectoriesProperty_->setDisableChildrenIfFalse(true);
 }
 
 FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
@@ -306,6 +316,17 @@ void FreeGaitPreviewDisplay::changeShowAllVisuals()
     visual_->showEnabled();
   } else {
     visual_->hideEnabled();
+  }
+}
+
+void FreeGaitPreviewDisplay::changeShowEndEffectorTargets()
+{
+  ROS_DEBUG_STREAM("Setting show end effector targets to " << (showEndEffectorTargetsProperty_->getBool() ? "True" : "False") << ".");
+  visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::EndEffectorTargets, showEndEffectorTargetsProperty_->getBool());
+  if (showEndEffectorTargetsProperty_->getBool()) {
+    visual_->showEndEffectorTargets();
+  } else {
+    visual_->hideEndEffectorTargets();
   }
 }
 
