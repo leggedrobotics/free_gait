@@ -22,7 +22,7 @@ namespace free_gait {
 class StepCompleter
 {
  public:
-  StepCompleter(std::shared_ptr<StepParameters> parameters, std::shared_ptr<AdapterBase> adapter);
+  StepCompleter(const StepParameters& parameters, const AdapterBase& adapter);
   virtual ~StepCompleter();
   bool complete(const State& state, const StepQueue& queue, Step& step);
   bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
@@ -37,8 +37,8 @@ class StepCompleter
   void setParameters(BaseTrajectory& baseTrajectory) const;
 
  private:
-  std::shared_ptr<StepParameters> parameters_;
-  std::shared_ptr<AdapterBase> adapter_;
+  const StepParameters& parameters_;
+  const AdapterBase& adapter_;
 };
 
 } /* namespace */

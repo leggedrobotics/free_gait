@@ -16,14 +16,14 @@ namespace free_gait {
 class StateBatchComputer
 {
  public:
-  StateBatchComputer(std::shared_ptr<AdapterBase> adapter);
+  StateBatchComputer(AdapterBase& adapter);
   virtual ~StateBatchComputer();
 
   void computeEndEffectorTrajectories(StateBatch& stateBatch);
   void computeBaseTrajectories(StateBatch& stateBatch);
 
  private:
-  std::shared_ptr<AdapterBase> adapter_;
+  AdapterBase& adapter_;
 };
 
 } /* namespace free_gait */

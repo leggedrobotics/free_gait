@@ -30,8 +30,9 @@ namespace free_gait {
 class Executor
 {
  public:
-  Executor(std::shared_ptr<StepCompleter> completer, std::shared_ptr<StepComputer> computer,
-           std::shared_ptr<AdapterBase> adapter, std::shared_ptr<State> state);
+  Executor(StepCompleter& completer, StepComputer& computer,
+           AdapterBase& adapter, State& state);
+
   virtual ~Executor();
 
   /*!
@@ -100,10 +101,10 @@ class Executor
   bool isPausing_;
   PreemptionType preemptionType_;
   StepQueue queue_;
-  std::shared_ptr<StepCompleter> completer_;
-  std::shared_ptr<StepComputer> computer_;
-  std::shared_ptr<AdapterBase> adapter_;
-  std::shared_ptr<State> state_;
+  StepCompleter& completer_;
+  StepComputer& computer_;
+  AdapterBase& adapter_;
+  State& state_;
   std::string feedbackDescription_;
   bool firstFeedbackDescription_;
 };

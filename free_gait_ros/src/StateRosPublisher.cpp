@@ -21,7 +21,7 @@
 namespace free_gait {
 
 StateRosPublisher::StateRosPublisher(ros::NodeHandle& nodeHandle,
-                                     std::shared_ptr<AdapterBase> adapter)
+                                     AdapterBase& adapter)
     : nodeHandle_(nodeHandle),
       adapter_(adapter)
 {
@@ -85,21 +85,21 @@ bool StateRosPublisher::publish(const State& state)
   // Publish base position.
   geometry_msgs::TransformStamped tfTransform;
   tfTransform.header.stamp = time;
-  tfTransform.header.frame_id = adapter_->getWorldFrameId();
-  tfTransform.child_frame_id = tf::resolve(tfPrefix_, adapter_->getBaseFrameId());
+  tfTransform.header.frame_id = adapter_.getWorldFrameId();
+  tfTransform.child_frame_id = tf::resolve(tfPrefix_, adapter_.getBaseFrameId());
   kindr_ros::convertToRosGeometryMsg(state.getPositionWorldToBaseInWorldFrame(), tfTransform.transform.translation);
   kindr_ros::convertToRosGeometryMsg(state.getOrientationBaseToWorld(), tfTransform.transform.rotation);
   tfBroadcaster_.sendTransform(tfTransform);
 
   // Publish frame transforms.
   std::vector<std::string> frameTransforms;
-  adapter_->getAvailableFrameTransforms(frameTransforms);
+  adapter_.getAvailableFrameTransforms(frameTransforms);
   for (const auto& frameId : frameTransforms) {
     geometry_msgs::TransformStamped tfTransform;
     tfTransform.header.stamp = time;
-    tfTransform.header.frame_id = adapter_->getWorldFrameId();
+    tfTransform.header.frame_id = adapter_.getWorldFrameId();
     tfTransform.child_frame_id = tf::resolve(tfPrefix_, frameId);
-    kindr_ros::convertToRosGeometryMsg(adapter_->getFrameTransform(frameId), tfTransform.transform);
+    kindr_ros::convertToRosGeometryMsg(adapter_.getFrameTransform(frameId), tfTransform.transform);
     tfBroadcaster_.sendTransform(tfTransform);
   }
 

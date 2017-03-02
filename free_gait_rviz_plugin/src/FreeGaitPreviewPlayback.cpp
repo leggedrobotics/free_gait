@@ -15,7 +15,7 @@ using namespace free_gait;
 namespace free_gait_rviz_plugin {
 
 FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
-                                                 std::shared_ptr<free_gait::AdapterBase> adapter)
+                                                 free_gait::AdapterBase& adapter)
     : nodeHandle_(nodeHandle),
       playMode_(PlayMode::ONHOLD),
       time_(0.0),

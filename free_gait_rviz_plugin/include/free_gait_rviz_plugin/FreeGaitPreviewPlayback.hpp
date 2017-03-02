@@ -36,7 +36,7 @@ class FreeGaitPreviewPlayback
   typedef std::lock_guard<std::recursive_mutex> Lock;
 
   FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
-                          std::shared_ptr<free_gait::AdapterBase> adapter);
+                          free_gait::AdapterBase& adapter);
   virtual ~FreeGaitPreviewPlayback();
 
   void addNewGoalCallback(std::function<void()> callback);

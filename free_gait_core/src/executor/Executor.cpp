@@ -10,10 +10,10 @@
 
 namespace free_gait {
 
-Executor::Executor(std::shared_ptr<StepCompleter> completer,
-                   std::shared_ptr<StepComputer> computer,
-                   std::shared_ptr<AdapterBase> adapter,
-                   std::shared_ptr<State> state)
+Executor::Executor(StepCompleter& completer,
+                   StepComputer& computer,
+                   AdapterBase& adapter,
+                   State& state)
     : completer_(completer),
       computer_(computer),
       adapter_(adapter),
@@ -21,6 +21,7 @@ Executor::Executor(std::shared_ptr<StepCompleter> completer,
       isInitialized_(false),
       isPausing_(false),
       preemptionType_(PreemptionType::PREEMPT_STEP),
+      queue_(),
       firstFeedbackDescription_(true)
 {
 }
@@ -31,8 +32,8 @@ Executor::~Executor()
 
 bool Executor::initialize()
 {
-  computer_->initialize();
-  state_->initialize(adapter_->getLimbs(), adapter_->getBranches());
+  computer_.initialize();
+  state_.initialize(adapter_.getLimbs(), adapter_.getBranches());
   reset();
   return isInitialized_ = true;
 }
@@ -51,46 +52,46 @@ bool Executor::advance(double dt)
 {
   if (!isInitialized_) return false;
   updateStateWithMeasurements();
-  bool executionStatus = adapter_->isExecutionOk() && !isPausing_;
+  bool executionStatus = adapter_.isExecutionOk() && !isPausing_;
 
   if (executionStatus) {
-    if (!state_->getRobotExecutionStatus()) addToFeedback("Continuing with execution.");
-    state_->setRobotExecutionStatus(true);
+    if (!state_.getRobotExecutionStatus()) addToFeedback("Continuing with execution.");
+    state_.setRobotExecutionStatus(true);
   } else {
-    if (state_->getRobotExecutionStatus()) {
-      if (!adapter_->isExecutionOk()) addToFeedback("Robot status is not OK, paused execution and trying to recover.");
+    if (state_.getRobotExecutionStatus()) {
+      if (!adapter_.isExecutionOk()) addToFeedback("Robot status is not OK, paused execution and trying to recover.");
       if (isPausing_) addToFeedback("Paused execution.");
     }
-    state_->setRobotExecutionStatus(false);
+    state_.setRobotExecutionStatus(false);
     return true;
   }
 
   // Copying result from computer when done.
-  if (!queue_.empty() && queue_.getCurrentStep().needsComputation() && computer_->isDone()) {
-     computer_->getStep(queue_.getCurrentStep());
-     computer_->resetIsDone();
+  if (!queue_.empty() && queue_.getCurrentStep().needsComputation() && computer_.isDone()) {
+     computer_.getStep(queue_.getCurrentStep());
+     computer_.resetIsDone();
   }
 
   // Advance queue.
   if (!queue_.advance(dt)) return false;
-  if (!adapter_->updateExtrasBefore(queue_, *state_)) return false;
+  if (!adapter_.updateExtrasBefore(queue_, state_)) return false;
 
   // For a new switch in step, do some work on step for the transition.
   while (queue_.hasSwitchedStep()) {
     auto& currentStep = queue_.getCurrentStep();
-    if (!completer_->complete(*state_, queue_, currentStep)) {
+    if (!completer_.complete(state_, queue_, currentStep)) {
       std::cerr << "Executor::advance: Could not complete step." << std::endl;
       return false;
     }
-    if (currentStep.needsComputation() && !computer_->isBusy()) {
-      computer_->setStep(currentStep);
-      if (!computer_->compute()) {
+    if (currentStep.needsComputation() && !computer_.isBusy()) {
+      computer_.setStep(currentStep);
+      if (!computer_.compute()) {
         std::cerr << "Executor::advance: Could not compute step." << std::endl;
         return false;
       }
-      if (computer_->isDone()) {
-        computer_->getStep(queue_.getCurrentStep());
-        computer_->resetIsDone();
+      if (computer_.isDone()) {
+        computer_.getStep(queue_.getCurrentStep());
+        computer_.resetIsDone();
       }
     }
     if (!queue_.advance(dt)) return false; // Advance again after completion.
@@ -108,7 +109,7 @@ bool Executor::advance(double dt)
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
-  if (!adapter_->updateExtrasAfter(queue_, *state_)) return false;
+  if (!adapter_.updateExtrasAfter(queue_, state_)) return false;
 //  std::cout << *state_ << std::endl;
 
   return true;
@@ -163,7 +164,7 @@ void Executor::reset()
 {
   queue_.clear();
   resetStateWithRobot();
-  adapter_->resetExtrasWithRobot(queue_, *state_);
+  adapter_.resetExtrasWithRobot(queue_, state_);
   clearFeedbackDescription();
 }
 
@@ -179,79 +180,79 @@ StepQueue& Executor::getQueue()
 
 const State& Executor::getState() const
 {
-  return *state_;
+  return state_;
 }
 
 const AdapterBase& Executor::getAdapter() const
 {
-  return *adapter_;
+  return adapter_;
 }
 
 bool Executor::resetStateWithRobot()
 {
-  for (const auto& limb : adapter_->getLimbs()) {
-    state_->setSupportLeg(limb, adapter_->isLegGrounded(limb));
-    state_->setIgnoreContact(limb, !adapter_->isLegGrounded(limb));
-    state_->setIgnoreForPoseAdaptation(limb, !adapter_->isLegGrounded(limb));
-    state_->removeSurfaceNormal(limb);
+  for (const auto& limb : adapter_.getLimbs()) {
+    state_.setSupportLeg(limb, adapter_.isLegGrounded(limb));
+    state_.setIgnoreContact(limb, !adapter_.isLegGrounded(limb));
+    state_.setIgnoreForPoseAdaptation(limb, !adapter_.isLegGrounded(limb));
+    state_.removeSurfaceNormal(limb);
   }
 
-  if (state_->getNumberOfSupportLegs() > 0) {
-    state_->setControlSetup(BranchEnum::BASE, adapter_->getControlSetup(BranchEnum::BASE));
+  if (state_.getNumberOfSupportLegs() > 0) {
+    state_.setControlSetup(BranchEnum::BASE, adapter_.getControlSetup(BranchEnum::BASE));
   } else {
-    state_->setEmptyControlSetup(BranchEnum::BASE);
+    state_.setEmptyControlSetup(BranchEnum::BASE);
   }
 
-  for (const auto& limb : adapter_->getLimbs()) {
-    if (state_->isSupportLeg(limb)) {
-      state_->setEmptyControlSetup(limb);
+  for (const auto& limb : adapter_.getLimbs()) {
+    if (state_.isSupportLeg(limb)) {
+      state_.setEmptyControlSetup(limb);
     } else {
-      state_->setControlSetup(limb, adapter_->getControlSetup(limb));
+      state_.setControlSetup(limb, adapter_.getControlSetup(limb));
     }
   }
 
-  state_->setAllJointPositions(adapter_->getAllJointPositions());
-  state_->setAllJointVelocities(adapter_->getAllJointVelocities());
-//  state_->setAllJointAccelerations(adapter_->getAllJointAccelerations()); // TODO
-  state_->setAllJointEfforts(adapter_->getAllJointEfforts());
-  state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
-  state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
-  state_->setLinearVelocityBaseInWorldFrame(adapter_->getLinearVelocityBaseInWorldFrame());
-  state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
-  state_->setRobotExecutionStatus(true);
+  state_.setAllJointPositions(adapter_.getAllJointPositions());
+  state_.setAllJointVelocities(adapter_.getAllJointVelocities());
+//  state_.setAllJointAccelerations(adapter_.getAllJointAccelerations()); // TODO
+  state_.setAllJointEfforts(adapter_.getAllJointEfforts());
+  state_.setPositionWorldToBaseInWorldFrame(adapter_.getPositionWorldToBaseInWorldFrame());
+  state_.setOrientationBaseToWorld(adapter_.getOrientationBaseToWorld());
+  state_.setLinearVelocityBaseInWorldFrame(adapter_.getLinearVelocityBaseInWorldFrame());
+  state_.setAngularVelocityBaseInBaseFrame(adapter_.getAngularVelocityBaseInBaseFrame());
+  state_.setRobotExecutionStatus(true);
   // TODO Add base velocities.
   return true;
 }
 
 bool Executor::updateStateWithMeasurements()
 {
-  for (const auto& limb : adapter_->getLimbs()) {
-    const auto& controlSetup = state_->getControlSetup(limb);
+  for (const auto& limb : adapter_.getLimbs()) {
+    const auto& controlSetup = state_.getControlSetup(limb);
     if (!controlSetup.at(ControlLevel::Position)) {
-      state_->setJointPositionsForLimb(limb, adapter_->getJointPositionsForLimb(limb));
+      state_.setJointPositionsForLimb(limb, adapter_.getJointPositionsForLimb(limb));
     }
     if (!controlSetup.at(ControlLevel::Velocity)) {
-      state_->setJointVelocitiesForLimb(limb, adapter_->getJointVelocitiesForLimb(limb));
+      state_.setJointVelocitiesForLimb(limb, adapter_.getJointVelocitiesForLimb(limb));
     }
     if (!controlSetup.at(ControlLevel::Acceleration)) {
-//      state_->setJointAccelerations(limb, adapter_->getJointAccelerations(limb));
+//      state_.setJointAccelerations(limb, adapter_.getJointAccelerations(limb));
     }
     if (!controlSetup.at(ControlLevel::Effort)) {
-      state_->setJointEffortsForLimb(limb, adapter_->getJointEffortsForLimb(limb));
+      state_.setJointEffortsForLimb(limb, adapter_.getJointEffortsForLimb(limb));
     }
   }
 
-  const auto& controlSetup = state_->getControlSetup(BranchEnum::BASE);
+  const auto& controlSetup = state_.getControlSetup(BranchEnum::BASE);
   if (!controlSetup.at(ControlLevel::Position)) {
-    state_->setPositionWorldToBaseInWorldFrame(adapter_->getPositionWorldToBaseInWorldFrame());
-    state_->setOrientationBaseToWorld(adapter_->getOrientationBaseToWorld());
+    state_.setPositionWorldToBaseInWorldFrame(adapter_.getPositionWorldToBaseInWorldFrame());
+    state_.setOrientationBaseToWorld(adapter_.getOrientationBaseToWorld());
   }
   if (!controlSetup.at(ControlLevel::Velocity)) {
-    state_->setLinearVelocityBaseInWorldFrame(adapter_->getLinearVelocityBaseInWorldFrame());
-    state_->setAngularVelocityBaseInBaseFrame(adapter_->getAngularVelocityBaseInBaseFrame());
+    state_.setLinearVelocityBaseInWorldFrame(adapter_.getLinearVelocityBaseInWorldFrame());
+    state_.setAngularVelocityBaseInBaseFrame(adapter_.getAngularVelocityBaseInBaseFrame());
   }
 
-  state_->setAllJointVelocities(adapter_->getAllJointVelocities());
+  state_.setAllJointVelocities(adapter_.getAllJointVelocities());
   // TODO Copy also acceleraitons and torques.
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
@@ -262,10 +263,10 @@ bool Executor::writeIgnoreContact()
 {
   if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : adapter_->getLimbs()) {
+  for (const auto& limb : adapter_.getLimbs()) {
     if (step.hasLegMotion(limb)) {
       bool ignoreContact = step.getLegMotion(limb).isIgnoreContact();
-      state_->setIgnoreContact(limb, ignoreContact);
+      state_.setIgnoreContact(limb, ignoreContact);
     }
   }
   return true;
@@ -275,10 +276,10 @@ bool Executor::writeIgnoreForPoseAdaptation()
 {
   if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : adapter_->getLimbs()) {
+  for (const auto& limb : adapter_.getLimbs()) {
     if (step.hasLegMotion(limb)) {
       bool ignoreForPoseAdaptation = step.getLegMotion(limb).isIgnoreForPoseAdaptation();
-      state_->setIgnoreForPoseAdaptation(limb, ignoreForPoseAdaptation);
+      state_.setIgnoreForPoseAdaptation(limb, ignoreForPoseAdaptation);
     }
   }
   return true;
@@ -287,18 +288,18 @@ bool Executor::writeIgnoreForPoseAdaptation()
 bool Executor::writeSupportLegs()
 {
   if (!queue_.active()) {
-    for (const auto& limb : adapter_->getLimbs()) {
-      state_->setSupportLeg(limb, !state_->isIgnoreContact(limb));
+    for (const auto& limb : adapter_.getLimbs()) {
+      state_.setSupportLeg(limb, !state_.isIgnoreContact(limb));
     }
     return true;
   }
 
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : adapter_->getLimbs()) {
-    if (step.hasLegMotion(limb) || state_->isIgnoreContact(limb)) {
-      state_->setSupportLeg(limb, false);
+  for (const auto& limb : adapter_.getLimbs()) {
+    if (step.hasLegMotion(limb) || state_.isIgnoreContact(limb)) {
+      state_.setSupportLeg(limb, false);
     } else {
-      state_->setSupportLeg(limb, true);
+      state_.setSupportLeg(limb, true);
     }
   }
   return true;
@@ -308,12 +309,12 @@ bool Executor::writeSurfaceNormals()
 {
   if (!queue_.active()) return true;
   const Step& step = queue_.getCurrentStep();
-  for (const auto& limb : adapter_->getLimbs()) {
+  for (const auto& limb : adapter_.getLimbs()) {
     if (step.hasLegMotion(limb)) {
       if (step.getLegMotion(limb).hasSurfaceNormal()) {
-        state_->setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
+        state_.setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
       } else {
-        state_->removeSurfaceNormal(limb);
+        state_.removeSurfaceNormal(limb);
       }
     }
   }
@@ -322,8 +323,8 @@ bool Executor::writeSurfaceNormals()
 
 bool Executor::writeLegMotion()
 {
-  for (const auto& limb : adapter_->getLimbs()) {
-    if (state_->isSupportLeg(limb)) state_->setEmptyControlSetup(limb);
+  for (const auto& limb : adapter_.getLimbs()) {
+    if (state_.isSupportLeg(limb)) state_.setEmptyControlSetup(limb);
   }
   if (!queue_.active()) return true;
 
@@ -331,11 +332,11 @@ bool Executor::writeLegMotion()
   if (!step.hasLegMotion()) return true;
 
   double time = queue_.getCurrentStep().getTime();
-  for (const auto& limb : adapter_->getLimbs()) {
+  for (const auto& limb : adapter_.getLimbs()) {
     if (!step.hasLegMotion(limb)) continue;
     auto const& legMotion = step.getLegMotion(limb);
     ControlSetup controlSetup = legMotion.getControlSetup();
-    state_->setControlSetup(limb, controlSetup);
+    state_.setControlSetup(limb, controlSetup);
 
     switch (legMotion.getTrajectoryType()) {
 
@@ -344,28 +345,28 @@ bool Executor::writeLegMotion()
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) {
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
-          if (!adapter_->frameIdExists(frameId)) {
+          if (!adapter_.frameIdExists(frameId)) {
             std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
             return false;
           }
-          Position positionInBaseFrame = adapter_->transformPosition(frameId, adapter_->getBaseFrameId(), endEffectorMotion.evaluatePosition(time));
+          Position positionInBaseFrame = adapter_.transformPosition(frameId, adapter_.getBaseFrameId(), endEffectorMotion.evaluatePosition(time));
           JointPositionsLeg jointPositions;
-          if (!adapter_->getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
+          if (!adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(positionInBaseFrame, limb, jointPositions)) {
             std::cerr << "Failed to compute joint positions from end effector position for " <<limb << "." << std::endl;
             return false;
           }
-          state_->setJointPositionsForLimb(limb, jointPositions);
+          state_.setJointPositionsForLimb(limb, jointPositions);
         }
         if (controlSetup[ControlLevel::Velocity]) {
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
-          if (!adapter_->frameIdExists(frameId)) {
+          if (!adapter_.frameIdExists(frameId)) {
             std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
             return false;
           }
-          LinearVelocity velocityInWorldFrame = adapter_->transformLinearVelocity(
-              frameId, adapter_->getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
-          const JointVelocitiesLeg jointVelocities = adapter_->getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
-          state_->setJointVelocitiesForLimb(limb, jointVelocities);
+          LinearVelocity velocityInWorldFrame = adapter_.transformLinearVelocity(
+              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
+          const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
+          state_.setJointVelocitiesForLimb(limb, jointVelocities);
         }
         break;
       }
@@ -373,10 +374,10 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::Joints:
       {
         const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
-        if (controlSetup[ControlLevel::Position]) state_->setJointPositionsForLimb(limb, jointMotion.evaluatePosition(time));
-        if (controlSetup[ControlLevel::Velocity]) state_->setJointVelocitiesForLimb(limb, jointMotion.evaluateVelocity(time));
-//        if (controlSetup[ControlLevel::Acceleration]) state_->setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
-        if (controlSetup[ControlLevel::Effort]) state_->setJointEffortsForLimb(limb, jointMotion.evaluateEffort(time));
+        if (controlSetup[ControlLevel::Position]) state_.setJointPositionsForLimb(limb, jointMotion.evaluatePosition(time));
+        if (controlSetup[ControlLevel::Velocity]) state_.setJointVelocitiesForLimb(limb, jointMotion.evaluateVelocity(time));
+//        if (controlSetup[ControlLevel::Acceleration]) state_.setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
+        if (controlSetup[ControlLevel::Effort]) state_.setJointEffortsForLimb(limb, jointMotion.evaluateEffort(time));
         break;
       }
 
@@ -391,38 +392,38 @@ bool Executor::writeLegMotion()
 
 bool Executor::writeTorsoMotion()
 {
-  if (state_->getNumberOfSupportLegs() == 0) state_->setEmptyControlSetup(BranchEnum::BASE);
+  if (state_.getNumberOfSupportLegs() == 0) state_.setEmptyControlSetup(BranchEnum::BASE);
   if (!queue_.active()) return true;
 
   if (!queue_.getCurrentStep().hasBaseMotion()) return true;
   double time = queue_.getCurrentStep().getTime();
   const auto& baseMotion = queue_.getCurrentStep().getBaseMotion();
   ControlSetup controlSetup = baseMotion.getControlSetup();
-  state_->setControlSetup(BranchEnum::BASE, controlSetup);
+  state_.setControlSetup(BranchEnum::BASE, controlSetup);
   if (controlSetup[ControlLevel::Position]) {
     const std::string& frameId = baseMotion.getFrameId(ControlLevel::Position);
-    if (!adapter_->frameIdExists(frameId)) {
+    if (!adapter_.frameIdExists(frameId)) {
       std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
       return false;
     }
-    Pose poseInWorldFrame = adapter_->transformPose(frameId, adapter_->getWorldFrameId(),
+    Pose poseInWorldFrame = adapter_.transformPose(frameId, adapter_.getWorldFrameId(),
                                                     baseMotion.evaluatePose(time));
-    state_->setPositionWorldToBaseInWorldFrame(poseInWorldFrame.getPosition());
-    state_->setOrientationBaseToWorld(poseInWorldFrame.getRotation());
+    state_.setPositionWorldToBaseInWorldFrame(poseInWorldFrame.getPosition());
+    state_.setOrientationBaseToWorld(poseInWorldFrame.getRotation());
   }
   if (controlSetup[ControlLevel::Velocity]) {
     const std::string& frameId = baseMotion.getFrameId(ControlLevel::Velocity);
-    if (!adapter_->frameIdExists(frameId)) {
+    if (!adapter_.frameIdExists(frameId)) {
       std::cerr << "Could not find frame '" << frameId << "' for free gait base motion!" << std::endl;
       return false;
     }
     Twist twist = baseMotion.evaluateTwist(time);
-    LinearVelocity linearVelocityInWorldFrame = adapter_->transformLinearVelocity(
-        frameId, adapter_->getWorldFrameId(), twist.getTranslationalVelocity());
-    LocalAngularVelocity angularVelocityInBaseFrame = adapter_->transformAngularVelocity(
-        frameId, adapter_->getBaseFrameId(), twist.getRotationalVelocity());
-    state_->setLinearVelocityBaseInWorldFrame(linearVelocityInWorldFrame);
-    state_->setAngularVelocityBaseInBaseFrame(angularVelocityInBaseFrame);
+    LinearVelocity linearVelocityInWorldFrame = adapter_.transformLinearVelocity(
+        frameId, adapter_.getWorldFrameId(), twist.getTranslationalVelocity());
+    LocalAngularVelocity angularVelocityInBaseFrame = adapter_.transformAngularVelocity(
+        frameId, adapter_.getBaseFrameId(), twist.getRotationalVelocity());
+    state_.setLinearVelocityBaseInWorldFrame(linearVelocityInWorldFrame);
+    state_.setAngularVelocityBaseInBaseFrame(angularVelocityInBaseFrame);
   }
   // TODO Set more states.
   return true;

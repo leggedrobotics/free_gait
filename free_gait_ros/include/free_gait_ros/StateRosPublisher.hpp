@@ -24,7 +24,7 @@ namespace free_gait {
 class StateRosPublisher
 {
  public:
-  StateRosPublisher(ros::NodeHandle& nodeHandle, std::shared_ptr<AdapterBase> adapter);
+  StateRosPublisher(ros::NodeHandle& nodeHandle, AdapterBase& adapter);
   virtual ~StateRosPublisher();
 
   void setTfPrefix(const std::string tfPrefix);
@@ -36,7 +36,7 @@ class StateRosPublisher
   ros::NodeHandle& nodeHandle_;
   std::string tfPrefix_;
   std::unique_ptr<robot_state_publisher::RobotStatePublisher> robotStatePublisher_;
-  std::shared_ptr<AdapterBase> adapter_;
+  AdapterBase& adapter_;
   tf2_ros::TransformBroadcaster tfBroadcaster_;
 };
 
