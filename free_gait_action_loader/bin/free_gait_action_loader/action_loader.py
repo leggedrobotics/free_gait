@@ -157,7 +157,7 @@ class ActionLoader:
     def _load_launch_action(self, file_path):
         # Load action with external launch file.
         rospy.loginfo('Loading Free Gait action with launch file "' + file_path + '".')
-        self.action = LaunchAction(file_path, self.use_preview)
+        self.action = LaunchAction(file_path, self.execute_steps_relay)
 
     def _action_feedback_callback(self):
         rospy.loginfo('Action switched to state: ' + ActionState.to_text(self.action.state) + '.')

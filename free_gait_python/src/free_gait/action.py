@@ -178,8 +178,8 @@ class ContinuousAction(ActionBase):
 
 class LaunchAction(ActionBase):
 
-    def __init__(self, file_path, use_preview = False):
-        ActionBase.__init__(self, None)
+    def __init__(self, file_path, relay):
+        ActionBase.__init__(self, relay)
         launch_file = open(file_path, "r")
         launch_text = launch_file.read()
         launch_file.close()
@@ -206,10 +206,11 @@ class LaunchAction(ActionBase):
     def stop(self):
         self.launch.shutdown()
         os.unlink(self.temp_launch_file.name)
+        ActionBase.stop(self)
 
     def _replace_preview_argument(self, launch_text):
         preview_argument = '<arg name="use_preview" value="'
-        if self.use_preview:
+        if self._use_preview():
             preview_argument += 'true'
         else:
             preview_argument += 'false'
@@ -224,7 +225,6 @@ class LaunchAction(ActionBase):
             self.set_state(ActionState.DONE)
         else:
             self.set_state(ActionState.ERROR)
-        self.stop()
 
 
 class TriggerOnFeedback:
