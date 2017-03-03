@@ -83,28 +83,28 @@ void FreeGaitPreviewVisual::hideEnabled()
 void FreeGaitPreviewVisual::showEndEffectorTargets(const float diameter, const Ogre::ColourValue& color)
 {
   ROS_DEBUG("Rendering end effector targets.");
-  if (!stateBatchPtr_) return;
-  endEffectorTargets_.clear();
-  const size_t nEndEffectors(stateBatchPtr_->getEndEffectorTargets().size());
-
-  for (size_t i = 0; i < nEndEffectors; ++i) {
-    endEffectorTargets_.push_back(std::vector<std::unique_ptr<rviz::Shape>>());
-    // For each limb.
-    for (const auto& target : stateBatchPtr_->getEndEffectorTargets()[i]) {
-      // For each target.
-      const auto& targetPosition = target.second;
-      std::unique_ptr<rviz::Shape> shape(new rviz::Shape(rviz::Shape::Type::Sphere, sceneManager_, frameNode_));
-      shape->setPosition(Ogre::Vector3(targetPosition.x(), targetPosition.y(), targetPosition.z()));
-      shape->setColor(color);
-      shape->setScale(Ogre::Vector3(diameter));
-      endEffectorTargets_[i].push_back(std::move(shape));
-    }
-  }
+//  if (!stateBatchPtr_) return;
+//  endEffectorTargets_.clear();
+//  const size_t nEndEffectors(stateBatchPtr_->getEndEffectorTargets().size());
+//
+//  for (size_t i = 0; i < nEndEffectors; ++i) {
+//    endEffectorTargets_.push_back(std::vector<std::unique_ptr<rviz::Shape>>());
+//    // For each limb.
+//    for (const auto& target : stateBatchPtr_->getEndEffectorTargets()[i]) {
+//      // For each target.
+//      const auto& targetPosition = target.second;
+//      std::unique_ptr<rviz::Shape> shape(new rviz::Shape(rviz::Shape::Type::Sphere, sceneManager_, frameNode_));
+//      shape->setPosition(Ogre::Vector3(targetPosition.x(), targetPosition.y(), targetPosition.z()));
+//      shape->setColor(color);
+//      shape->setScale(Ogre::Vector3(diameter));
+//      endEffectorTargets_[i].push_back(std::move(shape));
+//    }
+//  }
 }
 
 void FreeGaitPreviewVisual::hideEndEffectorTargets()
 {
-  endEffectorTargets_.clear();
+//  endEffectorTargets_.clear();
 }
 
 void FreeGaitPreviewVisual::showEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)
