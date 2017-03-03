@@ -34,14 +34,14 @@ class AdapterRos
   const std::string getRobotStateMessageType();
   bool updateAdapterWithState();
   const AdapterBase& getAdapter() const;
-  AdapterBase& getAdapter() const;
+  AdapterBase* getAdapterPtr();
 
  private:
   ros::NodeHandle& nodeHandle_;
   pluginlib::ClassLoader<AdapterBase> adapterLoader_;
-  std::shared_ptr<AdapterBase> adapter_;
+  std::unique_ptr<AdapterBase> adapter_;
   pluginlib::ClassLoader<AdapterRosInterfaceBase> adapterRosInterfaceLoader_;
-  std::shared_ptr<AdapterRosInterfaceBase> adapterRosInterface_;
+  std::unique_ptr<AdapterRosInterfaceBase> adapterRosInterface_;
 };
 
 } /* namespace free_gait */
