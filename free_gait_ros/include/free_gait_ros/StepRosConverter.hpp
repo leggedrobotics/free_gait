@@ -33,7 +33,7 @@ namespace free_gait {
 class StepRosConverter
 {
  public:
-  StepRosConverter(std::shared_ptr<AdapterBase> adapter);
+  StepRosConverter(const AdapterBase& adapter);
   virtual ~StepRosConverter();
 
   /*!
@@ -61,7 +61,7 @@ class StepRosConverter
   bool toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message);
 
  private:
-  std::shared_ptr<AdapterBase> adapter_;
+  const AdapterBase& adapter_;
 };
 
 }

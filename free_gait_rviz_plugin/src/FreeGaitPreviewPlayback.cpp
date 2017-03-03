@@ -23,13 +23,16 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
       stateRosPublisher_(nodeHandle, adapter),
       speedFactor_(1.0)
 {
-  std::shared_ptr<StepParameters> parameters(new StepParameters);
-  std::shared_ptr<StepCompleter> completer(new StepCompleter(parameters, adapter));
-  std::shared_ptr<StepComputer> computer(new StepComputer());
   executorState_.reset(new State());
-  std::shared_ptr<Executor> executor(new Executor(completer, computer, adapter, executorState_));
-  executor->initialize();
-  batchExecutor_.reset(new BatchExecutor(executor));
+
+  parameters_.reset(new StepParameters);
+  completer_.reset(new StepCompleter(*parameters_, adapter));
+  computer_.reset(new StepComputer());
+
+  executor_.reset(new Executor(*completer_, *computer_, adapter, *executorState_));
+  executor_->initialize();
+
+  batchExecutor_.reset(new BatchExecutor(*executor_));
   batchExecutor_->addProcessingCallback(std::bind(&FreeGaitPreviewPlayback::processingCallback, this, std::placeholders::_1));
 }
 

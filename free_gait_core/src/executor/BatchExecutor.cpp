@@ -11,7 +11,7 @@
 
 namespace free_gait {
 
-BatchExecutor::BatchExecutor(std::shared_ptr<free_gait::Executor> executor)
+BatchExecutor::BatchExecutor(free_gait::Executor& executor)
     : executor_(executor),
       timeStep_(0.001),
       isProcessing_(false),
@@ -43,8 +43,8 @@ bool BatchExecutor::process(const std::vector<free_gait::Step>& steps)
 {
   if (isProcessing_) return false;
   isProcessing_ = true;
-  executor_->reset();
-  executor_->getQueue().add(steps);
+  executor_.reset();
+  executor_.getQueue().add(steps);
   std::thread thread(std::bind(&BatchExecutor::processInThread, this));
   thread.detach();
   return true;
@@ -70,10 +70,10 @@ void BatchExecutor::processInThread()
 {
   stateBatch_.clear();
   double time = 0.0;
-  while (!executor_->getQueue().empty() && !requestForCancelling_) {
-    executor_->advance(timeStep_);
+  while (!executor_.getQueue().empty() && !requestForCancelling_) {
+    executor_.advance(timeStep_);
     time += timeStep_;
-    stateBatch_.addState(time, executor_->getState());
+    stateBatch_.addState(time, executor_.getState());
   }
   requestForCancelling_ = false;
   isProcessing_ = false;

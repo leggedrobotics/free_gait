@@ -33,7 +33,8 @@ class AdapterRos
   void unsubscribeFromRobotState();
   const std::string getRobotStateMessageType();
   bool updateAdapterWithState();
-  std::shared_ptr<AdapterBase> getAdapter();
+  const AdapterBase& getAdapter() const;
+  AdapterBase& getAdapter() const;
 
  private:
   ros::NodeHandle& nodeHandle_;

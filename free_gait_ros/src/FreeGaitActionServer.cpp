@@ -18,7 +18,7 @@
 namespace free_gait {
 
 FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                                           std::shared_ptr<Executor> executor, std::shared_ptr<AdapterBase> adapter)
+                                           Executor& executor, AdapterBase& adapter)
     : nodeHandle_(nodeHandle),
       name_(name),
       executor_(executor),
@@ -39,16 +39,16 @@ void FreeGaitActionServer::initialize()
   server_.registerPreemptCallback(boost::bind(&FreeGaitActionServer::preemptCallback, this));
 }
 
-void FreeGaitActionServer::setExecutor(std::shared_ptr<Executor> executor)
-{
-  Executor::Lock lock(executor_->getMutex());
-  executor_ = executor;
-}
-
-void FreeGaitActionServer::setAdapter(std::shared_ptr<AdapterBase> adapter)
-{
-  adapter_ = adapter;
-}
+//void FreeGaitActionServer::setExecutor(std::shared_ptr<Executor> executor)
+//{
+//  Executor::Lock lock(executor_.getMutex());
+//  executor_ = executor;
+//}
+//
+//void FreeGaitActionServer::setAdapter(std::shared_ptr<AdapterBase> adapter)
+//{
+//  adapter_ = adapter;
+//}
 
 void FreeGaitActionServer::start()
 {
@@ -59,8 +59,8 @@ void FreeGaitActionServer::start()
 void FreeGaitActionServer::update()
 {
   if (!server_.isActive()) return;
-  Executor::Lock lock(executor_->getMutex());
-  bool stepQueueEmpty = executor_->getQueue().empty();
+  Executor::Lock lock(executor_.getMutex());
+  bool stepQueueEmpty = executor_.getQueue().empty();
   lock.unlock();
   if (stepQueueEmpty) {
     // Succeeded.
@@ -73,7 +73,7 @@ void FreeGaitActionServer::update()
   } else {
     // Ongoing.
     lock.lock();
-    if (executor_->getQueue().active()) publishFeedback();
+    if (executor_.getQueue().active()) publishFeedback();
     lock.unlock();
   }
 }
@@ -101,8 +101,8 @@ void FreeGaitActionServer::goalCallback()
     adapter_.fromMessage(stepMessage, step);
     steps.push_back(step);
   }
-  Executor::Lock lock(executor_->getMutex());
-  executor_->getQueue().add(steps);
+  Executor::Lock lock(executor_.getMutex());
+  executor_.getQueue().add(steps);
   nStepsInCurrentGoal_ = goal->steps.size();
   lock.unlock();
 }
@@ -110,22 +110,22 @@ void FreeGaitActionServer::goalCallback()
 void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
-  Executor::Lock lock(executor_->getMutex());
-  if (!executor_->stop()) return;
+  Executor::Lock lock(executor_.getMutex());
+  if (!executor_.stop()) return;
   isPreempting_ = true;
 }
 
 void FreeGaitActionServer::publishFeedback()
 {
   free_gait_msgs::ExecuteStepsFeedback feedback;
-  Executor::Lock lock(executor_->getMutex());
-  if (executor_->getQueue().empty()) return;
+  Executor::Lock lock(executor_.getMutex());
+  if (executor_.getQueue().empty()) return;
   // TODO Add feedback if executor multi-threading is not yet ready.
-  feedback.queue_size = executor_->getQueue().size();
+  feedback.queue_size = executor_.getQueue().size();
   feedback.number_of_steps_in_goal = nStepsInCurrentGoal_;
   feedback.step_number = feedback.number_of_steps_in_goal - feedback.queue_size + 1;
 
-  if (executor_->getState().getRobotExecutionStatus() == false) {
+  if (executor_.getState().getRobotExecutionStatus() == false) {
     feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
   } else {
       feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
@@ -135,18 +135,18 @@ void FreeGaitActionServer::publishFeedback()
 //        break;
   }
 
-  feedback.description = executor_->getFeedbackDescription();
-  executor_->clearFeedbackDescription();
+  feedback.description = executor_.getFeedbackDescription();
+  executor_.clearFeedbackDescription();
 
-  const auto& step = executor_->getQueue().getCurrentStep();
+  const auto& step = executor_.getQueue().getCurrentStep();
   feedback.duration = ros::Duration(step.getTotalDuration());
   feedback.phase = step.getTotalPhase();
   for (const auto& legMotion : step.getLegMotions()) {
-    const std::string legName(executor_->getAdapter().getLimbStringFromLimbEnum(legMotion.first));
+    const std::string legName(executor_.getAdapter().getLimbStringFromLimbEnum(legMotion.first));
     feedback.active_branches.push_back(legName);
   }
   if (step.hasBaseMotion()) {
-    feedback.active_branches.push_back(executor_->getAdapter().getBaseString());
+    feedback.active_branches.push_back(executor_.getAdapter().getBaseString());
   }
   lock.unlock();
   server_.publishFeedback(feedback);
