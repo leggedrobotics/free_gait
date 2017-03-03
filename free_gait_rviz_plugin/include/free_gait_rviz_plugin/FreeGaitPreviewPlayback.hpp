@@ -36,7 +36,7 @@ class FreeGaitPreviewPlayback
   typedef std::lock_guard<std::recursive_mutex> Lock;
 
   FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
-                          std::shared_ptr<free_gait::AdapterBase> adapter);
+                          free_gait::AdapterBase& adapter);
   virtual ~FreeGaitPreviewPlayback();
 
   void addNewGoalCallback(std::function<void()> callback);
@@ -69,7 +69,11 @@ class FreeGaitPreviewPlayback
   std::function<void(const ros::Time&)> stateChangedCallback_;
   std::function<void()> reachedEndCallback_;
   std::unique_ptr<free_gait::BatchExecutor> batchExecutor_;
-  std::shared_ptr<free_gait::State> executorState_;
+  std::unique_ptr<free_gait::State> executorState_;
+  std::unique_ptr<free_gait::StepParameters> parameters_;
+  std::unique_ptr<free_gait::StepCompleter> completer_;
+  std::unique_ptr<free_gait::StepComputer> computer_;
+  std::unique_ptr<free_gait::Executor> executor_;
   free_gait::StateBatch stateBatch_;
   free_gait::StateBatchComputer stateBatchComputer_;
   std::recursive_mutex dataMutex_;

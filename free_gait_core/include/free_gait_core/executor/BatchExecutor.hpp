@@ -22,7 +22,7 @@ namespace free_gait {
 class BatchExecutor
 {
  public:
-  BatchExecutor(std::shared_ptr<free_gait::Executor> executor);
+  BatchExecutor(free_gait::Executor& executor);
   virtual ~BatchExecutor();
 
   void addProcessingCallback(std::function<void(bool)> callback);
@@ -38,7 +38,7 @@ class BatchExecutor
   void processInThread();
 
   StateBatch stateBatch_;
-  std::shared_ptr<free_gait::Executor> executor_;
+  free_gait::Executor& executor_;
 
   std::function<void(bool)> callback_;
   double timeStep_;

@@ -71,9 +71,14 @@ bool AdapterRos::updateAdapterWithState()
   return adapterRosInterface_->updateAdapterWithRobotState(*adapter_);
 }
 
-std::shared_ptr<AdapterBase> AdapterRos::getAdapter()
+const AdapterBase& AdapterRos::getAdapter() const
 {
-  return adapter_;
+  return *adapter_;
+}
+
+AdapterBase* AdapterRos::getAdapterPtr()
+{
+  return adapter_.get();
 }
 
 } /* namespace free_gait */

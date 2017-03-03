@@ -32,7 +32,7 @@ namespace free_gait_rviz_plugin {
 
 FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
     : adapterRos_(update_nh_, free_gait::AdapterRos::AdapterType::Preview),
-      playback_(update_nh_, adapterRos_.getAdapter()),
+      playback_(update_nh_, *adapterRos_.getAdapterPtr()),
       stepRosConverter_(adapterRos_.getAdapter()),
       visual_(NULL),
       robotModelRvizPlugin_(NULL)

@@ -16,7 +16,7 @@
 
 namespace free_gait {
 
-StepRosConverter::StepRosConverter(std::shared_ptr<AdapterBase> adapter)
+StepRosConverter::StepRosConverter(const AdapterBase& adapter)
     : adapter_(adapter)
 {
 }
@@ -40,35 +40,35 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& st
 {
   // Leg motion.
   for (const auto& footstepMessage : message.footstep) {
-    const auto limb = adapter_->getLimbEnumFromLimbString(footstepMessage.name);
+    const auto limb = adapter_.getLimbEnumFromLimbString(footstepMessage.name);
     Footstep footstep(limb);
     if (!fromMessage(footstepMessage, footstep)) return false;
     step.addLegMotion(footstep);
   }
 
   for (const auto& endEffectorTargetMessage : message.end_effector_target) {
-    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTargetMessage.name);
+    const auto limb = adapter_.getLimbEnumFromLimbString(endEffectorTargetMessage.name);
     EndEffectorTarget endEffectorTarget(limb);
     if (!fromMessage(endEffectorTargetMessage, endEffectorTarget)) return false;
     step.addLegMotion(endEffectorTarget);
   }
 
   for (const auto& endEffectorTrajectoryMessage : message.end_effector_trajectory) {
-    const auto limb = adapter_->getLimbEnumFromLimbString(endEffectorTrajectoryMessage.name);
+    const auto limb = adapter_.getLimbEnumFromLimbString(endEffectorTrajectoryMessage.name);
     EndEffectorTrajectory endEffectorTrajectory(limb);
     if (!fromMessage(endEffectorTrajectoryMessage, endEffectorTrajectory)) return false;
     step.addLegMotion(endEffectorTrajectory);
   }
 
   for (const auto& legModeMessage : message.leg_mode) {
-      const auto limb = adapter_->getLimbEnumFromLimbString(legModeMessage.name);
+      const auto limb = adapter_.getLimbEnumFromLimbString(legModeMessage.name);
       LegMode legMode(limb);
       if (!fromMessage(legModeMessage, legMode)) return false;
       step.addLegMotion(legMode);
     }
 
   for (const auto& jointTrajectoryMessage : message.joint_trajectory) {
-    const auto limb = adapter_->getLimbEnumFromLimbString(jointTrajectoryMessage.name);
+    const auto limb = adapter_.getLimbEnumFromLimbString(jointTrajectoryMessage.name);
     JointTrajectory jointTrajectory(limb);
     if (!fromMessage(jointTrajectoryMessage, jointTrajectory)) return false;
     step.addLegMotion(jointTrajectory);
@@ -107,7 +107,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
                                    Footstep& footstep)
 {
   // Limb.
-  footstep.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  footstep.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
   // Target.
   footstep.frameId_ = message.target.header.frame_id;
@@ -140,7 +140,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
                                    EndEffectorTarget& endEffectorTarget)
 {
   // Limb.
-  endEffectorTarget.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  endEffectorTarget.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
   // Target position.
   endEffectorTarget.controlSetup_[ControlLevel::Position] = !message.target_position.empty();
@@ -177,7 +177,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
                                    EndEffectorTrajectory& endEffectorTrajectory)
 {
   // Limb.
-  endEffectorTrajectory.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  endEffectorTrajectory.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
   // Trajectory.
   endEffectorTrajectory.frameIds_[ControlLevel::Position] = message.trajectory.header.frame_id;
@@ -237,7 +237,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
 bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMode& legMode)
 {
   // Limb.
-  legMode.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  legMode.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
   // Frame id. // TODO
 //  foostep.frameId_ = message.target.header.frame_id;
@@ -262,7 +262,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMo
 bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& message, JointTrajectory& jointTrajectory)
 {
   // Limb.
-  jointTrajectory.limb_ = adapter_->getLimbEnumFromLimbString(message.name);
+  jointTrajectory.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
   // Trajectory. // TODO
   jointTrajectory.controlSetup_[ControlLevel::Position] = false;
@@ -471,7 +471,7 @@ bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message
 bool StepRosConverter::toMessage(const Footstep& footstep, free_gait_msgs::Footstep& message)
 {
   // Limb.
-  message.name = adapter_->getLimbStringFromLimbEnum(footstep.limb_);
+  message.name = adapter_.getLimbStringFromLimbEnum(footstep.limb_);
 
   // Target.
   message.target.header.frame_id = footstep.frameId_;
@@ -501,7 +501,7 @@ bool StepRosConverter::toMessage(const Footstep& footstep, free_gait_msgs::Foots
 bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTrajectory, free_gait_msgs::EndEffectorTrajectory& message)
 {
   // Limb.
-  message.name = adapter_->getLimbStringFromLimbEnum(endEffectorTrajectory.limb_);
+  message.name = adapter_.getLimbStringFromLimbEnum(endEffectorTrajectory.limb_);
 
   // Trajectory.
   message.trajectory.header.frame_id = endEffectorTrajectory.frameIds_.at(ControlLevel::Position);

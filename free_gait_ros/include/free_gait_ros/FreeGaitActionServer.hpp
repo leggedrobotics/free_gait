@@ -30,13 +30,13 @@ class FreeGaitActionServer
 {
  public:
   FreeGaitActionServer(ros::NodeHandle nodeHandle, const std::string& name,
-                       std::shared_ptr<Executor> executor, std::shared_ptr<AdapterBase> adapter);
+                       Executor& executor, AdapterBase& adapter);
 
   virtual ~FreeGaitActionServer();
 
   void initialize();
-  void setExecutor(std::shared_ptr<Executor> executor);
-  void setAdapter(std::shared_ptr<AdapterBase> adapter);
+//  void setExecutor(std::shared_ptr<Executor> executor);
+//  void setAdapter(std::shared_ptr<AdapterBase> adapter);
   void start();
   void update();
   void shutdown();
@@ -52,7 +52,7 @@ class FreeGaitActionServer
  private:
   //! ROS nodehandle.
   ros::NodeHandle& nodeHandle_;
-  std::shared_ptr<free_gait::Executor> executor_;
+  free_gait::Executor& executor_;
 
   //! ROS converter.
   StepRosConverter adapter_;
