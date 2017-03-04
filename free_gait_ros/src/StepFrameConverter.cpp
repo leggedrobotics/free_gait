@@ -11,7 +11,7 @@
 
 namespace free_gait {
 
-StepFrameConverter::StepFrameConverter(std::shared_ptr<tf2_ros::Buffer> tfBuffer)
+StepFrameConverter::StepFrameConverter(tf2_ros::Buffer& tfBuffer)
     : tfBuffer_(tfBuffer)
 {
 }
@@ -116,11 +116,11 @@ bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
 
   // Adding this leads to blocking `lookupTransform`. Why?
   std::string errorMessage;
-  tfBuffer_->canTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0), &errorMessage);
+  tfBuffer_.canTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0), &errorMessage);
   geometry_msgs::TransformStamped transformStamped;
   try {
     // TODO Why is `lookupTransform` not blocking here?
-    transformStamped = tfBuffer_->lookupTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0));
+    transformStamped = tfBuffer_.lookupTransform(targetFrameId, sourceFrameId, time, ros::Duration(5.0));
   } catch (tf2::TransformException &ex) {
     ROS_ERROR("%s", ex.what());
     return false;

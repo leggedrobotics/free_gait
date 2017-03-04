@@ -23,7 +23,7 @@ namespace free_gait {
 class StepFrameConverter
 {
  public:
-  StepFrameConverter(std::shared_ptr<tf2_ros::Buffer> tfBuffer);
+  StepFrameConverter(tf2_ros::Buffer& tfBuffer);
   virtual ~StepFrameConverter();
 
   bool adaptCoordinates(StepQueue& stepQueue, const std::string& sourceFrameId,
@@ -55,7 +55,7 @@ class StepFrameConverter
   /// TF buffer used to read the transformations.
   /// Note: Needs to be updated from outside with
   /// a TF Listener!
-  std::shared_ptr<tf2_ros::Buffer> tfBuffer_;
+  tf2_ros::Buffer& tfBuffer_;
 
   /// Cached transform for faster conversion.
   std::string cachedTargetFrameId_, cachedSourceFrameId_;
