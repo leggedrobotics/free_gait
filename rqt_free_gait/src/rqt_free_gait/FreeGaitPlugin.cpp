@@ -247,6 +247,9 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
 /*****************************************************************************/
 
 void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
+  // get goal time stamp
+  currentGoalStamp_ = goal.goal_id.stamp;
+
   // init progress bar
   int totalSteps = (int)goal.goal.steps.size();
   ui_.progressBarAll->setMinimum(0);
@@ -388,7 +391,8 @@ void FreeGaitPlugin::updateResult(
       break;
   }
 
-  if (setButtons) {
+  // if result from the current goal
+  if (setButtons && result.status.goal_id.stamp == currentGoalStamp_) {
     // pause/play button
     ui_.pushButtonStop->setEnabled(false);
     ui_.pushButtonPause->setEnabled(false);
