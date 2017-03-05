@@ -122,7 +122,7 @@ class ActionBase(object):
 
     def _feedback_callback(self, feedback):
         """Feedback callback from the execute steps action server on the progress
-        of execution."""
+        of execution. Overwrite this method to trigger actions based on feedback."""
         self.feedback = feedback
 
     def _done_callback(self, status, result):
@@ -232,11 +232,9 @@ class TriggerOnFeedback:
     def __init__(self, n_steps_in_queue, phase_of_step):
         self.n_steps_in_queue = n_steps_in_queue
         self.phase_of_step = phase_of_step
-        self.feedback = None
 
     def check(self, feedback):
-        self.feedback = feedback
-        if self.feedback.queue_size <= self.n_steps_in_queue and self.feedback.phase >= self.phase_of_step:
+        if feedback.queue_size <= self.n_steps_in_queue and feedback.phase >= self.phase_of_step:
             return True
         else:
             return False
