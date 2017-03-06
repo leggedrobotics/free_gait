@@ -8,6 +8,11 @@ Free Gait is a software framework (whole-body abstraction layer) for the versati
 
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
+**Author: Péter Fankhauser<br />
+Maintainer: Péter Fankhauser, pfankhauser@ethz.ch<br />
+With contributions by: Samuel Bachmann, Philipp Krüsi, Dario Bellicoso, Christian Gehring, Remo Diethelm, Thomas Bi<br />
+Affiliation: Robotic Systems Lab, ETH Zurich**
+
 ## Publications
 
 If you use this work in an academic context, please cite the following publication(s):
