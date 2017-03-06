@@ -21,6 +21,7 @@ namespace free_gait {
 
 class StepRosConverter;
 class StepCompleter;
+class StepFrameConverter;
 
 /*!
  * Implementation of a base trajectory as polynomial spline.
@@ -48,6 +49,11 @@ class BaseTrajectory : public BaseMotionBase
    * @return a clone of this class.
    */
   virtual std::unique_ptr<BaseMotionBase> clone() const;
+
+  void setTrajectory(
+      const std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds,
+      const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash> times,
+      const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash> values);
 
   const ControlSetup getControlSetup() const;
 
@@ -99,6 +105,7 @@ class BaseTrajectory : public BaseMotionBase
 
   friend class StepCompleter;
   friend class StepRosConverter;
+  friend class StepFrameConverter;
 
  protected:
 
