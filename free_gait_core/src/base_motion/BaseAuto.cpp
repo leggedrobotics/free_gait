@@ -149,6 +149,16 @@ double BaseAuto::getHeight() const
   throw std::runtime_error("Height of BaseAuto has not been set yet.");
 }
 
+void BaseAuto::setAverageLinearVelocity(const double averageLinearVelocity)
+{
+  averageLinearVelocity_ = averageLinearVelocity;
+}
+
+double BaseAuto::getAverageLinearVelocity() const
+{
+  return averageLinearVelocity_;
+}
+
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {

@@ -65,6 +65,9 @@ class BaseAuto : public BaseMotionBase
   void setHeight(const double height);
   double getHeight() const;
 
+  void setAverageLinearVelocity(const double averageLinearVelocity);
+  double getAverageLinearVelocity() const;
+
   /*!
    * Evaluate the base pose at a given time.
    * @param time the time evakyate the pose at.

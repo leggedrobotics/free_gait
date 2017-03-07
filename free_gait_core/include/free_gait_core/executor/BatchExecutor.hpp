@@ -12,10 +12,10 @@
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/executor/StateBatch.hpp"
 
-// STD
 #include <thread>
 #include <memory>
 #include <functional>
+#include <atomic>
 
 namespace free_gait {
 
@@ -42,8 +42,8 @@ class BatchExecutor
 
   std::function<void(bool)> callback_;
   double timeStep_;
-  bool isProcessing_;
-  bool requestForCancelling_;
+  std::atomic<bool> isProcessing_;
+  std::atomic<bool> requestForCancelling_;
 };
 
 } /* namespace free_gait_rviz_plugin */
