@@ -110,7 +110,7 @@ bool Executor::advance(double dt)
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
   if (!adapter_.updateExtrasAfter(queue_, state_)) return false;
-//  std::cout << *state_ << std::endl;
+//  std::cout << state_ << std::endl;
 
   return true;
 }
