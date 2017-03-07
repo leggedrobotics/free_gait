@@ -150,6 +150,9 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
           this, SLOT(onPushButtonPause()));
   connect(ui_.pushButtonStop, SIGNAL(clicked()),
           this, SLOT(onPushButtonStop()));
+
+  connect(ui_.pushButtonDeleteHistory, SIGNAL(clicked()),
+          this, SLOT(onPushButtonDeleteHistory()));
 }
 
 void FreeGaitPlugin::shutdownPlugin() {
@@ -199,9 +202,13 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
   if (descriptions_.size() > 0) {
     ui_.labelStepNumber->setText(QString::number(descriptions_.index() + 1));
     ui_.labelStepMax->setText(QString::number(descriptions_.size()));
+
+    ui_.pushButtonDeleteHistory->setEnabled(true);
   } else {
     ui_.labelStepNumber->setText("...");
     ui_.labelStepMax->setText("...");
+
+    ui_.pushButtonDeleteHistory->setEnabled(false);
   }
 
   if (isOnBottom_) {
@@ -519,6 +526,13 @@ void FreeGaitPlugin::onPushButtonStopResult(
     ui_.pushButtonPause->setEnabled(true);
     ui_.pushButtonPlay->setEnabled(false);
   }
+}
+
+void FreeGaitPlugin::onPushButtonDeleteHistory() {
+  descriptions_.clear();
+  ui_.plainTextEditDescription->setText("");
+
+  updateNavigationButtonStates();
 }
 
 } // namespace
