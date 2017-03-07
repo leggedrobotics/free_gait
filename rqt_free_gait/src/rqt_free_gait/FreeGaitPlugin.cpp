@@ -197,8 +197,8 @@ void FreeGaitPlugin::resultCallback(
 
 void FreeGaitPlugin::updateNavigationButtonStates() {
   if (descriptions_.size() > 0) {
-    ui_.labelStepNumber->setText(QString::number(descriptions_.index()));
-    ui_.labelStepMax->setText(QString::number(descriptions_.size() - 1));
+    ui_.labelStepNumber->setText(QString::number(descriptions_.index() + 1));
+    ui_.labelStepMax->setText(QString::number(descriptions_.size()));
   } else {
     ui_.labelStepNumber->setText("...");
     ui_.labelStepMax->setText("...");
