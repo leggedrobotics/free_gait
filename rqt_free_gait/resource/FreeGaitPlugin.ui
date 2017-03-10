@@ -261,7 +261,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -299,6 +299,23 @@
           <property name="icon">
            <iconset resource="resources.qrc">
             <normaloff>:/icons/16x16/go-up.svg</normaloff>:/icons/16x16/go-up.svg</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QPushButton" name="pushButtonDeleteHistory">
+          <property name="toolTip">
+           <string>Delete history</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/16x16/delete.svg</normaloff>:/icons/16x16/delete.svg</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>

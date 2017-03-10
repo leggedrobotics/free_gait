@@ -158,6 +158,8 @@ protected slots:
 
   void updateResult(free_gait_msgs::ExecuteStepsActionResult result);
 
+  void onPushButtonDeleteHistory();
+
   void onPushButtonGoTop();
 
   void onPushButtonGoUp();

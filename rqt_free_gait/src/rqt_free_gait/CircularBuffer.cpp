@@ -116,6 +116,15 @@ int CircularBuffer::moveIndexFront() {
   return index_;
 }
 
+void CircularBuffer::clear() {
+  index_ = 0;
+  descriptions_.clear();
+}
+
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
+
 QString CircularBuffer::composeDescription(description_t description) {
   QString str = "<html><b>" + description.timestamp + "</b>" + "<hr>" +
       description.message + "</html>";
