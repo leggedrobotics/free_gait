@@ -75,8 +75,10 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
     free_gait_msgs::ExecuteStepsResult result;
     doneCallback_(state, result);
   } else {
+    if (state_ == ActionState::ACTIVE || state_ == ActionState::PENDING) {
+      client_->stopTrackingGoal();
+    }
     state_ = ActionState::PENDING;
-    client_->cancelAllGoals();
     client_->waitForServer();
     client_->sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback, this, _1, _2),
                       boost::bind(&FreeGaitActionClient::activeCallback, this),

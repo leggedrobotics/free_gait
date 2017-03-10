@@ -120,25 +120,25 @@ void Executor::pause(bool shouldPause)
   isPausing_ = shouldPause;
 }
 
-bool Executor::stop()
+void Executor::stop()
 {
   addToFeedback("Request received for stopping execution.");
   Executor::Lock lock(getMutex());
 
   switch (preemptionType_) {
     case PreemptionType::PREEMPT_STEP:
-      if (getQueue().empty()) return false;
-      if (getQueue().size() <= 1) return false;
+      if (getQueue().empty()) return;
+      if (getQueue().size() <= 1) return;
       getQueue().clearNextSteps();
-      return true;
+      return;
     case PreemptionType::PREEMPT_IMMEDIATE:
-      if (getQueue().empty()) return false;
+      if (getQueue().empty()) return;
       getQueue().clear();
-      return true;
+      return;
     case PreemptionType::PREEMPT_NO:
-      return false;
+      return;
     default:
-      return false;
+      return;
   }
 }
 
@@ -186,6 +186,11 @@ const State& Executor::getState() const
 const AdapterBase& Executor::getAdapter() const
 {
   return adapter_;
+}
+
+void Executor::setPreemptionType(const PreemptionType& type)
+{
+  preemptionType_ = type;
 }
 
 bool Executor::resetStateWithRobot()

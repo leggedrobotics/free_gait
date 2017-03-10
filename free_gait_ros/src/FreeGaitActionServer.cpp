@@ -102,7 +102,35 @@ void FreeGaitActionServer::goalCallback()
     steps.push_back(step);
   }
   Executor::Lock lock(executor_.getMutex());
+
+  // Check if last step and first step of new goal are
+  // pure `BaseAuto` commands: In this case, replace the
+  // last one with the new one for smooth motion.
+  if (executor_.getQueue().size() >= 2) {
+    const auto& step = *executor_.getQueue().getQueue().end();
+    if (!step.hasLegMotion() && step.hasBaseMotion()) {
+      if (step.getBaseMotion().getType() == BaseMotionBase::Type::Auto) {
+        executor_.getQueue().clearLastNSteps(1);
+      }
+    }
+  }
   executor_.getQueue().add(steps);
+
+  Executor::PreemptionType preemptionType;
+  switch (goal->preempt) {
+    case free_gait_msgs::ExecuteStepsGoal::PREEMPT_IMMEDIATE:
+        preemptionType = Executor::PreemptionType::PREEMPT_IMMEDIATE;
+      break;
+    case free_gait_msgs::ExecuteStepsGoal::PREEMPT_STEP:
+        preemptionType = Executor::PreemptionType::PREEMPT_STEP;
+      break;
+    case free_gait_msgs::ExecuteStepsGoal::PREEMPT_NO:
+        preemptionType = Executor::PreemptionType::PREEMPT_NO;
+      break;
+    default:
+      break;
+  }
+  executor_.setPreemptionType(preemptionType);
   nStepsInCurrentGoal_ = goal->steps.size();
   lock.unlock();
 }
@@ -111,7 +139,7 @@ void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
   Executor::Lock lock(executor_.getMutex());
-  if (!executor_.stop()) return;
+  executor_.stop();
   isPreempting_ = true;
 }
 

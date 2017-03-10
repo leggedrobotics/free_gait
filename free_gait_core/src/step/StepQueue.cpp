@@ -55,6 +55,11 @@ void StepQueue::add(const std::vector<Step> steps)
   queue_.insert(iterator, steps.begin(), steps.end());
 }
 
+void StepQueue::addInFront(const Step& step)
+{
+  queue_.push_front(step);
+}
+
 bool StepQueue::advance(double dt)
 {
   // Check if empty.
@@ -123,6 +128,12 @@ void StepQueue::clearNextSteps()
 {
   if (empty()) return;
   queue_.erase(queue_.begin() + 1, queue_.end());
+}
+
+void StepQueue::clearLastNSteps(size_t nSteps)
+{
+  if (empty()) return;
+  queue_.erase(queue_.end() - nSteps, queue_.end());
 }
 
 void StepQueue::clear()

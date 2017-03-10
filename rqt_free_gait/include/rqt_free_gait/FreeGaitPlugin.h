@@ -37,7 +37,7 @@
 #include "rqt_free_gait/WorkerThreadStop.h"
 
 #include <rqt_gui_cpp/plugin.h>
-#include <ui_FreeGaitPlugin.h>
+#include <rqt_free_gait/ui_FreeGaitPlugin.h>
 
 #include <atomic>
 #include <mutex>
@@ -163,6 +163,8 @@ protected slots:
   void updateResult(free_gait_msgs::ExecuteStepsActionResult result);
 
   void onClickableLabelExpandCollapse();
+
+  void onPushButtonDeleteHistory();
 
   void onPushButtonGoTop();
 
