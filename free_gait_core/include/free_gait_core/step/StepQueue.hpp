@@ -35,6 +35,7 @@ class StepQueue
    */
   void add(const Step& step);
   void add(const std::vector<Step> steps);
+  void addInFront(const Step& step);
 
   /*!
    * Advance in time
@@ -62,6 +63,8 @@ class StepQueue
    * Clear queue but keeps the currently running step.
    */
   void clearNextSteps();
+
+  void clearLastNSteps(size_t nSteps);
 
   /*!
    * Clear entire queue including currently active step.

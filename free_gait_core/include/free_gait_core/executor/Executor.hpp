@@ -55,12 +55,10 @@ class Executor
   void pause(bool shouldPause);
 
   /*!
-   * Stop the current steps. Depending on the preemption type,
-   * this method returns `true` if action was actually stopped,
-   * or `false` if it cannot be stopped.
-   * @return true if action is stopped, false otherwise.
+   * Stop the execution. Depending on the preemption type.
    */
-  bool stop();
+  void stop();
+
 
   void addToFeedback(const std::string& feedbackDescription);
   const std::string& getFeedbackDescription() const;
@@ -84,6 +82,8 @@ class Executor
     PREEMPT_STEP,
     PREEMPT_NO
   };
+
+  void setPreemptionType(const PreemptionType& type);
 
  private:
   bool completeCurrentStep(bool multiThreaded = false);
