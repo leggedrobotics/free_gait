@@ -14,7 +14,7 @@ class ActionState:
     ERROR = -1         # Error state.
     UNINITIALIZED = 0  # Not initialized.
     INITIALIZED = 1    # Successfully initialized.
-    PENDING = 2        # Waiting for previous action to finish.
+    PENDING = 2        # Waiting for action server to accept our goal.
     ACTIVE = 3         # Action running.
     IDLE = 4           # Waiting for input.
     DONE = 5           # Finished (success or preempted).
