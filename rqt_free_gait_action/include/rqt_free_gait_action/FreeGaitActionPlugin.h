@@ -33,7 +33,7 @@
 #pragma once
 
 #include <rqt_gui_cpp/plugin.h>
-#include <ui_FreeGaitActionPlugin.h>
+#include <rqt_free_gait_action/ui_FreeGaitActionPlugin.h>
 
 #include <map>
 #include <string>
