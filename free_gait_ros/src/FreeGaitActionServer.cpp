@@ -132,6 +132,7 @@ void FreeGaitActionServer::goalCallback()
   }
   executor_.setPreemptionType(preemptionType);
   nStepsInCurrentGoal_ = goal->steps.size();
+  isPreempting_ = false;
   lock.unlock();
 }
 
