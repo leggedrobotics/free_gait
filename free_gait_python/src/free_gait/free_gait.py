@@ -479,13 +479,14 @@ def get_transform(source_frame_id, target_frame_id, tf_buffer = None):
 
 def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
 
+    listener = None
     if tf_buffer is None:
         tf_buffer = tf2_ros.Buffer()
         listener = LocalTransformListener(tf_buffer)
 
     try:
         transform = tf_buffer.lookup_transform(target_frame_id, source_frame_id, rospy.Time(), rospy.Duration(10.0))
-        if listener:
+        if listener is not None:
             listener.unregister()
             del listener
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
