@@ -107,12 +107,16 @@ class ActionBase(object):
             self.set_state(ActionState.ACTIVE)
         else:
             if self.relay.gh:
+                rospy.logdebug("[Action Loader] Stop tracking goal.")
                 self.relay.stop_tracking_goal()
+            rospy.logdebug("[Action Loader] Waiting for step action server.")
             self.relay.wait_for_server()
+            rospy.logdebug("[Action Loader] Sending goal.")
             self.relay.send_goal(self.goal,
                                   done_cb=self._done_callback,
                                   active_cb=self._active_callback,
                                   feedback_cb=self._feedback_callback)
+            rospy.logdebug("[Action Loader] Goal sent, switching to state pending.")
             self.set_state(ActionState.PENDING)
 
     def _active_callback(self):
