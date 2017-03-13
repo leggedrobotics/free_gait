@@ -8,6 +8,8 @@ import geometry_msgs.msg
 import trajectory_msgs.msg
 import tf2_ros
 
+from tf2_msgs.msg import TFMessage # For local LocalTransformListener.
+
 
 def get_package_path(package):
     rospack = rospkg.RosPack()
@@ -479,10 +481,13 @@ def get_tf_transform(source_frame_id, target_frame_id, tf_buffer = None):
 
     if tf_buffer is None:
         tf_buffer = tf2_ros.Buffer()
-        listener = tf2_ros.TransformListener(tf_buffer)
+        listener = LocalTransformListener(tf_buffer)
 
     try:
-        transform = tf_buffer.lookup_transform(target_frame_id, source_frame_id, rospy.Time(0), rospy.Duration(10.0))
+        transform = tf_buffer.lookup_transform(target_frame_id, source_frame_id, rospy.Time(), rospy.Duration(10.0))
+        if listener:
+            listener.unregister()
+            del listener
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         rospy.logerr('Could not look up TF transformation from "' +
                      source_frame_id + '" to "' + target_frame_id + '".')
@@ -549,3 +554,44 @@ def check_if_pose_valid(pose):
         return True
     else:
         return False
+
+
+# TODO: We are using this from a newer version. Remove once updated.
+class LocalTransformListener():
+
+    """
+    :class:`TransformListener` is a convenient way to listen for coordinate frame transformation info.
+    This class takes an object that instantiates the :class:`BufferInterface` interface, to which
+    it propagates changes to the tf frame graph.
+    """
+    def __init__(self, buffer):
+        """
+        .. function:: __init__(buffer)
+
+            Constructor.
+
+            :param buffer: The buffer to propagate changes to when tf info updates.
+        """
+        self.buffer = buffer
+        self.tf_sub = rospy.Subscriber("/tf", TFMessage, self.callback)
+        self.tf_static_sub = rospy.Subscriber("/tf_static", TFMessage, self.static_callback)
+
+    def __del__(self):
+        self.unregister()
+
+    def unregister(self):
+        """
+        Unregisters all tf subscribers.
+        """
+        self.tf_sub.unregister()
+        self.tf_static_sub.unregister()
+
+    def callback(self, data):
+        who = data._connection_header.get('callerid', "default_authority")
+        for transform in data.transforms:
+            self.buffer.set_transform(transform, who)
+
+    def static_callback(self, data):
+        who = data._connection_header.get('callerid', "default_authority")
+        for transform in data.transforms:
+            self.buffer.set_transform_static(transform, who)
