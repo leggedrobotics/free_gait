@@ -85,6 +85,7 @@ bool Executor::advance(double dt)
     }
     if (currentStep.needsComputation() && !computer_.isBusy()) {
       computer_.setStep(currentStep);
+      addToFeedback("Starting computation of step.");
       if (!computer_.compute()) {
         std::cerr << "Executor::advance: Could not compute step." << std::endl;
         return false;
