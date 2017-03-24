@@ -29,6 +29,7 @@ class AdapterRosInterfaceBase
   virtual bool subscribeToRobotState(const std::string& robotStateTopic) = 0;
   virtual void unsubscribeFromRobotState() = 0;
   virtual const std::string getRobotStateMessageType() = 0;
+  virtual bool isReady() const = 0;
 
   //! Update adapter.
   virtual bool initializeAdapter(AdapterBase& adapter) const = 0;

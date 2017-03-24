@@ -1,12 +1,12 @@
 /*
- * BaseAuto.cpp
+ * BaseAutoStepWiseBasicAlignmentStepWiseBasicAlignment.cpp
  *
  *  Created on: Mar 7, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "free_gait_core/base_motion/BaseAuto.hpp"
+#include "free_gait_core/base_motion/BaseAutoStepWiseBasicAlignment.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
@@ -17,7 +17,7 @@
 
 namespace free_gait {
 
-BaseAuto::BaseAuto()
+BaseAutoStepWiseBasicAlignment::BaseAutoStepWiseBasicAlignment()
     : BaseMotionBase(BaseMotionBase::Type::Auto),
       ignoreTimingOfLegMotion_(false),
       averageLinearVelocity_(0.0),
@@ -31,11 +31,11 @@ BaseAuto::BaseAuto()
 {
 }
 
-BaseAuto::~BaseAuto()
+BaseAutoStepWiseBasicAlignment::~BaseAutoStepWiseBasicAlignment()
 {
 }
 
-BaseAuto::BaseAuto(const BaseAuto& other) :
+BaseAutoStepWiseBasicAlignment::BaseAutoStepWiseBasicAlignment(const BaseAutoStepWiseBasicAlignment& other) :
     BaseMotionBase(other),
     ignoreTimingOfLegMotion_(other.ignoreTimingOfLegMotion_),
     averageLinearVelocity_(other.averageLinearVelocity_),
@@ -59,40 +59,40 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
 
-std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
+std::unique_ptr<BaseMotionBase> BaseAutoStepWiseBasicAlignment::clone() const
 {
-  std::unique_ptr<BaseMotionBase> pointer(new BaseAuto(*this));
+  std::unique_ptr<BaseMotionBase> pointer(new BaseAutoStepWiseBasicAlignment(*this));
   return pointer;
 }
 
-const ControlSetup BaseAuto::getControlSetup() const
+const ControlSetup BaseAutoStepWiseBasicAlignment::getControlSetup() const
 {
   return controlSetup_;
 }
 
-void BaseAuto::updateStartPose(const Pose& startPose)
+void BaseAutoStepWiseBasicAlignment::updateStartPose(const Pose& startPose)
 {
   isComputed_ = false;
   start_ = startPose;
 }
 
-bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAutoStepWiseBasicAlignment::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
-      std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
+      std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute height." << std::endl;
       return false;
     }
   }
   if (!generateFootholdLists(state, step, queue, adapter)) {
-    std::cerr << "BaseAuto::compute: Could not generate foothold lists." << std::endl;
+    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
   Position horizontalTargetPositionInWorldFrame;
   getAdaptiveHorizontalTargetPosition(state, adapter, horizontalTargetPositionInWorldFrame);
   getAdaptiveTargetPose(state, adapter, horizontalTargetPositionInWorldFrame, target_);
   if (!optimizePose(target_)) {
-    std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
+    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute pose optimization." << std::endl;
     return false;
   }
   computeDuration(step, adapter);
@@ -100,17 +100,17 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   return isComputed_ = true;
 }
 
-bool BaseAuto::needsComputation() const
+bool BaseAutoStepWiseBasicAlignment::needsComputation() const
 {
   return false;
 }
 
-bool BaseAuto::isComputed() const
+bool BaseAutoStepWiseBasicAlignment::isComputed() const
 {
   return isComputed_;
 }
 
-Pose BaseAuto::evaluatePose(const double time) const
+Pose BaseAutoStepWiseBasicAlignment::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
   Pose pose;
@@ -118,7 +118,7 @@ Pose BaseAuto::evaluatePose(const double time) const
   return pose;
 }
 
-Twist BaseAuto::evaluateTwist(const double time) const
+Twist BaseAutoStepWiseBasicAlignment::evaluateTwist(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
   curves::CubicHermiteSE3Curve::DerivativeType derivative;
@@ -128,43 +128,43 @@ Twist BaseAuto::evaluateTwist(const double time) const
   return twist;
 }
 
-double BaseAuto::getDuration() const
+double BaseAutoStepWiseBasicAlignment::getDuration() const
 {
   return duration_;
 }
 
-const std::string& BaseAuto::getFrameId(const ControlLevel& controlLevel) const
+const std::string& BaseAutoStepWiseBasicAlignment::getFrameId(const ControlLevel& controlLevel) const
 {
   return frameId_;
 }
 
-void BaseAuto::setHeight(const double height)
+void BaseAutoStepWiseBasicAlignment::setHeight(const double height)
 {
   height_.reset(new double(height));
 }
 
-double BaseAuto::getHeight() const
+double BaseAutoStepWiseBasicAlignment::getHeight() const
 {
   if (height_) return *height_;
-  throw std::runtime_error("Height of BaseAuto has not been set yet.");
+  throw std::runtime_error("Height of BaseAutoStepWiseBasicAlignment has not been set yet.");
 }
 
-void BaseAuto::setAverageLinearVelocity(const double averageLinearVelocity)
+void BaseAutoStepWiseBasicAlignment::setAverageLinearVelocity(const double averageLinearVelocity)
 {
   averageLinearVelocity_ = averageLinearVelocity;
 }
 
-double BaseAuto::getAverageLinearVelocity() const
+double BaseAutoStepWiseBasicAlignment::getAverageLinearVelocity() const
 {
   return averageLinearVelocity_;
 }
 
-bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAutoStepWiseBasicAlignment::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {
     if (queue.getPreviousStep().hasBaseMotion()) {
       if (queue.getPreviousStep().getBaseMotion().getType() == BaseMotionBase::Type::Auto) {
-        const auto& previousBaseMotion = dynamic_cast<const BaseAuto&>(queue.getPreviousStep().getBaseMotion());
+        const auto& previousBaseMotion = dynamic_cast<const BaseAutoStepWiseBasicAlignment&>(queue.getPreviousStep().getBaseMotion());
         height_.reset(new double(previousBaseMotion.getHeight()));
         return true;
       }
@@ -185,7 +185,7 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
   return true;
 }
 
-bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAutoStepWiseBasicAlignment::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   footholdsInSupport_.clear();
   bool prepareForNextStep = false;
@@ -249,7 +249,7 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
   return true;
 }
 
-void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame)
+void BaseAutoStepWiseBasicAlignment::getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame)
 {
   std::vector<double> legWeights(adapter.getLimbs().size());
   for (auto& weight : legWeights)
@@ -281,7 +281,7 @@ void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const Ada
   horizontalTargetPositionInWorldFrame.z() = 0.0;
 }
 
-void BaseAuto::getAdaptiveTargetPose(
+void BaseAutoStepWiseBasicAlignment::getAdaptiveTargetPose(
     const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld)
 {
   // TODO Cleanup and move to pose optimizer.
@@ -337,7 +337,7 @@ void BaseAuto::getAdaptiveTargetPose(
   targetPoseInWorld.getRotation() = orientationWorldToTerrain * desiredHeading; // TODO Correct??
 }
 
-bool BaseAuto::optimizePose(Pose& pose)
+bool BaseAutoStepWiseBasicAlignment::optimizePose(Pose& pose)
 {
   poseOptimization_.setStance(footholdsToReach_);
   poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
@@ -349,12 +349,12 @@ bool BaseAuto::optimizePose(Pose& pose)
     support.addVertex(foothold.vector().head<2>());
   }
   support.offsetInward(supportMargin_);
-  poseOptimization_.setSupportPolygon(support);
+  poseOptimization_.setSupportRegion(support);
 
   return poseOptimization_.optimize(pose);
 }
 
-void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
+void BaseAutoStepWiseBasicAlignment::computeDuration(const Step& step, const AdapterBase& adapter)
 {
   if (!step.hasLegMotion() || ignoreTimingOfLegMotion_) {
     double distance = (target_.getPosition() - start_.getPosition()).norm();
@@ -375,7 +375,7 @@ void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
   duration_ = duration_ < minimumDuration_ ? minimumDuration_ : duration_;
 }
 
-bool BaseAuto::computeTrajectory()
+bool BaseAutoStepWiseBasicAlignment::computeTrajectory()
 {
   std::vector<Time> times;
   std::vector<ValueType> values;
@@ -390,7 +390,7 @@ bool BaseAuto::computeTrajectory()
   return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
+std::ostream& operator<<(std::ostream& out, const BaseAutoStepWiseBasicAlignment& baseAuto)
 {
   out << "Frame: " << baseAuto.frameId_ << std::endl;
   out << "Height: " << *(baseAuto.height_) << std::endl;

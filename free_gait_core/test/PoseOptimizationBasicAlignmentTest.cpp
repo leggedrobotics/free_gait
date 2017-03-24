@@ -7,7 +7,7 @@
  */
 
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimization.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
 
 // gtest
 #include <gtest/gtest.h>
@@ -21,9 +21,9 @@
 
 using namespace free_gait;
 
-TEST(PoseOptimization, quadrupedSymmetricUnconstrained)
+TEST(PoseOptimizationBasicAlignment, quadrupedSymmetricUnconstrained)
 {
-  PoseOptimization optimization;
+  PoseOptimizationBasicAlignment optimization;
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, -0.4)},
@@ -47,9 +47,9 @@ TEST(PoseOptimization, quadrupedSymmetricUnconstrained)
   kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(PoseOptimization, quadrupedSymmetricWithOffsetUnconstrained)
+TEST(PoseOptimizationBasicAlignment, quadrupedSymmetricWithOffsetUnconstrained)
 {
-  PoseOptimization optimization;
+  PoseOptimizationBasicAlignment optimization;
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -72,9 +72,9 @@ TEST(PoseOptimization, quadrupedSymmetricWithOffsetUnconstrained)
   kindr::assertNear(startPose.getTransformationMatrix(), result.getTransformationMatrix(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(PoseOptimization, quadrupedAsymmetricUnconstrained)
+TEST(PoseOptimizationBasicAlignment, quadrupedAsymmetricUnconstrained)
 {
-  PoseOptimization optimization;
+  PoseOptimizationBasicAlignment optimization;
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -102,9 +102,9 @@ TEST(PoseOptimization, quadrupedAsymmetricUnconstrained)
   kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 }
 
-TEST(PoseOptimization, quadrupedSymmetricWithYawUnconstrained)
+TEST(PoseOptimizationBasicAlignment, quadrupedSymmetricWithYawUnconstrained)
 {
-  PoseOptimization optimization;
+  PoseOptimizationBasicAlignment optimization;
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -163,9 +163,9 @@ TEST(PoseOptimization, quadrupedSymmetricWithYawUnconstrained)
 //  assertNear(expectedPosition, pose.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 //}
 //
-TEST(PoseOptimization, constrained)
+TEST(PoseOptimizationBasicAlignment, constrained)
 {
-  PoseOptimization optimization;
+  PoseOptimizationBasicAlignment optimization;
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -186,7 +186,7 @@ TEST(PoseOptimization, constrained)
   supportPolygon.addVertex(feetPositions[LimbEnum::LH_LEG].vector().head<2>());
   supportPolygon.addVertex(feetPositions[LimbEnum::RH_LEG].vector().head<2>());
   supportPolygon.addVertex(feetPositions[LimbEnum::RF_LEG].vector().head<2>());
-  optimization.setSupportPolygon(supportPolygon);
+  optimization.setSupportRegion(supportPolygon);
 
   Pose pose;
   pose.getRotation() = rotation;

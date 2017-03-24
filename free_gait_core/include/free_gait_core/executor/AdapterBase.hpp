@@ -42,6 +42,7 @@ class AdapterBase
       JointPositionsLeg& jointPositions) const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb,
                                                     const JointPositionsLeg& jointPositions) const = 0;
+  virtual Position getPositionBaseToHipInBaseFrame(const LimbEnum& limb) const = 0;
 
   //! Reading state of real robot.
   virtual bool isExecutionOk() const = 0;
@@ -94,7 +95,7 @@ class AdapterBase
       const LimbEnum& limb, const LinearVelocity& endEffectorLinearVelocityInWorldFrame) const = 0;
 
   //! Hook to write data to internal robot representation from state.
-  virtual bool setInternalDataFromState(const State& state) = 0;
+  virtual bool setInternalDataFromState(const State& state) const = 0;
 };
 
 } /* namespace free_gait */

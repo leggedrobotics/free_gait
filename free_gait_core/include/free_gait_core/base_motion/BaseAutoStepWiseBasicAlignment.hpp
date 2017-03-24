@@ -1,5 +1,5 @@
 /*
- * BaseAuto.hpp
+ * BaseAutoStepWiseBasicAlignmentStepWiseBasicAlignment.hpp
  *
  *  Created on: Mar 7, 2015
  *      Author: Péter Fankhauser
@@ -8,36 +8,33 @@
 
 #pragma once
 
-// Free Gait
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimization.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
 
-// STD
+#include <curves/CubicHermiteSE3Curve.hpp>
+
 #include <string>
 #include <memory>
-
-// Curves
-#include "curves/CubicHermiteSE3Curve.hpp"
 
 namespace free_gait {
 
 class StepRosConverter;
 class StepCompleter;
 
-class BaseAuto : public BaseMotionBase
+class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
 {
  public:
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseAuto();
-  virtual ~BaseAuto();
+  BaseAutoStepWiseBasicAlignment();
+  virtual ~BaseAutoStepWiseBasicAlignment();
 
-  BaseAuto(const BaseAuto& other);
+  BaseAutoStepWiseBasicAlignment(const BaseAutoStepWiseBasicAlignment& other);
 
   std::unique_ptr<BaseMotionBase> clone() const;
 
@@ -82,7 +79,7 @@ class BaseAuto : public BaseMotionBase
    */
   Twist evaluateTwist(const double time) const;
 
-  friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
+  friend std::ostream& operator << (std::ostream& out, const BaseAutoStepWiseBasicAlignment& baseAuto);
   friend class StepCompleter;
   friend class StepRosConverter;
 
@@ -125,7 +122,7 @@ class BaseAuto : public BaseMotionBase
   Stance nominalStanceInBaseFrame_;
   Stance footholdsForOrientation_; // TODO Replace with full optimization.
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
-  PoseOptimization poseOptimization_;
+  PoseOptimizationBasicAlignment poseOptimization_;
 
   //! If trajectory is updated.
   bool isComputed_;

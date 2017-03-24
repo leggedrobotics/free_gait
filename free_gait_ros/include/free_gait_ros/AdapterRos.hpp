@@ -32,6 +32,7 @@ class AdapterRos
   bool subscribeToRobotState(const std::string& robotStateTopic = "");
   void unsubscribeFromRobotState();
   const std::string getRobotStateMessageType();
+  bool isReady() const ;
   bool updateAdapterWithState();
   const AdapterBase& getAdapter() const;
   AdapterBase* getAdapterPtr();

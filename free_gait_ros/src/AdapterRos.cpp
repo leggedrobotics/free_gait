@@ -66,6 +66,11 @@ const std::string AdapterRos::getRobotStateMessageType()
   return adapterRosInterface_->getRobotStateMessageType();
 }
 
+bool AdapterRos::isReady() const
+{
+    return adapterRosInterface_->isReady();
+}
+
 bool AdapterRos::updateAdapterWithState()
 {
   return adapterRosInterface_->updateAdapterWithRobotState(*adapter_);

@@ -132,6 +132,7 @@ void FreeGaitActionServer::goalCallback()
   }
   executor_.setPreemptionType(preemptionType);
   nStepsInCurrentGoal_ = goal->steps.size();
+  isPreempting_ = false;
   lock.unlock();
 }
 
@@ -148,12 +149,12 @@ void FreeGaitActionServer::publishFeedback()
   free_gait_msgs::ExecuteStepsFeedback feedback;
   Executor::Lock lock(executor_.getMutex());
   if (executor_.getQueue().empty()) return;
-  // TODO Add feedback if executor multi-threading is not yet ready.
   feedback.queue_size = executor_.getQueue().size();
   feedback.number_of_steps_in_goal = nStepsInCurrentGoal_;
   feedback.step_number = feedback.number_of_steps_in_goal - feedback.queue_size + 1;
 
-  if (executor_.getState().getRobotExecutionStatus() == false) {
+  if (executor_.getState().getRobotExecutionStatus() == false
+      || executor_.getQueue().active() == false) {
     feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_PAUSED;
   } else {
       feedback.status = free_gait_msgs::ExecuteStepsFeedback::PROGRESS_EXECUTING;
@@ -166,16 +167,19 @@ void FreeGaitActionServer::publishFeedback()
   feedback.description = executor_.getFeedbackDescription();
   executor_.clearFeedbackDescription();
 
-  const auto& step = executor_.getQueue().getCurrentStep();
-  feedback.duration = ros::Duration(step.getTotalDuration());
-  feedback.phase = step.getTotalPhase();
-  for (const auto& legMotion : step.getLegMotions()) {
-    const std::string legName(executor_.getAdapter().getLimbStringFromLimbEnum(legMotion.first));
-    feedback.active_branches.push_back(legName);
+  if (executor_.getQueue().active()) {
+    const auto& step = executor_.getQueue().getCurrentStep();
+    feedback.duration = ros::Duration(step.getTotalDuration());
+    feedback.phase = step.getTotalPhase();
+    for (const auto& legMotion : step.getLegMotions()) {
+      const std::string legName(executor_.getAdapter().getLimbStringFromLimbEnum(legMotion.first));
+      feedback.active_branches.push_back(legName);
+    }
+    if (step.hasBaseMotion()) {
+      feedback.active_branches.push_back(executor_.getAdapter().getBaseString());
+    }
   }
-  if (step.hasBaseMotion()) {
-    feedback.active_branches.push_back(executor_.getAdapter().getBaseString());
-  }
+
   lock.unlock();
   server_.publishFeedback(feedback);
 }

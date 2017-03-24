@@ -1,6 +1,7 @@
 from free_gait import get_package_path
 from free_gait import load_action_from_file
 from free_gait import parse_action
+from free_gait import replace_placeholders
 from free_gait import adapt_coordinates
 from free_gait import transform_coordinates
 from free_gait import get_transform

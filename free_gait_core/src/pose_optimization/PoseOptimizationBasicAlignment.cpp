@@ -1,17 +1,16 @@
 /*
- * PoseOptimization.cpp
+ * PoseOptimizationBasicAlignment.cpp
  *
  *  Created on: Jun 10, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_core/pose_optimization/PoseOptimization.hpp>
+#include <free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <kindr/Core>
-
-// Numerical Optimization
 #include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
 #include <numopt_common/ParameterizationIdentity.hpp>
 
@@ -19,49 +18,49 @@ using namespace Eigen;
 
 namespace free_gait {
 
-PoseOptimization::PoseOptimization()
+PoseOptimizationBasicAlignment::PoseOptimizationBasicAlignment()
     : nStates_(4),
       nDimensions_(3)
 {
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
-PoseOptimization::~PoseOptimization()
+PoseOptimizationBasicAlignment::~PoseOptimizationBasicAlignment()
 {
 }
 
-PoseOptimization::PoseOptimization(const PoseOptimization& other)
+PoseOptimizationBasicAlignment::PoseOptimizationBasicAlignment(const PoseOptimizationBasicAlignment& other)
     : nStates_(other.nStates_),
       nDimensions_(other.nDimensions_),
       stance_(other.stance_),
       nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-      supportPolygon_(other.supportPolygon_)
+      supportRegion_(other.supportRegion_)
 {
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
-void PoseOptimization::setStance(const Stance& stance)
+void PoseOptimizationBasicAlignment::setStance(const Stance& stance)
 {
   stance_ = stance;
 }
 
-void PoseOptimization::setNominalStance(
+void PoseOptimizationBasicAlignment::setNominalStance(
     const Stance& nominalStanceInBaseFrame)
 {
   nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
 }
 
-void PoseOptimization::setSupportPolygon(const grid_map::Polygon& supportPolygon)
+void PoseOptimizationBasicAlignment::setSupportRegion(const grid_map::Polygon& supportRegion)
 {
-  supportPolygon_ = supportPolygon;
+  supportRegion_ = supportRegion;
 }
 
-bool PoseOptimization::optimize(Pose& pose)
+bool PoseOptimizationBasicAlignment::optimize(Pose& pose)
 {
   // If no support polygon provided, use positions.
-  if (supportPolygon_.nVertices() == 0) {
+  if (supportRegion_.nVertices() == 0) {
     for (const auto& foot : stance_)
-      supportPolygon_.addVertex(foot.second.vector().head<2>());
+      supportRegion_.addVertex(foot.second.vector().head<2>());
   }
 
   // Problem definition:
@@ -89,7 +88,7 @@ bool PoseOptimization::optimize(Pose& pose)
   // Inequality constraints.
   Eigen::MatrixXd Gp;
   Eigen::VectorXd h;
-  supportPolygon_.convertToInequalityConstraints(Gp, h);
+  supportRegion_.convertToInequalityConstraints(Gp, h);
   Eigen::MatrixXd G(Gp.rows(), nStates_);
   G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), nStates_ - Gp.cols());
 

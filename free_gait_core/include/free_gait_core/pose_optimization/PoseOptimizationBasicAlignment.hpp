@@ -1,5 +1,5 @@
 /*
- * PoseOptimization.hpp
+ * PoseOptimizationBasicAlignment.hpp
  *
  *  Created on: Jun 10, 2015
  *      Author: Péter Fankhauser
@@ -22,36 +22,36 @@
 
 namespace free_gait {
 
-class PoseOptimization
+class PoseOptimizationBasicAlignment
 {
  public:
-  PoseOptimization();
-  virtual ~PoseOptimization();
-  PoseOptimization(const PoseOptimization& other);
+  PoseOptimizationBasicAlignment();
+  virtual ~PoseOptimizationBasicAlignment();
+  PoseOptimizationBasicAlignment(const PoseOptimizationBasicAlignment& other);
 
   /*!
-   * Set the positions of the feet of the robot in world coordinate system.
-   * @param feetPositions the feet positions.
+   * Set the positions of the feet (stance) of the robot in world coordinate system.
+   * @param stance the feet positions.
    */
   void setStance(const Stance& stance);
 
   /*!
    * Define the desired leg configuration by specifying the desired feet positions
    * relative to the base.
-   * @param desiredFeetPositionsInBase the desired feet positions in base frame.
+   * @param nominalStanceInBaseFrame the desired feet positions in base frame.
    */
   void setNominalStance(const Stance& nominalStanceInBaseFrame);
 
   /*!
-   * Set the support polygon for constraining the pose optimization.
-   * If support polygon is not set, the convex hull of all feet positions is used.
+   * Set the support region for constraining the pose optimization.
+   * If support region is not set, the convex hull of all feet positions is used.
    * @param supportPolygon the support polygon as a list of vertices.
    */
-  void setSupportPolygon(const grid_map::Polygon& supportPolygon);
+  void setSupportRegion(const grid_map::Polygon& supportRegion);
 
   /*!
    * Computes the optimized pose.
-   * @param[in/out] optimizedPose
+   * @param[in/out] pose the pose to optimize from the given initial guess.
    * @return true if successful, false otherwise.
    */
   bool optimize(Pose& pose);
@@ -62,7 +62,7 @@ class PoseOptimization
   unsigned int nDimensions_;
   Stance stance_;
   Stance nominalStanceInBaseFrame_;
-  grid_map::Polygon supportPolygon_;
+  grid_map::Polygon supportRegion_;
 };
 
 } /* namespace loco */
