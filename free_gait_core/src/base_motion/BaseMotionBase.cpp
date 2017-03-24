@@ -8,6 +8,7 @@
 
 #include "free_gait_core/base_motion/BaseMotionBase.hpp"
 #include "free_gait_core/base_motion/BaseAutoStepWiseBasicAlignment.hpp"
+#include "free_gait_core/base_motion/BaseAutoSqp.hpp"
 #include "free_gait_core/base_motion/BaseTarget.hpp"
 #include "free_gait_core/base_motion/BaseTrajectory.hpp"
 

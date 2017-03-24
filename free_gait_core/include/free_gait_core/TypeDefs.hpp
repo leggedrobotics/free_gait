@@ -28,6 +28,8 @@ struct EnumClassHash
 };
 
 // Define base auto type.
+//class BaseAutoSqp;
+//using BaseAuto = BaseAutoSqp;
 class BaseAutoStepWiseBasicAlignment;
 using BaseAuto = BaseAutoStepWiseBasicAlignment;
 
