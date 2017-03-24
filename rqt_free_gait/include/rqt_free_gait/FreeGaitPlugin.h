@@ -140,6 +140,10 @@ protected:
 
   void updateNavigationButtonStates();
 
+  void expandDebug();
+
+  void collapseDebug();
+
   /***************************************************************************/
   /** Events                                                                **/
   /***************************************************************************/
@@ -157,6 +161,8 @@ protected slots:
   void updateFeedback(free_gait_msgs::ExecuteStepsActionFeedback feedback);
 
   void updateResult(free_gait_msgs::ExecuteStepsActionResult result);
+
+  void onClickableLabelExpandCollapse();
 
   void onPushButtonDeleteHistory();
 

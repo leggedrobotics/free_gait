@@ -31,6 +31,7 @@ set(${PROJECT_NAME}_SRCS
   src/rqt_free_gait/CircularBuffer.cpp
   src/rqt_free_gait/WorkerThreadPausePlay.cpp
   src/rqt_free_gait/WorkerThreadStop.cpp
+  src/rqt_free_gait/ClickableLabel.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
@@ -38,6 +39,7 @@ set(${PROJECT_NAME}_HDRS
   include/rqt_free_gait/CircularBuffer.h
   include/rqt_free_gait/WorkerThreadPausePlay.h
   include/rqt_free_gait/WorkerThreadStop.h
+  include/rqt_free_gait/ClickableLabel.h
 )
 
 set(${PROJECT_NAME}_UIS
