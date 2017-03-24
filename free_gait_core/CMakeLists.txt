@@ -67,7 +67,7 @@ add_library(${PROJECT_NAME}
    src/TypeDefs.cpp
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
-   src/base_motion/BaseAuto.cpp
+   src/base_motion/BaseAutoStepWiseBasicAlignment.cpp
    src/base_motion/BaseTarget.cpp
    src/base_motion/BaseTrajectory.cpp
    src/leg_motion/LegMotionBase.cpp
@@ -90,22 +90,10 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
-   src/pose_optimization/PoseOptimization3d.cpp
+   src/pose_optimization/PoseOptimizationBasicAlignment.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-
-# This is required because loco's test don't work.
-add_library(free_gait_to_test
-#  src/pose_optimization/PoseOptimization3d.cpp
-  src/step/Step.cpp
-  src/base_motion/BaseMotionBase.cpp
-  src/leg_motion/LegMotionBase.cpp
-)
-
-target_link_libraries(free_gait_to_test
   ${catkin_LIBRARIES}
 )
 
@@ -119,7 +107,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
   test/StepTest.cpp
   test/FootstepTest.cpp
-  test/PoseOptimization3dTest.cpp
+  test/PoseOptimizationBasicAlignmentTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test
@@ -127,19 +115,9 @@ if(TARGET ${PROJECT_NAME}-test)
   )
 endif()
 
-# This is required because loco's test don't work.
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-## Add gtest based cpp test target and link libraries
-#catkin_add_gtest(${PROJECT_NAME}-test
-#  test/test_free_gait_core.cpp
-  #test/PoseOptimization3dTest.cpp
-#  test/StepTest.cpp
-#)
-#if(TARGET ${PROJECT_NAME}-test)
-#  target_link_libraries(${PROJECT_NAME}-test
-#    free_gait_to_test
-#  )
-#endif()
+#############
+## Install ##
+#############
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

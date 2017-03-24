@@ -77,7 +77,6 @@ class State : public quadruped_model::QuadrupedState
 
  private:
   LocalAngularVelocity angularVelocityBaseInWorldFrame_;
-  // TODO Extend QuadrupedState class with (switch to quadruped_model?):
   JointEfforts jointEfforts_;
   JointAccelerations jointAccelerations_;
   LinearAcceleration linearAccelerationBaseInWorldFrame_;

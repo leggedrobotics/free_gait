@@ -8,4 +8,4 @@
 
 #pragma once
 
-#include "free_gait_core/pose_optimization/PoseOptimization.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
