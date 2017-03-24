@@ -120,6 +120,9 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   ui_.pushButtonGoDown->installEventFilter(this);
   ui_.pushButtonGoBottom->installEventFilter(this);
 
+  // Initialize debug info.
+  collapseDebug();
+
   // Connect signals and slots.
   connect(this,
           SIGNAL(updateGoalSignal(free_gait_msgs::ExecuteStepsActionGoal)),
@@ -151,6 +154,8 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   connect(ui_.pushButtonStop, SIGNAL(clicked()),
           this, SLOT(onPushButtonStop()));
 
+  connect(ui_.clickableLabelExpandCollapse, SIGNAL(clicked()),
+          this, SLOT(onClickableLabelExpandCollapse()));
   connect(ui_.pushButtonDeleteHistory, SIGNAL(clicked()),
           this, SLOT(onPushButtonDeleteHistory()));
 }
@@ -227,6 +232,16 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
       descriptions_.size() > 1 && descriptions_.index() != 0);
   ui_.pushButtonGoTop->setEnabled(
       descriptions_.size() > 1 && descriptions_.index() != 0);
+}
+
+void FreeGaitPlugin::expandDebug() {
+  ui_.plainTextEditDescription->show();
+  ui_.widgetScrollArea->show();
+}
+
+void FreeGaitPlugin::collapseDebug() {
+  ui_.plainTextEditDescription->hide();
+  ui_.widgetScrollArea->hide();
 }
 
 /*****************************************************************************/
@@ -525,6 +540,18 @@ void FreeGaitPlugin::onPushButtonStopResult(
     ui_.pushButtonStop->setEnabled(true);
     ui_.pushButtonPause->setEnabled(true);
     ui_.pushButtonPlay->setEnabled(false);
+  }
+}
+
+void FreeGaitPlugin::onClickableLabelExpandCollapse() {
+  if (ui_.plainTextEditDescription->isVisible()) {
+    collapseDebug();
+    ui_.clickableLabelExpandCollapse->setPixmap(
+        QPixmap(":/icons/16x16/expand.svg"));
+  } else {
+    expandDebug();
+    ui_.clickableLabelExpandCollapse->setPixmap(
+        QPixmap(":/icons/16x16/collapse.svg"));
   }
 }
 

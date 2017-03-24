@@ -11,6 +11,8 @@
     <file>icons/16x16/stop.svg</file>
     <file>icons/16x16/unknown.svg</file>
     <file>icons/16x16/warning.svg</file>
+    <file>icons/16x16/expand.svg</file>
+    <file>icons/16x16/collapse.svg</file>
     <file>icons/16x16/delete.svg</file>
   </qresource>
 </RCC>
