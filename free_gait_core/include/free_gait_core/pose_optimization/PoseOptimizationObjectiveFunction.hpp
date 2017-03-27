@@ -34,6 +34,7 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
    * @param stance the feet positions.
    */
   void setStance(const Stance& stance);
+  const Stance& getStance() const;
 
   /*!
    * Define the desired leg configuration by specifying the desired feet positions

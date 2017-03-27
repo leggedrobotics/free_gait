@@ -35,6 +35,7 @@ class PoseParameterization : public numopt_common::Parameterization
                                        const numopt_common::Params& params) const;
 
   int getGlobalSize() const;
+  static const size_t getGlobalSizeStatic();
   int getLocalSize() const;
 
   bool setRandom(numopt_common::Params& p) const;
@@ -48,10 +49,10 @@ class PoseParameterization : public numopt_common::Parameterization
   const RotationQuaternion getOrientation() const;
 
  private:
-  const size_t nTransGlobal_ = 3;
-  const size_t nRotGlobal_ = 4;
-  const size_t nTransLocal_ = 3;
-  const size_t nRotLocal_ = 3;
+  const static size_t nTransGlobal_ = 3;
+  const static size_t nRotGlobal_ = 4;
+  const static size_t nTransLocal_ = 3;
+  const static size_t nRotLocal_ = 3;
 
   //! Global state vector with position and orientation.
   numopt_common::Params params_;

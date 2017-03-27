@@ -46,11 +46,19 @@ void PoseOptimizationSQP::setNominalStance(
 
 void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegion)
 {
-//  supportRegion_ = supportRegion;
+  constraints_->setSupportRegion(supportRegion);
 }
 
 bool PoseOptimizationSQP::optimize(Pose& pose)
 {
+  // If no support polygon provided, use positions.
+  if (constraints_->getSupportRegion().nVertices() == 0) {
+    grid_map::Polygon supportRegion;
+    for (const auto& foot : objective_->getStance())
+      supportRegion.addVertex(foot.second.vector().head<2>());
+  }
+
+  // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);
   std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
       new numopt_ooqp::QPFunctionMinimizer);
@@ -58,7 +66,7 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
   numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 10, 0.005, 5, -DBL_MAX, true, true);
   solver.setCheckConstraints(false);
-  solver.setPrintOutput(false);
+  solver.setPrintOutput(true);
   PoseParameterization params;
   params.setPose(pose);
   double functionValue;

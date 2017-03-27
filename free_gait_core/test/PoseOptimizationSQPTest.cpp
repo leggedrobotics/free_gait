@@ -62,13 +62,67 @@ TEST(PoseOptimizationSQP, ObjectiveFunction)
   // Each leg has 0.5 m error.
   EXPECT_EQ(4 * std::pow(0.5, 2), value);
 
+  numopt_common::Vector gradient;
+  objective.getLocalGradient(gradient, params);
+  std::cerr << gradient << std::endl;
+
   params.setPose(Pose(Position(0.0, 0.0, 0.1), RotationQuaternion()));
   objective.computeValue(value, params);
   // Each leg has 0.4 m error.
   EXPECT_EQ(4 * std::pow(0.4, 2), value);
 
-  numopt_common::Vector gradient;
+  objective.getLocalGradient(gradient, params);
+  std::cerr << gradient << std::endl;
+
+  params.setPose(Pose(Position(2.0, 1.0, 0.0), RotationQuaternion()));
+  for (auto& stance : currentStance) {
+    stance.second += Position(2.0, 1.0, 0.0);
+  }
+  objective.setStance(currentStance);
+  objective.computeValue(value, params);
+  // Each leg has 0.4 m error.
+  EXPECT_EQ(4 * std::pow(0.5, 2), value);
+
   objective.getLocalGradient(gradient, params);
   std::cerr << gradient << std::endl;
 }
 
+TEST(PoseOptimizationSQP, OptimizationSquareUp)
+{
+  AdapterDummy adapter;
+  PoseOptimizationSQP optimization(adapter, adapter.getState());
+
+  optimization.setNominalStance(Stance({
+    {LimbEnum::LF_LEG, Position(1.0, 0.5, -0.4)},
+    {LimbEnum::RF_LEG, Position(1.0, -0.5, -0.4)},
+    {LimbEnum::LH_LEG, Position(-1.0, 0.5, -0.4)},
+    {LimbEnum::RH_LEG, Position(-1.0, -0.5, -0.4)} }));
+
+  Stance currentStance;
+  currentStance[LimbEnum::LF_LEG] = Position(1.0, 0.5, -0.1);
+  currentStance[LimbEnum::RF_LEG] = Position(1.0, -0.5, -0.1);
+  currentStance[LimbEnum::LH_LEG] = Position(-1.0, 0.5, -0.1);
+  currentStance[LimbEnum::RH_LEG] = Position(-1.0, -0.5, -0.1);
+  optimization.setStance(currentStance);
+
+  Pose result;
+  ASSERT_TRUE(optimization.optimize(result));
+
+  Eigen::Vector3d expectedPosition(0.0, 0.0, 0.3);
+  RotationMatrix expectedOrientation; // Identity.
+  kindr::assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+
+  // Translation only.
+  for (auto& stance : currentStance) {
+    stance.second += Position(2.0, 1.0, 0.0);
+  }
+  optimization.setStance(currentStance);
+  ASSERT_TRUE(optimization.optimize(result));
+
+  expectedPosition += Position(2.0, 1.0, 0.0);
+  kindr::assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+  kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+
+  // Add rotation.
+}

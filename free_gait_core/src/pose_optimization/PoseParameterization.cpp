@@ -75,6 +75,11 @@ int PoseParameterization::getGlobalSize() const
   return nTransGlobal_ + nRotGlobal_;
 }
 
+const size_t PoseParameterization::getGlobalSizeStatic()
+{
+  return nTransGlobal_ + nRotGlobal_;
+}
+
 int PoseParameterization::getLocalSize() const
 {
   return nTransLocal_ + nRotLocal_;

@@ -27,6 +27,11 @@ void PoseOptimizationObjectiveFunction::setStance(const Stance& stance)
   stance_ = stance;
 }
 
+const Stance& PoseOptimizationObjectiveFunction::getStance() const
+{
+  return stance_;
+}
+
 void PoseOptimizationObjectiveFunction::setNominalStance(
     const Stance& nominalStanceInBaseFrame)
 {
@@ -46,11 +51,11 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
   for (const auto& footPosition : stance_) {
     const Position baseToFootInBase = adapter_.transformPosition(
         adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition.second);
-    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
-    const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
-    const Vector hipToFootInWorld = adapter_.transformVector(
-        adapter_.getBaseFrameId(), adapter_.getWorldFrameId(), hipToFootInBase);
-    value += (hipToFootInWorld - Vector(nominalStanceInBaseFrame_.at(footPosition.first).vector())).squaredNorm();
+//    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
+//    const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
+//    const Vector hipToFootInWorld = adapter_.transformVector(
+//        adapter_.getBaseFrameId(), adapter_.getWorldFrameId(), hipToFootInBase);
+    value += (baseToFootInBase - nominalStanceInBaseFrame_.at(footPosition.first)).squaredNorm();
 //    value += std::pow(hipToFootInWorld.z() - nominalStanceInBaseFrame_.at(footPosition.first).z(), 2);
   }
 
@@ -61,7 +66,7 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& gradient,
                                                          const numopt_common::Parameterization& p, bool newParams)
 {
-  return NonlinearObjectiveFunction::estimateLocalGradient(gradient, p, 1.0e-3);
+  return NonlinearObjectiveFunction::estimateLocalGradient(gradient, p, 1.0e-4);
 }
 
 } /* namespace free_gait */
