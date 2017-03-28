@@ -51,12 +51,13 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
   for (const auto& footPosition : stance_) {
     const Position baseToFootInBase = adapter_.transformPosition(
         adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition.second);
-//    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
-//    const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
+    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
+    const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
 //    const Vector hipToFootInWorld = adapter_.transformVector(
 //        adapter_.getBaseFrameId(), adapter_.getWorldFrameId(), hipToFootInBase);
-    value += (baseToFootInBase - nominalStanceInBaseFrame_.at(footPosition.first)).squaredNorm();
-//    value += std::pow(hipToFootInWorld.z() - nominalStanceInBaseFrame_.at(footPosition.first).z(), 2);
+    Eigen::Array3d weight(1.0, 1.0, 100.0);
+    value += (weight * (baseToFootInBase - nominalStanceInBaseFrame_.at(footPosition.first)).vector().array()).matrix().squaredNorm();
+//    value += 1.0 * std::pow(hipToFootInBase.z() - nominalStanceInBaseFrame_.at(footPosition.first).z(), 2);
   }
 
   adapter_.setInternalDataFromState(state_);

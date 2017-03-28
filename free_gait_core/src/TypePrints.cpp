@@ -115,4 +115,12 @@ std::ostream& operator<< (std::ostream& out, const std::unordered_map<LimbEnum, 
   return out;
 }
 
+std::ostream& operator<< (std::ostream& out, const Stance& stance)
+{
+  for (const auto& limb : stance) {
+    out << limb.first << ": " << limb.second << std::endl;
+  }
+  return out;
+}
+
 } // namespace
