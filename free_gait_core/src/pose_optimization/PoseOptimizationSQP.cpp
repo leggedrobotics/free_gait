@@ -64,7 +64,7 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
       new numopt_ooqp::QPFunctionMinimizer);
 //  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
-  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 10, 0.005, 5, -DBL_MAX, true, true);
+  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 100, 0.005, 3, -DBL_MAX, true, true);
   solver.setCheckConstraints(false);
   solver.setPrintOutput(true);
   PoseParameterization params;

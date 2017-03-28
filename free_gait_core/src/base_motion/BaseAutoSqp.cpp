@@ -84,6 +84,7 @@ bool BaseAutoSqp::prepareComputation(const State& state, const Step& step, const
     return false;
   }
   poseOptimization_.reset(new PoseOptimizationSQP(adapter, state));
+  target_ = start_; // Initialize optimization with start pose.
   if (!optimizePose(target_)) {
     std::cerr << "BaseAutoSqp::compute: Could not compute pose optimization." << std::endl;
     return false;

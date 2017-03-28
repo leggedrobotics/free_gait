@@ -20,6 +20,8 @@
 #include <numopt_sqp/SQPFunctionMinimizer.hpp>
 #include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
 
+#include <cmath>
+
 using namespace free_gait;
 
 TEST(PoseOptimizationSQP, PoseParameterization)
@@ -98,31 +100,46 @@ TEST(PoseOptimizationSQP, OptimizationSquareUp)
     {LimbEnum::LH_LEG, Position(-1.0, 0.5, -0.4)},
     {LimbEnum::RH_LEG, Position(-1.0, -0.5, -0.4)} }));
 
-  Stance currentStance;
-  currentStance[LimbEnum::LF_LEG] = Position(1.0, 0.5, -0.1);
-  currentStance[LimbEnum::RF_LEG] = Position(1.0, -0.5, -0.1);
-  currentStance[LimbEnum::LH_LEG] = Position(-1.0, 0.5, -0.1);
-  currentStance[LimbEnum::RH_LEG] = Position(-1.0, -0.5, -0.1);
-  optimization.setStance(currentStance);
+  Stance stance;
+  stance[LimbEnum::LF_LEG] = Position(1.0, 0.5, -0.1);
+  stance[LimbEnum::RF_LEG] = Position(1.0, -0.5, -0.1);
+  stance[LimbEnum::LH_LEG] = Position(-1.0, 0.5, -0.1);
+  stance[LimbEnum::RH_LEG] = Position(-1.0, -0.5, -0.1);
+  optimization.setStance(stance);
 
   Pose result;
   ASSERT_TRUE(optimization.optimize(result));
 
-  Eigen::Vector3d expectedPosition(0.0, 0.0, 0.3);
+  Position expectedPosition(0.0, 0.0, 0.3);
   RotationMatrix expectedOrientation; // Identity.
   kindr::assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
-  kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+  kindr::assertNear(expectedPosition.vector(), result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 
   // Translation only.
-  for (auto& stance : currentStance) {
-    stance.second += Position(2.0, 1.0, 0.0);
+  result.setIdentity();
+  expectedPosition += Position(0.5, 0.25, 0.0);
+  Stance translatedStance(stance);
+  for (auto& stance : translatedStance) {
+    stance.second += Position(expectedPosition.x(), expectedPosition.y(), 0.0);
   }
-  optimization.setStance(currentStance);
+  optimization.setStance(translatedStance);
   ASSERT_TRUE(optimization.optimize(result));
-
-  expectedPosition += Position(2.0, 1.0, 0.0);
   kindr::assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
-  kindr::assertNear(expectedPosition, result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
+  kindr::assertNear(expectedPosition.vector(), result.getPosition().vector(), 1e-3, KINDR_SOURCE_FILE_POS);
 
-  // Add rotation.
+  // Add yaw rotation.
+  for (double yawRotation = 0.0; yawRotation <= 45.0; yawRotation += 10.0) {
+    std::cerr << "yaw Rotation ====" << yawRotation << std::endl;
+    result.setIdentity();
+    expectedOrientation = EulerAnglesZyx(yawRotation/180.0 * M_PI, 0.0, 0.0);
+    Stance rotatedStance(stance);
+    for (auto& stance : rotatedStance) {
+      stance.second = expectedOrientation.rotate(stance.second);
+      stance.second += Position(expectedPosition.x(), expectedPosition.y(), 0.0);
+    }
+    optimization.setStance(rotatedStance);
+    ASSERT_TRUE(optimization.optimize(result));
+    kindr::assertNear(expectedOrientation.matrix(), RotationMatrix(result.getRotation()).matrix(), 1e-2, KINDR_SOURCE_FILE_POS);
+    kindr::assertNear(expectedPosition.vector(), result.getPosition().vector(), 1e-2, KINDR_SOURCE_FILE_POS);
+  }
 }
