@@ -26,7 +26,7 @@ PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter, const State
       nDimensions_(3)
 {
   objective_.reset(new PoseOptimizationObjectiveFunction(adapter_, state_));
-  constraints_.reset(new PoseOptimizationFunctionConstraints());
+  constraints_.reset(new PoseOptimizationFunctionConstraints(adapter_, state_));
 }
 
 PoseOptimizationSQP::~PoseOptimizationSQP()
@@ -36,6 +36,7 @@ PoseOptimizationSQP::~PoseOptimizationSQP()
 void PoseOptimizationSQP::setStance(const Stance& stance)
 {
   objective_->setStance(stance);
+  constraints_->setStance(stance);
 }
 
 void PoseOptimizationSQP::setNominalStance(
