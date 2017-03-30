@@ -21,7 +21,9 @@ EndEffectorTarget::EndEffectorTarget(LimbEnum limb)
       averageVelocity_(0.0),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
-      isComputed_(false)
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
+                            {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 
