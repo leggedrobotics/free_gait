@@ -33,6 +33,18 @@ StateRosPublisher::~StateRosPublisher()
 {
 }
 
+StateRosPublisher::StateRosPublisher(const StateRosPublisher& other) :
+    nodeHandle_(other.nodeHandle_),
+    tfPrefix_(other.tfPrefix_),
+    adapter_(other.adapter_),
+    tfBroadcaster_(other.tfBroadcaster_)
+{
+  if (other.robotStatePublisher_) {
+    robotStatePublisher_.reset(
+        new robot_state_publisher::RobotStatePublisher(*other.robotStatePublisher_));
+  }
+}
+
 void StateRosPublisher::setTfPrefix(const std::string tfPrefix)
 {
   tfPrefix_ = tfPrefix;

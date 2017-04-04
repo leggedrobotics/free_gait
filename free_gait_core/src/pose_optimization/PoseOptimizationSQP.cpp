@@ -13,9 +13,12 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <kindr/Core>
+#include <message_logger/message_logger.hpp>
 #include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
 #include <numopt_ooqp/QPFunctionMinimizer.hpp>
 #include <numopt_sqp/SQPFunctionMinimizer.hpp>
+
+#include <functional>
 
 namespace free_gait {
 
@@ -35,6 +38,7 @@ PoseOptimizationSQP::~PoseOptimizationSQP()
 
 void PoseOptimizationSQP::setStance(const Stance& stance)
 {
+  stance_ = stance;
   objective_->setStance(stance);
   constraints_->setStance(stance);
 }
@@ -48,6 +52,11 @@ void PoseOptimizationSQP::setNominalStance(
 void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegion)
 {
   constraints_->setSupportRegion(supportRegion);
+}
+
+void PoseOptimizationSQP::registerOptimizationStepCallback(OptimizationStepCallbackFunction callback)
+{
+  optimizationStepCallback_ = callback;
 }
 
 bool PoseOptimizationSQP::optimize(Pose& pose)
@@ -66,6 +75,11 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
 //  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
   numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 100, 0.0001, 3, -DBL_MAX, true, true);
+  if (optimizationStepCallback_) {
+    solver.registerOptimizationStepCallback(
+        std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1,
+                  std::placeholders::_2, std::placeholders::_3));
+  }
   solver.setCheckConstraints(false);
   solver.setPrintOutput(true);
   PoseParameterization params;
@@ -75,6 +89,26 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   pose = params.getPose();
   // TODO Fix unit quaternion?
   return true;
+}
+
+void PoseOptimizationSQP::optimizationStepCallback(
+    const size_t iterationStep, const numopt_common::Parameterization& parameters,
+    const double functionValue)
+{
+  if (!optimizationStepCallback_) return;
+  auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
+  State previewState(state_);
+  previewState.setPoseBaseToWorld(poseParameterization.getPose());
+  for (const auto& limb : adapter_.getLimbs()) {
+    const Position footPositionInWorld(
+        adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+                                   stance_.at(limb)));
+    JointPositionsLeg jointPositions;
+    adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(footPositionInWorld, limb, jointPositions);
+    previewState.setJointPositionsForLimb(limb, jointPositions);
+  }
+  optimizationStepCallback_(iterationStep, previewState, functionValue);
+//  MELO_INFO_STREAM("parameters" << poseParameterization.getPose());
 }
 
 } /* namespace */

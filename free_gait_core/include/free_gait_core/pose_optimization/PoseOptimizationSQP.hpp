@@ -14,10 +14,7 @@
 #include "free_gait_core/pose_optimization/PoseOptimizationObjectiveFunction.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimizationFunctionConstraints.hpp"
 
-// Grid map
 #include <grid_map_core/Polygon.hpp>
-
-// Numerical Optimization
 #include <numopt_common/QuadraticProblemSolver.hpp>
 
 namespace free_gait {
@@ -25,6 +22,8 @@ namespace free_gait {
 class PoseOptimizationSQP
 {
  public:
+  typedef std::function<void(const size_t, const State&, const double)> OptimizationStepCallbackFunction;
+
   PoseOptimizationSQP(const AdapterBase& adapter, const State& state);
   virtual ~PoseOptimizationSQP();
 
@@ -49,17 +48,31 @@ class PoseOptimizationSQP
   void setSupportRegion(const grid_map::Polygon& supportRegion);
 
   /*!
+   * Registers a callback function that is called after every iteration step
+   * of the minimizer. Use this method for debugging and visualizations or leave
+   * it unregistered if not used.
+   * @param callback the callback method to be registered.
+   */
+  void registerOptimizationStepCallback(OptimizationStepCallbackFunction callback);
+
+  /*!
    * Computes the optimized pose.
    * @param[in/out] pose the pose to optimize from the given initial guess.
    * @return true if successful, false otherwise.
    */
   bool optimize(Pose& pose);
 
+  void optimizationStepCallback(const size_t iterationStep,
+                                const numopt_common::Parameterization& parameters,
+                                const double functionValue);
+
  private:
   const AdapterBase& adapter_;
-  const State& state_;
+  State state_;
+  Stance stance_;
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;
   std::shared_ptr<PoseOptimizationFunctionConstraints> constraints_;
+  OptimizationStepCallbackFunction optimizationStepCallback_;
   unsigned int nStates_;
   unsigned int nDimensions_;
 };

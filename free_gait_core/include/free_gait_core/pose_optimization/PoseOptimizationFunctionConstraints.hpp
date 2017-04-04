@@ -41,7 +41,9 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   bool getGlobalBoundConstraintMaxValues(numopt_common::Vector& values);
 
   //! d <= c(p) <= f
-  bool getInequalityConstraintValues(numopt_common::Vector& values, const numopt_common::Parameterization& p, bool newParams = true);
+  bool getInequalityConstraintValues(numopt_common::Vector& values,
+                                     const numopt_common::Parameterization& p,
+                                     bool newParams = true);
   bool getInequalityConstraintMinValues(numopt_common::Vector& d);
   bool getInequalityConstraintMaxValues(numopt_common::Vector& f);
 
@@ -49,7 +51,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void updateNumberOfInequalityConstraints();
 
   const AdapterBase& adapter_;
-  const State& state_;
+  State state_;
 
   Stance stance_;
 
