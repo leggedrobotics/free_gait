@@ -99,14 +99,20 @@ void PoseOptimizationSQP::optimizationStepCallback(
   auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
   State previewState(state_);
   previewState.setPoseBaseToWorld(poseParameterization.getPose());
+  adapter_.setInternalDataFromState(previewState);
+//  std::cout << "pose: " << previewState.getPositionWorldToBaseInWorldFrame() << std::endl;
   for (const auto& limb : adapter_.getLimbs()) {
-    const Position footPositionInWorld(
+    const Position footPositionInBase(
         adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
                                    stance_.at(limb)));
+//    std::cout << "footPositionInBase:" << footPositionInBase << std::endl;
     JointPositionsLeg jointPositions;
-    adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(footPositionInWorld, limb, jointPositions);
+    bool success = adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(footPositionInBase, limb, jointPositions);
+//    std::cout << "success:" << success << std::endl;
+//    std::cout << "jointPositions:" << jointPositions << std::endl;
     previewState.setJointPositionsForLimb(limb, jointPositions);
   }
+  adapter_.setInternalDataFromState(state_);
   optimizationStepCallback_(iterationStep, previewState, functionValue);
 //  MELO_INFO_STREAM("parameters" << poseParameterization.getPose());
 }
