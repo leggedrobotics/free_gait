@@ -13,7 +13,9 @@ JointTrajectory::JointTrajectory(LimbEnum limb)
     : JointMotionBase(LegMotionBase::Type::JointTrajectory, limb),
       ignoreContact_(false),
       duration_(0.0),
-      isComputed_(false)
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
+                            {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 

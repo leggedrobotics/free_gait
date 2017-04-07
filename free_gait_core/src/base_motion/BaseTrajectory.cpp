@@ -13,7 +13,9 @@ namespace free_gait {
 BaseTrajectory::BaseTrajectory()
     : BaseMotionBase(BaseMotionBase::Type::Trajectory),
       duration_(0.0),
-      isComputed_(false)
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
+                            {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
 }
 
