@@ -10,6 +10,7 @@
 
 #include "free_gait_core/executor/State.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
+
 #include <memory>
 #include <string>
 
@@ -59,6 +60,8 @@ class AdapterBase
   virtual RotationQuaternion getOrientationBaseToWorld() const = 0;
   virtual LinearVelocity getLinearVelocityBaseInWorldFrame() const = 0;
   virtual LocalAngularVelocity getAngularVelocityBaseInBaseFrame() const = 0;
+  virtual LinearAcceleration getLinearAccelerationBaseInWorldFrame() const = 0;
+  virtual AngularAcceleration getAngularAccelerationBaseInBaseFrame() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
 
@@ -89,10 +92,15 @@ class AdapterBase
       const LocalAngularVelocity& angularVelocity) const;
   virtual Twist transformTwist(const std::string& inputFrameId, const std::string& outputFrameId,
                                const Twist& twist) const;
+  virtual LinearAcceleration transformLinearAcceleration(const std::string& inputFrameId,
+                                                         const std::string& outputFrameId,
+                                                         const LinearAcceleration& linearAcceleration) const;
   virtual Vector transformVector(const std::string& inputFrameId, const std::string& outputFrameId,
                                  const Vector& vector) const;
   virtual JointVelocitiesLeg getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(
       const LimbEnum& limb, const LinearVelocity& endEffectorLinearVelocityInWorldFrame) const = 0;
+  virtual JointAccelerationsLeg getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(
+      const LimbEnum& limb, const LinearAcceleration& endEffectorLinearAccelerationInWorldFrame) const = 0;
 
   //! Hook to write data to internal robot representation from state.
   virtual bool setInternalDataFromState(const State& state) const = 0;
