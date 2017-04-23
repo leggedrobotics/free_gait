@@ -29,7 +29,7 @@ Footstep::Footstep(LimbEnum limb)
       ignoreForPoseAdaptation_(false),
       isComputed_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
-                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
+                      {ControlLevel::Acceleration, true}, {ControlLevel::Effort, false} }
 {
 }
 
@@ -120,6 +120,14 @@ const LinearVelocity Footstep::evaluateVelocity(const double time) const
   return velocity;
 }
 
+const LinearAcceleration Footstep::evaluateAcceleration(const double time) const
+{
+  double timeInRange = time <= getDuration() ? time : getDuration();
+  LinearAcceleration acceleration;
+  trajectory_.evaluateDerivative(acceleration.toImplementation(), timeInRange, 2);
+  return acceleration;
+}
+
 double Footstep::getDuration() const
 {
   return duration_;
@@ -149,7 +157,7 @@ const Position Footstep::getTargetPosition() const
 
 const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const
 {
-  if (controlLevel == ControlLevel::Acceleration || controlLevel == ControlLevel::Effort) {
+  if (controlLevel == ControlLevel::Effort) {
     throw std::runtime_error("Footstep::getFrameId() is only valid for position or velocity.");
   }
   return frameId_;
