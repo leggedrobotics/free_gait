@@ -157,15 +157,6 @@ Twist AdapterBase::transformTwist(const std::string& inputFrameId, const std::st
   return transformedTwist;
 }
 
-LinearAcceleration AdapterBase::transformLinearAcceleration(const std::string& inputFrameId,
-                                                            const std::string& outputFrameId,
-                                                            const LinearAcceleration& linearAcceleration) const
-{
-  LinearAcceleration transformedLinearAcceleration(
-      transformVector(inputFrameId, outputFrameId, Vector(linearAcceleration)));
-  return transformedLinearAcceleration;
-}
-
 Vector AdapterBase::transformVector(const std::string& inputFrameId,
                                     const std::string& outputFrameId, const Vector& vector) const
 {
