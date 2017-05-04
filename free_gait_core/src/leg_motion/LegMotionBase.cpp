@@ -168,4 +168,9 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type)
   }
 }
 
+double LegMotionBase::mapTimeWithinDuration(const double time) const
+{
+  return time <= getDuration() ? time : getDuration();
+}
+
 } /* namespace */

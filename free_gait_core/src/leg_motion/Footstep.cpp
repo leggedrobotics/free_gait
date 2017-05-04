@@ -106,7 +106,7 @@ bool Footstep::isComputed() const
 
 const Position Footstep::evaluatePosition(const double time) const
 {
-  double timeInRange = time <= getDuration() ? time : getDuration();
+  const double timeInRange = mapTimeWithinDuration(time);
   Position position;
   trajectory_.evaluate(position.toImplementation(), timeInRange);
   return position;
@@ -114,7 +114,7 @@ const Position Footstep::evaluatePosition(const double time) const
 
 const LinearVelocity Footstep::evaluateVelocity(const double time) const
 {
-  double timeInRange = time <= getDuration() ? time : getDuration();
+  const double timeInRange = mapTimeWithinDuration(time);
   LinearVelocity velocity;
   trajectory_.evaluateDerivative(velocity.toImplementation(), timeInRange, 1);
   return velocity;
@@ -122,7 +122,7 @@ const LinearVelocity Footstep::evaluateVelocity(const double time) const
 
 const LinearAcceleration Footstep::evaluateAcceleration(const double time) const
 {
-  double timeInRange = time <= getDuration() ? time : getDuration();
+  const double timeInRange = mapTimeWithinDuration(time);
   LinearAcceleration acceleration;
   trajectory_.evaluateDerivative(acceleration.toImplementation(), timeInRange, 2);
   return acceleration;

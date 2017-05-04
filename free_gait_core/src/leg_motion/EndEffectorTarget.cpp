@@ -66,7 +66,7 @@ bool EndEffectorTarget::isComputed() const
 
 const Position EndEffectorTarget::evaluatePosition(const double time) const
 {
-  double timeInRange = time <= getDuration() ? time : getDuration();
+  const double timeInRange = mapTimeWithinDuration(time);
   Position position;
   trajectory_.evaluate(position.toImplementation(), time);
   return position;
@@ -74,10 +74,18 @@ const Position EndEffectorTarget::evaluatePosition(const double time) const
 
 const LinearVelocity EndEffectorTarget::evaluateVelocity(const double time) const
 {
-  double timeInRange = time <= getDuration() ? time : getDuration();
+  const double timeInRange = mapTimeWithinDuration(time);
   LinearVelocity velocity;
   trajectory_.evaluateDerivative(velocity.toImplementation(), timeInRange, 1);
   return velocity;
+}
+
+const LinearAcceleration EndEffectorTarget::evaluateAcceleration(const double time) const
+{
+  const double timeInRange = mapTimeWithinDuration(time);
+  LinearAcceleration acceleration;
+  trajectory_.evaluateDerivative(acceleration.toImplementation(), timeInRange, 2);
+  return acceleration;
 }
 
 double EndEffectorTarget::getDuration() const
@@ -123,9 +131,13 @@ bool EndEffectorTarget::computeTrajectory()
   times.push_back(duration_);
   values.push_back(target_.at(ControlLevel::Position));
 
-  // Curves implementation provides velocities.
-  controlSetup_[ControlLevel::Velocity] = true;
-  frameIds_[ControlLevel::Velocity] = frameIds_[ControlLevel::Position];
+  if (controlSetup_[ControlLevel::Position]) {
+    // Curves implementation provides velocities and accelerations.
+    controlSetup_[ControlLevel::Velocity] = true;
+    frameIds_[ControlLevel::Velocity] = frameIds_[ControlLevel::Position];
+    controlSetup_[ControlLevel::Acceleration] = true;
+    frameIds_[ControlLevel::Acceleration] = frameIds_[ControlLevel::Position];
+  }
 
   trajectory_.fitCurve(times, values);
   return true;

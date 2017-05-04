@@ -60,6 +60,8 @@ class EndEffectorTarget : public EndEffectorMotionBase
 
   const LinearVelocity evaluateVelocity(const double time) const;
 
+  const LinearAcceleration evaluateAcceleration(const double time) const;
+
   /*!
    * Returns the total duration of the trajectory.
    * @return the duration.
