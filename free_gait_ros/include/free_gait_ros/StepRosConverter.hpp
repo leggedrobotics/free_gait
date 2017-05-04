@@ -23,7 +23,7 @@
 
 // Quadruped model
 #undef LOG
-#include "quadruped_model/QuadrupedModel.hpp"
+#include <quadruped_model/QuadrupedModel.hpp>
 
 // STD
 #include <vector>

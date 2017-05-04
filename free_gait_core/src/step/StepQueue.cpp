@@ -140,6 +140,7 @@ void StepQueue::clear()
 {
   previousStep_.reset();
   queue_.clear();
+  active_ = false;
 }
 
 const Step& StepQueue::getCurrentStep() const
