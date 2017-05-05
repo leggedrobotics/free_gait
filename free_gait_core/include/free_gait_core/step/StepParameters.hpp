@@ -27,10 +27,10 @@ class StepParameters
   {
     std::string profileType = "triangle";
     double profileHeight = 0.065;
-    double averageVelocity = 0.6;
+    double averageVelocity = 0.8;
     double liftOffSpeed = 0.06;
     double touchdownSpeed = 0.04;
-    double minimumDuration_ = 0.2;
+    double minimumDuration_ = 0.1; // TODO Debug.
   } footTargetParameters;
 
   struct EndEffectorTargetParameters
