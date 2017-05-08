@@ -73,7 +73,7 @@ bool Footstep::compute(bool isSupportLeg)
   std::vector<Time> times;
   computeTiming(values, times);
   std::vector<DerivativeType> velocities, accelerations;
-  if (!ignoreContact_) touchdownSpeed_ = 0.0;
+  if (ignoreContact_) touchdownSpeed_ = 0.0;
   if (!isSupportLeg) liftOffSpeed_ = 0.0;
   Vector surfaceNormal;
   if (surfaceNormal_) {
@@ -212,6 +212,8 @@ std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
   out << "Start Position: " << footstep.start_ << std::endl;
   out << "Target Position: " << footstep.target_ << std::endl;
   out << "Duration: " << footstep.getDuration() << std::endl;
+  out << "Lift-Off Speed: " << footstep.liftOffSpeed_ << std::endl;
+  out << "Touchdown Speed: " << footstep.touchdownSpeed_ << std::endl;
   return out;
 }
 
@@ -287,12 +289,17 @@ void Footstep::generateTrapezoidKnots(std::vector<ValueType>& values) const
 
 void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const
 {
+  // Assuming equal average velocity between all knots.
   times.push_back(0.0);
   for (unsigned int i = 1; i < values.size(); ++i) {
     double distance = (values[i] - values[i-1]).norm();
     double duration = distance / averageVelocity_;
-    duration = duration < minimumDuration_ ? minimumDuration_ : duration;
     times.push_back(times[i-1] + duration);
+  }
+  if (times.back() < minimumDuration_) {
+    for (unsigned int i = 1; i < times.size(); ++i) {
+      times[i] = times[i] / times.back() * minimumDuration_;
+    }
   }
 }
 
