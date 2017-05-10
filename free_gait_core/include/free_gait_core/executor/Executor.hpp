@@ -59,7 +59,6 @@ class Executor
    */
   void stop();
 
-
   void addToFeedback(const std::string& feedbackDescription);
   const std::string& getFeedbackDescription() const;
   void clearFeedbackDescription();

@@ -199,7 +199,7 @@ void StepCompleter::setParameters(LegMotionBase& legMotion) const
 
 void StepCompleter::setParameters(Footstep& footstep) const
 {
-  const auto& parameters = parameters_.footTargetParameters;
+  const auto& parameters = parameters_.footstepParameters;
 
   if (footstep.profileHeight_ == 0.0)
     footstep.profileHeight_ = parameters.profileHeight;

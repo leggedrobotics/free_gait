@@ -59,7 +59,7 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
     state_.setRobotExecutionStatus(true);
   } else {
     if (state_.getRobotExecutionStatus()) {
-      if (!adapter_.isExecutionOk()) addToFeedback("Robot status is not OK, paused execution and trying to recover.");
+      if (!adapter_.isExecutionOk()) addToFeedback("Robot status is not OK, paused execution.");
       if (isPausing_) addToFeedback("Paused execution.");
     }
     state_.setRobotExecutionStatus(false);

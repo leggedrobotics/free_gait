@@ -138,6 +138,11 @@ bool EndEffectorTarget::isIgnoreForPoseAdaptation() const
   return ignoreForPoseAdaptation_;
 }
 
+void EndEffectorTarget::setAverageVelocity(const double averageVelocity)
+{
+  averageVelocity_ = averageVelocity;
+}
+
 void EndEffectorTarget::computeDuration()
 {
   double distance = (targetPosition_ - startPosition_).norm();

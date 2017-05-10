@@ -21,8 +21,6 @@ class StepParameters
 
   friend class StepCompleter;
 
- protected:
-
   struct FootstepParameters
   {
     std::string profileType = "triangle";
@@ -31,7 +29,7 @@ class StepParameters
     double liftOffSpeed = 0.2;
     double touchdownSpeed = 0.2;
     double minimumDuration_ = 0.25;
-  } footTargetParameters;
+  } footstepParameters;
 
   struct EndEffectorTargetParameters
   {

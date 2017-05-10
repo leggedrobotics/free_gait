@@ -85,6 +85,8 @@ class EndEffectorTarget : public EndEffectorMotionBase
 
   bool isIgnoreForPoseAdaptation() const;
 
+  void setAverageVelocity(const double averageVelocity);
+
   friend std::ostream& operator << (std::ostream& out, const EndEffectorTarget& endEffectorTarget);
   friend class StepCompleter;
   friend class StepRosConverter;
