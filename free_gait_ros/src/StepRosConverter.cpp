@@ -146,13 +146,21 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
   endEffectorTarget.controlSetup_[ControlLevel::Position] = !message.target_position.empty();
   if (endEffectorTarget.controlSetup_[ControlLevel::Position]) {
     endEffectorTarget.frameIds_[ControlLevel::Position] = message.target_position[0].header.frame_id;
-    Position target_position;
-    kindr_ros::convertFromRosGeometryMsg(message.target_position[0].point, target_position);
-    endEffectorTarget.target_[ControlLevel::Position] = target_position.vector();
+    Position targetPosition;
+    kindr_ros::convertFromRosGeometryMsg(message.target_position[0].point, targetPosition);
+    endEffectorTarget.targetPosition_ = targetPosition;
+  }
+
+  // Target velocity.
+  endEffectorTarget.controlSetup_[ControlLevel::Velocity] = !message.target_velocity.empty();
+  if (endEffectorTarget.controlSetup_[ControlLevel::Velocity]) {
+    endEffectorTarget.frameIds_[ControlLevel::Velocity] = message.target_velocity[0].header.frame_id;
+    LinearVelocity targetVelocity;
+    kindr_ros::convertFromRosGeometryMsg(message.target_velocity[0].vector, targetVelocity);
+    endEffectorTarget.targetVelocity_ = targetVelocity;
   }
 
   // TODO.
-  endEffectorTarget.controlSetup_[ControlLevel::Velocity] = !message.target_velocity.empty();
   endEffectorTarget.controlSetup_[ControlLevel::Acceleration] = !message.target_acceleration.empty();
   endEffectorTarget.controlSetup_[ControlLevel::Effort] = !message.target_force.empty();
 

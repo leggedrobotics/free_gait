@@ -68,6 +68,11 @@ const Position EndEffectorMotionBase::getTargetPosition() const
   throw std::runtime_error("EndEffectorMotionBase::getTargetPosition() not implemented.");
 }
 
+const LinearVelocity EndEffectorMotionBase::getTargetVelocity() const
+{
+  throw std::runtime_error("EndEffectorMotionBase::getTargetVelocity() not implemented.");
+}
+
 const std::string& EndEffectorMotionBase::getFrameId(const ControlLevel& controlLevel) const
 {
   throw std::runtime_error("EndEffectorMotionBase::getFrameId() not implemented.");

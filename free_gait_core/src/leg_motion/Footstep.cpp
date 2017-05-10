@@ -54,6 +54,11 @@ void Footstep::updateStartPosition(const Position& startPosition)
   start_ = startPosition;
 }
 
+void Footstep::updateStartVelocity(const LinearVelocity& startVelocity)
+{
+ // Nothing to todo.
+}
+
 bool Footstep::compute(bool isSupportLeg)
 {
   std::vector<ValueType> values;
@@ -82,8 +87,8 @@ bool Footstep::compute(bool isSupportLeg)
     surfaceNormal =  Vector::UnitZ();
   }
   DerivativeType liftOffVelocity = liftOffSpeed_ * surfaceNormal.vector();
-  DerivativeType touchdownVelocity = -touchdownSpeed_ * surfaceNormal.vector();
-  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity);
+  touchdownVelocity_ = LinearVelocity(-touchdownSpeed_ * surfaceNormal.vector());
+  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity_.vector());
   duration_ = trajectory_.getMaxTime() - trajectory_.getMinTime();
   isComputed_ = true;
   return true;
@@ -102,6 +107,14 @@ bool Footstep::needsComputation() const
 bool Footstep::isComputed() const
 {
   return isComputed_;
+}
+
+void Footstep::reset()
+{
+  start_.setZero();
+  trajectory_.clear();
+  duration_ = 0.0;
+  isComputed_ = false;
 }
 
 const Position Footstep::evaluatePosition(const double time) const
@@ -133,17 +146,6 @@ double Footstep::getDuration() const
   return duration_;
 }
 
-void Footstep::setStartPosition(const std::string& frameId, const Position& start)
-{
-  frameId_ = frameId;
-  start_ = start;
-}
-
-const Position Footstep::getStartPosition() const
-{
-  return start_;
-}
-
 void Footstep::setTargetPosition(const std::string& frameId, const Position& target)
 {
   frameId_ = frameId;
@@ -153,6 +155,11 @@ void Footstep::setTargetPosition(const std::string& frameId, const Position& tar
 const Position Footstep::getTargetPosition() const
 {
   return target_;
+}
+
+const LinearVelocity Footstep::getTargetVelocity() const
+{
+  return touchdownVelocity_;
 }
 
 const std::string& Footstep::getFrameId(const ControlLevel& controlLevel) const

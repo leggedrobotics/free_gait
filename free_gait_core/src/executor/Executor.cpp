@@ -48,10 +48,10 @@ Executor::Mutex& Executor::getMutex()
   return mutex_;
 }
 
-bool Executor::advance(double dt)
+bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
 {
   if (!isInitialized_) return false;
-  updateStateWithMeasurements();
+  if (!skipStateMeasurmentUpdate) updateStateWithMeasurements();
   bool executionStatus = adapter_.isExecutionOk() && !isPausing_;
 
   if (executionStatus) {
@@ -258,7 +258,6 @@ bool Executor::updateStateWithMeasurements()
     state_.setAngularVelocityBaseInBaseFrame(adapter_.getAngularVelocityBaseInBaseFrame());
   }
 
-  state_.setAllJointVelocities(adapter_.getAllJointVelocities());
   // TODO Copy also acceleraitons and torques.
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
@@ -369,6 +368,7 @@ bool Executor::writeLegMotion()
             std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
             return false;
           }
+          // TODO This is dangerous due to difference between relative velocity vs. expression in frames.
           LinearVelocity velocityInWorldFrame = adapter_.transformLinearVelocity(
               frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
           const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);

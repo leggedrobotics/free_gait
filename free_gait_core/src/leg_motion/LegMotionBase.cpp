@@ -76,6 +76,11 @@ bool LegMotionBase::isComputed() const
   throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
 }
 
+void LegMotionBase::reset()
+{
+  throw std::runtime_error("LegMotionBase::reset() not implemented.");
+}
+
 double LegMotionBase::getDuration() const
 {
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");

@@ -35,7 +35,7 @@ class StepParameters
 
   struct EndEffectorTargetParameters
   {
-    double averageVelocity = 0.15;
+    double averageVelocity = 0.3;
     double minimumDuration_ = 0.1;
   } endEffectorTargetParameters;
 

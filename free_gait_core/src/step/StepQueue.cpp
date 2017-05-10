@@ -58,6 +58,7 @@ void StepQueue::add(const std::vector<Step> steps)
 void StepQueue::addInFront(const Step& step)
 {
   queue_.push_front(step);
+  active_ = false;
 }
 
 bool StepQueue::advance(double dt)

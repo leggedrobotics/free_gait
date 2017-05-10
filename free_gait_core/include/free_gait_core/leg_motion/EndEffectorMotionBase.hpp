@@ -67,6 +67,7 @@ class EndEffectorMotionBase : public LegMotionBase
    * @return the target.
    */
   virtual const Position getTargetPosition() const;
+  virtual const LinearVelocity getTargetVelocity() const;
 
   /*!
    * Returns the frame id of the trajectory.

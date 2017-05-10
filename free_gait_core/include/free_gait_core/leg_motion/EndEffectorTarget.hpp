@@ -13,7 +13,7 @@
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
 // Curves
-#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
+#include <curves/CubicHermiteE3Curve.hpp>
 
 // STD
 #include <string>
@@ -24,8 +24,8 @@ namespace free_gait {
 class EndEffectorTarget : public EndEffectorMotionBase
 {
  public:
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::DerivativeType DerivativeType;
+  typedef typename curves::CubicHermiteE3Curve::ValueType ValueType;
+  typedef typename curves::CubicHermiteE3Curve::DerivativeType DerivativeType;
   typedef typename curves::Time Time;
 
   EndEffectorTarget(LimbEnum limb);
@@ -44,6 +44,7 @@ class EndEffectorTarget : public EndEffectorMotionBase
    * @return true if successful, false otherwise.
    */
   void updateStartPosition(const Position& startPosition);
+  void updateStartVelocity(const LinearVelocity& startVelocity);
 
   const ControlSetup getControlSetup() const;
 
@@ -68,11 +69,15 @@ class EndEffectorTarget : public EndEffectorMotionBase
    */
   double getDuration() const;
 
+  void setTargetPosition(const std::string& frameId, const Position& targetPosition);
+  void setTargetVelocity(const std::string& frameId, const LinearVelocity& targetVelocity);
+
   /*!
    * Return the target (end position) of the swing profile.
    * @return the target.
    */
   const Position getTargetPosition() const;
+  const LinearVelocity getTargetVelocity() const;
 
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
@@ -94,13 +99,15 @@ class EndEffectorTarget : public EndEffectorMotionBase
 
   ControlSetup controlSetup_;
   std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds_;
-  std::unordered_map<ControlLevel, ValueType, EnumClassHash> start_;
-  std::unordered_map<ControlLevel, ValueType, EnumClassHash> target_;
+  Position startPosition_;
+  Position targetPosition_;
+  LinearVelocity startVelocity_;
+  LinearVelocity targetVelocity_;
   double duration_;
   double averageVelocity_;
 
   //! End effector trajectory.
-  curves::PolynomialSplineQuinticVector3Curve trajectory_;
+  curves::CubicHermiteE3Curve trajectory_;
 
   //! If trajectory is updated.
   bool isComputed_;

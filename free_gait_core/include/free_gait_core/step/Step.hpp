@@ -61,6 +61,7 @@ class Step
 
   bool update();
   bool isUpdated() const;
+  void reset();
 
   /*!
    * Advance in time

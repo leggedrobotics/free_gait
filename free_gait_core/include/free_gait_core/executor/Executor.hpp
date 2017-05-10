@@ -51,7 +51,7 @@ class Executor
    * @param dt the time step to advance [s].
    * @return true if successful, false otherwise.
    */
-  bool advance(double dt);
+  bool advance(double dt, bool skipStateMeasurmentUpdate = false);
   void pause(bool shouldPause);
 
   /*!
