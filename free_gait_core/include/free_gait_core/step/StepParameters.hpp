@@ -27,14 +27,14 @@ class StepParameters
     double profileHeight = 0.08;
     double averageVelocity = 0.8;
     double liftOffSpeed = 0.2;
-    double touchdownSpeed = 0.2;
+    double touchdownSpeed = 0.4;
     double minimumDuration_ = 0.25;
   } footstepParameters;
 
   struct EndEffectorTargetParameters
   {
     double averageVelocity = 0.3;
-    double minimumDuration_ = 0.1;
+    double minimumDuration_ = 0.05;
   } endEffectorTargetParameters;
 
   struct LegModeParameters

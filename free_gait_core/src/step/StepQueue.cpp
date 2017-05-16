@@ -125,6 +125,14 @@ bool StepQueue::empty() const
   return queue_.empty();
 }
 
+void StepQueue::skipCurrentStep()
+{
+  if (empty()) return;
+  previousStep_ = std::move(std::unique_ptr<Step>(new Step(queue_.front())));
+  queue_.pop_front();
+  active_ = false;
+}
+
 void StepQueue::clearNextSteps()
 {
   if (empty()) return;

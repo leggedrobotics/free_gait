@@ -59,6 +59,7 @@ class StepQueue
    */
   bool empty() const;
 
+  void skipCurrentStep();
   /*!
    * Clear queue but keeps the currently running step.
    */
