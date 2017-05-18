@@ -128,6 +128,20 @@ bool Step::isUpdated() const
   return isUpdated_;
 }
 
+void Step::reset()
+{
+  time_ = 0.0;
+  totalDuration_ = 0.0;
+  isUpdated_ = false;
+  isComputed_ = false;
+  for (const auto& legMotion : legMotions_) {
+    legMotion.second->reset();
+  }
+  if (hasBaseMotion()) {
+    baseMotion_->reset();
+  }
+}
+
 bool Step::update()
 {
   if (needsComputation() && !isComputed_) return false;

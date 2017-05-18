@@ -74,6 +74,7 @@ class BaseMotionBase
   virtual bool needsComputation() const;
   virtual bool compute();
   virtual bool isComputed() const;
+  virtual void reset();
 
   /*!
    * Returns the total duration of the motion.

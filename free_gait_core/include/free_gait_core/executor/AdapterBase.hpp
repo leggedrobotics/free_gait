@@ -93,6 +93,9 @@ class AdapterBase
                                  const Vector& vector) const;
   virtual JointVelocitiesLeg getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(
       const LimbEnum& limb, const LinearVelocity& endEffectorLinearVelocityInWorldFrame) const = 0;
+  virtual LinearVelocity getEndEffectorLinearVelocityFromJointVelocities(const LimbEnum& limb,
+                                                                         const JointVelocitiesLeg& jointVelocities,
+                                                                         const std::string& frameId) const = 0;
 
   //! Hook to write data to internal robot representation from state.
   virtual bool setInternalDataFromState(const State& state) const = 0;

@@ -50,6 +50,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
   bool prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Returns the total duration of the trajectory.

@@ -51,14 +51,13 @@ class Executor
    * @param dt the time step to advance [s].
    * @return true if successful, false otherwise.
    */
-  bool advance(double dt);
+  bool advance(double dt, bool skipStateMeasurmentUpdate = false);
   void pause(bool shouldPause);
 
   /*!
    * Stop the execution. Depending on the preemption type.
    */
   void stop();
-
 
   void addToFeedback(const std::string& feedbackDescription);
   const std::string& getFeedbackDescription() const;

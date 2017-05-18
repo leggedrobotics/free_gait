@@ -110,6 +110,14 @@ bool BaseAutoStepWiseBasicAlignment::isComputed() const
   return isComputed_;
 }
 
+void BaseAutoStepWiseBasicAlignment::reset()
+{
+  start_.setIdentity();
+  target_.setIdentity();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 Pose BaseAutoStepWiseBasicAlignment::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;

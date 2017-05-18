@@ -76,6 +76,11 @@ bool LegMotionBase::isComputed() const
   throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
 }
 
+void LegMotionBase::reset()
+{
+  throw std::runtime_error("LegMotionBase::reset() not implemented.");
+}
+
 double LegMotionBase::getDuration() const
 {
   throw std::runtime_error("LegMotionBase::getDuration() not implemented.");
@@ -166,6 +171,11 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type)
       out << "Undefined";
       return out;
   }
+}
+
+double LegMotionBase::mapTimeWithinDuration(const double time) const
+{
+  return time <= getDuration() ? time : getDuration();
 }
 
 } /* namespace */

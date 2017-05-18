@@ -21,22 +21,20 @@ class StepParameters
 
   friend class StepCompleter;
 
- protected:
-
   struct FootstepParameters
   {
     std::string profileType = "triangle";
-    double profileHeight = 0.065;
-    double averageVelocity = 0.6;
-    double liftOffSpeed = 0.06;
-    double touchdownSpeed = 0.04;
-    double minimumDuration_ = 0.2;
-  } footTargetParameters;
+    double profileHeight = 0.08;
+    double averageVelocity = 0.8;
+    double liftOffSpeed = 0.1;
+    double touchdownSpeed = 0.2;
+    double minimumDuration_ = 0.45;
+  } footstepParameters;
 
   struct EndEffectorTargetParameters
   {
-    double averageVelocity = 0.15;
-    double minimumDuration_ = 0.1;
+    double averageVelocity = 0.3;
+    double minimumDuration_ = 0.05;
   } endEffectorTargetParameters;
 
   struct LegModeParameters
@@ -47,10 +45,10 @@ class StepParameters
 
   struct BaseAutoParameters
   {
-    double averageLinearVelocity = 0.18;
-    double averageAngularVelocity = 0.32;
+    double averageLinearVelocity = 0.25;
+    double averageAngularVelocity = 0.4;
     double supportMargin = 0.05;
-    double minimumDuration = 0.3;
+    double minimumDuration = 0.2;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
