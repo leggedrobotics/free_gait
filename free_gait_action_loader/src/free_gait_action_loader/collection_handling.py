@@ -34,6 +34,12 @@ class Collection:
             self.name = parameters['name']
         for action_id in parameters['actions']:
             self.action_ids.append(action_id)
+        sort = True
+        if 'sort' in parameters:
+            if parameters['sort']=='none':
+                sort = False
+        if sort:
+            self.action_ids = sorted(self.action_ids)
 
     def to_ros_message(self):
         message = free_gait_msgs.msg.CollectionDescription()
@@ -53,6 +59,7 @@ class CollectionList:
 
     def update(self):
         self.collections = []
+        self.collections_to_merge = []
         rospack = rospkg.RosPack()
         packages = rospack.get_depends_on(self.name, implicit=False)
         for package in packages:
