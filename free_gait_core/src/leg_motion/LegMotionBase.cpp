@@ -31,6 +31,14 @@ LegMotionBase::LegMotionBase(const LegMotionBase& other) :
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
 }
 
+LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
+{
+  type_ = other.type_;
+  limb_ = other.limb_;
+  if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
+  return *this;
+}
+
 std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
 {
   throw std::runtime_error("LegMotionBase::clone() not implemented.");

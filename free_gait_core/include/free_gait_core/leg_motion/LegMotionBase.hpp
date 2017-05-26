@@ -59,6 +59,7 @@ class LegMotionBase
   virtual ~LegMotionBase();
 
   LegMotionBase(const LegMotionBase& other);
+  LegMotionBase& operator=(const LegMotionBase& other);
 
   /*!
    * Deep copy clone.

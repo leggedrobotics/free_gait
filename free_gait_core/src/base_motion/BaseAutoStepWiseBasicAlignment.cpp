@@ -167,6 +167,26 @@ double BaseAutoStepWiseBasicAlignment::getAverageLinearVelocity() const
   return averageLinearVelocity_;
 }
 
+void BaseAutoStepWiseBasicAlignment::setAverageAngularVelocity(const double averageAngularVelocity)
+{
+  averageAngularVelocity_ = averageAngularVelocity;
+}
+
+double BaseAutoStepWiseBasicAlignment::getAverageAngularVelocity() const
+{
+  return averageAngularVelocity_;
+}
+
+double BaseAutoStepWiseBasicAlignment::getSupportMargin() const
+{
+  return supportMargin_;
+}
+
+void BaseAutoStepWiseBasicAlignment::setSupportMargin(double supportMargin)
+{
+  supportMargin_ = supportMargin;
+}
+
 bool BaseAutoStepWiseBasicAlignment::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {
