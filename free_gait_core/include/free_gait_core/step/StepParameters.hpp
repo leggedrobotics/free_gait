@@ -48,7 +48,7 @@ class StepParameters
     double averageLinearVelocity = 0.25;
     double averageAngularVelocity = 0.4;
     double supportMargin = 0.05;
-    double minimumDuration = 0.2;
+    double minimumDuration = 0.1;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
