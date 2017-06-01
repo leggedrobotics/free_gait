@@ -40,10 +40,11 @@ class Footstep : public EndEffectorMotionBase
   /*!
    * Update the trajectory with the foot start position.
    * Do this to avoid jumps of the swing leg.
-   * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
+   * @param startPosition the start position of the foot in the frameId_ frame.
    * @return true if successful, false otherwise.
    */
   void updateStartPosition(const Position& startPosition);
+  void updateStartVelocity(const LinearVelocity& startVelocity);
 
   const ControlSetup getControlSetup() const;
 
@@ -51,6 +52,7 @@ class Footstep : public EndEffectorMotionBase
   bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.
@@ -69,10 +71,11 @@ class Footstep : public EndEffectorMotionBase
    */
   double getDuration() const;
 
-  void setStartPosition(const std::string& frameId, const Position& start);
-  const Position getStartPosition() const;
   void setTargetPosition(const std::string& frameId, const Position& target);
+
   const Position getTargetPosition() const;
+  const LinearVelocity getTargetVelocity() const;
+
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
   void setProfileType(const std::string& profileType);
@@ -101,6 +104,7 @@ class Footstep : public EndEffectorMotionBase
 
   Position start_;
   Position target_;
+  LinearVelocity touchdownVelocity_;
   std::string frameId_;
   double profileHeight_;
   std::string profileType_;

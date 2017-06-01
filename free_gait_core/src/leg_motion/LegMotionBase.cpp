@@ -31,6 +31,14 @@ LegMotionBase::LegMotionBase(const LegMotionBase& other) :
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
 }
 
+LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
+{
+  type_ = other.type_;
+  limb_ = other.limb_;
+  if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
+  return *this;
+}
+
 std::unique_ptr<LegMotionBase> LegMotionBase::clone() const
 {
   throw std::runtime_error("LegMotionBase::clone() not implemented.");
@@ -74,6 +82,11 @@ bool LegMotionBase::compute()
 bool LegMotionBase::isComputed() const
 {
   throw std::runtime_error("LegMotionBase::isComputed() not implemented.");
+}
+
+void LegMotionBase::reset()
+{
+  throw std::runtime_error("LegMotionBase::reset() not implemented.");
 }
 
 double LegMotionBase::getDuration() const
@@ -166,6 +179,11 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase::Type& type)
       out << "Undefined";
       return out;
   }
+}
+
+double LegMotionBase::mapTimeWithinDuration(const double time) const
+{
+  return time <= getDuration() ? time : getDuration();
 }
 
 } /* namespace */

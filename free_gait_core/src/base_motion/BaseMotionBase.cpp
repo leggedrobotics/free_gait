@@ -78,6 +78,11 @@ bool BaseMotionBase::isComputed() const
   throw std::runtime_error("BaseMotionBase::isComputed() not implemented.");
 }
 
+void BaseMotionBase::reset()
+{
+  throw std::runtime_error("BaseMotionBase::reset() not implemented.");
+}
+
 double BaseMotionBase::getDuration() const
 {
   throw std::runtime_error("BaseMotionBase::getDuration() not implemented.");

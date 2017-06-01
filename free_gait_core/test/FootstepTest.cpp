@@ -19,7 +19,7 @@ TEST(footstep, triangleLowLongStep)
   Footstep footstep(LimbEnum::LF_LEG);
   Position start(0.0, 0.0, 0.0);
   Position target(0.3, 0.0, 0.0);
-  footstep.setStartPosition("map", start);
+  footstep.updateStartPosition(start);
   footstep.setTargetPosition("map", target);
   double height = 0.05;
   footstep.setProfileHeight(0.05);
@@ -40,7 +40,7 @@ TEST(footstep, trianglehighLong)
   Footstep footstep(LimbEnum::LF_LEG);
   Position start(0.0, 0.0, 0.0);
   Position target(0.3, 0.0, 0.3);
-  footstep.setStartPosition("map", start);
+  footstep.updateStartPosition(start);
   footstep.setTargetPosition("map", target);
   double height = 0.05;
   footstep.setProfileHeight(0.05);

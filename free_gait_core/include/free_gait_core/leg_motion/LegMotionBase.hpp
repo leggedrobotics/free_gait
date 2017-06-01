@@ -59,6 +59,7 @@ class LegMotionBase
   virtual ~LegMotionBase();
 
   LegMotionBase(const LegMotionBase& other);
+  LegMotionBase& operator=(const LegMotionBase& other);
 
   /*!
    * Deep copy clone.
@@ -81,6 +82,7 @@ class LegMotionBase
   virtual bool needsComputation() const;
   virtual bool compute();
   virtual bool isComputed() const;
+  virtual void reset();
 
   /*!
    * Returns the total duration of the motion.
@@ -105,6 +107,13 @@ class LegMotionBase
   friend class StepCompleter;
 
  protected:
+  /*!
+   * Returns a desired time to fit within the start and end time of the motion.
+   * @param time the desired time.
+   * @return the time mapped within the motion duration.
+   */
+  double mapTimeWithinDuration(const double time) const;
+
   LimbEnum limb_;
   std::unique_ptr<Vector> surfaceNormal_;
 

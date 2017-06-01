@@ -93,10 +93,26 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
       std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
       return false;
     }
-    Position startPositionInBaseFrame = adapter_.getPositionBaseToFootInBaseFrame(endEffectorMotion.getLimb(), state.getJointPositionsForLimb(endEffectorMotion.getLimb()));
+    Position startPositionInBaseFrame = adapter_.getPositionBaseToFootInBaseFrame(
+        endEffectorMotion.getLimb(), state.getJointPositionsForLimb(endEffectorMotion.getLimb()));
     Position startPosition = adapter_.transformPosition("base", frameId, startPositionInBaseFrame);
     endEffectorMotion.updateStartPosition(startPosition);
   }
+
+  if (velocityOut) {
+    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
+    if (!adapter_.frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      return false;
+    }
+
+    const JointVelocitiesLeg& jointVelocities = state.getJointVelocitiesForLimb(endEffectorMotion.getLimb());
+    const LinearVelocity& startVelocity =
+        adapter_.getEndEffectorLinearVelocityFromJointVelocities(
+            endEffectorMotion.getLimb(), jointVelocities, frameId);
+    endEffectorMotion.updateStartVelocity(startVelocity);
+  }
+
   return endEffectorMotion.prepareComputation(state, step, adapter_);
 }
 
@@ -183,7 +199,7 @@ void StepCompleter::setParameters(LegMotionBase& legMotion) const
 
 void StepCompleter::setParameters(Footstep& footstep) const
 {
-  const auto& parameters = parameters_.footTargetParameters;
+  const auto& parameters = parameters_.footstepParameters;
 
   if (footstep.profileHeight_ == 0.0)
     footstep.profileHeight_ = parameters.profileHeight;

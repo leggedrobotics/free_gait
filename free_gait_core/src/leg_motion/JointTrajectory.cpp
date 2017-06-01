@@ -102,6 +102,12 @@ bool JointTrajectory::compute()
     }
   }
 
+  if (controlSetup_[ControlLevel::Position]) {
+    // Curves implementation provides velocities and accelerations.
+    controlSetup_[ControlLevel::Velocity] = true;
+    controlSetup_[ControlLevel::Acceleration] = true;
+  }
+
   isComputed_ = true;
   return true;
 }
@@ -119,10 +125,11 @@ double JointTrajectory::getDuration() const
 const JointPositionsLeg JointTrajectory::evaluatePosition(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluatePosition() cannot be called if trajectory is not computed.");
+  const double timeInRange = mapTimeWithinDuration(time);
   const auto& trajectories = trajectories_.at(ControlLevel::Position);
   JointPositionsLeg jointPositions;
   for (size_t i = 0; i < trajectories.size(); ++i) {
-    trajectories[i].evaluate(jointPositions(i), time);
+    trajectories[i].evaluate(jointPositions(i), timeInRange);
   }
   return jointPositions;
 }
@@ -130,13 +137,25 @@ const JointPositionsLeg JointTrajectory::evaluatePosition(const double time) con
 const JointVelocitiesLeg JointTrajectory::evaluateVelocity(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateVelocity() cannot be called if trajectory is not computed.");
-  throw std::runtime_error("JointTrajectory::evaluateVelocity() not implemented.");
+  const double timeInRange = mapTimeWithinDuration(time);
+  const auto& trajectories = trajectories_.at(ControlLevel::Position);
+  JointVelocitiesLeg jointVelocities;
+  for (size_t i = 0; i < trajectories.size(); ++i) {
+    trajectories[i].evaluateDerivative(jointVelocities(i), timeInRange, 1);
+  }
+  return jointVelocities;
 }
 
 const JointAccelerationsLeg JointTrajectory::evaluateAcceleration(const double time) const
 {
   if (!isComputed_) throw std::runtime_error("JointTrajectory::evaluateAcceleration() cannot be called if trajectory is not computed.");
-  throw std::runtime_error("JointTrajectory::evaluateAcceleration() not implemented.");
+  const double timeInRange = mapTimeWithinDuration(time);
+  const auto& trajectories = trajectories_.at(ControlLevel::Position);
+  JointAccelerationsLeg jointAccelerations;
+  for (size_t i = 0; i < trajectories.size(); ++i) {
+    trajectories[i].evaluateDerivative(jointAccelerations(i), timeInRange, 2);
+  }
+  return jointAccelerations;
 }
 
 const JointEffortsLeg JointTrajectory::evaluateEffort(const double time) const

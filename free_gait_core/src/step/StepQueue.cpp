@@ -58,6 +58,7 @@ void StepQueue::add(const std::vector<Step> steps)
 void StepQueue::addInFront(const Step& step)
 {
   queue_.push_front(step);
+  active_ = false;
 }
 
 bool StepQueue::advance(double dt)
@@ -122,6 +123,14 @@ bool StepQueue::active() const
 bool StepQueue::empty() const
 {
   return queue_.empty();
+}
+
+void StepQueue::skipCurrentStep()
+{
+  if (empty()) return;
+  previousStep_ = std::move(std::unique_ptr<Step>(new Step(queue_.front())));
+  queue_.pop_front();
+  active_ = false;
 }
 
 void StepQueue::clearNextSteps()

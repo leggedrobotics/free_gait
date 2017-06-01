@@ -50,6 +50,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
   bool prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Returns the total duration of the trajectory.
@@ -61,9 +62,12 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
 
   void setHeight(const double height);
   double getHeight() const;
-
   void setAverageLinearVelocity(const double averageLinearVelocity);
   double getAverageLinearVelocity() const;
+  void setAverageAngularVelocity(const double averageAngularVelocity);
+  double getAverageAngularVelocity() const;
+  double getSupportMargin() const;
+  void setSupportMargin(double supportMargin);
 
   /*!
    * Evaluate the base pose at a given time.
@@ -80,6 +84,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
   Twist evaluateTwist(const double time) const;
 
   friend std::ostream& operator << (std::ostream& out, const BaseAutoStepWiseBasicAlignment& baseAuto);
+
   friend class StepCompleter;
   friend class StepRosConverter;
 

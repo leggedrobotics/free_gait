@@ -110,6 +110,14 @@ bool BaseAutoStepWiseBasicAlignment::isComputed() const
   return isComputed_;
 }
 
+void BaseAutoStepWiseBasicAlignment::reset()
+{
+  start_.setIdentity();
+  target_.setIdentity();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 Pose BaseAutoStepWiseBasicAlignment::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
@@ -157,6 +165,26 @@ void BaseAutoStepWiseBasicAlignment::setAverageLinearVelocity(const double avera
 double BaseAutoStepWiseBasicAlignment::getAverageLinearVelocity() const
 {
   return averageLinearVelocity_;
+}
+
+void BaseAutoStepWiseBasicAlignment::setAverageAngularVelocity(const double averageAngularVelocity)
+{
+  averageAngularVelocity_ = averageAngularVelocity;
+}
+
+double BaseAutoStepWiseBasicAlignment::getAverageAngularVelocity() const
+{
+  return averageAngularVelocity_;
+}
+
+double BaseAutoStepWiseBasicAlignment::getSupportMargin() const
+{
+  return supportMargin_;
+}
+
+void BaseAutoStepWiseBasicAlignment::setSupportMargin(double supportMargin)
+{
+  supportMargin_ = supportMargin;
 }
 
 bool BaseAutoStepWiseBasicAlignment::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
