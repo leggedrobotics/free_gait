@@ -153,6 +153,26 @@ double BaseAutoSqp::getAverageLinearVelocity() const
   return averageLinearVelocity_;
 }
 
+void BaseAutoSqp::setAverageAngularVelocity(const double averageAngularVelocity)
+{
+  averageAngularVelocity_ = averageAngularVelocity;
+}
+
+double BaseAutoSqp::getAverageAngularVelocity() const
+{
+  return averageAngularVelocity_;
+}
+
+double BaseAutoSqp::getSupportMargin() const
+{
+  return supportMargin_;
+}
+
+void BaseAutoSqp::setSupportMargin(double supportMargin)
+{
+  supportMargin_ = supportMargin;
+}
+
 bool BaseAutoSqp::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {

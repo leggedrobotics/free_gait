@@ -62,9 +62,12 @@ class BaseAutoSqp : public BaseMotionBase
 
   void setHeight(const double height);
   double getHeight() const;
-
   void setAverageLinearVelocity(const double averageLinearVelocity);
   double getAverageLinearVelocity() const;
+  void setAverageAngularVelocity(const double averageAngularVelocity);
+  double getAverageAngularVelocity() const;
+  double getSupportMargin() const;
+  void setSupportMargin(double supportMargin);
 
   /*!
    * Evaluate the base pose at a given time.
