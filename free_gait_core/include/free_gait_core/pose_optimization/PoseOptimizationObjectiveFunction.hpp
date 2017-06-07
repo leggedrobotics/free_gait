@@ -42,6 +42,7 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
    * @param nominalStanceInBaseFrame the desired feet positions in base frame.
    */
   void setNominalStance(const Stance& nominalStanceInBaseFrame);
+  const Stance& getNominalStance() const;
 
   /*! This method computes the objective value
    * @param value       function value

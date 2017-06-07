@@ -56,8 +56,15 @@ class PoseOptimizationSQP
   void registerOptimizationStepCallback(OptimizationStepCallbackFunction callback);
 
   /*!
-   * Computes the optimized pose.
-   * @param[in/out] pose the pose to optimize from the given initial guess.
+   * Computes a geometrically defined initial solution for the pose optimization.
+   * Use this solution to start the optimization if you have no other solution.
+   * @return the initial solution for the pose optimization.
+   */
+  const Pose computeInitialSolution() const;
+
+  /*!
+   * Computes the optimized pose with SQP.
+   * @param[in/out] pose the pose to optimize from the given initial solution.
    * @return true if successful, false otherwise.
    */
   bool optimize(Pose& pose);
@@ -67,6 +74,7 @@ class PoseOptimizationSQP
                                 const double functionValue);
 
  private:
+
   const AdapterBase& adapter_;
   State state_;
   Stance stance_;

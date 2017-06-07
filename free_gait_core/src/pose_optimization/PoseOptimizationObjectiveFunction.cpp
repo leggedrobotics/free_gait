@@ -38,6 +38,11 @@ void PoseOptimizationObjectiveFunction::setNominalStance(
   nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
 }
 
+const Stance& PoseOptimizationObjectiveFunction::getNominalStance() const
+{
+  return nominalStanceInBaseFrame_;
+}
+
 bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& value,
                                                      const numopt_common::Parameterization& params,
                                                      bool newParams)

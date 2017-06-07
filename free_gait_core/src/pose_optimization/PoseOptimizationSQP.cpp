@@ -11,7 +11,7 @@
 #include "free_gait_core/pose_optimization/PoseOptimizationProblem.hpp"
 
 #include <Eigen/Core>
-#include <Eigen/SVD>
+#include <Eigen/Eigenvalues>
 #include <kindr/Core>
 #include <message_logger/message_logger.hpp>
 #include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
@@ -59,22 +59,69 @@ void PoseOptimizationSQP::registerOptimizationStepCallback(OptimizationStepCallb
   optimizationStepCallback_ = callback;
 }
 
-bool PoseOptimizationSQP::optimize(Pose& pose)
+const Pose PoseOptimizationSQP::computeInitialSolution() const
 {
   // If no support polygon provided, use positions.
   if (constraints_->getSupportRegion().nVertices() == 0) {
     grid_map::Polygon supportRegion;
-    for (const auto& foot : objective_->getStance())
+    for (const auto& foot : stance_)
       supportRegion.addVertex(foot.second.vector().head<2>());
   }
 
+  Pose pose; // Identity.
+
+  // Planar position: Use geometric center of support region.
+  Position center;
+  center.vector().head(2) = constraints_->getSupportRegion().getCentroid();
+
+  // Height: Average of stance plus default height.
+  for (const auto& foot : stance_) {
+    center.z() += foot.second.z() - objective_->getNominalStance().at(foot.first).z();
+  }
+
+  center.z() /= (double) stance_.size();
+  pose.getPosition() = center;
+
+  // Orientation: Squared error minimization (see sec. 4.2.2 from Bloesch, Technical
+  // Implementations of the Sense of Balance, 2016).
+  // Notes on (38):
+  // - i: Identity pose (I),
+  // - j: Solution (B),
+  // - t = I_r_IB,
+  // - q = q_IB,
+  // - a_k = I_f_k: Foot position for leg k in inertial frame,
+  // - b_k = B_\hat_f_K: Nominal foot position for leg k in base frame.
+
+  Eigen::Matrix4d C(Eigen::Matrix4d::Zero()); // See (45).
+  Eigen::Matrix4d A(Eigen::Matrix4d::Zero()); // See (46).
+  for (const auto& foot : stance_) {
+    const RotationQuaternion footPositionInertialFrame(0.0, foot.second.vector()); // \bar_a_k = S^T * a_k (39).
+    const RotationQuaternion defaultFootPositionBaseFrame(0.0, objective_->getNominalStance().at(foot.first).vector()); // \bar_b_k = S^T * b_k.
+    Eigen::Matrix4d Ak = footPositionInertialFrame.getQuaternionMatrix() - defaultFootPositionBaseFrame.getConjugateQuaternionMatrix(); // See (46).
+    C += Ak * Ak; // See (45).
+    A += Ak; // See (46).
+  }
+  A = A / ((double) stance_.size());
+  C -= stance_.size() * A * A; // See (45).
+  Eigen::EigenSolver<Eigen::Matrix4d> eigenSolver(C);
+  int maxCoeff;
+  eigenSolver.eigenvalues().real().maxCoeff(&maxCoeff);
+  // Eigen vector corresponding to max. eigen value.
+  pose.getRotation() = RotationQuaternion(eigenSolver.eigenvectors().col(maxCoeff).real());
+  pose.getRotation().setUnique();
+
+  return pose;
+}
+
+bool PoseOptimizationSQP::optimize(Pose& pose)
+{
   // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);
   std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
       new numopt_ooqp::QPFunctionMinimizer);
 //  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
-  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 100, 0.0001, 3, -DBL_MAX, true, true);
+  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 100, 0.0001, 5, -DBL_MAX, true, true);
   if (optimizationStepCallback_) {
     solver.registerOptimizationStepCallback(
         std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1,
