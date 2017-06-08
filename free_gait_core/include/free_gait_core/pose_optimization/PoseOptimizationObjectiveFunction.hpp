@@ -44,6 +44,8 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   void setNominalStance(const Stance& nominalStanceInBaseFrame);
   const Stance& getNominalStance() const;
 
+  void setInitialPose(const Pose& pose);
+
   /*! This method computes the objective value
    * @param value       function value
    * @param p           parameters
@@ -69,6 +71,7 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
 
   Stance stance_;
   Stance nominalStanceInBaseFrame_;
+  Pose initialPose_;
 
 //  //! Hip to foot length along world z-axis.
 //  const double desiredLegVerticalLength_;

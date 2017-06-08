@@ -110,18 +110,23 @@ const Pose PoseOptimizationSQP::computeInitialSolution() const
   pose.getRotation() = RotationQuaternion(eigenSolver.eigenvectors().col(maxCoeff).real());
   pose.getRotation().setUnique();
 
+  // Start from bottom.
+//  pose.getPosition().z() -= 0.2;
+
   return pose;
 }
 
 bool PoseOptimizationSQP::optimize(Pose& pose)
 {
+  objective_->setInitialPose(pose);
+
   // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);
   std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
       new numopt_ooqp::QPFunctionMinimizer);
 //  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
-  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 100, 0.0001, 5, -DBL_MAX, true, true);
+  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 1000, 0.05, 5, -DBL_MAX, true, true);
   if (optimizationStepCallback_) {
     solver.registerOptimizationStepCallback(
         std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1,

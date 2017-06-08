@@ -20,12 +20,12 @@ PoseOptimizationFunctionConstraints::PoseOptimizationFunctionConstraints(const A
       nSupportRegionInequalityConstraints_(0),
       nLimbLengthInequalityConstraints_(0)
 {
-//  LegLengths minLimbLenghts, maxLimbLenghts;
-//  for (const auto& limb : adapter_.getLimbs()) {
-//    minLimbLenghts[limb] = 0.0;
-//    maxLimbLenghts[limb] = 0.55;
-//  }
-//  setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
+  LegLengths minLimbLenghts, maxLimbLenghts;
+  for (const auto& limb : adapter_.getLimbs()) {
+    minLimbLenghts[limb] = 0.0;
+    maxLimbLenghts[limb] = 0.52;
+  }
+  setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
 }
 
 PoseOptimizationFunctionConstraints::~PoseOptimizationFunctionConstraints()
@@ -108,17 +108,17 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
   values.segment(0, nSupportRegionInequalityConstraints_) =
       supportRegionInequalityConstraintGlobalJacobian_ * basePosition.vector().head(2);
 
-//  // Leg length.
-//  size_t i(0);
-//  for (const auto& limb : adapter_.getLimbs()) {
-//    const Position footPosition(stance_.at(limb));
-//    const Position baseToFootInBase = adapter_.transformPosition(
-//        adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition);
-//    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(limb);
-//    const double legLength = Vector(baseToFootInBase - baseToHipInBase).norm();
-//    values(nSupportRegionInequalityConstraints_ + i) = legLength;
-//    ++i;
-//  }
+  // Leg length.
+  size_t i(0);
+  for (const auto& limb : adapter_.getLimbs()) {
+    const Position footPosition(stance_.at(limb));
+    const Position baseToFootInBase = adapter_.transformPosition(
+        adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition);
+    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(limb);
+    const double legLength = Vector(baseToFootInBase - baseToHipInBase).norm();
+    values(nSupportRegionInequalityConstraints_ + i) = legLength;
+    ++i;
+  }
 
   // Reset adapter.
   adapter_.setInternalDataFromState(state_);
@@ -129,9 +129,9 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintMinValues(numop
 {
   d = numopt_common::Vector::Constant(nInequalityConstraints_, std::numeric_limits<double>::lowest());
 
-//  // Leg length.
-//  d.segment(nSupportRegionInequalityConstraints_, nLimbLengthInequalityConstraints_) =
-//      limbLengthInequalityConstraintsMinValues_;
+  // Leg length.
+  d.segment(nSupportRegionInequalityConstraints_, nLimbLengthInequalityConstraints_) =
+      limbLengthInequalityConstraintsMinValues_;
 
   return true;
 }
@@ -143,9 +143,9 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintMaxValues(numop
   // Support region.
   f.segment(0, nSupportRegionInequalityConstraints_) = supportRegionInequalityConstraintsMaxValues_;
 
-//  // Leg length.
-//  f.segment(nSupportRegionInequalityConstraints_, nLimbLengthInequalityConstraints_) =
-//      limbLengthInequalityConstraintsMaxValues_;
+  // Leg length.
+  f.segment(nSupportRegionInequalityConstraints_, nLimbLengthInequalityConstraints_) =
+      limbLengthInequalityConstraintsMaxValues_;
 
   return true;
 }

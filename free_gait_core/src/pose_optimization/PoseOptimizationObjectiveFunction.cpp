@@ -43,6 +43,11 @@ const Stance& PoseOptimizationObjectiveFunction::getNominalStance() const
   return nominalStanceInBaseFrame_;
 }
 
+void PoseOptimizationObjectiveFunction::setInitialPose(const Pose& pose)
+{
+  initialPose_ = pose;
+}
+
 bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& value,
                                                      const numopt_common::Parameterization& params,
                                                      bool newParams)
@@ -53,14 +58,27 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
   adapter_.setInternalDataFromState(state);
   value = 0.0;
 
+  // Cost for default leg positions.
   for (const auto& footPosition : stance_) {
     const Position baseToFootInBase = adapter_.transformPosition(
         adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition.second);
     const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
     const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
-    Eigen::Array3d weight(1.0, 1.0, 10.0);
+    const Eigen::Array3d weight(1.0, 1.0, 10.0);
     value += (weight * (baseToFootInBase - nominalStanceInBaseFrame_.at(footPosition.first)).vector().array()).matrix().squaredNorm();
   }
+
+  // Cost for deviation from initial position.
+  Vector positionDifference(state.getPositionWorldToBaseInWorldFrame() - initialPose_.getPosition());
+  const Eigen::Array3d positionRegularizerWeights(0.1, 0.1, 0.1);
+  value += (positionRegularizerWeights * positionDifference.vector().array()).matrix().squaredNorm();
+
+  // Cost for deviation from initial orientation.
+//  EulerAnglesZyx rotationDifference(state.getOrientationBaseToWorld() * initialPose_.getRotation().inverted());
+  EulerAnglesZyx rotationDifference(state.getOrientationBaseToWorld());
+  rotationDifference.setUnique();
+  const Eigen::Array3d rotationRegularizerWeights(0.0, 5.0, 5.0);
+  value += (rotationRegularizerWeights * rotationDifference.vector().array()).matrix().squaredNorm();
 
   adapter_.setInternalDataFromState(state_);
   return true;
@@ -73,3 +91,4 @@ bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& 
 }
 
 } /* namespace free_gait */
+

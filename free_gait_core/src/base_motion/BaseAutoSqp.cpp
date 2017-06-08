@@ -104,6 +104,14 @@ bool BaseAutoSqp::isComputed() const
   return isComputed_;
 }
 
+void BaseAutoSqp::reset()
+{
+  start_.setIdentity();
+  target_.setIdentity();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 Pose BaseAutoSqp::evaluatePose(const double time) const
 {
   double timeInRange = time <= duration_ ? time : duration_;
@@ -269,6 +277,7 @@ bool BaseAutoSqp::optimizePose(Pose& pose)
   support.offsetInward(supportMargin_);
   poseOptimization_->setSupportRegion(support);
 
+  pose = poseOptimization_->computeInitialSolution();
   return poseOptimization_->optimize(pose);
 }
 
