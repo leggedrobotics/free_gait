@@ -16,6 +16,7 @@ PoseOptimizationObjectiveFunction::PoseOptimizationObjectiveFunction(const Adapt
       adapter_(adapter),
       state_(state)
 {
+
 }
 
 PoseOptimizationObjectiveFunction::~PoseOptimizationObjectiveFunction()
@@ -60,25 +61,19 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 
   // Cost for default leg positions.
   for (const auto& footPosition : stance_) {
-    const Position baseToFootInBase = adapter_.transformPosition(
-        adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition.second);
-    const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(footPosition.first);
-    const Vector hipToFootInBase(baseToFootInBase - baseToHipInBase);
-    const Eigen::Array3d weight(1.0, 1.0, 10.0);
-    value += (weight * (baseToFootInBase - nominalStanceInBaseFrame_.at(footPosition.first)).vector().array()).matrix().squaredNorm();
+    const Position nominalFootPositionInWorld = adapter_.getPositionWorldToBaseInWorldFrame()
+        + adapter_.getOrientationBaseToWorld().rotate(nominalStanceInBaseFrame_.at(footPosition.first));
+    value += (nominalFootPositionInWorld - footPosition.second).squaredNorm();
   }
 
-  // Cost for deviation from initial position.
-  Vector positionDifference(state.getPositionWorldToBaseInWorldFrame() - initialPose_.getPosition());
-  const Eigen::Array3d positionRegularizerWeights(0.1, 0.1, 0.1);
-  value += (positionRegularizerWeights * positionDifference.vector().array()).matrix().squaredNorm();
+//  // Cost for deviation from initial position.
+//  Vector positionDifference(state.getPositionWorldToBaseInWorldFrame() - initialPose_.getPosition());
+//  value += 0.1 * positionDifference.vector().squaredNorm();
 
   // Cost for deviation from initial orientation.
-//  EulerAnglesZyx rotationDifference(state.getOrientationBaseToWorld() * initialPose_.getRotation().inverted());
-  EulerAnglesZyx rotationDifference(state.getOrientationBaseToWorld());
-  rotationDifference.setUnique();
-  const Eigen::Array3d rotationRegularizerWeights(0.0, 5.0, 5.0);
-  value += (rotationRegularizerWeights * rotationDifference.vector().array()).matrix().squaredNorm();
+  RotationQuaternion rotationDifference(state.getOrientationBaseToWorld() * initialPose_.getRotation().inverted());
+  const double rotationDifferenceNorm = rotationDifference.norm();
+  value += 5.0 * rotationDifferenceNorm * rotationDifferenceNorm;
 
   adapter_.setInternalDataFromState(state_);
   return true;

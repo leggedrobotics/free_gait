@@ -22,7 +22,7 @@ PoseOptimizationFunctionConstraints::PoseOptimizationFunctionConstraints(const A
 {
   LegLengths minLimbLenghts, maxLimbLenghts;
   for (const auto& limb : adapter_.getLimbs()) {
-    minLimbLenghts[limb] = 0.0;
+    minLimbLenghts[limb] = 0.15;
     maxLimbLenghts[limb] = 0.52;
   }
   setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
@@ -98,6 +98,8 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
                                                                         bool newParams)
 {
   values.resize(getNumberOfInequalityConstraints());
+
+  // Update adapter.
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(p);
   const Position basePosition = poseParameterization.getPosition();
   State state(state_);
@@ -107,6 +109,9 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
   // Support region.
   values.segment(0, nSupportRegionInequalityConstraints_) =
       supportRegionInequalityConstraintGlobalJacobian_ * basePosition.vector().head(2);
+//  values.segment(0, nSupportRegionInequalityConstraints_) =
+//      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
+//  std::cerr << "COM ERROR: " << basePosition - adapter_.getCenterOfMassInWorldFrame() << std::endl;
 
   // Leg length.
   size_t i(0);

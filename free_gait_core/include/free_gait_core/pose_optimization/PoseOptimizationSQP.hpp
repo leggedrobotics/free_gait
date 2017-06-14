@@ -16,6 +16,7 @@
 
 #include <grid_map_core/Polygon.hpp>
 #include <numopt_common/QuadraticProblemSolver.hpp>
+#include <robot_utils/timers/ChronoTimer.hpp>
 
 namespace free_gait {
 
@@ -60,7 +61,7 @@ class PoseOptimizationSQP
    * Use this solution to start the optimization if you have no other solution.
    * @return the initial solution for the pose optimization.
    */
-  const Pose computeInitialSolution() const;
+  const Pose computeInitialSolution();
 
   /*!
    * Computes the optimized pose with SQP.
@@ -73,7 +74,15 @@ class PoseOptimizationSQP
                                 const numopt_common::Parameterization& parameters,
                                 const double functionValue);
 
+  /*!
+   * Return the duration of the last optimization in micro seconds.
+   * @return the duration in micro seconds.
+   */
+  double getOptimizationDuration() const;
+
  private:
+
+  void checkSupportRegion();
 
   const AdapterBase& adapter_;
   State state_;
@@ -81,8 +90,8 @@ class PoseOptimizationSQP
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;
   std::shared_ptr<PoseOptimizationFunctionConstraints> constraints_;
   OptimizationStepCallbackFunction optimizationStepCallback_;
-  unsigned int nStates_;
-  unsigned int nDimensions_;
+  robot_utils::HighResolutionClockTimer timer_;
+  double durationInCallback_;
 };
 
 } /* namespace loco */

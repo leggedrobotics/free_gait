@@ -72,9 +72,6 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   Stance stance_;
   Stance nominalStanceInBaseFrame_;
   Pose initialPose_;
-
-//  //! Hip to foot length along world z-axis.
-//  const double desiredLegVerticalLength_;
 };
 
 } /* namespace free_gait */
