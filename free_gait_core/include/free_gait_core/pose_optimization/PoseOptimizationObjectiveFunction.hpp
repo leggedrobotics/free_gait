@@ -26,7 +26,7 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
    * an adapter only used for this optimization.
    * @param adapter the Free Gait adapter.
    */
-  PoseOptimizationObjectiveFunction(const AdapterBase& adapter, const State& state);
+  PoseOptimizationObjectiveFunction();
   virtual ~PoseOptimizationObjectiveFunction();
 
   /*!
@@ -66,9 +66,6 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
                         bool newParams = true);
 
  private:
-  const AdapterBase& adapter_;
-  const State& state_;
-
   Stance stance_;
   Stance nominalStanceInBaseFrame_;
   Pose initialPose_;

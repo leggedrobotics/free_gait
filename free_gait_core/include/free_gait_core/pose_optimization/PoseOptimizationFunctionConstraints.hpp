@@ -22,7 +22,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
  public:
   typedef std::map<LimbEnum, double> LegLengths;
 
-  PoseOptimizationFunctionConstraints(const AdapterBase& adapter, const State& state);
+  PoseOptimizationFunctionConstraints(const AdapterBase& adapter);
   virtual ~PoseOptimizationFunctionConstraints();
 
   void setStance(const Stance& stance);
@@ -53,7 +53,6 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void updateNumberOfInequalityConstraints();
 
   const AdapterBase& adapter_;
-  State state_;
 
   Stance stance_;
 

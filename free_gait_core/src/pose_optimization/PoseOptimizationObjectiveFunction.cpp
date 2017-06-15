@@ -11,10 +11,8 @@
 
 namespace free_gait {
 
-PoseOptimizationObjectiveFunction::PoseOptimizationObjectiveFunction(const AdapterBase& adapter, const State& state)
-    : NonlinearObjectiveFunction(),
-      adapter_(adapter),
-      state_(state)
+PoseOptimizationObjectiveFunction::PoseOptimizationObjectiveFunction()
+    : NonlinearObjectiveFunction()
 {
 
 }
@@ -53,16 +51,14 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
                                                      const numopt_common::Parameterization& params,
                                                      bool newParams)
 {
-  auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
-  State state(state_);
-  state.setPoseBaseToWorld(poseParameterization.getPose());
-  adapter_.setInternalDataFromState(state);
+  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
+  const Pose pose = poseParameterization.getPose();
   value = 0.0;
 
   // Cost for default leg positions.
   for (const auto& footPosition : stance_) {
-    const Position nominalFootPositionInWorld = adapter_.getPositionWorldToBaseInWorldFrame()
-        + adapter_.getOrientationBaseToWorld().rotate(nominalStanceInBaseFrame_.at(footPosition.first));
+    const Position nominalFootPositionInWorld = pose.getPosition()
+        + pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first));
     value += (nominalFootPositionInWorld - footPosition.second).squaredNorm();
   }
 
@@ -71,11 +67,10 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 //  value += 0.1 * positionDifference.vector().squaredNorm();
 
   // Cost for deviation from initial orientation.
-  RotationQuaternion rotationDifference(state.getOrientationBaseToWorld() * initialPose_.getRotation().inverted());
+  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
   const double rotationDifferenceNorm = rotationDifference.norm();
   value += 5.0 * rotationDifferenceNorm * rotationDifferenceNorm;
 
-  adapter_.setInternalDataFromState(state_);
   return true;
 }
 

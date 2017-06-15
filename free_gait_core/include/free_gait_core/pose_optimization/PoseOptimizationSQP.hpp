@@ -18,6 +18,8 @@
 #include <numopt_common/QuadraticProblemSolver.hpp>
 #include <robot_utils/timers/ChronoTimer.hpp>
 
+#include <limits>
+
 namespace free_gait {
 
 class PoseOptimizationSQP
@@ -25,7 +27,11 @@ class PoseOptimizationSQP
  public:
   typedef std::function<void(const size_t, const State&, const double)> OptimizationStepCallbackFunction;
 
+  //! Constructor. Keeps are reference to the adapter, be careful when multi-threading!
+  //! @param adapter the adapter to the robot data.
+  //! @param state the current state of the robot
   PoseOptimizationSQP(const AdapterBase& adapter, const State& state);
+  PoseOptimizationSQP(const PoseOptimizationSQP& other);
   virtual ~PoseOptimizationSQP();
 
   /*!
@@ -57,22 +63,14 @@ class PoseOptimizationSQP
   void registerOptimizationStepCallback(OptimizationStepCallbackFunction callback);
 
   /*!
-   * Computes a geometrically defined initial solution for the pose optimization.
-   * Use this solution to start the optimization if you have no other solution.
-   * @return the initial solution for the pose optimization.
-   */
-  const Pose computeInitialSolution();
-
-  /*!
    * Computes the optimized pose with SQP.
-   * @param[in/out] pose the pose to optimize from the given initial solution.
+   * @param[out] pose the optimized pose.
    * @return true if successful, false otherwise.
    */
   bool optimize(Pose& pose);
 
-  void optimizationStepCallback(const size_t iterationStep,
-                                const numopt_common::Parameterization& parameters,
-                                const double functionValue);
+  void optimizationStepCallback(const size_t iterationStep, const numopt_common::Parameterization& parameters,
+      const double functionValue);
 
   /*!
    * Return the duration of the last optimization in micro seconds.
@@ -81,11 +79,26 @@ class PoseOptimizationSQP
   double getOptimizationDuration() const;
 
  private:
-
   void checkSupportRegion();
 
+  /*!
+   * Computes a geometrically defined initial solution for the pose optimization.
+   * Use this solution to start the optimization if you have no other solution.
+   * @param[out] pose the computed pose.
+   */
+  const void computeInitialSolution(Pose& pose);
+
+  void updateJointPositionsInState(State& state) const;
+
+  void callExternalOptimizationStepCallback(const size_t iterationStep = 0, const double functionValue =
+                                                std::numeric_limits<double>::max());
+
   const AdapterBase& adapter_;
-  State state_;
+  const State& originalState_;
+
+  //! State being optimized.
+  std::unique_ptr<State> state_; // TODO Why doesn't the state allow us to use the assign operator?
+
   Stance stance_;
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;
   std::shared_ptr<PoseOptimizationFunctionConstraints> constraints_;

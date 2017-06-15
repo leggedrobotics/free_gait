@@ -13,10 +13,9 @@
 
 namespace free_gait {
 
-PoseOptimizationFunctionConstraints::PoseOptimizationFunctionConstraints(const AdapterBase& adapter, const State& state)
+PoseOptimizationFunctionConstraints::PoseOptimizationFunctionConstraints(const AdapterBase& adapter)
     : NonlinearFunctionConstraints(),
       adapter_(adapter),
-      state_(state),
       nSupportRegionInequalityConstraints_(0),
       nLimbLengthInequalityConstraints_(0)
 {
@@ -101,32 +100,25 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
 
   // Update adapter.
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(p);
-  const Position basePosition = poseParameterization.getPosition();
-  State state(state_);
-  state.setPoseBaseToWorld(poseParameterization.getPose());
-  adapter_.setInternalDataFromState(state);
+  const Pose basePose = poseParameterization.getPose();
 
   // Support region.
+  // TODO Remove adapter!
   values.segment(0, nSupportRegionInequalityConstraints_) =
-      supportRegionInequalityConstraintGlobalJacobian_ * basePosition.vector().head(2);
-//  values.segment(0, nSupportRegionInequalityConstraints_) =
-//      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
-//  std::cerr << "COM ERROR: " << basePosition - adapter_.getCenterOfMassInWorldFrame() << std::endl;
+      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
+  std::cerr << "COM ERROR: " << basePose.getPosition() - adapter_.getCenterOfMassInWorldFrame() << std::endl;
 
   // Leg length.
   size_t i(0);
   for (const auto& limb : adapter_.getLimbs()) {
     const Position footPosition(stance_.at(limb));
-    const Position baseToFootInBase = adapter_.transformPosition(
-        adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), footPosition);
+    const Position baseToFootInBase = basePose.getRotation().inverseRotate(footPosition - basePose.getPosition());
     const auto baseToHipInBase = adapter_.getPositionBaseToHipInBaseFrame(limb);
     const double legLength = Vector(baseToFootInBase - baseToHipInBase).norm();
     values(nSupportRegionInequalityConstraints_ + i) = legLength;
     ++i;
   }
 
-  // Reset adapter.
-  adapter_.setInternalDataFromState(state_);
   return true;
 }
 

@@ -277,7 +277,6 @@ bool BaseAutoSqp::optimizePose(Pose& pose)
   support.offsetInward(supportMargin_);
   poseOptimization_->setSupportRegion(support);
 
-  pose = poseOptimization_->computeInitialSolution();
   return poseOptimization_->optimize(pose);
 }
 
