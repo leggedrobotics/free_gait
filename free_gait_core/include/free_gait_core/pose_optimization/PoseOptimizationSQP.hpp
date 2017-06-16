@@ -25,14 +25,15 @@ namespace free_gait {
 class PoseOptimizationSQP
 {
  public:
-  typedef std::function<void(const size_t, const State&, const double)> OptimizationStepCallbackFunction;
+  typedef std::function<void(const size_t, const State&, const double, const bool)> OptimizationStepCallbackFunction;
 
   //! Constructor. Keeps are reference to the adapter, be careful when multi-threading!
   //! @param adapter the adapter to the robot data.
   //! @param state the current state of the robot
-  PoseOptimizationSQP(const AdapterBase& adapter, const State& state);
-  PoseOptimizationSQP(const PoseOptimizationSQP& other);
+  PoseOptimizationSQP(const AdapterBase& adapter);
   virtual ~PoseOptimizationSQP();
+
+  void setCurrentState(const State& state);
 
   /*!
    * Set the positions of the feet of the robot in world coordinate system.
@@ -70,7 +71,7 @@ class PoseOptimizationSQP
   bool optimize(Pose& pose);
 
   void optimizationStepCallback(const size_t iterationStep, const numopt_common::Parameterization& parameters,
-      const double functionValue);
+                                const double functionValue, const bool finalIteration);
 
   /*!
    * Return the duration of the last optimization in micro seconds.
@@ -91,13 +92,14 @@ class PoseOptimizationSQP
   void updateJointPositionsInState(State& state) const;
 
   void callExternalOptimizationStepCallback(const size_t iterationStep = 0, const double functionValue =
-                                                std::numeric_limits<double>::max());
+                                                std::numeric_limits<double>::max(),
+                                            const bool finalIteration = false);
 
   const AdapterBase& adapter_;
-  const State& originalState_;
+  State originalState_;
 
   //! State being optimized.
-  std::unique_ptr<State> state_; // TODO Why doesn't the state allow us to use the assign operator?
+  State state_;
 
   Stance stance_;
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;

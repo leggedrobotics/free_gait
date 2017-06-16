@@ -105,8 +105,8 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
   // Support region.
   // TODO Remove adapter!
   values.segment(0, nSupportRegionInequalityConstraints_) =
-      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
-  std::cerr << "COM ERROR: " << basePose.getPosition() - adapter_.getCenterOfMassInWorldFrame() << std::endl;
+      supportRegionInequalityConstraintGlobalJacobian_ * basePose.getPosition().vector().head(2);
+//      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
 
   // Leg length.
   size_t i(0);

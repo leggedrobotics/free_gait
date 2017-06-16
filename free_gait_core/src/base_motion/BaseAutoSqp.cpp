@@ -51,7 +51,7 @@ BaseAutoSqp::BaseAutoSqp(const BaseAutoSqp& other) :
     isComputed_(other.isComputed_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
-  if (other.poseOptimization_) poseOptimization_.reset(new PoseOptimizationSQP(*(other.poseOptimization_)));
+  if (other.poseOptimization_) poseOptimization_.reset(new PoseOptimizationSQP(*(other.poseOptimization_))); // TODO Not required?
 }
 
 std::unique_ptr<BaseMotionBase> BaseAutoSqp::clone() const
@@ -83,7 +83,8 @@ bool BaseAutoSqp::prepareComputation(const State& state, const Step& step, const
     std::cerr << "BaseAutoSqp::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
-  poseOptimization_.reset(new PoseOptimizationSQP(adapter, state));
+  poseOptimization_.reset(new PoseOptimizationSQP(adapter));
+  poseOptimization_->setCurrentState(state);
   target_ = start_; // Initialize optimization with start pose.
   if (!optimizePose(target_)) {
     std::cerr << "BaseAutoSqp::compute: Could not compute pose optimization." << std::endl;

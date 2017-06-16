@@ -70,6 +70,7 @@ bool StateRosPublisher::initializeRobotStatePublisher()
   }
 
   robotStatePublisher_.reset(new robot_state_publisher::RobotStatePublisher(tree));
+  return true;
 }
 
 bool StateRosPublisher::publish(const State& state)

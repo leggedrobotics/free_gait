@@ -22,9 +22,8 @@
 
 namespace free_gait {
 
-PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter, const State& state)
+PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
     : adapter_(adapter),
-      originalState_(state),
       timer_("PoseOptimizationSQP"),
       durationInCallback_(0.0)
 {
@@ -33,22 +32,13 @@ PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter, const State
   timer_.setAlpha(1.0);
 }
 
-PoseOptimizationSQP::PoseOptimizationSQP(const PoseOptimizationSQP& other)
-    : adapter_(other.adapter_),
-      originalState_(other.originalState_),
-      stance_(other.stance_),
-      optimizationStepCallback_(other.optimizationStepCallback_),
-      timer_(other.timer_),
-      durationInCallback_(other.durationInCallback_)
-{
-  if (other.state_) state_.reset(new State(*(other.state_)));
-  if (other.objective_) objective_.reset(new PoseOptimizationObjectiveFunction(*(other.objective_)));
-  if (other.constraints_) constraints_.reset(new PoseOptimizationFunctionConstraints(*(other.constraints_)));
-}
-
-
 PoseOptimizationSQP::~PoseOptimizationSQP()
 {
+}
+
+void PoseOptimizationSQP::setCurrentState(const State& state)
+{
+  originalState_ = state;
 }
 
 void PoseOptimizationSQP::setStance(const Stance& stance)
@@ -78,25 +68,17 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
 {
   timer_.pinTime("total");
   durationInCallback_ = 0.0;
-  std::cerr << "------2" << std::endl;
-  state_.reset(new State(originalState_));
-  std::cerr << "------1" << std::endl;
+  state_ = originalState_;
   checkSupportRegion();
 
-  std::cerr << "00000" << std::endl;
   // Compute initial solution.
   computeInitialSolution(pose);
-  std::cerr << "1111" << std::endl;
   objective_->setInitialPose(pose);
-  state_->setPoseBaseToWorld(pose);
-  std::cerr << "222" << std::endl;
-  updateJointPositionsInState(*state_); // For CoM calculation.
-  std::cerr << "3333" << std::endl;
-  adapter_.setInternalDataFromState(*state_);
-  std::cerr << "4444" << std::endl;
+  state_.setPoseBaseToWorld(pose);
+  adapter_.setInternalDataFromState(state_); // To guide IK.
+  updateJointPositionsInState(state_); // For CoM calculation.
+  adapter_.setInternalDataFromState(state_);
   callExternalOptimizationStepCallback();
-  std::cerr << "555" << std::endl;
-
 
   // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);
@@ -104,11 +86,12 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
       new numopt_ooqp::QPFunctionMinimizer);
 //  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
 //      new numopt_quadprog::ActiveSetFunctionMinimizer);
-  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 1000, 0.001, 3, -DBL_MAX);
+//  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 1000, 0.001, 3, -DBL_MAX);
+  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 1000, 0.01, 3, -DBL_MAX);
   solver.registerOptimizationStepCallback(
       std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1, std::placeholders::_2,
-                std::placeholders::_3));
-  solver.setCheckConstraints(true);
+                std::placeholders::_3, std::placeholders::_4));
+  solver.setCheckConstraints(false);
   solver.setPrintOutput(true);
   PoseParameterization params;
   params.setPose(pose);
@@ -124,12 +107,12 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
 
 void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
                                                    const numopt_common::Parameterization& parameters,
-                                                   const double functionValue)
+                                                   const double functionValue,
+                                                   const bool finalIteration)
 {
   auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
-  state_->setPoseBaseToWorld(poseParameterization.getPose());
-  adapter_.setInternalDataFromState(*state_);
-  callExternalOptimizationStepCallback();
+  state_.setPoseBaseToWorld(poseParameterization.getPose());
+  callExternalOptimizationStepCallback(iterationStep + 1, functionValue, finalIteration);
 }
 
 double PoseOptimizationSQP::getOptimizationDuration() const
@@ -204,17 +187,19 @@ void PoseOptimizationSQP::updateJointPositionsInState(State& state) const
         adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), foot.second));
     JointPositionsLeg jointPositions;
     const bool success = adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(footPositionInBase, foot.first, jointPositions);
-    state.setJointPositionsForLimb(foot.first, jointPositions);
+    if (success) state.setJointPositionsForLimb(foot.first, jointPositions);
   }
 }
 
-void PoseOptimizationSQP::callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue)
+void PoseOptimizationSQP::callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue,
+                                                               const bool finalIteration)
 {
   if (optimizationStepCallback_) {
     timer_.pinTime("callback");
-    State previewState(*state_);
+    adapter_.setInternalDataFromState(state_);
+    State previewState(state_);
     updateJointPositionsInState(previewState);
-    optimizationStepCallback_(iterationStep, previewState, functionValue);
+    optimizationStepCallback_(iterationStep, previewState, functionValue, finalIteration);
     timer_.splitTime("callback");
     durationInCallback_ += timer_.getAverageElapsedTimeUSec("callback");
   }
