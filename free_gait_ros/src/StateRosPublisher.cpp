@@ -119,4 +119,6 @@ bool StateRosPublisher::publish(const State& state)
   return true;
 }
 
+//void StateRosPublisher::publishSupportRegion(const State& state)
+
 } /* namespace free_gait */

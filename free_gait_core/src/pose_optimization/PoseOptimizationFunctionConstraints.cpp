@@ -72,10 +72,15 @@ void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
   }
 }
 
-void PoseOptimizationFunctionConstraints::setPositionBaseToHipInBaseFrame(
+void PoseOptimizationFunctionConstraints::setPositionBaseToHip(
     const LegPositions& positionBaseToHipInBaseFrame)
 {
   positionsBaseToHipInBaseFrame_ = positionBaseToHipInBaseFrame;
+}
+
+void PoseOptimizationFunctionConstraints::setCenterOfMass(const Position& centerOfMassInBaseFrame)
+{
+  centerOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
 bool PoseOptimizationFunctionConstraints::getGlobalBoundConstraintMinValues(
@@ -103,9 +108,11 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
   const Pose basePose = poseParameterization.getPose();
 
   // Support region.
+  const Position centerOfMassInWorldFrame = basePose.getPosition() + basePose.getRotation().rotate(centerOfMassInBaseFrame_);
+
   values.segment(0, nSupportRegionInequalityConstraints_) =
-      supportRegionInequalityConstraintGlobalJacobian_ * basePose.getPosition().vector().head(2);
-//      supportRegionInequalityConstraintGlobalJacobian_ * adapter_.getCenterOfMassInWorldFrame().vector().head(2);
+//      supportRegionInequalityConstraintGlobalJacobian_ * basePose.getPosition().vector().head(2);
+      supportRegionInequalityConstraintGlobalJacobian_ * centerOfMassInWorldFrame.vector().head(2);
 
   // Leg length.
   size_t i(0);

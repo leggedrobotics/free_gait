@@ -34,7 +34,7 @@ PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
   for (const auto& limb : adapter_.getLimbs()) {
     positionsBaseToHipInBaseFrame[limb] = adapter_.getPositionBaseToHipInBaseFrame(limb);
   }
-  constraints_->setPositionBaseToHipInBaseFrame(positionsBaseToHipInBaseFrame);
+  constraints_->setPositionBaseToHip(positionsBaseToHipInBaseFrame);
 
   timer_.setAlpha(1.0);
 }
@@ -90,6 +90,9 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   adapter_.setInternalDataFromState(state_); // To guide IK.
   updateJointPositionsInState(state_); // For CoM calculation.
   adapter_.setInternalDataFromState(state_);
+  constraints_->setCenterOfMass(
+      adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+                                 adapter_.getCenterOfMassInWorldFrame()));
   callExternalOptimizationStepCallback(0);
 
   // Optimize.
@@ -123,7 +126,16 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
                                                    const bool finalIteration)
 {
   auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
+
+  // Update center of mass. // TODO Make optional.
   state_.setPoseBaseToWorld(poseParameterization.getPose());
+  adapter_.setInternalDataFromState(state_);
+  updateJointPositionsInState(state_);
+  adapter_.setInternalDataFromState(state_); // TODO Improve efficiency.
+  constraints_->setCenterOfMass(
+      adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+                                 adapter_.getCenterOfMassInWorldFrame()));
+
   callExternalOptimizationStepCallback(iterationStep + 1, functionValue, finalIteration);
 }
 

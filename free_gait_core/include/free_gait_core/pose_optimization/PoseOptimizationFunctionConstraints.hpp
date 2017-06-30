@@ -37,7 +37,9 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void setLimbLengthConstraints(const LimbLengths& minLimbLenghts,
                                 const LimbLengths& maxLimbLenghts);
 
-  void setPositionBaseToHipInBaseFrame(const LegPositions& positionBaseToHipInBaseFrame);
+  void setPositionBaseToHip(const LegPositions& positionBaseToHipInBaseFrame);
+
+  void setCenterOfMass(const Position& centerOfMassInBaseFrame);
 
   bool getGlobalBoundConstraintMinValues(numopt_common::Vector& values);
   bool getGlobalBoundConstraintMaxValues(numopt_common::Vector& values);
@@ -54,6 +56,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
 
   Stance stance_;
   LegPositions positionsBaseToHipInBaseFrame_;
+  Position centerOfMassInBaseFrame_;
 
   size_t nSupportRegionInequalityConstraints_;
   grid_map::Polygon supportRegion_;
