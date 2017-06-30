@@ -15,14 +15,17 @@
 #include <numopt_common/NonlinearFunctionConstraints.hpp>
 #include <grid_map_core/Polygon.hpp>
 
+#include <map>
+
 namespace free_gait {
 
 class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunctionConstraints
 {
  public:
-  typedef std::map<LimbEnum, double> LegLengths;
+  typedef std::map<LimbEnum, double> LimbLengths;
+  typedef std::map<LimbEnum, Position> LegPositions;
 
-  PoseOptimizationFunctionConstraints(const AdapterBase& adapter);
+  PoseOptimizationFunctionConstraints();
   virtual ~PoseOptimizationFunctionConstraints();
 
   void setStance(const Stance& stance);
@@ -31,13 +34,10 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void setSupportRegion(const grid_map::Polygon& supportRegion);
   const grid_map::Polygon& getSupportRegion() const;
 
-  /*!
-   * Note: minLimbLenghts and maxLimbLenghts need to have same length!
-   * @param minLimbLenghts
-   * @param maxLimbLenghts
-   */
-  void setLimbLengthConstraints(const LegLengths& minLimbLenghts,
-                                const LegLengths& maxLimbLenghts);
+  void setLimbLengthConstraints(const LimbLengths& minLimbLenghts,
+                                const LimbLengths& maxLimbLenghts);
+
+  void setPositionBaseToHipInBaseFrame(const LegPositions& positionBaseToHipInBaseFrame);
 
   bool getGlobalBoundConstraintMinValues(numopt_common::Vector& values);
   bool getGlobalBoundConstraintMaxValues(numopt_common::Vector& values);
@@ -52,9 +52,8 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
  private:
   void updateNumberOfInequalityConstraints();
 
-  const AdapterBase& adapter_;
-
   Stance stance_;
+  LegPositions positionsBaseToHipInBaseFrame_;
 
   size_t nSupportRegionInequalityConstraints_;
   grid_map::Polygon supportRegion_;

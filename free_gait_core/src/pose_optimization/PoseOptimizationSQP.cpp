@@ -28,7 +28,14 @@ PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
       durationInCallback_(0.0)
 {
   objective_.reset(new PoseOptimizationObjectiveFunction());
-  constraints_.reset(new PoseOptimizationFunctionConstraints(adapter_));
+
+  constraints_.reset(new PoseOptimizationFunctionConstraints());
+  PoseOptimizationFunctionConstraints::LegPositions positionsBaseToHipInBaseFrame;
+  for (const auto& limb : adapter_.getLimbs()) {
+    positionsBaseToHipInBaseFrame[limb] = adapter_.getPositionBaseToHipInBaseFrame(limb);
+  }
+  constraints_->setPositionBaseToHipInBaseFrame(positionsBaseToHipInBaseFrame);
+
   timer_.setAlpha(1.0);
 }
 
@@ -59,6 +66,11 @@ void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegio
   constraints_->setSupportRegion(supportRegion);
 }
 
+void PoseOptimizationSQP::setLimbLengthConstraints(const LegLengths& minLimbLenghts, const LegLengths& maxLimbLenghts)
+{
+  constraints_->setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
+}
+
 void PoseOptimizationSQP::registerOptimizationStepCallback(OptimizationStepCallbackFunction callback)
 {
   optimizationStepCallback_ = callback;
@@ -78,7 +90,7 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   adapter_.setInternalDataFromState(state_); // To guide IK.
   updateJointPositionsInState(state_); // For CoM calculation.
   adapter_.setInternalDataFromState(state_);
-  callExternalOptimizationStepCallback();
+  callExternalOptimizationStepCallback(0);
 
   // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);

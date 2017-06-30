@@ -85,6 +85,13 @@ bool BaseAutoSqp::prepareComputation(const State& state, const Step& step, const
   }
   poseOptimization_.reset(new PoseOptimizationSQP(adapter));
   poseOptimization_->setCurrentState(state);
+  PoseOptimizationSQP::LegLengths minLimbLenghts, maxLimbLenghts;
+  for (const auto& limb : adapter.getLimbs()) {
+    minLimbLenghts[limb] = 0.15; // TODO Make as parameters.
+    maxLimbLenghts[limb] = 0.52;
+  }
+  poseOptimization_->setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
+
   target_ = start_; // Initialize optimization with start pose.
   if (!optimizePose(target_)) {
     std::cerr << "BaseAutoSqp::compute: Could not compute pose optimization." << std::endl;

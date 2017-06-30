@@ -25,7 +25,8 @@ namespace free_gait {
 class PoseOptimizationSQP
 {
  public:
-  typedef std::function<void(const size_t, const State&, const double, const bool)> OptimizationStepCallbackFunction;
+  using OptimizationStepCallbackFunction = std::function<void(const size_t, const State&, const double, const bool)>;
+  using LegLengths = PoseOptimizationFunctionConstraints::LimbLengths;
 
   //! Constructor. Keeps are reference to the adapter, be careful when multi-threading!
   //! @param adapter the adapter to the robot data.
@@ -54,6 +55,14 @@ class PoseOptimizationSQP
    * @param supportPolygon the support polygon as a list of vertices.
    */
   void setSupportRegion(const grid_map::Polygon& supportRegion);
+
+  /*!
+   * Set the max. and min. value for constraining the limb length.
+   * Note: minLimbLenghts and maxLimbLenghts need to have same length!
+   * @param minLimbLenghts the min. limb length.
+   * @param maxLimbLenghts the max. limb length.
+   */
+  void setLimbLengthConstraints(const LegLengths& minLimbLenghts, const LegLengths& maxLimbLenghts);
 
   /*!
    * Registers a callback function that is called after every iteration step
@@ -91,7 +100,7 @@ class PoseOptimizationSQP
 
   void updateJointPositionsInState(State& state) const;
 
-  void callExternalOptimizationStepCallback(const size_t iterationStep = 0, const double functionValue =
+  void callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue =
                                                 std::numeric_limits<double>::max(),
                                             const bool finalIteration = false);
 
