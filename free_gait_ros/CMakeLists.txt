@@ -64,6 +64,7 @@ include_directories(
 add_library(${PROJECT_NAME}
    src/StepRosConverter.cpp
    src/StepFrameConverter.cpp
+   src/StanceRosConverter.cpp
    src/FreeGaitActionServer.cpp
    src/FreeGaitActionClient.cpp
    src/AdapterRos.cpp

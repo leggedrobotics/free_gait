@@ -21,6 +21,7 @@ class StateBatchComputer
 
   void computeEndEffectorTargets(StateBatch& stateBatch);
   void computeEndEffectorTrajectories(StateBatch& stateBatch);
+  void computeStances(StateBatch& stateBatch);
   void computeBaseTrajectories(StateBatch& stateBatch);
 
  private:

@@ -1,5 +1,5 @@
 /*
- * free_gait_ros.hpp.hpp
+ * free_gait_ros.hpp
  *
  *  Created on: Jun 1, 2015
  *      Author: Péter Fankhauser
@@ -16,4 +16,4 @@
 #include "free_gait_ros/StepRosConverter.hpp"
 #include "free_gait_ros/StepFrameConverter.hpp"
 #include "free_gait_ros/StateRosPublisher.hpp"
-
+#include "free_gait_ros/StanceRosConverter.hpp"

@@ -24,6 +24,7 @@ class StateBatch
   const std::map<double, State>& getStates() const;
   std::vector<std::map<double, Position>> getEndEffectorPositions() const;
   std::vector<std::map<double, Position>> getEndEffectorTargets() const;
+  std::map<double, Stance> getStances() const;
   void addState(const double time, const State& state);
   bool isValidTime(const double time) const;
   double getStartTime() const;
@@ -37,6 +38,7 @@ class StateBatch
   std::map<double, State> states_;
   std::vector<std::map<double, Position>> endEffectorPositions_;
   std::vector<std::map<double, Position>> endEffectorTargets_;
+  std::map<double, Stance> stances_;
   std::map<double, Pose> basePoses;
 };
 

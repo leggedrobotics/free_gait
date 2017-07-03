@@ -53,4 +53,24 @@ void StateBatchComputer::computeEndEffectorTrajectories(StateBatch& stateBatch)
   }
 }
 
+void StateBatchComputer::computeStances(StateBatch& stateBatch)
+{
+  stateBatch.stances_.clear();
+  const State* previousState = &(stateBatch.getStates().begin()->second);
+  for (const auto& state : stateBatch.getStates()) {
+    for (const auto& limb : adapter_.getLimbs()) {
+      if (previousState->isSupportLeg(limb) != state.second.isSupportLeg(limb)) {
+        // New stance.
+        adapter_.setInternalDataFromState(state.second);
+        Stance stance;
+        for (const auto& limb : adapter_.getLimbs()) {
+          stance[limb] = adapter_.getPositionWorldToFootInWorldFrame(limb);
+        }
+        stateBatch.stances_[state.first] = stance;
+      }
+    }
+    previousState = &state.second;
+  }
+}
+
 } /* namespace free_gait */
