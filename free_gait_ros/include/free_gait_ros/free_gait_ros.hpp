@@ -1,5 +1,5 @@
 /*
- * free_gait_ros.hpp.hpp
+ * free_gait_ros.hpp
  *
  *  Created on: Jun 1, 2015
  *      Author: Péter Fankhauser

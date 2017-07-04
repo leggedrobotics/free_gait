@@ -30,7 +30,8 @@ class FreeGaitPreviewVisual
  public:
   enum class Modul {
     EndEffectorTargets,
-    EndEffectorTrajectories
+    EndEffectorTrajectories,
+    SupportRegion
   };
 
   FreeGaitPreviewVisual(Ogre::SceneManager* sceneManager, Ogre::SceneNode* parentNode);
@@ -42,20 +43,19 @@ class FreeGaitPreviewVisual
   void showEnabled();
   void hideEnabled();
 
-
-  void showEndEffectorTargets(const float diameter = 0.04, const Ogre::ColourValue& color =
-                                  Ogre::ColourValue(1, 0, 0, 1));
+  void showEndEffectorTargets(const float diameter = 0.04,
+                              const Ogre::ColourValue& color = Ogre::ColourValue(1, 0, 0, 1));
   void hideEndEffectorTargets();
 
-  void showEndEffectorTrajectories(const float width = 0.01, const Ogre::ColourValue& color =
-                                            Ogre::ColourValue(1, 0, 0, 1));
+  void showEndEffectorTrajectories(const float width = 0.01,
+                                   const Ogre::ColourValue& color = Ogre::ColourValue(1, 0, 0, 1));
   void hideEndEffectorTrajectories();
 
  private:
   Ogre::SceneManager* sceneManager_;
   Ogre::SceneNode* frameNode_;
   const free_gait::StateBatch* stateBatchPtr_;
-  std::list<Modul> enabledModuls_;
+  std::list<Modul> enabledModules_;
   std::vector<std::vector<std::unique_ptr<rviz::Shape>>> endEffectorTargets_;
   std::vector<std::unique_ptr<rviz::BillboardLine>> endEffectorTrajectories_;
 };

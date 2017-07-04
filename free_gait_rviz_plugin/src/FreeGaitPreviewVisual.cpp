@@ -39,18 +39,18 @@ void FreeGaitPreviewVisual::setStateBatch(const free_gait::StateBatch& stateBatc
 void FreeGaitPreviewVisual::setEnabledModul(Modul modul, bool enable)
 {
   if (enable) {
-    auto iterator = std::find(enabledModuls_.begin(), enabledModuls_.end(), modul);
-    if (iterator != enabledModuls_.end()) return;
-    enabledModuls_.push_back(modul);
+    auto iterator = std::find(enabledModules_.begin(), enabledModules_.end(), modul);
+    if (iterator != enabledModules_.end()) return;
+    enabledModules_.push_back(modul);
   } else {
-    enabledModuls_.remove(modul);
+    enabledModules_.remove(modul);
   }
 }
 
 void FreeGaitPreviewVisual::showEnabled()
 {
   ROS_DEBUG("FreeGaitPreviewVisual::showEnabled()");
-  for (const auto& modul : enabledModuls_) {
+  for (const auto& modul : enabledModules_) {
     switch (modul) {
       case Modul::EndEffectorTargets:
         showEndEffectorTargets();
@@ -66,7 +66,7 @@ void FreeGaitPreviewVisual::showEnabled()
 
 void FreeGaitPreviewVisual::hideEnabled()
 {
-  for (const auto& modul : enabledModuls_) {
+  for (const auto& modul : enabledModules_) {
     switch (modul) {
       case Modul::EndEffectorTargets:
         hideEndEffectorTargets();
