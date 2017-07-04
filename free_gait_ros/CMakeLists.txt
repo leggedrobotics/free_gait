@@ -69,6 +69,7 @@ add_library(${PROJECT_NAME}
    src/AdapterRos.cpp
    src/AdapterRosInterfaceBase.cpp
    src/StateRosPublisher.cpp
+   src/RosVisualization.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
