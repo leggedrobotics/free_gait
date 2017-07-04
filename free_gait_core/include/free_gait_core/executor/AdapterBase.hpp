@@ -61,6 +61,7 @@ class AdapterBase
   virtual LocalAngularVelocity getAngularVelocityBaseInBaseFrame() const = 0;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const = 0;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const = 0;
+  virtual Position getCenterOfMassInWorldFrame() const = 0;
 
   /*!
    * Transform is frameId to world => C_IF.
