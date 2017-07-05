@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   free_gait_msgs
   free_gait_core
   curves_ros
+  grid_map_core
+  grid_map_ros
   pluginlib
   robot_state_publisher
   kdl_parser
@@ -34,6 +36,8 @@ catkin_package(
       free_gait_msgs
       free_gait_core
       curves_ros
+      grid_map_core
+      grid_map_ros
       pluginlib
       robot_state_publisher
       kdl_parser

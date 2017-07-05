@@ -74,6 +74,7 @@ Q_OBJECT
   void changeShowAllVisuals();
   void changeShowEndEffectorTargets();
   void changeShowEndEffectorTrajectories();
+  void changeShowStances();
 
  private:
   void subscribe();
@@ -115,6 +116,7 @@ Q_OBJECT
   rviz::BoolProperty* showEndEffectorTargetsProperty_;
   rviz::ColorProperty* endEffectorTargetsColorProperty_;
   rviz::BoolProperty* showEndEffectorTrajectoriesProperty_;
+  rviz::BoolProperty* showStancesProperty_;
 
   rviz::Display* robotModelRvizPlugin_;
 };

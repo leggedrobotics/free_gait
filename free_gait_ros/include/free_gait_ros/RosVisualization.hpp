@@ -17,14 +17,13 @@ namespace free_gait {
 class RosVisualization
 {
  public:
-  RosVisualization(const AdapterBase& adapter);
+  RosVisualization();
   virtual ~RosVisualization();
 
-  const visualization_msgs::Marker getStanceMarker(const std_msgs::ColorRGBA& color) const;
-  const visualization_msgs::Marker getComMarker(const std_msgs::ColorRGBA& color, const double size) const;
-
- private:
-  const AdapterBase& adapter_;
+  static const visualization_msgs::Marker getStanceMarker(const Stance& stance, const std::string& frameId,
+                                                          const std_msgs::ColorRGBA& color);
+  static const visualization_msgs::Marker getComMarker(const Position& comPosition, const std::string& frameId,
+                                                       const std_msgs::ColorRGBA& color, const double size);
 };
 
 }
