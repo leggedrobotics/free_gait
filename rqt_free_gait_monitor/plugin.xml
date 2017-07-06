@@ -1,5 +1,5 @@
-<library path="lib/librqt_free_gait">
-  <class name="rqt_free_gait/FreeGaitPlugin" type="rqt_free_gait::FreeGaitPlugin" base_class_type="rqt_gui_cpp::Plugin">
+<library path="lib/librqt_free_gait_monitor">
+  <class name="rqt_free_gait_monitor/FreeGaitMonitorPlugin" type="rqt_free_gait_monitor::FreeGaitMonitorPlugin" base_class_type="rqt_gui_cpp::Plugin">
     <description>
       A GUI plugin to monitor free gait.
     </description>

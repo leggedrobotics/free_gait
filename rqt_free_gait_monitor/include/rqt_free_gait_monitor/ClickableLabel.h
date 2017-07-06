@@ -34,7 +34,7 @@
 
 #include <QLabel>
 
-namespace rqt_free_gait {
+namespace rqt_free_gait_monitor {
 
 class ClickableLabel : public QLabel {
 Q_OBJECT

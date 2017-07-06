@@ -30,52 +30,30 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#pragma once
+#include "rqt_free_gait_monitor/WorkerThreadPausePlay.h"
 
-#include <QThread>
+namespace rqt_free_gait_monitor {
 
-#include <ros/ros.h>
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
 
-#include <std_srvs/SetBool.h>
+void WorkerThreadPausePlay::run() {
+  bool isOk = client_.call(request_, response_);
+  emit result(isOk, response_);
+}
 
-namespace rqt_free_gait {
+/*****************************************************************************/
+/** Accessors                                                               **/
+/*****************************************************************************/
 
-class WorkerThreadPausePlay : public QThread {
-Q_OBJECT
+void WorkerThreadPausePlay::setClient(ros::ServiceClient &client) {
+  client_ = client;
+}
 
-  /***************************************************************************/
-  /** Methods                                                               **/
-  /***************************************************************************/
-
-  void run();
-
-public:
-
-  /***************************************************************************/
-  /** Accessors                                                             **/
-  /***************************************************************************/
-
-  void setClient(ros::ServiceClient &client);
-
-  void setRequest(std_srvs::SetBoolRequest request);
-
-private:
-
-  /***************************************************************************/
-  /** Variables                                                             **/
-  /***************************************************************************/
-
-  std_srvs::SetBoolRequest request_;
-  std_srvs::SetBoolResponse response_;
-  ros::ServiceClient client_;
-
-signals:
-
-  /***************************************************************************/
-  /** Signals                                                               **/
-  /***************************************************************************/
-
-  void result(bool isOk, std_srvs::SetBoolResponse);
-};
+void
+WorkerThreadPausePlay::setRequest(std_srvs::SetBoolRequest request) {
+  request_ = request;
+}
 
 } // namespace

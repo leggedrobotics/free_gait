@@ -30,26 +30,105 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait/WorkerThreadStop.h"
+#include "rqt_free_gait_monitor/CircularBuffer.h"
 
-namespace rqt_free_gait {
+namespace rqt_free_gait_monitor {
 
 /*****************************************************************************/
-/** Methods                                                                 **/
+/** Constructor/Destructor                                                  **/
 /*****************************************************************************/
 
-void WorkerThreadStop::run() {
-  std_srvs::TriggerRequest request;
-  bool isOk = client_.call(request, response_);
-  emit result(isOk, response_);
+CircularBuffer::CircularBuffer(unsigned int length) : length_(length) {
+
+}
+
+CircularBuffer::~CircularBuffer() {
+
 }
 
 /*****************************************************************************/
 /** Accessors                                                               **/
 /*****************************************************************************/
 
-void WorkerThreadStop::setClient(ros::ServiceClient &client) {
-  client_ = client;
+void CircularBuffer::push_back(description_t description) {
+  QRegExp regExp;
+  regExp.setPattern("\\n[-]{3,10}\\n");
+  description.message.replace(regExp, "<hr>");
+  regExp.setPattern("\\n");
+  description.message.replace(regExp, "<br>");
+  descriptions_.push_back(description);
+  if (descriptions_.size() > length_) {
+    descriptions_.pop_front();
+    index_--;
+    index_ = std::max(index_, 0);
+  }
+}
+
+unsigned long CircularBuffer::size() {
+  return descriptions_.size();
+}
+
+int CircularBuffer::moveIndex(int steps) {
+  index_ += steps;
+  if (index_ < 0) {
+    index_ = 0;
+  } else if (index_ > size() - 1) {
+    index_ = (int)size() - 1;
+  }
+  return index_;
+}
+
+description_t CircularBuffer::back() {
+  return descriptions_.back();
+}
+
+description_t CircularBuffer::front() {
+  return descriptions_.front();
+}
+
+description_t CircularBuffer::current() {
+  return descriptions_[index_];
+}
+
+QString CircularBuffer::backQString() {
+  return composeDescription(descriptions_.back());
+}
+
+QString CircularBuffer::frontQString() {
+  return composeDescription(descriptions_.front());
+}
+
+QString CircularBuffer::currentQString() {
+  return composeDescription(descriptions_[index_]);
+}
+
+int CircularBuffer::index() {
+  return index_;
+}
+
+int CircularBuffer::moveIndexBack() {
+  index_ = (int)size() - 1;
+  return index_;
+}
+
+int CircularBuffer::moveIndexFront() {
+  index_ = 0;
+  return index_;
+}
+
+void CircularBuffer::clear() {
+  index_ = 0;
+  descriptions_.clear();
+}
+
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
+
+QString CircularBuffer::composeDescription(description_t description) {
+  QString str = "<html><b>" + description.timestamp + "</b>" + "<hr>" +
+      description.message + "</html>";
+  return str;
 }
 
 } // namespace

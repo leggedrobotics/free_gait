@@ -30,75 +30,26 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#pragma once
+#include "rqt_free_gait_monitor/WorkerThreadStop.h"
 
-#include <QString>
-#include <QRegExp>
-#include <deque>
+namespace rqt_free_gait_monitor {
 
-namespace rqt_free_gait {
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
 
-struct description_t {
-  QString message;
-  QString timestamp;
-};
+void WorkerThreadStop::run() {
+  std_srvs::TriggerRequest request;
+  bool isOk = client_.call(request, response_);
+  emit result(isOk, response_);
+}
 
-class CircularBuffer {
-public:
+/*****************************************************************************/
+/** Accessors                                                               **/
+/*****************************************************************************/
 
-  /***************************************************************************/
-  /** Constructor/Destructor                                                **/
-  /***************************************************************************/
-
-  CircularBuffer(unsigned int length);
-
-  ~CircularBuffer();
-
-  /***************************************************************************/
-  /** Accessors                                                             **/
-  /***************************************************************************/
-
-  void push_back(description_t description);
-
-  unsigned long size();
-
-  description_t back();
-
-  description_t front();
-
-  description_t current();
-
-  QString backQString();
-
-  QString frontQString();
-
-  QString currentQString();
-
-  int moveIndex(int steps);
-
-  int moveIndexBack();
-
-  int moveIndexFront();
-
-  int index();
-
-  void clear();
-
-private:
-
-  /***************************************************************************/
-  /** Variables                                                             **/
-  /***************************************************************************/
-
-  int index_ = 0;
-  unsigned int length_;
-  std::deque<description_t> descriptions_;
-
-  /***************************************************************************/
-  /** Methods                                                               **/
-  /***************************************************************************/
-
-  QString composeDescription(description_t description);
-};
+void WorkerThreadStop::setClient(ros::ServiceClient &client) {
+  client_ = client;
+}
 
 } // namespace

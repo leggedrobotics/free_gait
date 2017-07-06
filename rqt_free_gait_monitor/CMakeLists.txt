@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rqt_free_gait)
+project(rqt_free_gait_monitor)
 
 # Flags
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
@@ -27,23 +27,23 @@ else()
 endif()
 
 set(${PROJECT_NAME}_SRCS
-  src/${PROJECT_NAME}/FreeGaitPlugin.cpp
-  src/rqt_free_gait/CircularBuffer.cpp
-  src/rqt_free_gait/WorkerThreadPausePlay.cpp
-  src/rqt_free_gait/WorkerThreadStop.cpp
-  src/rqt_free_gait/ClickableLabel.cpp
+  src/${PROJECT_NAME}/FreeGaitMonitorPlugin.cpp
+  src/rqt_free_gait_monitor/CircularBuffer.cpp
+  src/rqt_free_gait_monitor/WorkerThreadPausePlay.cpp
+  src/rqt_free_gait_monitor/WorkerThreadStop.cpp
+  src/rqt_free_gait_monitor/ClickableLabel.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
-  include/${PROJECT_NAME}/FreeGaitPlugin.h
-  include/rqt_free_gait/CircularBuffer.h
-  include/rqt_free_gait/WorkerThreadPausePlay.h
-  include/rqt_free_gait/WorkerThreadStop.h
-  include/rqt_free_gait/ClickableLabel.h
+  include/${PROJECT_NAME}/FreeGaitMonitorPlugin.h
+  include/rqt_free_gait_monitor/CircularBuffer.h
+  include/rqt_free_gait_monitor/WorkerThreadPausePlay.h
+  include/rqt_free_gait_monitor/WorkerThreadStop.h
+  include/rqt_free_gait_monitor/ClickableLabel.h
 )
 
 set(${PROJECT_NAME}_UIS
-  resource/FreeGaitPlugin.ui
+  resource/FreeGaitMonitorPlugin.ui
 )
 
 set(${PROJECT_NAME}_QRC

@@ -38,7 +38,7 @@
 
 #include <std_srvs/Trigger.h>
 
-namespace rqt_free_gait {
+namespace rqt_free_gait_monitor {
 
 class WorkerThreadStop : public QThread {
 Q_OBJECT

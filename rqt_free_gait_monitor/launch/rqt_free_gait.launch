@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="rqt_free_gait_monitor" type="rqt_free_gait_monitor" name="rqt_free_gait_monitor_node" output="screen">
+    </node>
+</launch>
