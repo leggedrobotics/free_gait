@@ -56,7 +56,19 @@ void StateBatchComputer::computeEndEffectorTrajectories(StateBatch& stateBatch)
 void StateBatchComputer::computeStances(StateBatch& stateBatch)
 {
   stateBatch.stances_.clear();
-  const State* previousState = &(stateBatch.getStates().begin()->second);
+
+  // Add first stance.
+  const auto firstState = stateBatch.getStates().begin();
+  adapter_.setInternalDataFromState(firstState->second);
+  Stance stance;
+  for (const auto& limb : adapter_.getLimbs()) {
+    if (!firstState->second.isSupportLeg(limb)) continue;
+    stance[limb] = adapter_.getPositionWorldToFootInWorldFrame(limb);
+  }
+  stateBatch.stances_[firstState->first] = stance;
+
+  // Other stances.
+  const State* previousState = &(firstState->second);
   for (const auto& state : stateBatch.getStates()) {
     for (const auto& limb : adapter_.getLimbs()) {
       if (previousState->isSupportLeg(limb) != state.second.isSupportLeg(limb)) {
@@ -64,6 +76,7 @@ void StateBatchComputer::computeStances(StateBatch& stateBatch)
         adapter_.setInternalDataFromState(state.second);
         Stance stance;
         for (const auto& limb : adapter_.getLimbs()) {
+          if (!state.second.isSupportLeg(limb)) continue;
           stance[limb] = adapter_.getPositionWorldToFootInWorldFrame(limb);
         }
         stateBatch.stances_[state.first] = stance;
