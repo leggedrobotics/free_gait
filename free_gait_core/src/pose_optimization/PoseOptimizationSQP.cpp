@@ -129,6 +129,7 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
 
   // Update center of mass. // TODO Make optional.
   state_.setPoseBaseToWorld(poseParameterization.getPose());
+  state_.setAllJointPositions(originalState_.getJointPositions());
   adapter_.setInternalDataFromState(state_);
   updateJointPositionsInState(state_);
   adapter_.setInternalDataFromState(state_); // TODO Improve efficiency.

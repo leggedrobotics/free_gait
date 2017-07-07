@@ -69,7 +69,12 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
   // Cost for deviation from initial orientation.
   RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
   const double rotationDifferenceNorm = rotationDifference.norm();
-  value += 5.0 * rotationDifferenceNorm * rotationDifferenceNorm;
+  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
+
+//  RotationVector rotationDifference(pose.getRotation());
+//  rotationDifference.toImplementation().z() = 0.0;
+//  const double rotationDifferenceNorm = rotationDifference.vector().norm();
+//  value += 0.5 * rotationDifferenceNorm * rotationDifferenceNorm;
 
   return true;
 }
