@@ -30,30 +30,75 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait/WorkerThreadPausePlay.h"
+#pragma once
 
-namespace rqt_free_gait {
+#include <QString>
+#include <QRegExp>
+#include <deque>
 
-/*****************************************************************************/
-/** Methods                                                                 **/
-/*****************************************************************************/
+namespace rqt_free_gait_monitor {
 
-void WorkerThreadPausePlay::run() {
-  bool isOk = client_.call(request_, response_);
-  emit result(isOk, response_);
-}
+struct description_t {
+  QString message;
+  QString timestamp;
+};
 
-/*****************************************************************************/
-/** Accessors                                                               **/
-/*****************************************************************************/
+class CircularBuffer {
+public:
 
-void WorkerThreadPausePlay::setClient(ros::ServiceClient &client) {
-  client_ = client;
-}
+  /***************************************************************************/
+  /** Constructor/Destructor                                                **/
+  /***************************************************************************/
 
-void
-WorkerThreadPausePlay::setRequest(std_srvs::SetBoolRequest request) {
-  request_ = request;
-}
+  CircularBuffer(unsigned int length);
+
+  ~CircularBuffer();
+
+  /***************************************************************************/
+  /** Accessors                                                             **/
+  /***************************************************************************/
+
+  void push_back(description_t description);
+
+  unsigned long size();
+
+  description_t back();
+
+  description_t front();
+
+  description_t current();
+
+  QString backQString();
+
+  QString frontQString();
+
+  QString currentQString();
+
+  int moveIndex(int steps);
+
+  int moveIndexBack();
+
+  int moveIndexFront();
+
+  int index();
+
+  void clear();
+
+private:
+
+  /***************************************************************************/
+  /** Variables                                                             **/
+  /***************************************************************************/
+
+  int index_ = 0;
+  unsigned int length_;
+  std::deque<description_t> descriptions_;
+
+  /***************************************************************************/
+  /** Methods                                                               **/
+  /***************************************************************************/
+
+  QString composeDescription(description_t description);
+};
 
 } // namespace

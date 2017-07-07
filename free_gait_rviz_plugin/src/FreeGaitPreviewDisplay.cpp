@@ -131,6 +131,11 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       "End Effector Trajectories", true, "Draw a trace for the end effector trajectory.",
       visualsTree_, SLOT(changeShowEndEffectorTrajectories()), this);
   showEndEffectorTrajectoriesProperty_->setDisableChildrenIfFalse(true);
+
+  showStancesProperty_ = new rviz::BoolProperty(
+      "Stances", true, "Draw stances as support areas.",
+      visualsTree_, SLOT(changeShowStances()), this);
+  showStancesProperty_->setDisableChildrenIfFalse(true);
 }
 
 FreeGaitPreviewDisplay::~FreeGaitPreviewDisplay()
@@ -145,12 +150,13 @@ void FreeGaitPreviewDisplay::setTopic(const QString &topic, const QString &datat
 
 void FreeGaitPreviewDisplay::update(float wall_dt, float ros_dt)
 {
+  visual_->update();
   playback_.update(wall_dt);
 }
 
 void FreeGaitPreviewDisplay::onInitialize()
 {
-  visual_ = new FreeGaitPreviewVisual(context_->getSceneManager(), scene_node_);
+  visual_ = new FreeGaitPreviewVisual(context_, scene_node_);
 }
 
 void FreeGaitPreviewDisplay::onEnable()
@@ -323,22 +329,18 @@ void FreeGaitPreviewDisplay::changeShowEndEffectorTargets()
 {
   ROS_DEBUG_STREAM("Setting show end effector targets to " << (showEndEffectorTargetsProperty_->getBool() ? "True" : "False") << ".");
   visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::EndEffectorTargets, showEndEffectorTargetsProperty_->getBool());
-  if (showEndEffectorTargetsProperty_->getBool()) {
-    visual_->showEndEffectorTargets();
-  } else {
-    visual_->hideEndEffectorTargets();
-  }
 }
 
 void FreeGaitPreviewDisplay::changeShowEndEffectorTrajectories()
 {
   ROS_DEBUG_STREAM("Setting show end effector trajectories to " << (showEndEffectorTrajectoriesProperty_->getBool() ? "True" : "False") << ".");
   visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::EndEffectorTrajectories, showEndEffectorTrajectoriesProperty_->getBool());
-  if (showEndEffectorTrajectoriesProperty_->getBool()) {
-    visual_->showEndEffectorTrajectories();
-  } else {
-    visual_->hideEndEffectorTrajectories();
-  }
+}
+
+void FreeGaitPreviewDisplay::changeShowStances()
+{
+  ROS_DEBUG_STREAM("Setting show stances to " << (showStancesProperty_->getBool() ? "True" : "False") << ".");
+  visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::Stances, showStancesProperty_->getBool());
 }
 
 void FreeGaitPreviewDisplay::subscribe()

@@ -32,12 +32,12 @@
 
 #pragma once
 
-#include "rqt_free_gait/CircularBuffer.h"
-#include "rqt_free_gait/WorkerThreadPausePlay.h"
-#include "rqt_free_gait/WorkerThreadStop.h"
+#include "rqt_free_gait_monitor/CircularBuffer.h"
+#include "rqt_free_gait_monitor/WorkerThreadPausePlay.h"
+#include "rqt_free_gait_monitor/WorkerThreadStop.h"
 
 #include <rqt_gui_cpp/plugin.h>
-#include <rqt_free_gait/ui_FreeGaitPlugin.h>
+#include <rqt_free_gait_monitor/ui_FreeGaitMonitorPlugin.h>
 
 #include <atomic>
 #include <mutex>
@@ -62,9 +62,9 @@
 #include <QEvent>
 #include <QWheelEvent>
 
-namespace rqt_free_gait {
+namespace rqt_free_gait_monitor {
 
-class FreeGaitPlugin : public rqt_gui_cpp::Plugin {
+class FreeGaitMonitorPlugin : public rqt_gui_cpp::Plugin {
   Q_OBJECT
 public:
 
@@ -72,7 +72,7 @@ public:
   /** Constructor/Destructor                                                **/
   /***************************************************************************/
 
-  FreeGaitPlugin();
+  FreeGaitMonitorPlugin();
 
   /***************************************************************************/
   /** Initialization/Shutdown                                               **/
@@ -98,13 +98,13 @@ protected:
   /** Constants                                                             **/
   /***************************************************************************/
 
-  const std::string TAG = "FreeGaitPlugin";
+  const std::string TAG = "FreeGaitMonitorPlugin";
 
   /***************************************************************************/
   /** Variables                                                             **/
   /***************************************************************************/
 
-  Ui::FreeGaitPluginWidget ui_;
+  Ui::FreeGaitMonitorPluginWidget ui_;
   QWidget *widget_;
 
   ros::Subscriber goalSubscriber_;

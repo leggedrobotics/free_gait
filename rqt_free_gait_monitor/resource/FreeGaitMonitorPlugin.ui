@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FreeGaitPluginWidget</class>
- <widget class="QWidget" name="FreeGaitPluginWidget">
+ <class>FreeGaitMonitorPluginWidget</class>
+ <widget class="QWidget" name="FreeGaitMonitorPluginWidget">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -140,7 +140,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="rqt_free_gait::ClickableLabel" name="clickableLabelExpandCollapse">
+      <widget class="rqt_free_gait_monitor::ClickableLabel" name="clickableLabelExpandCollapse">
        <property name="text">
         <string/>
        </property>
@@ -404,9 +404,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>rqt_free_gait::ClickableLabel</class>
+   <class>rqt_free_gait_monitor::ClickableLabel</class>
    <extends>QLabel</extends>
-   <header>rqt_free_gait/ClickableLabel.h</header>
+   <header>rqt_free_gait_monitor/ClickableLabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

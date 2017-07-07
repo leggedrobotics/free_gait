@@ -30,20 +30,20 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait/FreeGaitPlugin.h"
+#include "rqt_free_gait_monitor/FreeGaitMonitorPlugin.h"
 
 #include <pluginlib/class_list_macros.h>
 
-namespace rqt_free_gait {
+namespace rqt_free_gait_monitor {
 
 /*****************************************************************************/
 /** Constructor/Destructor                                                  **/
 /*****************************************************************************/
 
-FreeGaitPlugin::FreeGaitPlugin()
+FreeGaitMonitorPlugin::FreeGaitMonitorPlugin()
     : rqt_gui_cpp::Plugin(), widget_(0), descriptions_(1000) {
 
-  setObjectName("FreeGaitPlugin");
+  setObjectName("FreeGaitMonitorPlugin");
 
   qRegisterMetaType<free_gait_msgs::ExecuteStepsActionGoal>
       ("free_gait_msgs::ExecuteStepsActionGoal");
@@ -61,7 +61,7 @@ FreeGaitPlugin::FreeGaitPlugin()
 /** Initialization/Shutdown                                                 **/
 /*****************************************************************************/
 
-void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
+void FreeGaitMonitorPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   widget_ = new QWidget();
   ui_.setupUi(widget_);
   if (context.serialNumber() > 1) {
@@ -74,15 +74,15 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
   goalSubscriber_ = getNodeHandle().subscribe<
       free_gait_msgs::ExecuteStepsActionGoal>(
       getNodeHandle().param<std::string>("/free_gait/action_server", "") +
-          "/goal", 10, &FreeGaitPlugin::goalCallback, this);
+          "/goal", 10, &FreeGaitMonitorPlugin::goalCallback, this);
   feedbackSubscriber_ = getNodeHandle().subscribe<
       free_gait_msgs::ExecuteStepsActionFeedback>(
       getNodeHandle().param<std::string>("/free_gait/action_server", "") +
-          "/feedback", 10, &FreeGaitPlugin::feedbackCallback, this);
+          "/feedback", 10, &FreeGaitMonitorPlugin::feedbackCallback, this);
   resultSubscriber_ = getNodeHandle().subscribe<
       free_gait_msgs::ExecuteStepsActionResult>(
       getNodeHandle().param<std::string>("/free_gait/action_server", "") +
-          "/result", 10, &FreeGaitPlugin::resultCallback, this);
+          "/result", 10, &FreeGaitMonitorPlugin::resultCallback, this);
 
   // Initialize service clients.
   pauseClient_ = getNodeHandle().serviceClient<std_srvs::SetBool>(
@@ -160,7 +160,7 @@ void FreeGaitPlugin::initPlugin(qt_gui_cpp::PluginContext &context) {
           this, SLOT(onPushButtonDeleteHistory()));
 }
 
-void FreeGaitPlugin::shutdownPlugin() {
+void FreeGaitMonitorPlugin::shutdownPlugin() {
   goalSubscriber_.shutdown();
   feedbackSubscriber_.shutdown();
   resultSubscriber_.shutdown();
@@ -170,12 +170,12 @@ void FreeGaitPlugin::shutdownPlugin() {
 /** Settings                                                                **/
 /*****************************************************************************/
 
-void FreeGaitPlugin::saveSettings(
+void FreeGaitMonitorPlugin::saveSettings(
     qt_gui_cpp::Settings &plugin_settings,
     qt_gui_cpp::Settings &instance_settings) const {
 }
 
-void FreeGaitPlugin::restoreSettings(
+void FreeGaitMonitorPlugin::restoreSettings(
     const qt_gui_cpp::Settings &plugin_settings,
     const qt_gui_cpp::Settings &instance_settings) {
 }
@@ -184,17 +184,17 @@ void FreeGaitPlugin::restoreSettings(
 /** Callbacks                                                               **/
 /*****************************************************************************/
 
-void FreeGaitPlugin::goalCallback(
+void FreeGaitMonitorPlugin::goalCallback(
     const free_gait_msgs::ExecuteStepsActionGoalConstPtr &goal) {
   emit updateGoalSignal(*goal);
 }
 
-void FreeGaitPlugin::feedbackCallback(
+void FreeGaitMonitorPlugin::feedbackCallback(
     const free_gait_msgs::ExecuteStepsActionFeedbackConstPtr &feedback) {
   emit updateFeedbackSignal(*feedback);
 }
 
-void FreeGaitPlugin::resultCallback(
+void FreeGaitMonitorPlugin::resultCallback(
     const free_gait_msgs::ExecuteStepsActionResultConstPtr &result) {
   emit updateResultSignal(*result);
 }
@@ -203,7 +203,7 @@ void FreeGaitPlugin::resultCallback(
 /** Methods                                                                 **/
 /*****************************************************************************/
 
-void FreeGaitPlugin::updateNavigationButtonStates() {
+void FreeGaitMonitorPlugin::updateNavigationButtonStates() {
   if (descriptions_.size() > 0) {
     ui_.labelStepNumber->setText(QString::number(descriptions_.index() + 1));
     ui_.labelStepMax->setText(QString::number(descriptions_.size()));
@@ -234,12 +234,12 @@ void FreeGaitPlugin::updateNavigationButtonStates() {
       descriptions_.size() > 1 && descriptions_.index() != 0);
 }
 
-void FreeGaitPlugin::expandDebug() {
+void FreeGaitMonitorPlugin::expandDebug() {
   ui_.plainTextEditDescription->show();
   ui_.widgetScrollArea->show();
 }
 
-void FreeGaitPlugin::collapseDebug() {
+void FreeGaitMonitorPlugin::collapseDebug() {
   ui_.plainTextEditDescription->hide();
   ui_.widgetScrollArea->hide();
 }
@@ -248,7 +248,7 @@ void FreeGaitPlugin::collapseDebug() {
 /** Events                                                                  **/
 /*****************************************************************************/
 
-bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
+bool FreeGaitMonitorPlugin::eventFilter(QObject *object, QEvent *event) {
   if (event->type() == QEvent::Wheel) {
     QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
     int numDegrees = wheelEvent->delta() / 8;
@@ -268,7 +268,7 @@ bool FreeGaitPlugin::eventFilter(QObject *object, QEvent *event) {
 /** Slots                                                                   **/
 /*****************************************************************************/
 
-void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
+void FreeGaitMonitorPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   // get goal time stamp
   currentGoalStamp_ = goal.goal_id.stamp;
 
@@ -302,7 +302,7 @@ void FreeGaitPlugin::updateGoal(free_gait_msgs::ExecuteStepsActionGoal goal) {
   ui_.labelStatus->setPixmap(QPixmap(":/icons/16x16/play.svg"));
 }
 
-void FreeGaitPlugin::updateFeedback(
+void FreeGaitMonitorPlugin::updateFeedback(
     free_gait_msgs::ExecuteStepsActionFeedback feedback) {
   // update progress bar
   double totalSteps = (double)feedback.feedback.number_of_steps_in_goal;
@@ -376,7 +376,7 @@ void FreeGaitPlugin::updateFeedback(
   }
 }
 
-void FreeGaitPlugin::updateResult(
+void FreeGaitMonitorPlugin::updateResult(
     free_gait_msgs::ExecuteStepsActionResult result) {
   // reset progress bar
   ui_.progressBarAll->setMinimum(0);
@@ -422,7 +422,7 @@ void FreeGaitPlugin::updateResult(
   }
 }
 
-void FreeGaitPlugin::onPushButtonGoTop() {
+void FreeGaitMonitorPlugin::onPushButtonGoTop() {
   descriptions_.moveIndexFront();
   ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
@@ -430,7 +430,7 @@ void FreeGaitPlugin::onPushButtonGoTop() {
   updateNavigationButtonStates();
 }
 
-void FreeGaitPlugin::onPushButtonGoUp() {
+void FreeGaitMonitorPlugin::onPushButtonGoUp() {
   descriptions_.moveIndex(-1);
   ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
@@ -438,7 +438,7 @@ void FreeGaitPlugin::onPushButtonGoUp() {
   updateNavigationButtonStates();
 }
 
-void FreeGaitPlugin::onPushButtonGoDown() {
+void FreeGaitMonitorPlugin::onPushButtonGoDown() {
   descriptions_.moveIndex(1);
   ui_.plainTextEditDescription->setText(descriptions_.currentQString());
   isOnBottom_ = false;
@@ -446,7 +446,7 @@ void FreeGaitPlugin::onPushButtonGoDown() {
   updateNavigationButtonStates();
 }
 
-void FreeGaitPlugin::onPushButtonGoBottom() {
+void FreeGaitMonitorPlugin::onPushButtonGoBottom() {
   descriptions_.moveIndexBack();
   ui_.plainTextEditDescription->setText(descriptions_.backQString());
   isOnBottom_ = true;
@@ -454,7 +454,7 @@ void FreeGaitPlugin::onPushButtonGoBottom() {
   updateNavigationButtonStates();
 }
 
-void FreeGaitPlugin::onPushButtonPlay() {
+void FreeGaitMonitorPlugin::onPushButtonPlay() {
   ui_.pushButtonPause->setEnabled(false);
   ui_.pushButtonPlay->setEnabled(false);
 
@@ -473,7 +473,7 @@ void FreeGaitPlugin::onPushButtonPlay() {
   workerThreadPausePlay->start();
 }
 
-void FreeGaitPlugin::onPushButtonPause() {
+void FreeGaitMonitorPlugin::onPushButtonPause() {
   ui_.pushButtonPause->setEnabled(false);
   ui_.pushButtonPlay->setEnabled(false);
 
@@ -492,7 +492,7 @@ void FreeGaitPlugin::onPushButtonPause() {
   workerThreadPausePlay->start();
 }
 
-void FreeGaitPlugin::onPushButtonStop() {
+void FreeGaitMonitorPlugin::onPushButtonStop() {
   ui_.pushButtonStop->setEnabled(false);
   ui_.pushButtonPause->setEnabled(false);
   ui_.pushButtonPlay->setEnabled(false);
@@ -508,7 +508,7 @@ void FreeGaitPlugin::onPushButtonStop() {
   workerThreadStop->start();
 }
 
-void FreeGaitPlugin::onPushButtonPlayResult(
+void FreeGaitMonitorPlugin::onPushButtonPlayResult(
     bool isOk, std_srvs::SetBoolResponse response) {
   if (isOk && response.success) {
     ui_.pushButtonPause->setEnabled(true);
@@ -519,7 +519,7 @@ void FreeGaitPlugin::onPushButtonPlayResult(
   }
 }
 
-void FreeGaitPlugin::onPushButtonPauseResult(
+void FreeGaitMonitorPlugin::onPushButtonPauseResult(
     bool isOk, std_srvs::SetBoolResponse response) {
   if (isOk && response.success) {
     ui_.pushButtonPause->setEnabled(false);
@@ -530,7 +530,7 @@ void FreeGaitPlugin::onPushButtonPauseResult(
   }
 }
 
-void FreeGaitPlugin::onPushButtonStopResult(
+void FreeGaitMonitorPlugin::onPushButtonStopResult(
     bool isOk, std_srvs::TriggerResponse response) {
   if (isOk && response.success) {
     ui_.pushButtonStop->setEnabled(false);
@@ -543,7 +543,7 @@ void FreeGaitPlugin::onPushButtonStopResult(
   }
 }
 
-void FreeGaitPlugin::onClickableLabelExpandCollapse() {
+void FreeGaitMonitorPlugin::onClickableLabelExpandCollapse() {
   if (ui_.plainTextEditDescription->isVisible()) {
     collapseDebug();
     ui_.clickableLabelExpandCollapse->setPixmap(
@@ -555,7 +555,7 @@ void FreeGaitPlugin::onClickableLabelExpandCollapse() {
   }
 }
 
-void FreeGaitPlugin::onPushButtonDeleteHistory() {
+void FreeGaitMonitorPlugin::onPushButtonDeleteHistory() {
   descriptions_.clear();
   ui_.plainTextEditDescription->setText("");
 
@@ -564,4 +564,4 @@ void FreeGaitPlugin::onPushButtonDeleteHistory() {
 
 } // namespace
 
-PLUGINLIB_EXPORT_CLASS(rqt_free_gait::FreeGaitPlugin, rqt_gui_cpp::Plugin)
+PLUGINLIB_EXPORT_CLASS(rqt_free_gait_monitor::FreeGaitMonitorPlugin, rqt_gui_cpp::Plugin)

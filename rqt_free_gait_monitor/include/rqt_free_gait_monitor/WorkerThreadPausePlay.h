@@ -30,28 +30,52 @@
  * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
  ******************************************************************************/
 
-#include "rqt_free_gait/ClickableLabel.h"
-#include <QEvent>
+#pragma once
 
-namespace rqt_free_gait {
+#include <QThread>
 
-/*****************************************************************************/
-/** Constructor/Destructor                                                  **/
-/*****************************************************************************/
+#include <ros/ros.h>
 
-ClickableLabel::ClickableLabel(QWidget *parent)
-    : QLabel(parent) {
-}
+#include <std_srvs/SetBool.h>
 
-ClickableLabel::~ClickableLabel() {
-}
+namespace rqt_free_gait_monitor {
 
-/*****************************************************************************/
-/** Events                                                                  **/
-/*****************************************************************************/
+class WorkerThreadPausePlay : public QThread {
+Q_OBJECT
 
-void ClickableLabel::mouseReleaseEvent(QMouseEvent *event) {
-  emit clicked();
-}
+  /***************************************************************************/
+  /** Methods                                                               **/
+  /***************************************************************************/
+
+  void run();
+
+public:
+
+  /***************************************************************************/
+  /** Accessors                                                             **/
+  /***************************************************************************/
+
+  void setClient(ros::ServiceClient &client);
+
+  void setRequest(std_srvs::SetBoolRequest request);
+
+private:
+
+  /***************************************************************************/
+  /** Variables                                                             **/
+  /***************************************************************************/
+
+  std_srvs::SetBoolRequest request_;
+  std_srvs::SetBoolResponse response_;
+  ros::ServiceClient client_;
+
+signals:
+
+  /***************************************************************************/
+  /** Signals                                                               **/
+  /***************************************************************************/
+
+  void result(bool isOk, std_srvs::SetBoolResponse);
+};
 
 } // namespace
