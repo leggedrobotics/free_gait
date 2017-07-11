@@ -9,7 +9,7 @@
         <icon type="theme">folder</icon>
         <statustip>Plugins related to...</statustip>
       </group>
-      <label>Free Gait</label>
+      <label>Free Gait Monitor</label>
       <icon type="theme">applications-graphics</icon>
       <statustip>A GUI plugin to monitor free gait.</statustip>
     </qtgui>
