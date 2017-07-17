@@ -15,7 +15,8 @@ class Collection:
         self.id = None
         self.name = None
         self.action_ids = []
-        self._initialize(parameters);
+        self.is_sequence = None
+        self._initialize(parameters)
 
     def __str__(self):
         output = 'ID: ' + self.id
@@ -34,11 +35,11 @@ class Collection:
             self.name = parameters['name']
         for action_id in parameters['actions']:
             self.action_ids.append(action_id)
-        sort = True
-        if 'sort' in parameters:
-            if parameters['sort']=='none':
-                sort = False
-        if sort:
+        self.is_sequence = False
+        if 'is_sequence' in parameters:
+            if parameters['is_sequence']:
+                self.is_sequence = True
+        if not self.is_sequence:
             self.action_ids = sorted(self.action_ids)
 
     def to_ros_message(self):
@@ -47,6 +48,7 @@ class Collection:
         message.name = self.name
         for action_id in self.action_ids:
             message.action_ids.append(action_id)
+        message.is_sequence = self.is_sequence
         return message
 
 
