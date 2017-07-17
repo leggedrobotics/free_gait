@@ -159,7 +159,6 @@ bool EndEffectorTrajectory::isIgnoreForPoseAdaptation() const
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory)
 {
-  out << "Duration: " << endEffectorTrajectory.getDuration() << std::endl;
   out << "Ignore contact: " << (endEffectorTrajectory.isIgnoreContact() ? "True" : "False") << std::endl;
   out << "Ignore for pose adaptation: " << (endEffectorTrajectory.isIgnoreForPoseAdaptation() ? "True" : "False") << std::endl;
   out << "Times: ";

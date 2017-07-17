@@ -29,6 +29,11 @@ std::unique_ptr<LegMotionBase> JointTrajectory::clone() const
   return pointer;
 }
 
+const std::vector<JointNodeEnum> JointTrajectory::getJointNodeEnums() const
+{
+  return jointNodeEnums_;
+}
+
 const ControlSetup JointTrajectory::getControlSetup() const
 {
   return controlSetup_;
@@ -177,7 +182,11 @@ bool JointTrajectory::isIgnoreContact() const
 std::ostream& operator<<(std::ostream& out, const JointTrajectory& jointTrajectory)
 {
   if (!jointTrajectory.isComputed()) throw std::runtime_error("JointTrajectory::operator<< cannot be called if trajectory is not computed.");
-  out << "Duration: " << jointTrajectory.duration_ << std::endl;
+  out << "Joint nodes (" << jointTrajectory.jointNodeEnums_.size() << ")";
+//  for (const auto& jointNode : jointTrajectory.jointNodeEnums_) {
+//    out << jointNode << ", ";
+//  }
+  out << std::endl;
   out << "Ignore contact: " << (jointTrajectory.ignoreContact_ ? "True" : "False") << std::endl;
   for (const auto& times : jointTrajectory.times_) {
     out << "Times (" << times.first << "): ";

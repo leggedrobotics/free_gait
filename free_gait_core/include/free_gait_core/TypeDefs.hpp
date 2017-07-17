@@ -34,6 +34,7 @@ using BaseAuto = BaseAutoStepWiseBasicAlignment;
 // Import enum aliases.
 using LimbEnum = quadruped_model::LimbEnum;
 using BranchEnum = quadruped_model::BranchEnum;
+using JointNodeEnum = quadruped_model::JointNodeEnum;
 using ContactEnum = quadruped_model::ContactEnum;
 
 // Import kindr aliases.

@@ -278,6 +278,11 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& messag
   jointTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
   jointTrajectory.controlSetup_[ControlLevel::Effort] = false;
 
+  jointTrajectory.jointNodeEnums_.clear();
+  for (const auto& jointName : message.trajectory.joint_names) {
+    jointTrajectory.jointNodeEnums_.push_back(adapter_.getJointNodeEnumFromJointNodeString(jointName));
+  }
+
   for (const auto& point : message.trajectory.points) {
     if (!point.positions.empty()) jointTrajectory.controlSetup_[ControlLevel::Position] = true;
     if (!point.velocities.empty()) jointTrajectory.controlSetup_[ControlLevel::Velocity] = true;
