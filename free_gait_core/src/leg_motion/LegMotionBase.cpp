@@ -16,7 +16,8 @@ namespace free_gait {
 
 LegMotionBase::LegMotionBase(LegMotionBase::Type type, LimbEnum limb)
     : type_(type),
-      limb_(limb)
+      limb_(limb),
+      hasContactAtStart_(false)
 {
 }
 
@@ -26,7 +27,8 @@ LegMotionBase::~LegMotionBase()
 
 LegMotionBase::LegMotionBase(const LegMotionBase& other) :
     type_(other.type_),
-    limb_(other.limb_)
+    limb_(other.limb_),
+    hasContactAtStart_(other.hasContactAtStart_)
 {
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
 }
@@ -35,6 +37,7 @@ LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
 {
   type_ = other.type_;
   limb_ = other.limb_;
+  hasContactAtStart_ = other.hasContactAtStart_;
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
   return *this;
 }
@@ -113,6 +116,11 @@ bool LegMotionBase::isIgnoreContact() const
 bool LegMotionBase::isIgnoreForPoseAdaptation() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreForPoseAdaptation() not implemented.");
+}
+
+bool LegMotionBase::hasContactAtStart() const
+{
+  return hasContactAtStart_;
 }
 
 std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)

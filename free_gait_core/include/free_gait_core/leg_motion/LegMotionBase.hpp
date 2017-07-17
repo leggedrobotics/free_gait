@@ -97,6 +97,8 @@ class LegMotionBase
 
   virtual bool isIgnoreForPoseAdaptation() const;
 
+  virtual bool hasContactAtStart() const;
+
   /*!
    * Print the contents to console for debugging.
    * @param out the output stream.
@@ -116,6 +118,7 @@ class LegMotionBase
 
   LimbEnum limb_;
   std::unique_ptr<Vector> surfaceNormal_;
+  bool hasContactAtStart_;
 
  private:
   //! Type of the leg motion.
