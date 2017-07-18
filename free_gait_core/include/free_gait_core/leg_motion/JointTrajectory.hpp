@@ -39,6 +39,11 @@ class JointTrajectory : public JointMotionBase
    */
   std::unique_ptr<LegMotionBase> clone() const;
 
+  void setTrajectory(
+      const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash>& times,
+      const std::unordered_map<ControlLevel, std::vector<std::vector<ValueType>>, EnumClassHash>& values,
+      const std::vector<JointNodeEnum>& jointNodeEnums_);
+
   const std::vector<JointNodeEnum> getJointNodeEnums() const;
 
   const ControlSetup getControlSetup() const;

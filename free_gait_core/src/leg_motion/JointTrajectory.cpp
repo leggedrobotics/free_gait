@@ -29,6 +29,17 @@ std::unique_ptr<LegMotionBase> JointTrajectory::clone() const
   return pointer;
 }
 
+void JointTrajectory::setTrajectory(
+    const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash>& times,
+    const std::unordered_map<ControlLevel, std::vector<std::vector<ValueType>>, EnumClassHash>& values,
+    const std::vector<JointNodeEnum>& jointNodeEnums)
+{
+  times_ = times;
+  values_ = values;
+  jointNodeEnums_ = jointNodeEnums;
+  for (const auto& value : values) controlSetup_[value.first] = true;
+}
+
 const std::vector<JointNodeEnum> JointTrajectory::getJointNodeEnums() const
 {
   return jointNodeEnums_;
