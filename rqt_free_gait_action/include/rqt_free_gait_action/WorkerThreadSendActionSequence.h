@@ -33,34 +33,32 @@
 
 #pragma once
 
-#include <QString>
+#include <QThread>
 
-#include "rqt_free_gait_action/ActionModel.h"
+#include <ros/ros.h>
+
+#include <free_gait_msgs/SendActionSequence.h>
 
 namespace rqt_free_gait {
 
-class Collection {
+class WorkerThreadSendActionSequence : public QThread {
+Q_OBJECT
+
+  /***************************************************************************/
+  /** Methods                                                               **/
+  /***************************************************************************/
+
+  void run();
+
 public:
-
-  /***************************************************************************/
-  /** Constructor/Destructor                                                **/
-  /***************************************************************************/
-
-  Collection(QString id, QString name, ActionModel *actionModel, bool isSequence);
-
-  ~Collection();
 
   /***************************************************************************/
   /** Accessors                                                             **/
   /***************************************************************************/
 
-  const QString& getId() const;
+  void setClient(ros::ServiceClient &client);
 
-  const QString& getName() const;
-
-  ActionModel *getActionModel();
-
-  bool isSequence() const;
+  void setRequest(free_gait_msgs::SendActionSequenceRequest request);
 
 private:
 
@@ -68,10 +66,17 @@ private:
   /** Variables                                                             **/
   /***************************************************************************/
 
-  QString id_;
-  QString name_;
-  ActionModel *actionModel_ = nullptr;
-  bool isSequence_;
+  free_gait_msgs::SendActionSequenceRequest request_;
+  free_gait_msgs::SendActionSequenceResponse response_;
+  ros::ServiceClient client_;
+
+signals:
+
+  /***************************************************************************/
+  /** Signals                                                               **/
+  /***************************************************************************/
+
+  void result(bool isOk, free_gait_msgs::SendActionSequenceResponse);
 };
 
 } // namespace

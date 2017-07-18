@@ -31,47 +31,30 @@
  *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
  ******************************************************************************/
 
-#pragma once
-
-#include <QString>
-
-#include "rqt_free_gait_action/ActionModel.h"
+#include "rqt_free_gait_action/WorkerThreadSendActionSequence.h"
 
 namespace rqt_free_gait {
 
-class Collection {
-public:
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
 
-  /***************************************************************************/
-  /** Constructor/Destructor                                                **/
-  /***************************************************************************/
+void WorkerThreadSendActionSequence::run() {
+  bool isOk = client_.call(request_, response_);
+  emit result(isOk, response_);
+}
 
-  Collection(QString id, QString name, ActionModel *actionModel, bool isSequence);
+/*****************************************************************************/
+/** Accessors                                                               **/
+/*****************************************************************************/
 
-  ~Collection();
+void WorkerThreadSendActionSequence::setClient(ros::ServiceClient &client) {
+  client_ = client;
+}
 
-  /***************************************************************************/
-  /** Accessors                                                             **/
-  /***************************************************************************/
-
-  const QString& getId() const;
-
-  const QString& getName() const;
-
-  ActionModel *getActionModel();
-
-  bool isSequence() const;
-
-private:
-
-  /***************************************************************************/
-  /** Variables                                                             **/
-  /***************************************************************************/
-
-  QString id_;
-  QString name_;
-  ActionModel *actionModel_ = nullptr;
-  bool isSequence_;
-};
+void
+WorkerThreadSendActionSequence::setRequest(free_gait_msgs::SendActionSequenceRequest request) {
+  request_ = request;
+}
 
 } // namespace
