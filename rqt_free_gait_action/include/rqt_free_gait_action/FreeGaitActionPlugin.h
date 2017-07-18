@@ -151,7 +151,7 @@ protected:
   void clearCollectionListView();
 
   void evaluateFreeGaitActionResponse(
-      free_gait_msgs::SendActionResponse response);
+      free_gait_msgs::ExecuteActionResult result);
 
   void updateFavoritesInfo(QString info = "");
 
@@ -229,7 +229,7 @@ protected slots:
   void onFavoriteButtonClicked(Action action);
 
   void onFavoriteButtonResult(bool isOk,
-                              free_gait_msgs::SendActionResponse response);
+                              free_gait_msgs::ExecuteActionResult response);
 
   void onCollectionSelectionChanged(const QItemSelection &selection);
 
@@ -238,10 +238,10 @@ protected slots:
   void onGetCollectionsResult(bool isOk, CollectionModel *collectionModel);
 
   void onSendActionResult(bool isOk,
-                          free_gait_msgs::SendActionResponse response);
+                          free_gait_msgs::ExecuteActionResult response);
 
   void onSendPreviewResult(bool isOk,
-                           free_gait_msgs::SendActionResponse response);
+                           free_gait_msgs::ExecuteActionResult response);
 
   void onRefreshCollectionsResult(bool isOk,
                                   std_srvs::TriggerResponse response);

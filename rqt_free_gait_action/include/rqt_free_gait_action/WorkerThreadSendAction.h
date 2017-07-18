@@ -75,7 +75,7 @@ signals:
   /** Signals                                                               **/
   /***************************************************************************/
 
-  void result(bool isOk, free_gait_msgs::SendActionResponse);
+  void result(bool isOk, free_gait_msgs::ExecuteActionResult);
 };
 
 } // namespace

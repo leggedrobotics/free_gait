@@ -45,8 +45,8 @@ FreeGaitActionPlugin::FreeGaitActionPlugin()
     : rqt_gui_cpp::Plugin()
     , widget_(0) {
 
-  qRegisterMetaType<free_gait_msgs::SendActionResponse>(
-      "free_gait_msgs::SendActionResponse");
+  qRegisterMetaType<free_gait_msgs::ExecuteActionResult>(
+      "free_gait_msgs::ExecuteActionResult");
   qRegisterMetaType<std_srvs::TriggerResponse>(
       "std_srvs::TriggerResponse");
   qRegisterMetaType<Action>("Action");
@@ -179,8 +179,8 @@ void FreeGaitActionPlugin::clearCollectionListView() {
 }
 
 void FreeGaitActionPlugin::evaluateFreeGaitActionResponse(
-    free_gait_msgs::SendActionResponse response) {
-  switch (response.result.status) {
+    free_gait_msgs::ExecuteActionResult result) {
+  switch (result.status) {
     case free_gait_msgs::ExecuteActionResult::RESULT_DONE:
       emit statusMessage("Done", MessageType::SUCCESS, 2.0);
       break;
@@ -498,7 +498,7 @@ void FreeGaitActionPlugin::onGetCollectionsResult(
 }
 
 void FreeGaitActionPlugin::onSendActionResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
   } else {
@@ -518,12 +518,9 @@ void FreeGaitActionPlugin::onSendActionClicked() {
     request.goal.action_id = selectedAction_.toStdString();
 
     WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
-    connect(workerThreadSendAction,
-            SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
-            this,
-            SLOT(onSendActionResult(bool, free_gait_msgs::SendActionResponse)));
-    connect(workerThreadSendAction, SIGNAL(finished()),
-            workerThreadSendAction, SLOT(deleteLater()));
+    connect(workerThreadSendAction, SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)), this,
+            SLOT(onSendActionResult(bool, free_gait_msgs::ExecuteActionResult)));
+    connect(workerThreadSendAction, SIGNAL(finished()), workerThreadSendAction, SLOT(deleteLater()));
     workerThreadSendAction->setClient(sendActionClient_);
     workerThreadSendAction->setRequest(request);
     workerThreadSendAction->start();
@@ -536,10 +533,8 @@ void FreeGaitActionPlugin::onSendActionClicked() {
     }
 
     WorkerThreadSendActionSequence *workerThreadSendActionSequence = new WorkerThreadSendActionSequence;
-    connect(workerThreadSendActionSequence,
-            SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
-            this,
-            SLOT(onSendActionResult(bool, free_gait_msgs::SendActionResponse)));
+    connect(workerThreadSendActionSequence, SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
+            this, SLOT(onSendActionResult(bool, free_gait_msgs::ExecuteActionResult)));
     connect(workerThreadSendActionSequence, SIGNAL(finished()),
             workerThreadSendActionSequence, SLOT(deleteLater()));
     workerThreadSendActionSequence->setClient(sendActionSequenceClient_);
@@ -561,9 +556,9 @@ void FreeGaitActionPlugin::onSendPreviewClicked() {
 
   WorkerThreadSendAction *workerThreadSendPreview = new WorkerThreadSendAction;
   connect(workerThreadSendPreview,
-          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
+          SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
           this,
-          SLOT(onSendPreviewResult(bool, free_gait_msgs::SendActionResponse)));
+          SLOT(onSendPreviewResult(bool, free_gait_msgs::ExecuteActionResult)));
   connect(workerThreadSendPreview, SIGNAL(finished()),
           workerThreadSendPreview, SLOT(deleteLater()));
   workerThreadSendPreview->setClient(sendPreviewClient_);
@@ -574,7 +569,7 @@ void FreeGaitActionPlugin::onSendPreviewClicked() {
 }
 
 void FreeGaitActionPlugin::onSendPreviewResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send preview action.",
                        MessageType::WARNING, 2.0);
@@ -669,10 +664,10 @@ void FreeGaitActionPlugin::onFavoriteButtonClicked(Action action) {
 
   WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
   connect(workerThreadSendAction,
-          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
+          SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
           this,
           SLOT(onFavoriteButtonResult(bool,
-                                      free_gait_msgs::SendActionResponse)));
+                                      free_gait_msgs::ExecuteActionResult)));
   connect(workerThreadSendAction, SIGNAL(finished()),
           workerThreadSendAction, SLOT(deleteLater()));
   workerThreadSendAction->setClient(sendActionClient_);
@@ -685,7 +680,7 @@ void FreeGaitActionPlugin::onFavoriteButtonClicked(Action action) {
 }
 
 void FreeGaitActionPlugin::onFavoriteButtonResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
   } else {

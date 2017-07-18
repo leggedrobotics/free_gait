@@ -68,6 +68,7 @@ class ActionLoader:
         return response
 
     def _execute_action_callback(self, goal):
+        self.action_sequence_queue = []
         result = self.send_action(goal.action_id, False)
         if result.status != result.RESULT_NOT_FOUND:
             self.action.wait_for_state([ActionState.ERROR, ActionState.DONE])
@@ -75,6 +76,7 @@ class ActionLoader:
         self.execute_action_server.set_succeeded(result)
 
     def _send_action_callback(self, request):
+        self.action_sequence_queue = []
         response = free_gait_msgs.srv.SendActionResponse()
         response.result = self.send_action(request.goal.action_id, False)
         return response

@@ -40,7 +40,7 @@ namespace rqt_free_gait {
 
 void WorkerThreadSendAction::run() {
   bool isOk = client_.call(request_, response_);
-  emit result(isOk, response_);
+  emit result(isOk, response_.result);
 }
 
 /*****************************************************************************/
