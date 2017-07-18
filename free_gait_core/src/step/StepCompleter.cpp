@@ -25,7 +25,7 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
 {
   for (auto& legMotion : step.legMotions_) {
     setParameters(*legMotion.second);
-    legMotion.second->hasContactAtStart_ = state.isSupportLeg(legMotion.first);
+    legMotion.second->hasContactAtStart_ = adapter_.isLegGrounded(legMotion.first);
     switch (legMotion.second->getType()) {
       case LegMotionBase::Type::Footstep:
         setParameters(dynamic_cast<Footstep&>(*legMotion.second));

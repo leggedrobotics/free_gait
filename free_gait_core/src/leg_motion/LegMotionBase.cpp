@@ -150,6 +150,7 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
       break;
   }
+  out << "Has contact at start: " << (legMotion.hasContactAtStart() ? "True" : "False") << std::endl;
   out << "Ignores contact: " << (legMotion.isIgnoreContact() ? "True" : "False") << std::endl;
   out << "Ignored for pose adaptation: " << (legMotion.isIgnoreForPoseAdaptation() ? "True" : "False") << std::endl;
   out << "Surface normal: ";
