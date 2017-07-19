@@ -11,7 +11,7 @@ import free_gait_msgs.srv
 import std_srvs.srv
 import traceback
 from actionlib_msgs.msg import *
-import threading
+import thread
 
 class ActionLoader:
 
@@ -21,12 +21,14 @@ class ActionLoader:
         self.action_list.update()
         self.collection_list = CollectionList(self.name)
         self.collection_list.update()
+        self.action_sequence_queue = []
         self.action = None
         # Reference to the action client or preview publisher.
         self.execute_steps_relay = None
 
         step_action_server_topic = rospy.get_param('/free_gait/action_server')
         self.execute_steps_client = actionlib.SimpleActionClient(step_action_server_topic, free_gait_msgs.msg.ExecuteStepsAction)
+
         self.execute_action_server = actionlib.SimpleActionServer("~execute_action", free_gait_msgs.msg.ExecuteActionAction, \
                                                           execute_cb=self._execute_action_callback, auto_start = False)
         self.execute_action_server.register_preempt_callback(self.preempt)
@@ -40,6 +42,7 @@ class ActionLoader:
         rospy.Service('~list_collections', free_gait_msgs.srv.GetCollections, self.list_collections)
         rospy.Service('~send_action', free_gait_msgs.srv.SendAction, self._send_action_callback)
         rospy.Service('~preview_action', free_gait_msgs.srv.SendAction, self._preview_action_callback)
+        rospy.Service('~send_action_sequence', free_gait_msgs.srv.SendActionSequence, self._send_action_sequence_callback)
         rospy.on_shutdown(self.preempt)
 
     def update(self, request):
@@ -65,6 +68,7 @@ class ActionLoader:
         return response
 
     def _execute_action_callback(self, goal):
+        self.action_sequence_queue = []
         result = self.send_action(goal.action_id, False)
         if result.status != result.RESULT_NOT_FOUND:
             self.action.wait_for_state([ActionState.ERROR, ActionState.DONE])
@@ -72,8 +76,19 @@ class ActionLoader:
         self.execute_action_server.set_succeeded(result)
 
     def _send_action_callback(self, request):
+        self.action_sequence_queue = []
         response = free_gait_msgs.srv.SendActionResponse()
         response.result = self.send_action(request.goal.action_id, False)
+        return response
+
+    def _send_action_sequence_callback(self, request):
+        self.action_sequence_queue = []
+        for goal in request.goals:
+            self.action_sequence_queue.append(goal.action_id)
+        # Start first goal.
+        response = free_gait_msgs.srv.SendActionSequenceResponse()
+        response.result = self.send_action(self.action_sequence_queue[0], False)
+        self.action_sequence_queue.pop(0)
         return response
 
     def _preview_action_callback(self, request):
@@ -167,7 +182,20 @@ class ActionLoader:
             self.execute_action_server.publish_feedback(feedback)
 
     def _action_done_callback(self):
+        # If action sequence exists, continue with next action.
+        if len(self.action_sequence_queue) > 0:
+            thread.start_new_thread(self._load_next_action_in_sequence, ())
         rospy.loginfo('Action switched to state: ' + ActionState.to_text(self.action.state) + '.')
+
+    def _load_next_action_in_sequence(self):
+        if self.action.state == ActionState.DONE:
+            result = self.send_action(self.action_sequence_queue[0], False)
+            self.action_sequence_queue.pop(0)
+            if (result.status == result.RESULT_STARTED):
+                return
+        # Error occured.
+        rospy.loginfo('Purging remaining actions from sequence.')
+        self.action_sequence_queue = []
 
     def _check_and_start_action(self):
         if self.action is not None:
@@ -181,7 +209,7 @@ class ActionLoader:
                 self.action.stop()
             del self.action
             self.action = None
-            rospy.logwarn('Canceling action.')
+            # rospy.logwarn('Canceling action.')
         except NameError:
             rospy.logerr(traceback.print_exc())
 

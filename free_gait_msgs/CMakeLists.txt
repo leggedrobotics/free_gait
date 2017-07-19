@@ -37,6 +37,7 @@ add_service_files(
   GetActions.srv
   GetCollections.srv
   SendAction.srv
+  SendActionSequence.srv
 )
 
 ## Generate actions in the 'action' folder
