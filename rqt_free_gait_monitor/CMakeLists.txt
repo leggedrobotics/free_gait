@@ -13,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   free_gait_msgs
-  rqt_gui
-  rqt_gui_cpp
 )
 
 find_package(Boost REQUIRED COMPONENTS date_time)
@@ -79,8 +77,6 @@ catkin_package(
     std_msgs
     std_srvs
     free_gait_msgs
-    rqt_gui
-    rqt_gui_cpp
   DEPENDS
     Boost
 )
