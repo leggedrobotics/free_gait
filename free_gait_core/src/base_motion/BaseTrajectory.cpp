@@ -87,6 +87,14 @@ bool BaseTrajectory::isComputed() const
   return isComputed_;
 }
 
+void BaseTrajectory::reset()
+{
+  values_.clear();
+  times_.clear();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 double BaseTrajectory::getDuration() const
 {
   return duration_;
