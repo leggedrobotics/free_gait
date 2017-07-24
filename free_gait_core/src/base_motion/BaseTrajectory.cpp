@@ -89,8 +89,6 @@ bool BaseTrajectory::isComputed() const
 
 void BaseTrajectory::reset()
 {
-  values_.clear();
-  times_.clear();
   duration_ = 0.0;
   isComputed_ = false;
 }

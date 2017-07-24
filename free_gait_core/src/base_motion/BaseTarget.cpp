@@ -66,7 +66,6 @@ bool BaseTarget::isComputed() const
 void BaseTarget::reset()
 {
   start_.setIdentity();
-  target_.setIdentity();
   duration_ = 0.0;
   isComputed_ = false;
 }
