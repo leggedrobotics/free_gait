@@ -133,6 +133,15 @@ bool JointTrajectory::isComputed() const
   return isComputed_;
 }
 
+void JointTrajectory::reset()
+{
+  for (auto& trajectories : trajectories_) {
+    trajectories.second.clear();
+  }
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 double JointTrajectory::getDuration() const
 {
   return duration_;

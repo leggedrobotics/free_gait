@@ -103,6 +103,13 @@ bool EndEffectorTrajectory::isComputed() const
   return isComputed_;
 }
 
+void EndEffectorTrajectory::reset()
+{
+  trajectory_.clear();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 const Position EndEffectorTrajectory::evaluatePosition(const double time) const
 {
   const double timeInRange = mapTimeWithinDuration(time);

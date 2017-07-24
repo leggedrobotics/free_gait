@@ -63,6 +63,7 @@ class JointTrajectory : public JointMotionBase
   bool needsComputation() const;
   bool compute();
   bool isComputed() const;
+  void reset();
 
   /*!
    * Returns the total duration of the motion.
