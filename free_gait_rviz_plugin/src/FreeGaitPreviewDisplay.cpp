@@ -349,14 +349,17 @@ void FreeGaitPreviewDisplay::subscribe()
     return;
   }
 
-  try {
-    goalSubscriber_ = update_nh_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
-    setStatus(rviz::StatusProperty::Ok, "Goal Topic", "OK");
-  } catch (ros::Exception& e) {
-    setStatus(rviz::StatusProperty::Error, "Goal Topic", QString("Error subscribing: ") + e.what());
+  if (!goalTopicProperty_->getTopicStd().empty()) {
+    try {
+      goalSubscriber_ = update_nh_.subscribe(goalTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::processMessage, this);
+      setStatus(rviz::StatusProperty::Ok, "Goal Topic", "OK");
+    } catch (ros::Exception& e) {
+      setStatus(rviz::StatusProperty::Error, "Goal Topic", QString("Error subscribing: ") + e.what());
+    }
   }
 
-  if (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult) {
+  if (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult &&
+      !resultTopicProperty_->getTopicStd().empty()) {
     try {
       resultSubscriber_ = update_nh_.subscribe(resultTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::resultCallback, this);
       setStatus(rviz::StatusProperty::Ok, "Result Topic", "OK");
