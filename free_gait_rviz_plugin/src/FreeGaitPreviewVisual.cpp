@@ -200,6 +200,7 @@ void FreeGaitPreviewVisual::showStances(const float alpha)
   stancesMarker_.clear();
 
   for (const auto& stance : stateBatchPtr_->getStances()) {
+    if (stance.second.empty()) continue;
     std_msgs::ColorRGBA color;
     getRainbowColor(stateBatchPtr_->getStartTime(), stateBatchPtr_->getEndTime(), stance.first, color);
     color.a = alpha;
