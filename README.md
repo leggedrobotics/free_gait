@@ -4,7 +4,7 @@
 
 [![Free Gait Maneuvers with ANYmal](https://img.youtube.com/vi/EI1zBTYpXW0/0.jpg)](https://www.youtube.com/watch?v=EI1zBTYpXW0)
 
-Free Gait is a software framework (whole-body abstraction layer) for the versatile control of legged robots. Through its interface, motions in task space can be defined for static and dynamic maneuvers. During execution, Free Gait tracks the desired motions robustly even under slip and external disturbances. The application of this framework includes intuitive tele-operation of the robot, efficient scripting of behaviors, and interface for motion and footstep planners.
+*Free Gait* is a software framework for the versatile, robust, and task-oriented control of legged robots. The Free Gait interface defines a *whole-body abstraction layer* to accomodate a variety of task-space control commands such as end effector, joint, and base motions. The deﬁned motion tasks are tracked with a feedback whole-body controller to ensure accurate and robust motion execution even under slip and external disturbances. The application of this framework includes intuitive tele-operation of the robot, efficient scripting of behaviors, and fully autonomous operation with motion and footstep planners.
 
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
