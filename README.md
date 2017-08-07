@@ -31,6 +31,12 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 ## Unit Tests
 
 	catkin build free_gait_core --no-deps --verbose --catkin-make-args run_tests
+	
+## Usage
+
+[![Free Gait Notions and Coordinate Systems](free_gait_core/doc/notions_and_coordinate_systems.jpg)](grid_map_core/doc/notions_and_coordinate_systems.pdf)
+![Free Gait Motion Examples](free_gait_core/doc/motion_examples.jpg)
+[![Free Gait Control Scheme](free_gait_core/doc/control_scheme.png)](grid_map_core/doc/control_scheme.pdf)
 
 ## FAQ
 
