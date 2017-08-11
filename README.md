@@ -40,12 +40,21 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 
 ## Usage
 
+### Free Gait Action Loader
+
+Actions are libraries and scripts that define motions using the Free Gait API. These actions can be launched with the `free_gait_action_loader` either through a [ROS service](https://github.com/leggedrobotics/free_gait/blob/master/free_gait_msgs/srv/SendAction.srv) or [ROS action](https://github.com/leggedrobotics/free_gait/blob/master/free_gait_msgs/action/ExecuteAction.action). Currently, the action loader supports *YAML* motion definitions, *Python* scripts, and starting *ROS launch files* for *C++* libraries.
 
 [![rqt_free_gait_action](http://i.imgur.com/sy91C8f.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
 
+### RQT Free Gait Monitor
+
 [![rqt_free_gait_monitor](http://i.imgur.com/vIW2fjj.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
 
+### Free Gait RViz Plugin
+
 [![free_gait_rviz_plugin](http://i.imgur.com/GUqRKD4.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
+
+### YAML Scripting Interface
 
 [![YAML Scripting Example](http://i.imgur.com/N9L6ogg.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
 
