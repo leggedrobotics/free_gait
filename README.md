@@ -34,11 +34,15 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 
 ## Overview
 
+[This video](https://www.youtube.com/watch?v=EI1zBTYpXW0) shows some of the applications of Free Gait.
+
 | [![Free Gait Notions and Coordinate Systems](free_gait_core/doc/notions_and_coordinate_systems_preview.png)](free_gait_core/doc/notions_and_coordinate_systems.pdf) | [![Free Gait Motion Examples](free_gait_core/doc/motion_examples_preview.jpg)](free_gait_core/doc/motion_examples.jpg) | [![Free Gait Control Scheme](free_gait_core/doc/control_scheme_preview.png)](free_gait_core/doc/control_scheme.pdf) |
 | --- | --- | --- |
 | Motions are based on a combination of (possibly multiple) leg motions and a base motion per command (step). | The command structure allows to control legged robots in various ways. | Motion  goals  are  commanded  through  the  Free  Gait  API  to  the whole-body  motion  controller. |
 
 ## Usage
+
+[This video](https://www.youtube.com/watch?v=PNJZvCCOmD8) presents an overview over the tools provided in Free Gait.
 
 ### Free Gait Actions
 
