@@ -39,7 +39,7 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 [This video](https://www.youtube.com/watch?v=EI1zBTYpXW0) shows some of the applications of Free Gait.
 
 | [![Free Gait Notions and Coordinate Systems](free_gait_core/doc/notions_and_coordinate_systems_preview.png)](free_gait_core/doc/notions_and_coordinate_systems.pdf) | [![Free Gait Motion Examples](free_gait_core/doc/motion_examples_preview.jpg)](free_gait_core/doc/motion_examples.jpg) | [![Free Gait Control Scheme](free_gait_core/doc/control_scheme_preview.png)](free_gait_core/doc/control_scheme.pdf) |
-| --- | --- | --- |
+| :-- | :-- | :-- |
 | Motions are based on a combination of (possibly multiple) leg motions and a base motion per command (step). | The command structure allows to control legged robots in various ways. | Motion  goals  are  commanded  through  the  Free  Gait  API  to  the whole-body  motion  controller. |
 
 ## Usage
@@ -49,6 +49,14 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 ### Free Gait Actions
 
 Free Gait actions are libraries and scripts that define motions using the Free Gait API (for ROS ). For ROS, these actions can be write in any language with a ROS client library using the message and action definitions in *[free_gait_msgs]*. For C++, Free Gait provides the *[free_gait_core]* library to work with motion definitions and the *[free_gait_ros]* for interfacing ROS. To work with Python, use the *[free_gait_python]* library. For simple motion definitions, Free Gait supports actions defined in [YAML] format. For more information about using YAML actions, refer to [YAML Scripting Interface](#yaml-scripting-interface).
+
+Free Gait commands are expressed as a combination of leg (in joint or end-effector Cartesian space) and base motions with definition of position, velocity, and/or force/torque targets or trajectories.
+
+|  | Target | Trajectory | Automatic |
+|:--|:--|:--|:--|
+| Leg motion in joint space | [JointTarget](free_gait_msgs/msg/JointTarget.msg) | [JointTrajectory](free_gait_msgs/msg/JointTrajectory.msg) | [LegMode](free_gait_msgs/msg/LegMode.msg) |
+| Leg motion in Cartesian space | [EndEffectorTarget](free_gait_msgs/msg/EndEffectorTarget.msg) | [EndEffectorTrajectory](free_gait_msgs/msg/EndEffectorTrajectory.msg) | [Footstep](free_gait_msgs/msg/Footstep.msg) |
+| Base motion | [BaseTarget](free_gait_msgs/msg/BaseTarget.msg) | [BaseTrajectory](free_gait_msgs/msg/BaseTrajectory.msg) | [BaseAuto](free_gait_msgs/msg/BaseAuto.msg) |
 
 Free Gait actions can be either launched manually or with help of the *[free_gait_action_loader]*.
 
