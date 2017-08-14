@@ -42,33 +42,42 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 
 ### Free Gait Actions
 
-Free Gait actions are libraries and scripts that define motions using the Free Gait API (for ROS ). For ROS, these actions can be write in any language with a ROS client library using the message and action definitions in [`free_gait_msgs`]. For C++, Free Gait provides the [`free_gait_core`] library to work with motion definitions and the [`free_gait_ros`] for interfacing ROS. To work with Python, use the [`free_gait_python`] library. For simple motion definitions, Free Gait supports actions defined in [YAML] format. For more information about using YAML actions, refer to [YAML Scripting Interface](#YAML-Scripting-Interface).
+Free Gait actions are libraries and scripts that define motions using the Free Gait API (for ROS ). For ROS, these actions can be write in any language with a ROS client library using the message and action definitions in *[free_gait_msgs]*. For C++, Free Gait provides the *[free_gait_core]* library to work with motion definitions and the *[free_gait_ros]* for interfacing ROS. To work with Python, use the *[free_gait_python]* library. For simple motion definitions, Free Gait supports actions defined in [YAML] format. For more information about using YAML actions, refer to [YAML Scripting Interface](#YAML-Scripting-Interface).
 
-Free Gait actions can be either launched manually or with help of the [`free_gait_action_loader`].
+Free Gait actions can be either launched manually or with help of the *[free_gait_action_loader]*.
 
 ### Free Gait Action Loader
 
-The [`free_gait_action_loader`] allows to launch actions through a [ROS service](free_gait_msgs/srv/SendAction.srv) or [ROS action](free_gait_msgs/action/ExecuteAction.action). Currently, the action loader supports *YAML* motion definitions, *Python* scripts, and starting *ROS launch files* for *C++* and other libraries.
+The *[free_gait_action_loader]* allows to launch actions through a [ROS service](free_gait_msgs/srv/SendAction.srv) or [ROS action](free_gait_msgs/action/ExecuteAction.action). Currently, the action loader supports *YAML* motion definitions, *Python* scripts, and starting *ROS launch files* for *C++* and other libraries.
 
-Run the [`free_gait_action_loader`] with
+Run the *[free_gait_action_loader]* with
 	
 	rosrun free_gait_action_loader action_loader.py
 
-The [`free_gait_action_loader`] manages the actions and makes sure that only one action is running at the time. To register an action with the [`free_gait_action_loader`], one has to load the action as a ROS plugin.
+The *[free_gait_action_loader]* manages the actions and makes sure that only one action is running at the time. To register an action with the *[free_gait_action_loader]*, one has to load the action as a ROS plugin.
 
 ### RQT Free Gait Action
 
 <a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/sy91C8f.gif"></a>
 
-The [`rqt_free_gait_action`] packages provides a [rqt](http://wiki.ros.org/rqt) user interface to the  [`free_gait_action_loader`]. The interface shows the actions organized in *collections* and allows to preview and send the actions.
+The *[rqt_free_gait_action]* package provides a [rqt](http://wiki.ros.org/rqt) user interface to the  *[free_gait_action_loader]*. The interface shows the actions organized in *collections* and allows to preview and send the actions.
 
+<br/>
+<br/>
+<br/>
 <br/>
 
 ### RQT Free Gait Monitor
 
 <a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/vIW2fjj.gif"></a>
 
-Once actions are being executed by the [Free Gait action server](free_gait_ros/include/free_gait_ros/FreeGaitActionServer.hpp), the [rqt_free_gait_monitor] shows the progress of the execution and allows to pause and stop the action.
+Once actions are being executed by the [Free Gait action server](free_gait_ros/include/free_gait_ros/FreeGaitActionServer.hpp), the *[rqt_free_gait_monitor]* shows the progress of the execution and allows to pause and stop the action.
+
+<br/>
+<br/>
+<br/>
+<br/>
+
 
 ### Free Gait RViz Plugin
 
@@ -102,7 +111,3 @@ In this case, try [initializing rosdep](http://wiki.ros.org/rosdep#Initializing_
 [free_gait_action_loader]: free_gait_action_loader
 [rqt_free_gait_action]: rqt_free_gait_action
 [rqt_free_gait_monitor]: rqt_free_gait_monitor
-
-.float_right {
-    float: right;
-}
