@@ -62,7 +62,7 @@ The [`free_gait_action_loader`] manages the actions and makes sure that only one
 
 The [`rqt_free_gait_action`] packages provides a [rqt](http://wiki.ros.org/rqt) user interface to the  [`free_gait_action_loader`]. The interface shows the actions organized in *collections* and allows to preview and send the actions.
 
-—
+<br/>
 
 ### RQT Free Gait Monitor
 
