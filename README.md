@@ -34,9 +34,9 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 
 ## Overview
 
-[![Free Gait Notions and Coordinate Systems](free_gait_core/doc/notions_and_coordinate_systems.jpg)](free_gait_core/doc/notions_and_coordinate_systems.pdf)
-![Free Gait Motion Examples](free_gait_core/doc/motion_examples.jpg)
-[![Free Gait Control Scheme](free_gait_core/doc/control_scheme.png)](free_gait_core/doc/control_scheme.pdf)
+[![Free Gait Notions and Coordinate Systems](free_gait_core/doc/notions_and_coordinate_systems_preview.png)](free_gait_core/doc/notions_and_coordinate_systems.pdf)
+[![Free Gait Motion Examples](free_gait_core/doc/motion_examples_preview.jpg)](free_gait_core/doc/motion_examples.jpg)
+[![Free Gait Control Scheme](free_gait_core/doc/control_scheme.png)](free_gait_core/doc/control_scheme_preview.pdf)
 
 ## Usage
 
