@@ -42,7 +42,7 @@ in IEEE-RAS International Conference on Humanoid Robots, 2016. ([PDF](https://ww
 
 ### Free Gait Actions
 
-Free Gait actions are libraries and scripts that define motions using the Free Gait API (for ROS ). For ROS, these actions can be write in any language with a ROS client library using the message and action definitions in *[free_gait_msgs]*. For C++, Free Gait provides the *[free_gait_core]* library to work with motion definitions and the *[free_gait_ros]* for interfacing ROS. To work with Python, use the *[free_gait_python]* library. For simple motion definitions, Free Gait supports actions defined in [YAML] format. For more information about using YAML actions, refer to [YAML Scripting Interface](#YAML-Scripting-Interface).
+Free Gait actions are libraries and scripts that define motions using the Free Gait API (for ROS ). For ROS, these actions can be write in any language with a ROS client library using the message and action definitions in *[free_gait_msgs]*. For C++, Free Gait provides the *[free_gait_core]* library to work with motion definitions and the *[free_gait_ros]* for interfacing ROS. To work with Python, use the *[free_gait_python]* library. For simple motion definitions, Free Gait supports actions defined in [YAML] format. For more information about using YAML actions, refer to [YAML Scripting Interface](#yaml-scripting-interface).
 
 Free Gait actions can be either launched manually or with help of the *[free_gait_action_loader]*.
 
@@ -60,9 +60,8 @@ The *[free_gait_action_loader]* manages the actions and makes sure that only one
 
 <a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/sy91C8f.gif"></a>
 
-The *[rqt_free_gait_action]* package provides a [rqt](http://wiki.ros.org/rqt) user interface to the  *[free_gait_action_loader]*. The interface shows the actions organized in *collections* and allows to preview and send the actions.
+The *[rqt_free_gait_action]* package provides a [rqt](http://wiki.ros.org/rqt) user interface to the  *[free_gait_action_loader]*. The interface shows the actions organized in *collections* and allows to preview and send the actions. Additionally, collections can be run as sequence of actions and with a right-click, a collection can be selected as favorite. Favorites are shown as buttons on the top for quick access.
 
-<br/>
 <br/>
 <br/>
 <br/>
@@ -71,21 +70,51 @@ The *[rqt_free_gait_action]* package provides a [rqt](http://wiki.ros.org/rqt) u
 
 <a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/vIW2fjj.gif"></a>
 
-Once actions are being executed by the [Free Gait action server](free_gait_ros/include/free_gait_ros/FreeGaitActionServer.hpp), the *[rqt_free_gait_monitor]* shows the progress of the execution and allows to pause and stop the action.
+Once actions are being executed by the *[Free Gait action server](free_gait_ros/include/free_gait_ros/FreeGaitActionServer.hpp)*, the *[rqt_free_gait_monitor]* shows the progress of the execution and allows to pause and stop the active action.
 
 <br/>
 <br/>
 <br/>
 <br/>
-
+<br/>
 
 ### Free Gait RViz Plugin
 
-[![free_gait_rviz_plugin](http://i.imgur.com/GUqRKD4.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
+<a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/GUqRKD4.gif"></a>
+
+Actions can be previewed with the *[free_gait_rviz_plugin]*. It takes the current state of the robot and visualizes the motion based on the defined action. This [RViz] plugin allows to scrub through time and visualize footholds, trajectories, support polygons etc.
+
+<br/>
+<br/>
+<br/>
+<br/>
 
 ### YAML Scripting Interface
 
-[![YAML Scripting Example](http://i.imgur.com/N9L6ogg.gif)](https://www.youtube.com/watch?v=PNJZvCCOmD8)
+<a href="https://www.youtube.com/watch?v=PNJZvCCOmD8"><img align="right" src="http://i.imgur.com/N9L6ogg.gif"></a>
+
+For simple motion sequences, Free Gait actions can be defined as  a sequence of [YAML] definitions.
+
+For example, this action lifts the right-fore leg of the robot:
+
+    adapt_coordinates:
+     - transform:
+        source_frame: footprint
+        target_frame: odom
+
+    steps:
+     - step:
+       - base_auto:
+     - step:
+       - base_auto:
+       - end_effector_target:
+          name: RF_LEG
+          ignore_contact: true
+          target_position:
+           frame: footprint
+           position: [0.39, -0.22, 0.20]
+
+The `adapt_coordinates` command transforms motions defined in the `source_frame` to the `target_frame`.
 
 ## FAQ
 
@@ -111,3 +140,4 @@ In this case, try [initializing rosdep](http://wiki.ros.org/rosdep#Initializing_
 [free_gait_action_loader]: free_gait_action_loader
 [rqt_free_gait_action]: rqt_free_gait_action
 [rqt_free_gait_monitor]: rqt_free_gait_monitor
+[free_gait_rviz_plugin]: free_gait_rviz_plugin
