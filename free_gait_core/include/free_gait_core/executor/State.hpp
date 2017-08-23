@@ -29,6 +29,9 @@ class State : public quadruped_model::QuadrupedState
   bool getRobotExecutionStatus() const;
   void setRobotExecutionStatus(bool robotExecutionStatus);
 
+  const std::string& getStepId() const;
+  void setStepId(const std::string& stepId);
+
   bool isSupportLeg(const LimbEnum& limb) const;
   void setSupportLeg(const LimbEnum& limb, bool isSupportLeg);
   unsigned int getNumberOfSupportLegs() const;
@@ -91,6 +94,7 @@ class State : public quadruped_model::QuadrupedState
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
   std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
   bool robotExecutionStatus_;
+  std::string stepId_; // empty if undefined.
 };
 
 } /* namespace */

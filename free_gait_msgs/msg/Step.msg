@@ -1,3 +1,6 @@
+# Unique step ID (optional).
+string id
+
 ###################
 # Define leg swing motions. Each leg can be defined by one
 # of the following swing types:

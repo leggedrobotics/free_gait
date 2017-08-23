@@ -110,6 +110,7 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
   if (!writeSurfaceNormals()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
+  if (!writeStepId()) return false;
   if (!adapter_.updateExtrasAfter(queue_, state_)) return false;
 //  std::cout << state_ << std::endl;
 
@@ -432,6 +433,13 @@ bool Executor::writeTorsoMotion()
     state_.setAngularVelocityBaseInBaseFrame(angularVelocityInBaseFrame);
   }
   // TODO Set more states.
+  return true;
+}
+
+bool Executor::writeStepId()
+{
+  if (!queue_.active()) return true;
+  state_.setStepId(queue_.getCurrentStep().getId());
   return true;
 }
 

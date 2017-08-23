@@ -38,6 +38,9 @@ bool StepRosConverter::fromMessage(const std::vector<free_gait_msgs::Step>& mess
 
 bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& step)
 {
+  // ID.
+  step.setId(message.id);
+
   // Leg motion.
   for (const auto& footstepMessage : message.footstep) {
     const auto limb = adapter_.getLimbEnumFromLimbString(footstepMessage.name);
@@ -443,6 +446,10 @@ bool StepRosConverter::toMessage(const StepQueue& stepQueue, free_gait_msgs::Exe
 bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message)
 {
   free_gait_msgs::Step& stepMessage = message;
+
+  // ID.
+  message.id = step.getId();
+
   // Leg motions.
   for (const auto& legMotion : step.getLegMotions()) {
 
