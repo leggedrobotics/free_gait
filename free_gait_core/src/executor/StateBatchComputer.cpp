@@ -86,4 +86,21 @@ void StateBatchComputer::computeStances(StateBatch& stateBatch)
   }
 }
 
+void StateBatchComputer::computeStepIds(StateBatch& stateBatch)
+{
+  stateBatch.stepIds_.clear();
+  for (const auto& state : stateBatch.getStates()) {
+    const std::string& stepId(state.second.getStepId());
+    if (stepId.empty()) continue;
+    if (stateBatch.stepIds_.size() == 0) {
+      stateBatch.stepIds_[state.first] = stepId;
+      continue;
+    }
+    if (std::prev(stateBatch.stepIds_.end())->second != stepId) {
+      stateBatch.stepIds_[state.first] = stepId;
+      continue;
+    }
+  }
+}
+
 } /* namespace free_gait */

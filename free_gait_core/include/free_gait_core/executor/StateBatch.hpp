@@ -39,7 +39,8 @@ class StateBatch
   std::vector<std::map<double, Position>> endEffectorPositions_;
   std::vector<std::map<double, Position>> endEffectorTargets_;
   std::map<double, Stance> stances_;
-  std::map<double, Pose> basePoses;
+  std::map<double, Pose> basePoses_;
+  std::map<double, std::string> stepIds_;
 };
 
 } /* namespace free_gait */

@@ -23,6 +23,7 @@ class StateBatchComputer
   void computeEndEffectorTrajectories(StateBatch& stateBatch);
   void computeStances(StateBatch& stateBatch);
   void computeBaseTrajectories(StateBatch& stateBatch);
+  void computeStepIds(StateBatch& stateBatch);
 
  private:
   AdapterBase& adapter_;

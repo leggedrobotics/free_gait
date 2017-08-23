@@ -17,8 +17,7 @@ namespace free_gait {
 
 State::State()
     : QuadrupedState(),
-      robotExecutionStatus_(false),
-      stepId_(0)
+      robotExecutionStatus_(false)
 {
 }
 
