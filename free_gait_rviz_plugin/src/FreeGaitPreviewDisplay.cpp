@@ -57,6 +57,20 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   robotStateTopicProperty_->setMessageType(robotStateMessageType);
   robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
 
+  startStateMethodProperty_ = new rviz::EnumProperty(
+      "Start State", "Reset to Real Robot State", "Determine the robot start state for motion execution.",
+      settingsTree_, SLOT(changeStartStateMethod()), this);
+  startStateMethodProperty_->addOption("Reset to Real State", 0);
+  startStateMethodProperty_->addOption("Continue Previewed State", 1);
+
+  feedbackTopicProperty_ = new rviz::RosTopicProperty("Feedback Topic", "", "", "", settingsTree_,
+                                                    SLOT(updateTopic()), this);
+  QString feedbackMessageType = QString::fromStdString(
+      ros::message_traits::datatype<free_gait_msgs::ExecuteStepsActionFeedback>());
+  feedbackTopicProperty_->setMessageType(feedbackMessageType);
+  feedbackTopicProperty_->setDescription(feedbackMessageType + " topic to subscribe to.");
+  feedbackTopicProperty_->hide();
+
   tfPrefixProperty_ = new rviz::StringProperty(
       "TF Prefix", "",
       "TF prefix used for the preview. Set the same value in the robot model plugin.",
@@ -230,6 +244,21 @@ void FreeGaitPreviewDisplay::changeRobotModel()
   findAssociatedRobotModelPlugin();
 }
 
+void FreeGaitPreviewDisplay::changeStartStateMethod()
+{
+  ROS_DEBUG_STREAM("Changed start state method to " << startStateMethodProperty_->getStdString() << ".");
+  switch (startStateMethodProperty_->getOptionInt()) {
+    case StartStateMethod::ResetToRealState:
+      feedbackTopicProperty_->hide();
+      break;
+    case StartStateMethod::ContinuePreviewedState:
+      feedbackTopicProperty_->show();
+      break;
+    default:
+      break;
+  }
+}
+
 void FreeGaitPreviewDisplay::changeAutoHideVisuals()
 {
   ROS_DEBUG_STREAM("Changed auto-hide visuals event to " << autoHideVisualsProperty_->getStdString() << ".");
@@ -358,6 +387,16 @@ void FreeGaitPreviewDisplay::subscribe()
     }
   }
 
+  if (startStateMethodProperty_->getOptionInt() == StartStateMethod::ContinuePreviewedState &&
+      !feedbackTopicProperty_->getTopicStd().empty()) {
+    try {
+      feedbackSubscriber_ = update_nh_.subscribe(feedbackTopicProperty_->getTopicStd(), 1, &FreeGaitPreviewDisplay::feedbackCallback, this);
+      setStatus(rviz::StatusProperty::Ok, "Feedback Topic", "OK");
+    } catch (ros::Exception& e) {
+      setStatus(rviz::StatusProperty::Error, "Feedback Topic", QString("Error subscribing: ") + e.what());
+    }
+  }
+
   if (autoHideVisualsProperty_->getOptionInt() == AutoHideMode::ReceivedResult &&
       !resultTopicProperty_->getTopicStd().empty()) {
     try {
@@ -379,6 +418,7 @@ void FreeGaitPreviewDisplay::subscribe()
 void FreeGaitPreviewDisplay::unsubscribe()
 {
   goalSubscriber_.shutdown();
+  feedbackSubscriber_.shutdown();
   resultSubscriber_.shutdown();
   adapterRos_.unsubscribeFromRobotState();
 }
@@ -388,8 +428,27 @@ void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsAc
   ROS_DEBUG("FreeGaitPreviewDisplay::processMessage: Starting to process new goal.");
   std::vector<free_gait::Step> steps;
   stepRosConverter_.fromMessage(message->goal.steps, steps);
-  adapterRos_.updateAdapterWithState();
+
+  if (startStateMethodProperty_->getOptionInt() == StartStateMethod::ResetToRealState) {
+    adapterRos_.updateAdapterWithState();
+  } else if (startStateMethodProperty_->getOptionInt() == StartStateMethod::ContinuePreviewedState) {
+      double time;
+      bool success = playback_.getStateBatch().getEndTimeOfStep(feedbackMessage_.feedback.step_id, time);
+      if (success) {
+        adapterRos_.getAdapter().setInternalDataFromState(playback_.getStateBatch().getState(time));
+      } else {
+        ROS_DEBUG("FreeGaitPreviewDisplay::processMessage: No corresponding step found, resetting real state.");
+        adapterRos_.updateAdapterWithState();
+      }
+  }
+
   playback_.process(steps);
+}
+
+void FreeGaitPreviewDisplay::feedbackCallback(const free_gait_msgs::ExecuteStepsActionFeedback::ConstPtr& message)
+{
+  ROS_DEBUG("FreeGaitPreviewDisplay::feedbackCallback: Received feedback callback.");
+  feedbackMessage_ = *message;
 }
 
 void FreeGaitPreviewDisplay::resultCallback(const free_gait_msgs::ExecuteStepsActionResult::ConstPtr& message)

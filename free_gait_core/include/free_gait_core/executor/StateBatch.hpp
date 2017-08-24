@@ -10,8 +10,8 @@
 
 #include <free_gait_core/executor/State.hpp>
 
-// STD
 #include <map>
+#include <string>
 
 namespace free_gait {
 
@@ -25,6 +25,7 @@ class StateBatch
   std::vector<std::map<double, Position>> getEndEffectorPositions() const;
   std::vector<std::map<double, Position>> getEndEffectorTargets() const;
   std::map<double, Stance> getStances() const;
+  bool getEndTimeOfStep(std::string& stepId, double& endTime) const;
   void addState(const double time, const State& state);
   bool isValidTime(const double time) const;
   double getStartTime() const;
