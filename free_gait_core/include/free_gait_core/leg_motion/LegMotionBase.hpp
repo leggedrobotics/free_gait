@@ -92,6 +92,7 @@ class LegMotionBase
 
   bool hasSurfaceNormal() const;
   const Vector& getSurfaceNormal() const;
+  void setSurfaceNormal(const Vector& surfaceNormal);
 
   virtual bool isIgnoreContact() const;
 

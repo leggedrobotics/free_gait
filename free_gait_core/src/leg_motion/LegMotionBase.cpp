@@ -108,6 +108,11 @@ const Vector& LegMotionBase::getSurfaceNormal() const
   else return (*surfaceNormal_);
 }
 
+void LegMotionBase::setSurfaceNormal(const Vector& surfaceNormal)
+{
+  surfaceNormal_.reset(new Vector(surfaceNormal));
+}
+
 bool LegMotionBase::isIgnoreContact() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreContact() not implemented.");
