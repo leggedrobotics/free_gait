@@ -141,6 +141,11 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
       "Color", true, "Set the color of the end effector targets.",
       showEndEffectorTargetsProperty_, SLOT(changeShowAllVisuals()), this);
 
+  showSurfaceNormalsProperty_ = new rviz::BoolProperty(
+      "Surface Normals", true, "Show surface normals for end effector motions.",
+      visualsTree_, SLOT(changeShowSurfaceNormal()), this);
+  showSurfaceNormalsProperty_->setDisableChildrenIfFalse(true);
+
   showEndEffectorTrajectoriesProperty_ = new rviz::BoolProperty(
       "End Effector Trajectories", true, "Draw a trace for the end effector trajectory.",
       visualsTree_, SLOT(changeShowEndEffectorTrajectories()), this);
@@ -358,6 +363,12 @@ void FreeGaitPreviewDisplay::changeShowEndEffectorTargets()
 {
   ROS_DEBUG_STREAM("Setting show end effector targets to " << (showEndEffectorTargetsProperty_->getBool() ? "True" : "False") << ".");
   visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::EndEffectorTargets, showEndEffectorTargetsProperty_->getBool());
+}
+
+void FreeGaitPreviewDisplay::changeShowSurfaceNormal()
+{
+  ROS_DEBUG_STREAM("Setting surface normal to " << (showSurfaceNormalsProperty_->getBool() ? "True" : "False") << ".");
+  visual_->setEnabledModul(FreeGaitPreviewVisual::Modul::SurfaceNormals, showSurfaceNormalsProperty_->getBool());
 }
 
 void FreeGaitPreviewDisplay::changeShowEndEffectorTrajectories()

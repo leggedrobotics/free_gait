@@ -89,7 +89,7 @@ void State::setIgnoreContact(const LimbEnum& limb, bool ignoreContact)
 
 bool State::hasSurfaceNormal(const LimbEnum& limb) const
 {
-  return (surfaceNormals_.count(limb) > 0);
+  return (surfaceNormals_.count(limb) > 0u);
 }
 
 const Vector& State::getSurfaceNormal(const LimbEnum& limb) const

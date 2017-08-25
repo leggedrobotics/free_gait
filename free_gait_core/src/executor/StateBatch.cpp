@@ -35,6 +35,11 @@ std::vector<std::map<double, Position>> StateBatch::getEndEffectorTargets() cons
   return endEffectorTargets_;
 }
 
+std::vector<std::map<double, std::tuple<Position, Vector>>>StateBatch::getSurfaceNormals() const
+{
+  return surfaceNormals_;
+}
+
 std::map<double, Stance> StateBatch::getStances() const
 {
   return stances_;

@@ -74,6 +74,7 @@ Q_OBJECT
   void previewReachedEnd();
   void changeShowAllVisuals();
   void changeShowEndEffectorTargets();
+  void changeShowSurfaceNormal();
   void changeShowEndEffectorTrajectories();
   void changeShowStances();
 
@@ -126,6 +127,7 @@ Q_OBJECT
   rviz::BoolProperty* visualsTree_;
   rviz::BoolProperty* showEndEffectorTargetsProperty_;
   rviz::ColorProperty* endEffectorTargetsColorProperty_;
+  rviz::BoolProperty* showSurfaceNormalsProperty_;
   rviz::BoolProperty* showEndEffectorTrajectoriesProperty_;
   rviz::BoolProperty* showStancesProperty_;
 

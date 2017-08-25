@@ -19,7 +19,8 @@ class StateBatchComputer
   StateBatchComputer(AdapterBase& adapter);
   virtual ~StateBatchComputer();
 
-  void computeEndEffectorTargets(StateBatch& stateBatch);
+  void computeEndEffectorTargetsAndSurfaceNormals(StateBatch& stateBatch);
+  void computeSurfaceNormals(StateBatch& stateBatch);
   void computeEndEffectorTrajectories(StateBatch& stateBatch);
   void computeStances(StateBatch& stateBatch);
   void computeBaseTrajectories(StateBatch& stateBatch);
