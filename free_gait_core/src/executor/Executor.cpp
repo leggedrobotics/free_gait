@@ -375,6 +375,17 @@ bool Executor::writeLegMotion()
           const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
           state_.setJointVelocitiesForLimb(limb, jointVelocities);
         }
+        if (controlSetup[ControlLevel::Acceleration]) {
+          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Acceleration);
+          if (!adapter_.frameIdExists(frameId)) {
+            std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+            return false;
+          }
+          LinearAcceleration accelerationInWorldFrame = adapter_.transformLinearAcceleration(
+              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateAcceleration(time));
+          const JointAccelerationsLeg jointAccelerations = adapter_.getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(limb, accelerationInWorldFrame);
+          state_.setJointAccelerationsForLimb(limb, jointAccelerations);
+        }
         break;
       }
 
@@ -383,7 +394,7 @@ bool Executor::writeLegMotion()
         const auto& jointMotion = dynamic_cast<const JointMotionBase&>(legMotion);
         if (controlSetup[ControlLevel::Position]) state_.setJointPositionsForLimb(limb, jointMotion.evaluatePosition(time));
         if (controlSetup[ControlLevel::Velocity]) state_.setJointVelocitiesForLimb(limb, jointMotion.evaluateVelocity(time));
-//        if (controlSetup[ControlLevel::Acceleration]) state_.setJointAcceleration(limb, jointMotion.evaluateAcceleration(time));
+        if (controlSetup[ControlLevel::Acceleration]) state_.setJointAccelerationsForLimb(limb, jointMotion.evaluateAcceleration(time));
         if (controlSetup[ControlLevel::Effort]) state_.setJointEffortsForLimb(limb, jointMotion.evaluateEffort(time));
         break;
       }
