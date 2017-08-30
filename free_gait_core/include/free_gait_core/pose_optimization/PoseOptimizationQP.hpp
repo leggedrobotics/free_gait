@@ -1,5 +1,5 @@
 /*
- * PoseOptimizationBasicAlignment.hpp
+ * PoseOptimizationQP.hpp
  *
  *  Created on: Jun 10, 2015
  *      Author: Péter Fankhauser
@@ -22,12 +22,12 @@
 
 namespace free_gait {
 
-class PoseOptimizationBasicAlignment
+class PoseOptimizationQP
 {
  public:
-  PoseOptimizationBasicAlignment();
-  virtual ~PoseOptimizationBasicAlignment();
-  PoseOptimizationBasicAlignment(const PoseOptimizationBasicAlignment& other);
+  PoseOptimizationQP();
+  virtual ~PoseOptimizationQP();
+  PoseOptimizationQP(const PoseOptimizationQP& other);
 
   /*!
    * Set the positions of the feet (stance) of the robot in world coordinate system.

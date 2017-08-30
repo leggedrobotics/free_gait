@@ -103,7 +103,6 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
 {
   values.resize(getNumberOfInequalityConstraints());
 
-  // Update adapter.
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(p);
   const Pose basePose = poseParameterization.getPose();
 

@@ -11,6 +11,7 @@
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/executor/State.hpp"
 
+#include <grid_map_core/Polygon.hpp>
 #include <numopt_common/NonlinearObjectiveFunction.hpp>
 
 #include <memory>
@@ -45,6 +46,8 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   const Stance& getNominalStance() const;
 
   void setInitialPose(const Pose& pose);
+  void setSupportRegion(const grid_map::Polygon& supportRegion);
+  void setCenterOfMass(const Position& centerOfMassInBaseFrame);
 
   /*! This method computes the objective value
    * @param value       function value
@@ -69,6 +72,8 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   Stance stance_;
   Stance nominalStanceInBaseFrame_;
   Pose initialPose_;
+  grid_map::Polygon supportRegion_;
+  Position centerOfMassInBaseFrame_;
 };
 
 } /* namespace free_gait */

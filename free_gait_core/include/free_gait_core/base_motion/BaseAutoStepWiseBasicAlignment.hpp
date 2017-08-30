@@ -13,12 +13,11 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
-
 #include <curves/CubicHermiteSE3Curve.hpp>
 
 #include <string>
 #include <memory>
+#include "../pose_optimization/PoseOptimizationQP.hpp"
 
 namespace free_gait {
 
@@ -127,7 +126,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
   Stance nominalStanceInBaseFrame_;
   Stance footholdsForOrientation_; // TODO Replace with full optimization.
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
-  PoseOptimizationBasicAlignment poseOptimization_;
+  PoseOptimizationQP poseOptimization_;
 
   //! If trajectory is updated.
   bool isComputed_;

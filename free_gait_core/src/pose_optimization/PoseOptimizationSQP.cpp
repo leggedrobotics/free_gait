@@ -64,6 +64,7 @@ void PoseOptimizationSQP::setNominalStance(
 void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegion)
 {
   constraints_->setSupportRegion(supportRegion);
+  objective_->setSupportRegion(supportRegion);
 }
 
 void PoseOptimizationSQP::setLimbLengthConstraints(const LegLengths& minLimbLenghts, const LegLengths& maxLimbLenghts)
@@ -90,9 +91,10 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   adapter_.setInternalDataFromState(state_); // To guide IK.
   updateJointPositionsInState(state_); // For CoM calculation.
   adapter_.setInternalDataFromState(state_);
-  constraints_->setCenterOfMass(
-      adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+  const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
                                  adapter_.getCenterOfMassInWorldFrame()));
+  objective_->setCenterOfMass(centerOfMassInBaseFrame);
+  constraints_->setCenterOfMass(centerOfMassInBaseFrame);
   callExternalOptimizationStepCallback(0);
 
   // Optimize.
@@ -133,9 +135,10 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
   adapter_.setInternalDataFromState(state_);
   updateJointPositionsInState(state_);
   adapter_.setInternalDataFromState(state_); // TODO Improve efficiency.
-  constraints_->setCenterOfMass(
-      adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+  const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
                                  adapter_.getCenterOfMassInWorldFrame()));
+  objective_->setCenterOfMass(centerOfMassInBaseFrame);
+  constraints_->setCenterOfMass(centerOfMassInBaseFrame);
 
   callExternalOptimizationStepCallback(iterationStep + 1, functionValue, finalIteration);
 }

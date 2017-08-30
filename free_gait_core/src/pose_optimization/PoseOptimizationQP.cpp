@@ -1,12 +1,12 @@
 /*
- * PoseOptimizationBasicAlignment.cpp
+ * PoseOptimizationQP.cpp
  *
  *  Created on: Jun 10, 2015
  *      Author: Péter Fankhauser
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp>
+#include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -18,18 +18,18 @@ using namespace Eigen;
 
 namespace free_gait {
 
-PoseOptimizationBasicAlignment::PoseOptimizationBasicAlignment()
+PoseOptimizationQP::PoseOptimizationQP()
     : nStates_(4),
       nDimensions_(3)
 {
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
-PoseOptimizationBasicAlignment::~PoseOptimizationBasicAlignment()
+PoseOptimizationQP::~PoseOptimizationQP()
 {
 }
 
-PoseOptimizationBasicAlignment::PoseOptimizationBasicAlignment(const PoseOptimizationBasicAlignment& other)
+PoseOptimizationQP::PoseOptimizationQP(const PoseOptimizationQP& other)
     : nStates_(other.nStates_),
       nDimensions_(other.nDimensions_),
       stance_(other.stance_),
@@ -39,23 +39,23 @@ PoseOptimizationBasicAlignment::PoseOptimizationBasicAlignment(const PoseOptimiz
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
-void PoseOptimizationBasicAlignment::setStance(const Stance& stance)
+void PoseOptimizationQP::setStance(const Stance& stance)
 {
   stance_ = stance;
 }
 
-void PoseOptimizationBasicAlignment::setNominalStance(
+void PoseOptimizationQP::setNominalStance(
     const Stance& nominalStanceInBaseFrame)
 {
   nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
 }
 
-void PoseOptimizationBasicAlignment::setSupportRegion(const grid_map::Polygon& supportRegion)
+void PoseOptimizationQP::setSupportRegion(const grid_map::Polygon& supportRegion)
 {
   supportRegion_ = supportRegion;
 }
 
-bool PoseOptimizationBasicAlignment::optimize(Pose& pose)
+bool PoseOptimizationQP::optimize(Pose& pose)
 {
   // If no support polygon provided, use positions.
   if (supportRegion_.nVertices() == 0) {

@@ -47,6 +47,17 @@ void PoseOptimizationObjectiveFunction::setInitialPose(const Pose& pose)
   initialPose_ = pose;
 }
 
+void PoseOptimizationObjectiveFunction::setSupportRegion(const grid_map::Polygon& supportRegion)
+{
+  supportRegion_ = supportRegion;
+}
+
+
+void PoseOptimizationObjectiveFunction::setCenterOfMass(const Position& centerOfMassInBaseFrame)
+{
+  centerOfMassInBaseFrame_ = centerOfMassInBaseFrame;
+}
+
 bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& value,
                                                      const numopt_common::Parameterization& params,
                                                      bool newParams)
@@ -67,14 +78,19 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 //  value += 0.1 * positionDifference.vector().squaredNorm();
 
   // Cost for deviation from initial orientation.
-  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
-  const double rotationDifferenceNorm = rotationDifference.norm();
-  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
+//  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
+//  const double rotationDifferenceNorm = rotationDifference.norm();
+//  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
 
+  // Cost for deviation from horizontal pose.
 //  RotationVector rotationDifference(pose.getRotation());
 //  rotationDifference.toImplementation().z() = 0.0;
 //  const double rotationDifferenceNorm = rotationDifference.vector().norm();
-//  value += 0.5 * rotationDifferenceNorm * rotationDifferenceNorm;
+//  value += 1.0 * rotationDifferenceNorm;
+
+  // Cost for CoM.
+  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
+  value += 4.0 * (supportRegion_.getCentroid().head(2) - centerOfMassInWorldFrame.vector().head(2)).squaredNorm();
 
   return true;
 }
