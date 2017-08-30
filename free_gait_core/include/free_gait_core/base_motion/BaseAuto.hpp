@@ -1,5 +1,5 @@
 /*
- * BaseAutoStepWiseBasicAlignmentStepWiseBasicAlignment.hpp
+ * BaseAuto.hpp
  *
  *  Created on: Mar 7, 2015
  *      Author: Péter Fankhauser
@@ -13,28 +13,27 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
-
 #include <curves/CubicHermiteSE3Curve.hpp>
 
 #include <string>
 #include <memory>
+#include "../pose_optimization/PoseOptimizationQP.hpp"
 
 namespace free_gait {
 
 class StepRosConverter;
 class StepCompleter;
 
-class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
+class BaseAuto : public BaseMotionBase
 {
  public:
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseAutoStepWiseBasicAlignment();
-  virtual ~BaseAutoStepWiseBasicAlignment();
+  BaseAuto();
+  virtual ~BaseAuto();
 
-  BaseAutoStepWiseBasicAlignment(const BaseAutoStepWiseBasicAlignment& other);
+  BaseAuto(const BaseAuto& other);
 
   std::unique_ptr<BaseMotionBase> clone() const;
 
@@ -83,7 +82,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
    */
   Twist evaluateTwist(const double time) const;
 
-  friend std::ostream& operator << (std::ostream& out, const BaseAutoStepWiseBasicAlignment& baseAuto);
+  friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
   friend class StepCompleter;
   friend class StepRosConverter;
@@ -127,7 +126,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
   Stance nominalStanceInBaseFrame_;
   Stance footholdsForOrientation_; // TODO Replace with full optimization.
   Stance footholdsForTerrain_; // TODO Replace with full optimization.
-  PoseOptimizationBasicAlignment poseOptimization_;
+  PoseOptimizationQP poseOptimization_;
 
   //! If trajectory is updated.
   bool isComputed_;

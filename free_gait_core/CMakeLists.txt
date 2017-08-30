@@ -66,7 +66,7 @@ add_library(${PROJECT_NAME}
    src/TypeDefs.cpp
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
-   src/base_motion/BaseAutoStepWiseBasicAlignment.cpp
+   src/base_motion/BaseAuto.cpp
    src/base_motion/BaseTarget.cpp
    src/base_motion/BaseTrajectory.cpp
    src/leg_motion/LegMotionBase.cpp
@@ -89,7 +89,7 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
-   src/pose_optimization/PoseOptimizationBasicAlignment.cpp
+   src/pose_optimization/PoseOptimizationQP.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
