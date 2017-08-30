@@ -27,12 +27,6 @@ struct EnumClassHash
   }
 };
 
-// Define base auto type.
-//class BaseAutoStepWiseBasicAlignment;
-//using BaseAuto = BaseAutoStepWiseBasicAlignment;
-class BaseAutoSqp;
-using BaseAuto = BaseAutoSqp;
-
 // Import enum aliases.
 using LimbEnum = quadruped_model::LimbEnum;
 using BranchEnum = quadruped_model::BranchEnum;

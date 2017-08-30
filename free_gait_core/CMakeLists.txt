@@ -72,7 +72,7 @@ add_library(${PROJECT_NAME}
    src/TypeDefs.cpp
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
-   src/base_motion/BaseAutoStepWiseBasicAlignment.cpp
+   src/base_motion/BaseAuto.cpp
    src/base_motion/BaseAutoSqp.cpp
    src/base_motion/BaseTarget.cpp
    src/base_motion/BaseTrajectory.cpp
@@ -96,7 +96,7 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
-   src/pose_optimization/PoseOptimizationBasicAlignment.cpp
+   src/pose_optimization/PoseOptimizationQP.cpp
    src/pose_optimization/PoseOptimizationSQP.cpp
    src/pose_optimization/PoseParameterization.cpp
    src/pose_optimization/PoseOptimizationObjectiveFunction.cpp
@@ -119,7 +119,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
   test/AdapterDummy.cpp
   test/StepTest.cpp
   test/FootstepTest.cpp
-  test/PoseOptimizationBasicAlignmentTest.cpp
+  test/PoseOptimizationQpTest.cpp
   test/PoseOptimizationSQPTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)

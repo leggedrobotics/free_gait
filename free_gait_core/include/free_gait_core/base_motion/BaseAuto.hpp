@@ -1,5 +1,5 @@
 /*
- * BaseAutoStepWiseBasicAlignmentStepWiseBasicAlignment.hpp
+ * BaseAuto.hpp
  *
  *  Created on: Mar 7, 2015
  *      Author: Péter Fankhauser
@@ -24,16 +24,16 @@ namespace free_gait {
 class StepRosConverter;
 class StepCompleter;
 
-class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
+class BaseAuto : public BaseMotionBase
 {
  public:
   typedef typename curves::CubicHermiteSE3Curve::ValueType ValueType;
   typedef typename curves::Time Time;
 
-  BaseAutoStepWiseBasicAlignment();
-  virtual ~BaseAutoStepWiseBasicAlignment();
+  BaseAuto();
+  virtual ~BaseAuto();
 
-  BaseAutoStepWiseBasicAlignment(const BaseAutoStepWiseBasicAlignment& other);
+  BaseAuto(const BaseAuto& other);
 
   std::unique_ptr<BaseMotionBase> clone() const;
 
@@ -82,7 +82,7 @@ class BaseAutoStepWiseBasicAlignment : public BaseMotionBase
    */
   Twist evaluateTwist(const double time) const;
 
-  friend std::ostream& operator << (std::ostream& out, const BaseAutoStepWiseBasicAlignment& baseAuto);
+  friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
   friend class StepCompleter;
   friend class StepRosConverter;
