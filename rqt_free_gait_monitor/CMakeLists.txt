@@ -13,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   free_gait_msgs
-  rqt_gui
-  rqt_gui_cpp
 )
 
 find_package(Boost REQUIRED COMPONENTS date_time)
@@ -34,12 +32,14 @@ set(${PROJECT_NAME}_SRCS
   src/rqt_free_gait_monitor/ClickableLabel.cpp
 )
 
-set(${PROJECT_NAME}_HDRS
+set(${PROJECT_NAME}_HDRS_QT
   include/${PROJECT_NAME}/FreeGaitMonitorPlugin.h
-  include/rqt_free_gait_monitor/CircularBuffer.h
   include/rqt_free_gait_monitor/WorkerThreadPausePlay.h
   include/rqt_free_gait_monitor/WorkerThreadStop.h
   include/rqt_free_gait_monitor/ClickableLabel.h
+)
+set(${PROJECT_NAME}_HDRS
+  include/rqt_free_gait_monitor/CircularBuffer.h
 )
 
 set(${PROJECT_NAME}_UIS
@@ -79,17 +79,15 @@ catkin_package(
     std_msgs
     std_srvs
     free_gait_msgs
-    rqt_gui
-    rqt_gui_cpp
   DEPENDS
     Boost
 )
 
 if ("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
+  qt5_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS_QT})
   qt5_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 else()
-  qt4_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
+  qt4_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS_QT})
   qt4_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 endif()
 
@@ -111,6 +109,7 @@ include_directories(${${PROJECT_NAME}_INCLUDE_DIRECTORIES}
 
 add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_SRCS}
+  ${${PROJECT_NAME}_HDRS_QT}
   ${${PROJECT_NAME}_HDRS}
   ${${PROJECT_NAME}_MOCS}
   ${${PROJECT_NAME}_UIS_H}

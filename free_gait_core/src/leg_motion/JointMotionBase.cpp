@@ -29,6 +29,11 @@ LegMotionBase::TrajectoryType JointMotionBase::getTrajectoryType() const
   return LegMotionBase::TrajectoryType::Joints;
 }
 
+const std::vector<JointNodeEnum> JointMotionBase::getJointNodeEnums() const
+{
+  throw std::runtime_error("JointMotionBase::getJointNodeEnums() not implemented.");
+}
+
 void JointMotionBase::updateStartPosition(const JointPositionsLeg& startPosition)
 {
   throw std::runtime_error("JointMotionBase::updateStartPosition() not implemented.");

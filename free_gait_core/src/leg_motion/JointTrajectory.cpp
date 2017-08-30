@@ -29,6 +29,22 @@ std::unique_ptr<LegMotionBase> JointTrajectory::clone() const
   return pointer;
 }
 
+void JointTrajectory::setTrajectory(
+    const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash>& times,
+    const std::unordered_map<ControlLevel, std::vector<std::vector<ValueType>>, EnumClassHash>& values,
+    const std::vector<JointNodeEnum>& jointNodeEnums)
+{
+  times_ = times;
+  values_ = values;
+  jointNodeEnums_ = jointNodeEnums;
+  for (const auto& value : values) controlSetup_[value.first] = true;
+}
+
+const std::vector<JointNodeEnum> JointTrajectory::getJointNodeEnums() const
+{
+  return jointNodeEnums_;
+}
+
 const ControlSetup JointTrajectory::getControlSetup() const
 {
   return controlSetup_;
@@ -117,6 +133,15 @@ bool JointTrajectory::isComputed() const
   return isComputed_;
 }
 
+void JointTrajectory::reset()
+{
+  for (auto& trajectories : trajectories_) {
+    trajectories.second.clear();
+  }
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 double JointTrajectory::getDuration() const
 {
   return duration_;
@@ -177,7 +202,11 @@ bool JointTrajectory::isIgnoreContact() const
 std::ostream& operator<<(std::ostream& out, const JointTrajectory& jointTrajectory)
 {
   if (!jointTrajectory.isComputed()) throw std::runtime_error("JointTrajectory::operator<< cannot be called if trajectory is not computed.");
-  out << "Duration: " << jointTrajectory.duration_ << std::endl;
+  out << "Joint nodes (" << jointTrajectory.jointNodeEnums_.size() << ")";
+//  for (const auto& jointNode : jointTrajectory.jointNodeEnums_) {
+//    out << jointNode << ", ";
+//  }
+  out << std::endl;
   out << "Ignore contact: " << (jointTrajectory.ignoreContact_ ? "True" : "False") << std::endl;
   for (const auto& times : jointTrajectory.times_) {
     out << "Times (" << times.first << "): ";

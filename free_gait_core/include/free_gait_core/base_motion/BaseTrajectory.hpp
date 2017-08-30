@@ -51,9 +51,9 @@ class BaseTrajectory : public BaseMotionBase
   virtual std::unique_ptr<BaseMotionBase> clone() const;
 
   void setTrajectory(
-      const std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds,
-      const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash> times,
-      const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash> values);
+      const std::unordered_map<ControlLevel, std::string, EnumClassHash>& frameIds,
+      const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash>& times,
+      const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash>& values);
 
   const ControlSetup getControlSetup() const;
 
@@ -68,6 +68,7 @@ class BaseTrajectory : public BaseMotionBase
                           const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Returns the total duration of the trajectory.

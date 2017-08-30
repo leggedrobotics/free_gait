@@ -39,6 +39,7 @@ class LegMode : public EndEffectorMotionBase
   bool prepareComputation(const State& state, const Step& step, const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.

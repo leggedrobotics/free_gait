@@ -46,6 +46,7 @@ class BaseTarget : public BaseMotionBase
                           const AdapterBase& adapter);
   bool needsComputation() const;
   bool isComputed() const;
+  void reset();
 
   /*!
    * Returns the total duration of the trajectory.

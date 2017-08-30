@@ -149,6 +149,7 @@ void FreeGaitActionServer::publishFeedback()
   free_gait_msgs::ExecuteStepsFeedback feedback;
   Executor::Lock lock(executor_.getMutex());
   if (executor_.getQueue().empty()) return;
+  feedback.step_id = executor_.getState().getStepId();
   feedback.queue_size = executor_.getQueue().size();
   feedback.number_of_steps_in_goal = nStepsInCurrentGoal_;
   feedback.step_number = feedback.number_of_steps_in_goal - feedback.queue_size + 1;

@@ -63,6 +63,13 @@ bool BaseTarget::isComputed() const
   return isComputed_;
 }
 
+void BaseTarget::reset()
+{
+  start_.setIdentity();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 double BaseTarget::getDuration() const
 {
   return duration_;

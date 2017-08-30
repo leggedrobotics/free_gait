@@ -13,6 +13,7 @@
 #include <rviz/display_context.h>
 #include <rviz/ogre_helpers/shape.h>
 #include <rviz/ogre_helpers/billboard_line.h>
+#include <rviz/ogre_helpers/arrow.h>
 #include <rviz/default_plugin/markers/marker_base.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/ColorRGBA.h>
@@ -28,6 +29,7 @@ class FreeGaitPreviewVisual
  public:
   enum class Modul {
     EndEffectorTargets,
+    SurfaceNormals,
     EndEffectorTrajectories,
     Stances
   };
@@ -47,6 +49,10 @@ class FreeGaitPreviewVisual
                               const Ogre::ColourValue& color = Ogre::ColourValue(1, 0, 0, 1));
   void hideEndEffectorTargets();
 
+  void showSurfaceNormals(const float diameter = 0.003, const float length = 0.07,
+                          const Ogre::ColourValue& color = Ogre::ColourValue(1, 0, 0, 1));
+  void hideSurfaceNormals();
+
   void showEndEffectorTrajectories(const float width = 0.01,
                                    const Ogre::ColourValue& color = Ogre::ColourValue(1, 0, 0, 1));
   void hideEndEffectorTrajectories();
@@ -64,6 +70,7 @@ class FreeGaitPreviewVisual
   std::list<Modul> modulesToDisable_;
   std::list<Modul> enabledModules_;
   std::vector<std::vector<std::unique_ptr<rviz::Shape>>> endEffectorTargets_;
+  std::vector<std::vector<std::unique_ptr<rviz::Arrow>>> surfaceNormals_;
   std::vector<std::unique_ptr<rviz::BillboardLine>> endEffectorTrajectories_;
   std::vector<std::unique_ptr<rviz::MarkerBase>> stancesMarker_;
 };

@@ -44,6 +44,13 @@ class JointMotionBase : public LegMotionBase
   LegMotionBase::TrajectoryType getTrajectoryType() const;
 
   /*!
+   * Returns a vector of joint node enums which correspond to the joint nodes
+   * of the position, velocity etc. vectors.
+   * @return the joint node enum vector.
+   */
+  virtual const std::vector<JointNodeEnum> getJointNodeEnums() const;
+
+  /*!
    * Update the trajectory with the foot start position.
    * Do this to avoid jumps of the swing leg.
    * @param footStartPosition the start position of the foot in the trajectoryFrameId_ frame.

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2017 Samuel Bachmann                                             *
+ * Copyright 2017 Samuel Bachmann, Peter Fankhauser                           *
  *                                                                            *
  * Redistribution and use in source and binary forms, with or without         *
  * modification, are permitted provided that the following conditions are met:*
@@ -27,7 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF     *
  * THE POSSIBILITY OF SUCH DAMAGE.                                            *
  *                                                                            *
- * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
+ * Authors: Samuel Bachmann <samuel.bachmann@gmail.com>,                      *
+ *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
  ******************************************************************************/
 
 #pragma once
@@ -36,11 +37,11 @@
 
 #include <ros/ros.h>
 
-#include <free_gait_msgs/SendAction.h>
+#include <free_gait_msgs/SendActionSequence.h>
 
 namespace rqt_free_gait {
 
-class WorkerThreadSendAction : public QThread {
+class WorkerThreadSendActionSequence : public QThread {
 Q_OBJECT
 
   /***************************************************************************/
@@ -57,7 +58,7 @@ public:
 
   void setClient(ros::ServiceClient &client);
 
-  void setRequest(free_gait_msgs::SendActionRequest request);
+  void setRequest(free_gait_msgs::SendActionSequenceRequest request);
 
 private:
 
@@ -65,8 +66,8 @@ private:
   /** Variables                                                             **/
   /***************************************************************************/
 
-  free_gait_msgs::SendActionRequest request_;
-  free_gait_msgs::SendActionResponse response_;
+  free_gait_msgs::SendActionSequenceRequest request_;
+  free_gait_msgs::SendActionSequenceResponse response_;
   ros::ServiceClient client_;
 
 signals:

@@ -17,6 +17,10 @@ int8 preempt
 
 ## Feedback
 
+# Unique ID of the currently active step.
+# If empty, step has no ID.
+string step_id
+
 # Step number starting from 1, monotonically increasing during
 # action, resets to 1 for new goal definition. Below 1 if new
 # goal has not started yet.

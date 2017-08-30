@@ -58,6 +58,7 @@ class StepRosConverter
   bool toMessage(const Step& step, free_gait_msgs::Step& message);
   bool toMessage(const Footstep& footstep, free_gait_msgs::Footstep& message);
   bool toMessage(const EndEffectorTrajectory& endEffectorTrajectory, free_gait_msgs::EndEffectorTrajectory& message);
+  bool toMessage(const JointTrajectory& jointTrajectory, free_gait_msgs::JointTrajectory& message);
   bool toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message);
   bool toMessage(const BaseTrajectory& baseTrajectory, free_gait_msgs::BaseTrajectory& message);
 

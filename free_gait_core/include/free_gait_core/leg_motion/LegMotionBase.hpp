@@ -92,10 +92,13 @@ class LegMotionBase
 
   bool hasSurfaceNormal() const;
   const Vector& getSurfaceNormal() const;
+  void setSurfaceNormal(const Vector& surfaceNormal);
 
   virtual bool isIgnoreContact() const;
 
   virtual bool isIgnoreForPoseAdaptation() const;
+
+  virtual bool hasContactAtStart() const;
 
   /*!
    * Print the contents to console for debugging.
@@ -116,6 +119,7 @@ class LegMotionBase
 
   LimbEnum limb_;
   std::unique_ptr<Vector> surfaceNormal_;
+  bool hasContactAtStart_;
 
  private:
   //! Type of the leg motion.

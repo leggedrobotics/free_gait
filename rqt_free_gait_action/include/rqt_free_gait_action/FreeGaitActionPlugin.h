@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2017 Samuel Bachmann                                             *
+ * Copyright 2017 Samuel Bachmann, Peter Fankhauser                           *
  *                                                                            *
  * Redistribution and use in source and binary forms, with or without         *
  * modification, are permitted provided that the following conditions are met:*
@@ -27,7 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF     *
  * THE POSSIBILITY OF SUCH DAMAGE.                                            *
  *                                                                            *
- * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
+ * Authors: Samuel Bachmann <samuel.bachmann@gmail.com>,                      *
+ *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
  ******************************************************************************/
 
 #pragma once
@@ -53,6 +54,7 @@
 #include "rqt_free_gait_action/FavoritePushButton.h"
 #include "rqt_free_gait_action/WorkerThreadGetCollections.h"
 #include "rqt_free_gait_action/WorkerThreadSendAction.h"
+#include "rqt_free_gait_action/WorkerThreadSendActionSequence.h"
 #include "rqt_free_gait_action/WorkerThreadUpdateTrigger.h"
 
 namespace rqt_free_gait {
@@ -119,9 +121,11 @@ protected:
   ros::ServiceClient collectionsClient_;
   ros::ServiceClient sendActionClient_;
   ros::ServiceClient sendPreviewClient_;
+  ros::ServiceClient sendActionSequenceClient_;
   ros::ServiceClient refreshCollectionsClient_;
 
   QString selectedAction_ = "";
+  QString selectedCollection_ = "";
   QString favoriteCollectionId_ = "";
 
   ActionModel *currentActionModel_ = nullptr;
@@ -147,7 +151,7 @@ protected:
   void clearCollectionListView();
 
   void evaluateFreeGaitActionResponse(
-      free_gait_msgs::SendActionResponse response);
+      free_gait_msgs::ExecuteActionResult result);
 
   void updateFavoritesInfo(QString info = "");
 
@@ -225,7 +229,7 @@ protected slots:
   void onFavoriteButtonClicked(Action action);
 
   void onFavoriteButtonResult(bool isOk,
-                              free_gait_msgs::SendActionResponse response);
+                              free_gait_msgs::ExecuteActionResult response);
 
   void onCollectionSelectionChanged(const QItemSelection &selection);
 
@@ -234,10 +238,10 @@ protected slots:
   void onGetCollectionsResult(bool isOk, CollectionModel *collectionModel);
 
   void onSendActionResult(bool isOk,
-                          free_gait_msgs::SendActionResponse response);
+                          free_gait_msgs::ExecuteActionResult response);
 
   void onSendPreviewResult(bool isOk,
-                           free_gait_msgs::SendActionResponse response);
+                           free_gait_msgs::ExecuteActionResult response);
 
   void onRefreshCollectionsResult(bool isOk,
                                   std_srvs::TriggerResponse response);

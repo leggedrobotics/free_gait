@@ -29,19 +29,23 @@ set(${PROJECT_NAME}_SRCS
   src/rqt_free_gait_action/FreeGaitActionPlugin.cpp
   src/rqt_free_gait_action/WorkerThreadGetCollections.cpp
   src/rqt_free_gait_action/WorkerThreadSendAction.cpp
+  src/rqt_free_gait_action/WorkerThreadSendActionSequence.cpp
   src/rqt_free_gait_action/WorkerThreadUpdateTrigger.cpp
 )
 
+set(${PROJECT_NAME}_HDRS_QT
+  include/rqt_free_gait_action/FavoritePushButton.h
+  include/rqt_free_gait_action/FreeGaitActionPlugin.h
+  include/rqt_free_gait_action/WorkerThreadGetCollections.h
+  include/rqt_free_gait_action/WorkerThreadSendAction.h
+  include/rqt_free_gait_action/WorkerThreadSendActionSequence.h
+  include/rqt_free_gait_action/WorkerThreadUpdateTrigger.h
+)
 set(${PROJECT_NAME}_HDRS
   include/rqt_free_gait_action/Action.h
   include/rqt_free_gait_action/ActionModel.h
   include/rqt_free_gait_action/Collection.h
   include/rqt_free_gait_action/CollectionModel.h
-  include/rqt_free_gait_action/FavoritePushButton.h
-  include/rqt_free_gait_action/FreeGaitActionPlugin.h
-  include/rqt_free_gait_action/WorkerThreadGetCollections.h
-  include/rqt_free_gait_action/WorkerThreadSendAction.h
-  include/rqt_free_gait_action/WorkerThreadUpdateTrigger.h
 )
 
 set(${PROJECT_NAME}_UIS
@@ -76,10 +80,10 @@ catkin_package(
 )
 
 if ("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
+  qt5_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS_QT})
   qt5_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 else()
-  qt4_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS})
+  qt4_wrap_cpp(${PROJECT_NAME}_MOCS ${${PROJECT_NAME}_HDRS_QT})
   qt4_add_resources(${PROJECT_NAME}_RCC ${${PROJECT_NAME}_QRC})
 endif()
 
@@ -100,6 +104,7 @@ include_directories(${${PROJECT_NAME}_INCLUDE_DIRECTORIES}
 
 add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_SRCS}
+  ${${PROJECT_NAME}_HDRS_QT}
   ${${PROJECT_NAME}_HDRS}
   ${${PROJECT_NAME}_MOCS}
   ${${PROJECT_NAME}_UIS_H}

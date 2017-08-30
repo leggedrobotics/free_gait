@@ -94,6 +94,7 @@ class Executor
   bool writeSurfaceNormals();
   bool writeLegMotion();
   bool writeTorsoMotion();
+  bool writeStepId();
 
   Mutex mutex_;
   bool isInitialized_;

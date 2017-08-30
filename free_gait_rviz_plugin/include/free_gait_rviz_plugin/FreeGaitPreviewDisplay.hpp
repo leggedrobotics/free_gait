@@ -64,6 +64,7 @@ Q_OBJECT
   void changeAutoPlay();
   void changeAutoEnableVisuals();
   void changeRobotModel();
+  void changeStartStateMethod();
   void changeAutoHideVisuals();
   void changePlaybackSpeed();
   void startAndStopPlayback();
@@ -73,6 +74,7 @@ Q_OBJECT
   void previewReachedEnd();
   void changeShowAllVisuals();
   void changeShowEndEffectorTargets();
+  void changeShowSurfaceNormal();
   void changeShowEndEffectorTrajectories();
   void changeShowStances();
 
@@ -80,9 +82,15 @@ Q_OBJECT
   void subscribe();
   void unsubscribe();
   void processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message);
+  void feedbackCallback(const free_gait_msgs::ExecuteStepsActionFeedback::ConstPtr& message);
   void resultCallback(const free_gait_msgs::ExecuteStepsActionResult::ConstPtr& message);
   void setEnabledRobotModel(bool enable);
   bool findAssociatedRobotModelPlugin();
+
+  enum StartStateMethod {
+    ResetToRealState = 0,
+    ContinuePreviewedState = 1
+  };
 
   enum AutoHideMode {
     ReachedPreviewEnd = 0,
@@ -94,7 +102,9 @@ Q_OBJECT
   FreeGaitPreviewPlayback playback_;
   FreeGaitPreviewVisual* visual_;
   free_gait::StepRosConverter stepRosConverter_;
+  free_gait_msgs::ExecuteStepsActionFeedback feedbackMessage_;
   ros::Subscriber goalSubscriber_;
+  ros::Subscriber feedbackSubscriber_;
   ros::Subscriber resultSubscriber_;
 
   // Property variables
@@ -106,8 +116,10 @@ Q_OBJECT
   rviz::BoolProperty* autoPlayProperty_;
   rviz::BoolProperty* autoEnableVisualsProperty_;
   rviz::EditableEnumProperty* robotModelProperty_;
+  rviz::EnumProperty* startStateMethodProperty_;
   rviz::EnumProperty* autoHideVisualsProperty_;
   rviz::RosTopicProperty* resultTopicProperty_;
+  rviz::RosTopicProperty* feedbackTopicProperty_;
   rviz::Property* playbackTree_;
   rviz::FloatSliderProperty* playbackSpeedProperty_;
   rviz::ButtonToggleProperty* playButtonProperty_;
@@ -115,6 +127,7 @@ Q_OBJECT
   rviz::BoolProperty* visualsTree_;
   rviz::BoolProperty* showEndEffectorTargetsProperty_;
   rviz::ColorProperty* endEffectorTargetsColorProperty_;
+  rviz::BoolProperty* showSurfaceNormalsProperty_;
   rviz::BoolProperty* showEndEffectorTrajectoriesProperty_;
   rviz::BoolProperty* showStancesProperty_;
 

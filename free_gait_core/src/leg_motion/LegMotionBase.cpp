@@ -16,7 +16,8 @@ namespace free_gait {
 
 LegMotionBase::LegMotionBase(LegMotionBase::Type type, LimbEnum limb)
     : type_(type),
-      limb_(limb)
+      limb_(limb),
+      hasContactAtStart_(false)
 {
 }
 
@@ -26,7 +27,8 @@ LegMotionBase::~LegMotionBase()
 
 LegMotionBase::LegMotionBase(const LegMotionBase& other) :
     type_(other.type_),
-    limb_(other.limb_)
+    limb_(other.limb_),
+    hasContactAtStart_(other.hasContactAtStart_)
 {
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
 }
@@ -35,6 +37,7 @@ LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
 {
   type_ = other.type_;
   limb_ = other.limb_;
+  hasContactAtStart_ = other.hasContactAtStart_;
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
   return *this;
 }
@@ -105,6 +108,11 @@ const Vector& LegMotionBase::getSurfaceNormal() const
   else return (*surfaceNormal_);
 }
 
+void LegMotionBase::setSurfaceNormal(const Vector& surfaceNormal)
+{
+  surfaceNormal_.reset(new Vector(surfaceNormal));
+}
+
 bool LegMotionBase::isIgnoreContact() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreContact() not implemented.");
@@ -113,6 +121,11 @@ bool LegMotionBase::isIgnoreContact() const
 bool LegMotionBase::isIgnoreForPoseAdaptation() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreForPoseAdaptation() not implemented.");
+}
+
+bool LegMotionBase::hasContactAtStart() const
+{
+  return hasContactAtStart_;
 }
 
 std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
@@ -142,6 +155,7 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
       throw std::runtime_error("LegMotionBase::operator<< not implemented for this type.");
       break;
   }
+  out << "Has contact at start: " << (legMotion.hasContactAtStart() ? "True" : "False") << std::endl;
   out << "Ignores contact: " << (legMotion.isIgnoreContact() ? "True" : "False") << std::endl;
   out << "Ignored for pose adaptation: " << (legMotion.isIgnoreForPoseAdaptation() ? "True" : "False") << std::endl;
   out << "Surface normal: ";

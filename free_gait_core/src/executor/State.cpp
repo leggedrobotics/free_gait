@@ -48,6 +48,16 @@ void State::setRobotExecutionStatus(bool robotExecutionStatus)
   robotExecutionStatus_ = robotExecutionStatus;
 }
 
+const std::string& State::getStepId() const
+{
+  return stepId_;
+}
+
+void State::setStepId(const std::string& stepId)
+{
+  stepId_ = stepId;
+}
+
 bool State::isSupportLeg(const LimbEnum& limb) const
 {
   return isSupportLegs_.at(limb);
@@ -79,7 +89,7 @@ void State::setIgnoreContact(const LimbEnum& limb, bool ignoreContact)
 
 bool State::hasSurfaceNormal(const LimbEnum& limb) const
 {
-  return (surfaceNormals_.count(limb) > 0);
+  return (surfaceNormals_.count(limb) > 0u);
 }
 
 const Vector& State::getSurfaceNormal(const LimbEnum& limb) const
@@ -264,6 +274,7 @@ std::ostream& operator<<(std::ostream& out, const State& state)
     out << std::endl;
   }
   out << "Surface normals: " << state.surfaceNormals_ << std::endl;
+  if (!state.stepId_.empty()) out << "Step ID: " << state.stepId_ << std::endl;
   return out;
 }
 

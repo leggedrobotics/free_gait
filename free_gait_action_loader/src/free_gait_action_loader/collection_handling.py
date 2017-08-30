@@ -15,7 +15,8 @@ class Collection:
         self.id = None
         self.name = None
         self.action_ids = []
-        self._initialize(parameters);
+        self.is_sequence = None
+        self._initialize(parameters)
 
     def __str__(self):
         output = 'ID: ' + self.id
@@ -32,13 +33,14 @@ class Collection:
             self.id = parameters['id']
         if 'name' in parameters:
             self.name = parameters['name']
-        for action_id in parameters['actions']:
-            self.action_ids.append(action_id)
-        sort = True
-        if 'sort' in parameters:
-            if parameters['sort']=='none':
-                sort = False
-        if sort:
+        if 'actions' in parameters:
+            for action_id in parameters['actions']:
+                self.action_ids.append(action_id)
+        self.is_sequence = False
+        if 'is_sequence' in parameters:
+            if parameters['is_sequence']:
+                self.is_sequence = True
+        if not self.is_sequence:
             self.action_ids = sorted(self.action_ids)
 
     def to_ros_message(self):
@@ -47,6 +49,7 @@ class Collection:
         message.name = self.name
         for action_id in self.action_ids:
             message.action_ids.append(action_id)
+        message.is_sequence = self.is_sequence
         return message
 
 
@@ -56,10 +59,12 @@ class CollectionList:
         self.name = name
         self.collections = []
         self.collections_to_merge = []
+        self.collections_to_ignore = []
 
     def update(self):
         self.collections = []
         self.collections_to_merge = []
+        self.collections_to_ignore = []
         rospack = rospkg.RosPack()
         packages = rospack.get_depends_on(self.name, implicit=False)
         for package in packages:
@@ -85,11 +90,15 @@ class CollectionList:
                     elif 'add_to_collection' in collections_parameters:
                         collection = Collection(collections_parameters['add_to_collection'])
                         self.collections_to_merge.append(collection)
+                    elif 'ignore_collection' in collections_parameters:
+                        collection = Collection(collections_parameters['ignore_collection'])
+                        self.collections_to_ignore.append(collection)
 
             except Exception:
                 rospy.logwarn("Unable to load collections [%s] from package [%s]."%(file_path, package))
 
         self._merge_collections()
+        self._ignore_collections()
         self.collections = sorted(self.collections, key = lambda x: (x.id))
         return True
 
@@ -98,6 +107,9 @@ class CollectionList:
         if len(collection) == 0:
             return None
         return collection[0]
+
+    def remove(self, id):
+        self.collections[:] = [c for c in self.collections if (c.id != id) ]
 
     def to_ros_message(self):
         message = []
@@ -112,3 +124,7 @@ class CollectionList:
                 rospy.logwarn('Could not find collection with id "%s" to add actions to.'%(collection_to_merge.id))
                 continue
             collection.action_ids.extend(collection_to_merge.action_ids)
+
+    def _ignore_collections(self):
+        for collection_to_ignore in self.collections_to_ignore:
+            self.remove(collection_to_ignore.id)

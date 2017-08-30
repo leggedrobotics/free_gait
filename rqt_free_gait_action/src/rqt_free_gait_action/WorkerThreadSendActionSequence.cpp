@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2017 Samuel Bachmann                                             *
+ * Copyright 2017 Samuel Bachmann, Peter Fankhauser                           *
  *                                                                            *
  * Redistribution and use in source and binary forms, with or without         *
  * modification, are permitted provided that the following conditions are met:*
@@ -27,55 +27,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF     *
  * THE POSSIBILITY OF SUCH DAMAGE.                                            *
  *                                                                            *
- * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
+ * Authors: Samuel Bachmann <samuel.bachmann@gmail.com>,                      *
+ *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
  ******************************************************************************/
 
-#pragma once
-
-#include <QThread>
-
-#include <ros/ros.h>
-
-#include <free_gait_msgs/SendAction.h>
+#include "rqt_free_gait_action/WorkerThreadSendActionSequence.h"
 
 namespace rqt_free_gait {
 
-class WorkerThreadSendAction : public QThread {
-Q_OBJECT
+/*****************************************************************************/
+/** Methods                                                                 **/
+/*****************************************************************************/
 
-  /***************************************************************************/
-  /** Methods                                                               **/
-  /***************************************************************************/
+void WorkerThreadSendActionSequence::run() {
+  bool isOk = client_.call(request_, response_);
+  emit result(isOk, response_.result);
+}
 
-  void run();
+/*****************************************************************************/
+/** Accessors                                                               **/
+/*****************************************************************************/
 
-public:
+void WorkerThreadSendActionSequence::setClient(ros::ServiceClient &client) {
+  client_ = client;
+}
 
-  /***************************************************************************/
-  /** Accessors                                                             **/
-  /***************************************************************************/
-
-  void setClient(ros::ServiceClient &client);
-
-  void setRequest(free_gait_msgs::SendActionRequest request);
-
-private:
-
-  /***************************************************************************/
-  /** Variables                                                             **/
-  /***************************************************************************/
-
-  free_gait_msgs::SendActionRequest request_;
-  free_gait_msgs::SendActionResponse response_;
-  ros::ServiceClient client_;
-
-signals:
-
-  /***************************************************************************/
-  /** Signals                                                               **/
-  /***************************************************************************/
-
-  void result(bool isOk, free_gait_msgs::ExecuteActionResult);
-};
+void
+WorkerThreadSendActionSequence::setRequest(free_gait_msgs::SendActionSequenceRequest request) {
+  request_ = request;
+}
 
 } // namespace

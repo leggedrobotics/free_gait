@@ -63,6 +63,12 @@ bool LegMode::isComputed() const
   return isComputed_;
 }
 
+void LegMode::reset()
+{
+  position_.setZero();
+  isComputed_ = false;
+}
+
 const Position LegMode::evaluatePosition(const double time) const
 {
   return position_;

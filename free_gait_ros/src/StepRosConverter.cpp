@@ -38,6 +38,9 @@ bool StepRosConverter::fromMessage(const std::vector<free_gait_msgs::Step>& mess
 
 bool StepRosConverter::fromMessage(const free_gait_msgs::Step& message, Step& step)
 {
+  // ID.
+  step.setId(message.id);
+
   // Leg motion.
   for (const auto& footstepMessage : message.footstep) {
     const auto limb = adapter_.getLimbEnumFromLimbString(footstepMessage.name);
@@ -278,6 +281,11 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& messag
   jointTrajectory.controlSetup_[ControlLevel::Acceleration] = false;
   jointTrajectory.controlSetup_[ControlLevel::Effort] = false;
 
+  jointTrajectory.jointNodeEnums_.clear();
+  for (const auto& jointName : message.trajectory.joint_names) {
+    jointTrajectory.jointNodeEnums_.push_back(adapter_.getJointNodeEnumFromJointNodeString(jointName));
+  }
+
   for (const auto& point : message.trajectory.points) {
     if (!point.positions.empty()) jointTrajectory.controlSetup_[ControlLevel::Position] = true;
     if (!point.velocities.empty()) jointTrajectory.controlSetup_[ControlLevel::Velocity] = true;
@@ -438,6 +446,10 @@ bool StepRosConverter::toMessage(const StepQueue& stepQueue, free_gait_msgs::Exe
 bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message)
 {
   free_gait_msgs::Step& stepMessage = message;
+
+  // ID.
+  message.id = step.getId();
+
   // Leg motions.
   for (const auto& legMotion : step.getLegMotions()) {
 
@@ -457,6 +469,13 @@ bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message
       stepMessage.end_effector_trajectory.push_back(message);
     }
 
+    // JointTrajectory
+    if (legMotion.second->getType() == LegMotionBase::Type::JointTrajectory) {
+      const JointTrajectory& jointTrajectory = dynamic_cast<const JointTrajectory&>(*(legMotion.second));
+      free_gait_msgs::JointTrajectory message;
+      if (!toMessage(jointTrajectory, message)) return false;
+      stepMessage.joint_trajectory.push_back(message);
+    }
   }
 
   // Base motion.
@@ -546,6 +565,50 @@ bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTraject
 
   // Ignore for pose adaptation.
   message.ignore_for_pose_adaptation = endEffectorTrajectory.ignoreForPoseAdaptation_;
+
+  return true;
+}
+
+bool StepRosConverter::toMessage(const JointTrajectory& jointTrajectory, free_gait_msgs::JointTrajectory& message)
+{
+  // Limb.
+  message.name = adapter_.getLimbStringFromLimbEnum(jointTrajectory.limb_);
+
+  // Surface normal.
+  if (jointTrajectory.surfaceNormal_) {
+    kindr_ros::convertToRosGeometryMsg(*(jointTrajectory.surfaceNormal_), message.surface_normal.vector);
+  }
+
+  // Trajectory.
+  for (const auto& jointNode : jointTrajectory.jointNodeEnums_) {
+    message.trajectory.joint_names.push_back(adapter_.getJointNodeStringFromJointNodeEnum(jointNode));
+  }
+  for (const auto& controlLevel : jointTrajectory.controlSetup_) {
+    if (controlLevel.second) {
+      size_t i = 0;
+      for (const auto& time : jointTrajectory.times_.at(controlLevel.first)) {
+        std::vector<trajectory_msgs::JointTrajectoryPoint>::iterator it =
+            std::find_if(message.trajectory.points.begin(), message.trajectory.points.end(),
+                         [&](const trajectory_msgs::JointTrajectoryPoint& point) -> bool {return point.time_from_start.toSec() >= time;});
+        if (it == message.trajectory.points.end() || it->time_from_start.toSec() != time) {
+          it = message.trajectory.points.insert(it, trajectory_msgs::JointTrajectoryPoint());
+          it->time_from_start = ros::Duration(time);
+        }
+        if (controlLevel.first == ControlLevel::Position)
+          it->positions = jointTrajectory.values_.at(controlLevel.first)[i];
+        else if (controlLevel.first == ControlLevel::Velocity)
+          it->velocities = jointTrajectory.values_.at(controlLevel.first)[i];
+        else if (controlLevel.first == ControlLevel::Acceleration)
+          it->accelerations = jointTrajectory.values_.at(controlLevel.first)[i];
+        else if (controlLevel.first == ControlLevel::Effort)
+          it->effort = jointTrajectory.values_.at(controlLevel.first)[i];
+        i++;
+      }
+    }
+  }
+
+  // Ignore contact.
+  message.ignore_contact = jointTrajectory.ignoreContact_;
 
   return true;
 }

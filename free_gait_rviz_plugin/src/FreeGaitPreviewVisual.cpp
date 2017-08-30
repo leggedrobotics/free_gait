@@ -20,6 +20,7 @@ FreeGaitPreviewVisual::FreeGaitPreviewVisual(rviz::DisplayContext* context, Ogre
 {
   // Visible by default.
   setEnabledModul(Modul::EndEffectorTargets, true);
+  setEnabledModul(Modul::SurfaceNormals, true);
   setEnabledModul(Modul::EndEffectorTrajectories, true);
   setEnabledModul(Modul::Stances, true);
 }
@@ -37,6 +38,9 @@ void FreeGaitPreviewVisual::clear()
     switch (modul) {
       case Modul::EndEffectorTargets:
         hideEndEffectorTargets();
+        break;
+      case Modul::SurfaceNormals:
+        hideSurfaceNormals();
         break;
       case Modul::EndEffectorTrajectories:
         hideEndEffectorTrajectories();
@@ -86,6 +90,9 @@ void FreeGaitPreviewVisual::update()
       case Modul::EndEffectorTargets:
         hideEndEffectorTargets();
         break;
+      case Modul::SurfaceNormals:
+        hideSurfaceNormals();
+        break;
       case Modul::EndEffectorTrajectories:
         hideEndEffectorTrajectories();
         break;
@@ -102,6 +109,9 @@ void FreeGaitPreviewVisual::update()
     switch (modul) {
       case Modul::EndEffectorTargets:
         showEndEffectorTargets();
+        break;
+      case Modul::SurfaceNormals:
+        showSurfaceNormals();
         break;
       case Modul::EndEffectorTrajectories:
         showEndEffectorTrajectories();
@@ -144,6 +154,39 @@ void FreeGaitPreviewVisual::showEndEffectorTargets(const float diameter, const O
 void FreeGaitPreviewVisual::hideEndEffectorTargets()
 {
   endEffectorTargets_.clear();
+}
+
+void FreeGaitPreviewVisual::showSurfaceNormals(const float diameter, const float length, const Ogre::ColourValue& color)
+{
+  ROS_DEBUG("Rendering surface normals.");
+  if (!stateBatchPtr_) return;
+  surfaceNormals_.clear();
+
+  const auto surfaceNormals = stateBatchPtr_->getSurfaceNormals();
+  const size_t nSurfaceNormals(surfaceNormals.size());
+
+  for (size_t i = 0; i < nSurfaceNormals; ++i) {
+    surfaceNormals_.push_back(std::vector<std::unique_ptr<rviz::Arrow>>());
+    // For each limb.
+    for (const auto& surfaceNormal : surfaceNormals[i]) {
+      // For each surface normal.
+      const auto& position = std::get<0>(surfaceNormal.second);
+      const auto& vector = std::get<1>(surfaceNormal.second);
+      surfaceNormals_[i].push_back(
+          std::unique_ptr<rviz::Arrow>(new rviz::Arrow(context_->getSceneManager(), frameNode_)));
+      auto& arrow = surfaceNormals_[i].back();
+      arrow->setPosition(Ogre::Vector3(position.x(), position.y(), position.z()));
+      arrow->setColor(color);
+      arrow->setDirection(Ogre::Vector3(vector.x(), vector.y(), vector.z()));
+      arrow->set(length, diameter, 0.1 * length, 3.0 * diameter);
+    }
+  }
+
+}
+
+void FreeGaitPreviewVisual::hideSurfaceNormals()
+{
+  surfaceNormals_.clear();
 }
 
 void FreeGaitPreviewVisual::showEndEffectorTrajectories(const float width, const Ogre::ColourValue& color)
@@ -200,6 +243,7 @@ void FreeGaitPreviewVisual::showStances(const float alpha)
   stancesMarker_.clear();
 
   for (const auto& stance : stateBatchPtr_->getStances()) {
+    if (stance.second.empty()) continue;
     std_msgs::ColorRGBA color;
     getRainbowColor(stateBatchPtr_->getStartTime(), stateBatchPtr_->getEndTime(), stance.first, color);
     color.a = alpha;

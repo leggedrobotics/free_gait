@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2017 Samuel Bachmann                                             *
+ * Copyright 2017 Samuel Bachmann, Peter Fankhauser                           *
  *                                                                            *
  * Redistribution and use in source and binary forms, with or without         *
  * modification, are permitted provided that the following conditions are met:*
@@ -27,7 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF     *
  * THE POSSIBILITY OF SUCH DAMAGE.                                            *
  *                                                                            *
- * Author: Samuel Bachmann <samuel.bachmann@gmail.com>                        *
+ * Authors: Samuel Bachmann <samuel.bachmann@gmail.com>,                      *
+ *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
  ******************************************************************************/
 
 #include "rqt_free_gait_action/FreeGaitActionPlugin.h"
@@ -44,8 +45,8 @@ FreeGaitActionPlugin::FreeGaitActionPlugin()
     : rqt_gui_cpp::Plugin()
     , widget_(0) {
 
-  qRegisterMetaType<free_gait_msgs::SendActionResponse>(
-      "free_gait_msgs::SendActionResponse");
+  qRegisterMetaType<free_gait_msgs::ExecuteActionResult>(
+      "free_gait_msgs::ExecuteActionResult");
   qRegisterMetaType<std_srvs::TriggerResponse>(
       "std_srvs::TriggerResponse");
   qRegisterMetaType<Action>("Action");
@@ -95,6 +96,9 @@ void FreeGaitActionPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
   sendPreviewClient_ = getNodeHandle().serviceClient<
       free_gait_msgs::SendAction>(
       "/free_gait_action_loader/preview_action", false);
+  sendActionSequenceClient_ = getNodeHandle().serviceClient<
+      free_gait_msgs::SendActionSequence>(
+      "/free_gait_action_loader/send_action_sequence", false);
   refreshCollectionsClient_ = getNodeHandle().serviceClient<
       std_srvs::Trigger>(
       "/free_gait_action_loader/update", false);
@@ -124,6 +128,7 @@ void FreeGaitActionPlugin::shutdownPlugin() {
   actionsClient_.shutdown();
   sendActionClient_.shutdown();
   sendPreviewClient_.shutdown();
+  sendActionSequenceClient_.shutdown();
   refreshCollectionsClient_.shutdown();
 }
 
@@ -174,8 +179,8 @@ void FreeGaitActionPlugin::clearCollectionListView() {
 }
 
 void FreeGaitActionPlugin::evaluateFreeGaitActionResponse(
-    free_gait_msgs::SendActionResponse response) {
-  switch (response.result.status) {
+    free_gait_msgs::ExecuteActionResult result) {
+  switch (result.status) {
     case free_gait_msgs::ExecuteActionResult::RESULT_DONE:
       emit statusMessage("Done", MessageType::SUCCESS, 2.0);
       break;
@@ -421,6 +426,9 @@ FreeGaitActionPlugin::onCollectionSelectionChanged(
   currentActionModel_ = nullptr;
   if (selection.indexes().isEmpty()) {
     clearActionListView();
+    ui_.pushButtonSend->setText("Send Sequence");
+    ui_.pushButtonSend->setEnabled(false);
+    ui_.pushButtonPreview->setEnabled(false);
   } else {
     currentActionModel_ = collectionModel_->getActionModel(
         selection.indexes().first());
@@ -431,6 +439,17 @@ FreeGaitActionPlugin::onCollectionSelectionChanged(
             SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(onActionSelectionChanged(QItemSelection)));
     isActionListViewConnected_ = true;
+    selectedAction_ = "";
+    selectedCollection_ = "";
+    if (collectionModel_->isSequence(selection.indexes().first())) {
+      selectedCollection_ = collectionModel_->getCollectionId(selection.indexes().first());
+      ui_.pushButtonSend->setEnabled(true);
+      ui_.pushButtonSend->setText("Send Sequence");
+      ui_.pushButtonPreview->setEnabled(false);
+    } else {
+      ui_.pushButtonSend->setEnabled(false);
+      ui_.pushButtonPreview->setEnabled(false);
+    }
   }
 }
 
@@ -438,6 +457,9 @@ void FreeGaitActionPlugin::onActionSelectionChanged(
     const QItemSelection &selection) {
   if (selection.indexes().isEmpty()) {
     ui_.labelActionDescription->setText("");
+    ui_.pushButtonSend->setText("Send");
+    ui_.pushButtonSend->setEnabled(false);
+    ui_.pushButtonPreview->setEnabled(false);
   } else {
     if (currentActionModel_ == nullptr) {
       return;
@@ -445,6 +467,10 @@ void FreeGaitActionPlugin::onActionSelectionChanged(
     Action action = currentActionModel_->getAction(selection.indexes().first());
     ui_.labelActionDescription->setText(action.getDescription());
     selectedAction_ = action.getId();
+    selectedCollection_ = "";
+    ui_.pushButtonSend->setEnabled(true);
+    ui_.pushButtonSend->setText("Send");
+    ui_.pushButtonPreview->setEnabled(true);
   }
 }
 
@@ -472,7 +498,7 @@ void FreeGaitActionPlugin::onGetCollectionsResult(
 }
 
 void FreeGaitActionPlugin::onSendActionResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
   } else {
@@ -482,24 +508,39 @@ void FreeGaitActionPlugin::onSendActionResult(
 }
 
 void FreeGaitActionPlugin::onSendActionClicked() {
-  if (selectedAction_.isEmpty()) {
-    emit statusMessage("No action selected.", MessageType::WARNING, 2.0);
+  if (selectedAction_.isEmpty() && selectedCollection_.isEmpty()) {
+    emit statusMessage("Nothing selected.", MessageType::WARNING, 2.0);
     return;
   }
 
-  free_gait_msgs::SendActionRequest request;
-  request.goal.action_id = selectedAction_.toStdString();
+  if (!selectedAction_.isEmpty()) {
+    free_gait_msgs::SendActionRequest request;
+    request.goal.action_id = selectedAction_.toStdString();
 
-  WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
-  connect(workerThreadSendAction,
-          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
-          this,
-          SLOT(onSendActionResult(bool, free_gait_msgs::SendActionResponse)));
-  connect(workerThreadSendAction, SIGNAL(finished()),
-          workerThreadSendAction, SLOT(deleteLater()));
-  workerThreadSendAction->setClient(sendActionClient_);
-  workerThreadSendAction->setRequest(request);
-  workerThreadSendAction->start();
+    WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
+    connect(workerThreadSendAction, SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)), this,
+            SLOT(onSendActionResult(bool, free_gait_msgs::ExecuteActionResult)));
+    connect(workerThreadSendAction, SIGNAL(finished()), workerThreadSendAction, SLOT(deleteLater()));
+    workerThreadSendAction->setClient(sendActionClient_);
+    workerThreadSendAction->setRequest(request);
+    workerThreadSendAction->start();
+  } else if (!selectedCollection_.isEmpty()) {
+    free_gait_msgs::SendActionSequenceRequest request;
+    for (auto item : collectionModel_->getActions(selectedCollection_)) {
+      free_gait_msgs::SendActionRequest::_goal_type goal;
+      goal.action_id = item.getId().toStdString();
+      request.goals.push_back(goal);
+    }
+
+    WorkerThreadSendActionSequence *workerThreadSendActionSequence = new WorkerThreadSendActionSequence;
+    connect(workerThreadSendActionSequence, SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
+            this, SLOT(onSendActionResult(bool, free_gait_msgs::ExecuteActionResult)));
+    connect(workerThreadSendActionSequence, SIGNAL(finished()),
+            workerThreadSendActionSequence, SLOT(deleteLater()));
+    workerThreadSendActionSequence->setClient(sendActionSequenceClient_);
+    workerThreadSendActionSequence->setRequest(request);
+    workerThreadSendActionSequence->start();
+  }
 
   ui_.pushButtonSend->setEnabled(false);
 }
@@ -515,9 +556,9 @@ void FreeGaitActionPlugin::onSendPreviewClicked() {
 
   WorkerThreadSendAction *workerThreadSendPreview = new WorkerThreadSendAction;
   connect(workerThreadSendPreview,
-          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
+          SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
           this,
-          SLOT(onSendPreviewResult(bool, free_gait_msgs::SendActionResponse)));
+          SLOT(onSendPreviewResult(bool, free_gait_msgs::ExecuteActionResult)));
   connect(workerThreadSendPreview, SIGNAL(finished()),
           workerThreadSendPreview, SLOT(deleteLater()));
   workerThreadSendPreview->setClient(sendPreviewClient_);
@@ -528,7 +569,7 @@ void FreeGaitActionPlugin::onSendPreviewClicked() {
 }
 
 void FreeGaitActionPlugin::onSendPreviewResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send preview action.",
                        MessageType::WARNING, 2.0);
@@ -623,10 +664,10 @@ void FreeGaitActionPlugin::onFavoriteButtonClicked(Action action) {
 
   WorkerThreadSendAction *workerThreadSendAction = new WorkerThreadSendAction;
   connect(workerThreadSendAction,
-          SIGNAL(result(bool, free_gait_msgs::SendActionResponse)),
+          SIGNAL(result(bool, free_gait_msgs::ExecuteActionResult)),
           this,
           SLOT(onFavoriteButtonResult(bool,
-                                      free_gait_msgs::SendActionResponse)));
+                                      free_gait_msgs::ExecuteActionResult)));
   connect(workerThreadSendAction, SIGNAL(finished()),
           workerThreadSendAction, SLOT(deleteLater()));
   workerThreadSendAction->setClient(sendActionClient_);
@@ -639,7 +680,7 @@ void FreeGaitActionPlugin::onFavoriteButtonClicked(Action action) {
 }
 
 void FreeGaitActionPlugin::onFavoriteButtonResult(
-    bool isOk, free_gait_msgs::SendActionResponse response) {
+    bool isOk, free_gait_msgs::ExecuteActionResult response) {
   if (!isOk) {
     emit statusMessage("Could not send action.", MessageType::WARNING, 2.0);
   } else {

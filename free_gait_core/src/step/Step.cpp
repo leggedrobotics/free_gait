@@ -9,6 +9,8 @@
 #include "free_gait_core/base_motion/base_motion.hpp"
 #include "free_gait_core/TypeDefs.hpp"
 
+#include <uuid/uuid.h>
+
 namespace free_gait {
 
 inline void boundToRange(double* v, double min, double max){
@@ -33,18 +35,27 @@ Step::Step()
   legMotions_.clear();
   baseMotion_.reset();
   customCommands_.clear();
+
+  // Generate unique id.
+  uuid_t id;
+  uuid_generate(id);
+  char* stringId = new char[36];
+  uuid_unparse(id, stringId);
+  id_.assign(stringId, 36);
+  delete stringId;
 }
 
 Step::~Step()
 {
 }
 
-Step::Step(const Step& other) :
-    time_(other.time_),
-    totalDuration_(other.totalDuration_),
-    isUpdated_(other.isUpdated_),
-    isComputed_(other.isComputed_),
-    customCommands_(other.customCommands_)
+Step::Step(const Step& other)
+    : time_(other.time_),
+      totalDuration_(other.totalDuration_),
+      isUpdated_(other.isUpdated_),
+      isComputed_(other.isComputed_),
+      id_(other.id_),
+      customCommands_(other.customCommands_)
 {
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
@@ -59,6 +70,7 @@ Step& Step::operator=(const Step& other)
   totalDuration_ = other.time_;
   isUpdated_ = other.isUpdated_;
   isComputed_ = other.isComputed_;
+  id_ = other.id_;
   customCommands_ = other.customCommands_;
   if (other.baseMotion_) baseMotion_ = std::move(other.baseMotion_->clone());
   legMotions_.clear();
@@ -317,8 +329,20 @@ bool Step::isApproachingEnd(double tolerance) const
   return false;
 }
 
+const std::string& Step::getId() const
+{
+  return id_;
+}
+
+void Step::setId(const std::string& id)
+{
+  id_ = id;
+}
+
 std::ostream& operator<<(std::ostream& out, const Step& step)
 {
+  out << "------" << std::endl;
+  out << "ID: " << step.id_ << std::endl;
   if (step.hasLegMotion()) {
     out << "---" << std::endl;
     out << "Leg motions (" << step.legMotions_.size() << "):" << std::endl;

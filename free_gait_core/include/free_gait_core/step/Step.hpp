@@ -99,6 +99,9 @@ class Step
 
   bool isApproachingEnd(double tolerance) const;
 
+  const std::string& getId() const;
+  void setId(const std::string& id);
+
   friend std::ostream& operator << (std::ostream& out, const Step& step);
 
   friend class StepCompleter;
@@ -114,6 +117,7 @@ class Step
   double totalDuration_;
   bool isUpdated_;
   bool isComputed_;
+  std::string id_;
 };
 
 } /* namespace */

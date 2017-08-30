@@ -70,6 +70,15 @@ bool EndEffectorTarget::isComputed() const
   return isComputed_;
 }
 
+void EndEffectorTarget::reset()
+{
+  startPosition_.setZero();
+  startVelocity_.setZero();
+  trajectory_.clear();
+  duration_ = 0.0;
+  isComputed_ = false;
+}
+
 const Position EndEffectorTarget::evaluatePosition(const double time) const
 {
   const double timeInRange = mapTimeWithinDuration(time);

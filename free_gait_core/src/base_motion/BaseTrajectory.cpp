@@ -30,9 +30,9 @@ std::unique_ptr<BaseMotionBase> BaseTrajectory::clone() const
 }
 
 void BaseTrajectory::setTrajectory(
-    const std::unordered_map<ControlLevel, std::string, EnumClassHash> frameIds,
-    const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash> times,
-    const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash> values)
+    const std::unordered_map<ControlLevel, std::string, EnumClassHash>& frameIds,
+    const std::unordered_map<ControlLevel, std::vector<Time>, EnumClassHash>& times,
+    const std::unordered_map<ControlLevel, std::vector<ValueType>, EnumClassHash>& values)
 {
   frameIds_ = frameIds;
   times_ = times;
@@ -85,6 +85,12 @@ bool BaseTrajectory::needsComputation() const
 bool BaseTrajectory::isComputed() const
 {
   return isComputed_;
+}
+
+void BaseTrajectory::reset()
+{
+  duration_ = 0.0;
+  isComputed_ = false;
 }
 
 double BaseTrajectory::getDuration() const
