@@ -6,18 +6,14 @@
  *	 Institute: ETH Zurich, Autonomous Systems Lab
  */
 
+#include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
 #include "free_gait_core/TypeDefs.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimizationBasicAlignment.hpp"
 
-// gtest
-#include <gtest/gtest.h>
-
-// kindr
+#include <grid_map_core/Polygon.hpp>
 #include <kindr/Core>
 #include <kindr/common/gtest_eigen.hpp>
 
-// Grid map
-#include <grid_map_core/Polygon.hpp>
+#include <gtest/gtest.h>
 
 using namespace free_gait;
 
