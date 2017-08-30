@@ -106,7 +106,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
   test/StepTest.cpp
   test/FootstepTest.cpp
-  test/PoseOptimizationBasicAlignmentTest.cpp
+  test/PoseOptimizationQpTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test
