@@ -13,11 +13,12 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
+
 #include <curves/CubicHermiteSE3Curve.hpp>
 
 #include <string>
 #include <memory>
-#include "../pose_optimization/PoseOptimizationQP.hpp"
 
 namespace free_gait {
 
@@ -100,8 +101,6 @@ class BaseAuto : public BaseMotionBase
 
   bool computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter);
   bool generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
-  void getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame);
-  void getAdaptiveTargetPose(const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld);
   void computeDuration(const Step& step, const AdapterBase& adapter);
   bool optimizePose(Pose& pose);
 
@@ -124,8 +123,6 @@ class BaseAuto : public BaseMotionBase
   Stance footholdsToReach_, footholdsInSupport_;
   // In base frame.
   Stance nominalStanceInBaseFrame_;
-  Stance footholdsForOrientation_; // TODO Replace with full optimization.
-  Stance footholdsForTerrain_; // TODO Replace with full optimization.
   PoseOptimizationQP poseOptimization_;
 
   //! If trajectory is updated.

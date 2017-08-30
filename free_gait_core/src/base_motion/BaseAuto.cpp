@@ -6,12 +6,10 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include <free_gait_core/base_motion/BaseAuto.hpp>
-#include "free_gait_core/base_motion/BaseMotionBase.hpp"
-#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
+#include "free_gait_core/base_motion/BaseAuto.hpp"
 
-// TODO Move.
-#include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
+#include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationGeometric.hpp"
 
 #include <math.h>
 
@@ -51,8 +49,6 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     footholdsToReach_(other.footholdsToReach_),
     footholdsInSupport_(other.footholdsInSupport_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-    footholdsForTerrain_(other.footholdsForTerrain_),
-    footholdsForOrientation_(other.footholdsForOrientation_),
     poseOptimization_(other.poseOptimization_),
     isComputed_(other.isComputed_)
 {
@@ -88,9 +84,6 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
-  Position horizontalTargetPositionInWorldFrame;
-  getAdaptiveHorizontalTargetPosition(state, adapter, horizontalTargetPositionInWorldFrame);
-  getAdaptiveTargetPose(state, adapter, horizontalTargetPositionInWorldFrame, target_);
   if (!optimizePose(target_)) {
     std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute pose optimization." << std::endl;
     return false;
@@ -261,14 +254,6 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   }
 
-  // TODO: Delete as soon full pose optimization is done.
-  footholdsForTerrain_ = footholdsToReach_;
-
-  footholdsForOrientation_ = footholdsToReach_;
-  for (const auto& limb : adapter.getLimbs()) {
-    if (footholdsForOrientation_.count(limb) == 0) footholdsForOrientation_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
-  }
-
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
     nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -*height_));
@@ -277,108 +262,24 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
   return true;
 }
 
-void BaseAuto::getAdaptiveHorizontalTargetPosition(const State& state, const AdapterBase& adapter, Position& horizontalTargetPositionInWorldFrame)
-{
-  std::vector<double> legWeights(adapter.getLimbs().size());
-  for (auto& weight : legWeights)
-    weight = 1.0;
-  double sumWeights = 0;
-  int iLeg = 0;
-
-  for (const auto& limb : adapter.getLimbs()) {
-    if (state.isSupportLeg(limb)) legWeights[iLeg] = 0.2;
-    sumWeights += legWeights[iLeg];
-    iLeg++;
-  }
-
-  if (sumWeights != 0) {
-    iLeg = 0;
-    for (const auto& limb : adapter.getLimbs()) {
-      horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb)
-          * legWeights[iLeg];
-      iLeg++;
-    }
-    horizontalTargetPositionInWorldFrame /= sumWeights;
-  } else {
-    for (const auto& limb : adapter.getLimbs()) {
-      horizontalTargetPositionInWorldFrame += adapter.getPositionWorldToFootInWorldFrame(limb);
-    }
-    horizontalTargetPositionInWorldFrame /= adapter.getLimbs().size();
-  }
-
-  horizontalTargetPositionInWorldFrame.z() = 0.0;
-}
-
-void BaseAuto::getAdaptiveTargetPose(
-    const State& state, const AdapterBase& adapter, const Position& horizontalTargetPositionInWorld, Pose& targetPoseInWorld)
-{
-  // TODO Cleanup and move to pose optimizer.
-
-  // Get terrain from target foot positions.
-  loco::TerrainModelFreePlane terrain;
-  std::vector<Position> footholds; // TODO
-  for (const auto& foothold : footholdsForTerrain_) {
-    footholds.push_back(foothold.second);
-  }
-  loco::TerrainPerceptionFreePlane::generateTerrainModelFromPointsInWorldFrame(footholds, terrain);
-  loco::Vector terrainNormalInWorld;
-  terrain.getNormal(loco::Position::Zero(), terrainNormalInWorld);
-
-  // Compute orientation of terrain in world.
-  double terrainPitch, terrainRoll;
-  const double adaptationFactor = 0.7;
-  terrainPitch = adaptationFactor * atan2(terrainNormalInWorld.x(), terrainNormalInWorld.z()); // TODO Replace with better handling of rotations.
-  terrainRoll = adaptationFactor * atan2(terrainNormalInWorld.y(), terrainNormalInWorld.z());
-  RotationQuaternion orientationWorldToTerrain = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
-      * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
-
-  // Compute target height over terrain and determine target position.
-  Position positionWorldToDesiredHeightAboveTerrainInTerrain(0.0, 0.0, *height_);
-  Position positionWorldToDesiredHeightAboveTerrainInWorld = orientationWorldToTerrain.inverseRotate(positionWorldToDesiredHeightAboveTerrainInTerrain);
-  double heightOverTerrain = positionWorldToDesiredHeightAboveTerrainInWorld.dot(terrainNormalInWorld);
-  heightOverTerrain /= terrainNormalInWorld.z();
-  double heightOfTerrainInWorld;
-  terrain.getHeight(horizontalTargetPositionInWorld, heightOfTerrainInWorld);
-  Position targetPositionInWorld = horizontalTargetPositionInWorld
-      + (heightOfTerrainInWorld + heightOverTerrain) * Position::UnitZ();
-
-  // Compute target orientation.
-  // This is the center of the (target) feet projected on the x-y plane of the world frame.
-//  loco::Position centerOfFeetInWorld;
-//  for (const auto& footPosition : footPositions) {
-//    centerOfFeetInWorld += footPosition;
-//  }
-//  centerOfFeetInWorld /= footPositions.size();
-//  centerOfFeetInWorld.z() = 0.0;
-
-  // Get desired heading direction with respect to the target feet.
-  const Position positionForeFeetMidPointInWorld = (footholdsForOrientation_[LimbEnum::LF_LEG] + footholdsForOrientation_[LimbEnum::RF_LEG]) * 0.5;
-  const Position positionHindFeetMidPointInWorld = (footholdsForOrientation_[LimbEnum::LH_LEG] + footholdsForOrientation_[LimbEnum::RH_LEG]) * 0.5;
-  Vector desiredHeadingDirectionInWorld = Vector(
-      positionForeFeetMidPointInWorld - positionHindFeetMidPointInWorld);
-  desiredHeadingDirectionInWorld.z() = 0.0;
-  RotationQuaternion desiredHeading;
-  desiredHeading.setFromVectors(Vector::UnitX().toImplementation(), desiredHeadingDirectionInWorld.toImplementation()); // Why is toImplementation() required here?
-
-  // Create target pose.
-  targetPoseInWorld.getPosition() = targetPositionInWorld;
-  targetPoseInWorld.getRotation() = orientationWorldToTerrain * desiredHeading; // TODO Correct??
-}
-
 bool BaseAuto::optimizePose(Pose& pose)
 {
-  poseOptimization_.setStance(footholdsToReach_);
-  poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
-
-  grid_map::Polygon support;
+  // Define support region.
+  grid_map::Polygon supportRegion;
   std::vector<Position> footholdsOrdered;
   getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
   for (auto foothold : footholdsOrdered) {
-    support.addVertex(foothold.vector().head<2>());
+    supportRegion.addVertex(foothold.vector().head<2>());
   }
-  support.offsetInward(supportMargin_);
-  poseOptimization_.setSupportRegion(support);
+  supportRegion.offsetInward(supportMargin_);
 
+  // Create initial pose from geometric alignment.
+  pose = PoseOptimizationGeometric::optimize(footholdsToReach_, nominalStanceInBaseFrame_, supportRegion);
+
+  // Optimize pose.
+  poseOptimization_.setStance(footholdsToReach_);
+  poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimization_.setSupportRegion(supportRegion);
   return poseOptimization_.optimize(pose);
 }
 
