@@ -96,6 +96,7 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
+   src/pose_optimization/PoseOptimizationGeometric.cpp
    src/pose_optimization/PoseOptimizationQP.cpp
    src/pose_optimization/PoseOptimizationSQP.cpp
    src/pose_optimization/PoseParameterization.cpp
