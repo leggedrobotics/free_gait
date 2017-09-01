@@ -11,6 +11,7 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/executor/State.hpp"
+#include "free_gait_core/pose_optimization/PoseConstraintsChecker.hpp"
 
 #include <numopt_common/NonlinearFunctionConstraints.hpp>
 #include <grid_map_core/Polygon.hpp>
@@ -22,7 +23,7 @@ namespace free_gait {
 class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunctionConstraints
 {
  public:
-  typedef std::map<LimbEnum, double> LimbLengths;
+  using LimbLengths = PoseConstraintsChecker::LimbLengths;
   typedef std::map<LimbEnum, Position> LegPositions;
 
   PoseOptimizationFunctionConstraints();

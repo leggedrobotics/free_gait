@@ -8,31 +8,34 @@
 
 #pragma once
 
-#include <free_gait_core/TypeDefs.hpp>
-
-#include <grid_map_core/Polygon.hpp>
-
-#include <Eigen/Eigenvalues>
-#include <memory>
-#include <unordered_map>
+#include "free_gait_core/pose_optimization/PoseOptimizationBase.hpp"
+#include "free_gait_core/TypeDefs.hpp"
 
 namespace free_gait {
 
-class PoseOptimizationGeometric
+class PoseOptimizationGeometric : public PoseOptimizationBase
 {
  public:
-  PoseOptimizationGeometric();
+  PoseOptimizationGeometric(const AdapterBase& adapter);
   virtual ~PoseOptimizationGeometric();
 
   /*!
+   * Set the positions of the feet of the robot in world coordinate
+   * system for the computation of the orientation.
+   * @param stance the position to determine the orientation.
+   */
+  void setStanceForOrientation(const Stance& stance);
+
+  /*!
    * Computes the optimized pose.
-   * @param stance the positions of the feet of the robot in world coordinate system.
-   * @param nominalStanceInBaseFrame the desired feet positions in base frame.
-   * @param supportRegion the support region as a list of vertices
+   * @param stanceForOrientation the positions of the feet of the robot in world coordinate
+   *        system for the computation of the orientation.
    * @return the optimized pose.
    */
-  static const Pose optimize(const Stance& stance, const Stance& nominalStanceInBaseFrame,
-                             const grid_map::Polygon& supportRegion = grid_map::Polygon());
+  bool optimize(Pose& pose);
+
+ private:
+  Stance stanceForOrientation_;
 };
 
 } /* namespace loco */

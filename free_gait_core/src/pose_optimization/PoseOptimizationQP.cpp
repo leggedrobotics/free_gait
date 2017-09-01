@@ -18,8 +18,9 @@ using namespace Eigen;
 
 namespace free_gait {
 
-PoseOptimizationQP::PoseOptimizationQP()
-    : nStates_(4),
+PoseOptimizationQP::PoseOptimizationQP(const AdapterBase& adapter)
+    : PoseOptimizationBase(adapter),
+      nStates_(3),
       nDimensions_(3)
 {
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
@@ -30,69 +31,51 @@ PoseOptimizationQP::~PoseOptimizationQP()
 }
 
 PoseOptimizationQP::PoseOptimizationQP(const PoseOptimizationQP& other)
-    : nStates_(other.nStates_),
-      nDimensions_(other.nDimensions_),
-      stance_(other.stance_),
-      nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-      supportRegion_(other.supportRegion_)
+    : PoseOptimizationBase(other),
+      nStates_(other.nStates_),
+      nDimensions_(other.nDimensions_)
 {
   solver_.reset(new numopt_quadprog::ActiveSetFunctionMinimizer());
 }
 
-void PoseOptimizationQP::setStance(const Stance& stance)
-{
-  stance_ = stance;
-}
-
-void PoseOptimizationQP::setNominalStance(
-    const Stance& nominalStanceInBaseFrame)
-{
-  nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
-}
-
-void PoseOptimizationQP::setSupportRegion(const grid_map::Polygon& supportRegion)
-{
-  supportRegion_ = supportRegion;
-}
-
 bool PoseOptimizationQP::optimize(Pose& pose)
 {
-  // If no support polygon provided, use positions.
-  if (supportRegion_.nVertices() == 0) {
-    for (const auto& foot : stance_)
-      supportRegion_.addVertex(foot.second.vector().head<2>());
-  }
+  checkSupportRegion();
+
+  state_.setPoseBaseToWorld(pose);
+  adapter_.setInternalDataFromState(state_); // To guide IK.
+  updateJointPositionsInState(state_);
+  adapter_.setInternalDataFromState(state_);
+
+  // Compute center of mass.
+  const Position centerOfMassInBaseFrame(
+      adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+                                 adapter_.getCenterOfMassInWorldFrame()));
 
   // Problem definition:
   // min Ax - b, Gx <= h
   unsigned int nFeet = stance_.size();
   MatrixXd A = MatrixXd::Zero(nDimensions_ * nFeet, nStates_);
   VectorXd b = VectorXd::Zero(nDimensions_ * nFeet);
-  Matrix3d R_0 = RotationMatrix(pose.getRotation()).matrix();
-  Matrix3d Rstar;
-  Rstar << 0.0, -1.0, 0.0,
-           1.0,  0.0, 0.0,
-           0.0,  0.0, 0.0;
+  Matrix3d R = RotationMatrix(pose.getRotation()).matrix();
 
   unsigned int i = 0;
   for (const auto& footPosition : stance_) {
-    A.block(nDimensions_ * i, 0, nStates_-1, A.cols()) << Matrix3d::Identity(), (R_0 * Rstar * nominalStanceInBaseFrame_[footPosition.first].vector());
-    b.segment(nDimensions_ * i, nDimensions_) << footPosition.second.vector() - R_0 * nominalStanceInBaseFrame_[footPosition.first].vector();
+    A.block(nDimensions_ * i, 0, nStates_, A.cols()) << Matrix3d::Identity();
+    b.segment(nDimensions_ * i, nDimensions_) << footPosition.second.vector() - R * nominalStanceInBaseFrame_[footPosition.first].vector();
     ++i;
   }
 
-//  std::cout << "R_0: " << std::endl << R_0 << std::endl;
+//  std::cout << "R: " << std::endl << R << std::endl;
 //  std::cout << "A: " << std::endl << A << std::endl;
 //  std::cout << "b: " << std::endl << b << std::endl;
 
   // Inequality constraints.
-  Eigen::MatrixXd Gp;
-  Eigen::VectorXd h;
-  supportRegion_.convertToInequalityConstraints(Gp, h);
-  Eigen::MatrixXd G(Gp.rows(), nStates_);
-  G << Gp, Eigen::MatrixXd::Zero(Gp.rows(), nStates_ - Gp.cols());
+  Eigen::MatrixXd G;
+  Eigen::VectorXd hp;
+  supportRegion_.convertToInequalityConstraints(G, hp);
+  Eigen::VectorXd h = hp - G * R * centerOfMassInBaseFrame.vector();
 
-//  std::cout << "Gp: " << std::endl << Gp << std::endl;
 //  std::cout << "G: " << std::endl << G << std::endl;
 //  std::cout << "h: " << std::endl << h << std::endl;
 
@@ -127,24 +110,7 @@ bool PoseOptimizationQP::optimize(Pose& pose)
 //  std::cout << "x: " << std::endl << x << std::endl;
 
   // Return optimized pose.
-  pose.getPosition().vector() = x.head<3>();
-  const double yaw = x.tail<1>()[0];
-  Eigen::Matrix3d rotationMatrix((R_0 * (Matrix3d::Identity() + Rstar * yaw)));
-
-  // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
-  // as discussed in https://github.com/ethz-asl/kindr/issues/55 ,
-  // code by Philipp Krüsi.
-  // TODO: Move to kindr.
-  Eigen::JacobiSVD<Eigen::Matrix3d> svd(rotationMatrix, Eigen::ComputeFullV);
-  Eigen::Matrix3d correction(
-      svd.matrixV().col(0) * svd.matrixV().col(0).transpose() /
-      svd.singularValues()(0) +
-      svd.matrixV().col(1) * svd.matrixV().col(1).transpose() /
-      svd.singularValues()(1) +
-      svd.matrixV().col(2) * svd.matrixV().col(2).transpose() /
-      svd.singularValues()(2));
-
-  pose.getRotation() = RotationMatrix(rotationMatrix * correction);
+  pose.getPosition().vector() = x;
   return true;
 }
 

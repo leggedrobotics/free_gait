@@ -7,9 +7,7 @@
  */
 
 #include "free_gait_core/base_motion/BaseAuto.hpp"
-
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimizationGeometric.hpp"
 
 #include <math.h>
 
@@ -49,7 +47,6 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     footholdsToReach_(other.footholdsToReach_),
     footholdsInSupport_(other.footholdsInSupport_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-    poseOptimization_(other.poseOptimization_),
     isComputed_(other.isComputed_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
@@ -84,12 +81,55 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
+
+  // Define support region.
+  grid_map::Polygon supportRegion;
+  std::vector<Position> footholdsOrdered;
+  getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
+  for (auto foothold : footholdsOrdered) {
+    supportRegion.addVertex(foothold.vector().head<2>());
+  }
+  supportRegion.offsetInward(supportMargin_);
+
+  // Define max/min leg lengths.
+  for (const auto& limb : adapter.getLimbs()) {
+    minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
+    maxLimbLenghts_[limb] = 0.59;
+  }
+
+  poseOptimizationGeometric_.reset(new PoseOptimizationGeometric(adapter));
+  poseOptimizationGeometric_->setStance(footholdsToReach_);
+  poseOptimizationGeometric_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationGeometric_->setSupportRegion(supportRegion);
+  poseOptimizationGeometric_->setStanceForOrientation(footholdsForOrientation_);
+
+  poseOptimizationQP_.reset(new PoseOptimizationQP(adapter));
+  poseOptimizationQP_->setCurrentState(state);
+  poseOptimizationQP_->setStance(footholdsToReach_);
+  poseOptimizationQP_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationQP_->setSupportRegion(supportRegion);
+
+  constraintsChecker_.reset(new PoseConstraintsChecker(adapter));
+  constraintsChecker_->setCurrentState(state);
+  constraintsChecker_->setSupportRegion(supportRegion);
+  constraintsChecker_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+
+  poseOptimizationSQP_.reset(new PoseOptimizationSQP(adapter));
+  poseOptimizationSQP_->setCurrentState(state);
+  poseOptimizationSQP_->setStance(footholdsToReach_);
+  poseOptimizationSQP_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationSQP_->setSupportRegion(supportRegion);
+  poseOptimizationSQP_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+
   if (!optimizePose(target_)) {
     std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute pose optimization." << std::endl;
     return false;
   }
+
   computeDuration(step, adapter);
   computeTrajectory();
+
+  adapter.setInternalDataFromState(state); // TODO This shouldn't be necessary if we could create copies of the adapter.
   return isComputed_ = true;
 }
 
@@ -254,6 +294,11 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   }
 
+  footholdsForOrientation_ = footholdsToReach_;
+  for (const auto& limb : adapter.getLimbs()) {
+    if (footholdsForOrientation_.count(limb) == 0) footholdsForOrientation_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+  }
+
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
     nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -*height_));
@@ -264,23 +309,10 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
 bool BaseAuto::optimizePose(Pose& pose)
 {
-  // Define support region.
-  grid_map::Polygon supportRegion;
-  std::vector<Position> footholdsOrdered;
-  getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
-  for (auto foothold : footholdsOrdered) {
-    supportRegion.addVertex(foothold.vector().head<2>());
-  }
-  supportRegion.offsetInward(supportMargin_);
-
-  // Create initial pose from geometric alignment.
-  pose = PoseOptimizationGeometric::optimize(footholdsToReach_, nominalStanceInBaseFrame_, supportRegion);
-
-  // Optimize pose.
-  poseOptimization_.setStance(footholdsToReach_);
-  poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
-  poseOptimization_.setSupportRegion(supportRegion);
-  return poseOptimization_.optimize(pose);
+  if (!poseOptimizationGeometric_->optimize(pose));
+  if (!poseOptimizationQP_->optimize(pose)) return false;
+  if (constraintsChecker_->check(pose)) return true;
+  return poseOptimizationSQP_->optimize(pose);
 }
 
 void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)

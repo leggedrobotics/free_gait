@@ -67,7 +67,7 @@ void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegio
   objective_->setSupportRegion(supportRegion);
 }
 
-void PoseOptimizationSQP::setLimbLengthConstraints(const LegLengths& minLimbLenghts, const LegLengths& maxLimbLenghts)
+void PoseOptimizationSQP::setLimbLengthConstraints(const LimbLengths& minLimbLenghts, const LimbLengths& maxLimbLenghts)
 {
   constraints_->setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
 }
@@ -85,7 +85,6 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   checkSupportRegion();
 
   // Compute initial solution.
-  computeInitialSolution(pose);
   objective_->setInitialPose(pose);
   state_.setPoseBaseToWorld(pose);
   adapter_.setInternalDataFromState(state_); // To guide IK.
@@ -143,6 +142,15 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
   callExternalOptimizationStepCallback(iterationStep + 1, functionValue, finalIteration);
 }
 
+void PoseOptimizationSQP::callExternalOptimizationStepCallbackWithPose(const Pose& pose, const size_t iterationStep,
+                                                                       const double functionValue,
+                                                                       const bool finalIteration)
+{
+  state_ = originalState_;;
+  state_.setPoseBaseToWorld(pose);
+  callExternalOptimizationStepCallback(iterationStep, functionValue, finalIteration);
+}
+
 double PoseOptimizationSQP::getOptimizationDuration() const
 {
   return timer_.getAverageElapsedTimeUSec("total") - durationInCallback_;
@@ -156,56 +164,6 @@ void PoseOptimizationSQP::checkSupportRegion()
     for (const auto& foot : stance_)
       supportRegion.addVertex(foot.second.vector().head<2>());
   }
-}
-
-const void PoseOptimizationSQP::computeInitialSolution(Pose& pose)
-{
-  checkSupportRegion();
-  pose.setIdentity();
-
-  // Planar position: Use geometric center of support region.
-  Position center;
-  center.vector().head(2) = constraints_->getSupportRegion().getCentroid();
-
-  // Height: Average of stance plus default height.
-  for (const auto& foot : stance_) {
-    center.z() += foot.second.z() - objective_->getNominalStance().at(foot.first).z();
-  }
-  center.z() /= (double) stance_.size();
-  pose.getPosition() = center;
-
-  // Orientation: Squared error minimization (see sec. 4.2.2 from Bloesch, Technical
-  // Implementations of the Sense of Balance, 2016).
-  // Notes on (38):
-  // - i: Identity pose (I),
-  // - j: Solution (B),
-  // - t = I_r_IB,
-  // - q = q_IB,
-  // - a_k = I_f_k: Foot position for leg k in inertial frame,
-  // - b_k = B_\hat_f_K: Nominal foot position for leg k in base frame.
-
-  Eigen::Matrix4d C(Eigen::Matrix4d::Zero()); // See (45).
-  Eigen::Matrix4d A(Eigen::Matrix4d::Zero()); // See (46).
-  for (const auto& foot : stance_) {
-    const RotationQuaternion footPositionInertialFrame(0.0, foot.second.vector()); // \bar_a_k = S^T * a_k (39).
-    const RotationQuaternion defaultFootPositionBaseFrame(0.0, objective_->getNominalStance().at(foot.first).vector()); // \bar_b_k = S^T * b_k.
-    Eigen::Matrix4d Ak = footPositionInertialFrame.getQuaternionMatrix() - defaultFootPositionBaseFrame.getConjugateQuaternionMatrix(); // See (46).
-    C += Ak * Ak; // See (45).
-    A += Ak; // See (46).
-  }
-  A = A / ((double) stance_.size()); // Error in (46).
-  C -= stance_.size() * A * A; // See (45).
-  Eigen::EigenSolver<Eigen::Matrix4d> eigenSolver(C);
-  int maxCoeff;
-  eigenSolver.eigenvalues().real().maxCoeff(&maxCoeff);
-  // Eigen vector corresponding to max. eigen value.
-  pose.getRotation() = RotationQuaternion(eigenSolver.eigenvectors().col(maxCoeff).real());
-  pose.getRotation().setUnique();
-
-  // Apply roll/pitch adaptation factor (~0.5).
-  const RotationQuaternion yawRotation(RotationVector(RotationVector(pose.getRotation()).vector().cwiseProduct(Eigen::Vector3d::UnitZ())));
-  const RotationQuaternion rollPitchRotation(RotationVector(0.5 * RotationVector(pose.getRotation() * yawRotation.inverted()).vector()));
-  pose.getRotation() = yawRotation * rollPitchRotation;
 }
 
 void PoseOptimizationSQP::updateJointPositionsInState(State& state) const

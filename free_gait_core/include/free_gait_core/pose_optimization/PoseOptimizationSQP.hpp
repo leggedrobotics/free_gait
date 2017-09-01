@@ -26,7 +26,7 @@ class PoseOptimizationSQP
 {
  public:
   using OptimizationStepCallbackFunction = std::function<void(const size_t, const State&, const double, const bool)>;
-  using LegLengths = PoseOptimizationFunctionConstraints::LimbLengths;
+  using LimbLengths = PoseOptimizationFunctionConstraints::LimbLengths;
 
   //! Constructor. Keeps are reference to the adapter, be careful when multi-threading!
   //! @param adapter the adapter to the robot data.
@@ -62,7 +62,7 @@ class PoseOptimizationSQP
    * @param minLimbLenghts the min. limb length.
    * @param maxLimbLenghts the max. limb length.
    */
-  void setLimbLengthConstraints(const LegLengths& minLimbLenghts, const LegLengths& maxLimbLenghts);
+  void setLimbLengthConstraints(const LimbLengths& minLimbLenghts, const LimbLengths& maxLimbLenghts);
 
   /*!
    * Registers a callback function that is called after every iteration step
@@ -74,13 +74,17 @@ class PoseOptimizationSQP
 
   /*!
    * Computes the optimized pose with SQP.
-   * @param[out] pose the optimized pose.
+   * @param[in/out] pose the optimized pose from the provided initial pose.
    * @return true if successful, false otherwise.
    */
   bool optimize(Pose& pose);
 
   void optimizationStepCallback(const size_t iterationStep, const numopt_common::Parameterization& parameters,
                                 const double functionValue, const bool finalIteration);
+
+  void callExternalOptimizationStepCallbackWithPose(const Pose& pose, const size_t iterationStep,
+                                                    const double functionValue = std::numeric_limits<double>::max(),
+                                                    const bool finalIteration = false);
 
   /*!
    * Return the duration of the last optimization in micro seconds.
@@ -90,13 +94,6 @@ class PoseOptimizationSQP
 
  private:
   void checkSupportRegion();
-
-  /*!
-   * Computes a geometrically defined initial solution for the pose optimization.
-   * Use this solution to start the optimization if you have no other solution.
-   * @param[out] pose the computed pose.
-   */
-  const void computeInitialSolution(Pose& pose);
 
   void updateJointPositionsInState(State& state) const;
 

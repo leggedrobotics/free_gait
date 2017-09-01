@@ -73,7 +73,6 @@ add_library(${PROJECT_NAME}
    src/TypePrints.cpp
    src/base_motion/BaseMotionBase.cpp
    src/base_motion/BaseAuto.cpp
-   src/base_motion/BaseAutoSqp.cpp
    src/base_motion/BaseTarget.cpp
    src/base_motion/BaseTrajectory.cpp
    src/leg_motion/LegMotionBase.cpp
@@ -96,6 +95,8 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
+   src/pose_optimization/PoseOptimizationBase.cpp
+   src/pose_optimization/PoseConstraintsChecker.cpp
    src/pose_optimization/PoseOptimizationGeometric.cpp
    src/pose_optimization/PoseOptimizationQP.cpp
    src/pose_optimization/PoseOptimizationSQP.cpp

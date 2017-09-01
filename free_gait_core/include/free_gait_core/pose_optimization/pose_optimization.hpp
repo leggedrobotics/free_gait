@@ -8,4 +8,7 @@
 
 #pragma once
 
+#include "free_gait_core/pose_optimization/PoseConstraintsChecker.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationGeometric.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationSQP.hpp"

@@ -13,7 +13,10 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/step/Step.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationGeometric.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationSQP.hpp"
+#include "free_gait_core/pose_optimization/PoseConstraintsChecker.hpp"
 
 #include <curves/CubicHermiteSE3Curve.hpp>
 
@@ -91,6 +94,7 @@ class BaseAuto : public BaseMotionBase
  protected:
   std::string frameId_;
   std::unique_ptr<double> height_; // In control frame.
+  PoseOptimizationBase::LimbLengths minLimbLenghts_, maxLimbLenghts_;
   bool ignoreTimingOfLegMotion_;
   double averageLinearVelocity_;
   double averageAngularVelocity_;
@@ -120,13 +124,19 @@ class BaseAuto : public BaseMotionBase
   curves::CubicHermiteSE3Curve trajectory_;
 
   // In world frame.
-  Stance footholdsToReach_, footholdsInSupport_;
+  Stance footholdsToReach_, footholdsInSupport_, footholdsForOrientation_;
   // In base frame.
   Stance nominalStanceInBaseFrame_;
-  PoseOptimizationQP poseOptimization_;
 
   //! If trajectory is updated.
   bool isComputed_;
+
+  //! Optimizers.
+  std::unique_ptr<PoseOptimizationGeometric> poseOptimizationGeometric_;
+  std::unique_ptr<PoseOptimizationQP> poseOptimizationQP_;
+  std::unique_ptr<PoseOptimizationSQP> poseOptimizationSQP_;
+  std::unique_ptr<PoseConstraintsChecker> constraintsChecker_;
+
 };
 
 } /* namespace */
