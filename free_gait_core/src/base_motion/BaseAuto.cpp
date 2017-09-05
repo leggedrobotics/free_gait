@@ -89,7 +89,12 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   for (auto foothold : footholdsOrdered) {
     supportRegion.addVertex(foothold.vector().head<2>());
   }
-  supportRegion.offsetInward(supportMargin_);
+  bool isLinePolygon = false;
+  if (supportRegion.nVertices() == 2) {
+    supportRegion.thickenLine(0.002);
+    isLinePolygon = true;
+  }
+  if (!isLinePolygon) supportRegion.offsetInward(supportMargin_);
 
   // Define max/min leg lengths.
   for (const auto& limb : adapter.getLimbs()) {
