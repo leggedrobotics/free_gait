@@ -52,7 +52,6 @@ bool PoseConstraintsChecker::check(const Pose& pose)
     }
   }
 
-  std::cout << "-->OK (?)" << std::endl;
   return true;
 }
 
