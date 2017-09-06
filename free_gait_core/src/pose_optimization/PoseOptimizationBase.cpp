@@ -28,7 +28,6 @@ void PoseOptimizationBase::setStance(const Stance& stance)
   stance_ = stance;
 }
 
-
 void PoseOptimizationBase::setNominalStance(const Stance& nominalStanceInBaseFrame)
 {
   nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;

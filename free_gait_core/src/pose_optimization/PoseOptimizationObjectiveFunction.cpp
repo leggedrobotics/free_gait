@@ -69,7 +69,7 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
   // Cost for default leg positions.
   for (const auto& footPosition : stance_) {
     const Position nominalFootPositionInWorld = pose.getPosition()
-        + pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first));
+        + pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)); // d_i
     value += (nominalFootPositionInWorld - footPosition.second).squaredNorm();
   }
 
@@ -96,9 +96,30 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 }
 
 bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& gradient,
-                                                         const numopt_common::Parameterization& p, bool newParams)
+                                                         const numopt_common::Parameterization& params, bool newParams)
 {
-  return NonlinearObjectiveFunction::estimateLocalGradient(gradient, p, 1.0e-6);
+  return NonlinearObjectiveFunction::estimateLocalGradient(gradient, params, 1.0e-6);
+
+//  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
+//  const Pose pose = poseParameterization.getPose();
+//  gradient.setZero();
+//
+//  const Eigen::Vector3d& p = pose.getPosition().vector();
+//  const auto& R = pose.getRotation(); // Phi
+////  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
+////  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
+//  for (const auto& footPosition : stance_) {
+//    const Eigen::Vector3d f_i = footPosition.second.vector();
+//    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
+//    Eigen::VectorXd derivative(params.getLocalSize());
+//    derivative << p + R_d_i - f_i, -p.array() * R_d_i.array() + R_d_i.array() * f_i.array();
+//    gradient += derivative;
+//    std::cout << derivative << std::endl << std::endl;
+//  }
+//  gradient = 2.0 * gradient; // w_1 = 1.0;
+//  std::cout << gradient << std::endl << std::endl;
+//  std::cout << "++++++++++" << std::endl;
+//  return true;
 }
 
 } /* namespace free_gait */

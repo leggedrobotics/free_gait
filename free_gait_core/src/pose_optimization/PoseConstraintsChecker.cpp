@@ -10,7 +10,9 @@
 namespace free_gait {
 
 PoseConstraintsChecker::PoseConstraintsChecker(const AdapterBase& adapter)
-    : PoseOptimizationBase(adapter)
+    : PoseOptimizationBase(adapter),
+      centerOfMassTolerance_(0.0),
+      legLengthTolerance_(0.0)
 {
 }
 
@@ -18,23 +20,39 @@ PoseConstraintsChecker::~PoseConstraintsChecker()
 {
 }
 
+void PoseConstraintsChecker::setTolerances(const double centerOfMassTolerance, const double legLengthTolerance)
+{
+  centerOfMassTolerance_ = centerOfMassTolerance;
+  legLengthTolerance_ = legLengthTolerance;
+}
+
 bool PoseConstraintsChecker::check(const Pose& pose)
 {
   state_.setPoseBaseToWorld(pose);
   adapter_.setInternalDataFromState(state_); // To guide IK.
-  if (!updateJointPositionsInState(state_)) return false;
+  if (!updateJointPositionsInState(state_)) {
+    return false;
+  }
   adapter_.setInternalDataFromState(state_);
 
   // Check center of mass.
-  if (!supportRegion_.isInside(adapter_.getCenterOfMassInWorldFrame().vector().head(2))) return false;
-
-  // Check leg length. TODO Replace with joint limits?
-  size_t i(0);
-  for (const auto& limb : adapter_.getLimbs()) {
-    const double legLength = Vector(adapter_.getPositionBaseToFootInBaseFrame(limb) - adapter_.getPositionBaseToHipInBaseFrame(limb)).norm();
-    if (legLength < minLimbLenghts_[limb] || legLength > maxLimbLenghts_[limb]) return false;
+  grid_map::Polygon supportRegionCopy(supportRegion_);
+  supportRegionCopy.offsetInward(centerOfMassTolerance_);
+  if (!supportRegion_.isInside(adapter_.getCenterOfMassInWorldFrame().vector().head(2))) {
+    return false;
   }
 
+  // Check leg length. TODO Replace with joint limits?
+  for (const auto& foot : stance_) {
+    const Position footPositionInBase(
+        adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), foot.second));
+    const double legLength = Vector(footPositionInBase - adapter_.getPositionBaseToHipInBaseFrame(foot.first)).norm();
+    if (legLength < minLimbLenghts_[foot.first] - legLengthTolerance_ || legLength > maxLimbLenghts_[foot.first] + legLengthTolerance_) {
+      return false;
+    }
+  }
+
+  std::cout << "-->OK (?)" << std::endl;
   return true;
 }
 

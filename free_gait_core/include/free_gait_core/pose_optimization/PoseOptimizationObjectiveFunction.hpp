@@ -65,7 +65,7 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
    * @param newParams   true if this class has already seen the parameters
    * @returns true if successful
    */
-  bool getLocalGradient(numopt_common::Vector& gradient, const numopt_common::Parameterization& p,
+  bool getLocalGradient(numopt_common::Vector& gradient, const numopt_common::Parameterization& params,
                         bool newParams = true);
 
  private:

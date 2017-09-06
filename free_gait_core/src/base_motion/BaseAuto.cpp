@@ -91,15 +91,15 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   }
   bool isLinePolygon = false;
   if (supportRegion.nVertices() == 2) {
-    supportRegion.thickenLine(0.002);
+    supportRegion.thickenLine(0.001);
     isLinePolygon = true;
   }
   if (!isLinePolygon) supportRegion.offsetInward(supportMargin_);
 
-  // Define max/min leg lengths.
+  // Define min./max. leg lengths.
   for (const auto& limb : adapter.getLimbs()) {
     minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
-    maxLimbLenghts_[limb] = 0.59;
+    maxLimbLenghts_[limb] = 0.57; // 0.59
   }
 
   poseOptimizationGeometric_.reset(new PoseOptimizationGeometric(adapter));
@@ -116,8 +116,10 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
 
   constraintsChecker_.reset(new PoseConstraintsChecker(adapter));
   constraintsChecker_->setCurrentState(state);
+  constraintsChecker_->setStance(footholdsToReach_);
   constraintsChecker_->setSupportRegion(supportRegion);
   constraintsChecker_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+  constraintsChecker_->setTolerances(0.02, 0.02); // TODO Make parameter.
 
   poseOptimizationSQP_.reset(new PoseOptimizationSQP(adapter));
   poseOptimizationSQP_->setCurrentState(state);

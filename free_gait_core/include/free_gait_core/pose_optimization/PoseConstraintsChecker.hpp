@@ -21,7 +21,13 @@ class PoseConstraintsChecker : public PoseOptimizationBase
   PoseConstraintsChecker(const AdapterBase& adapter);
   virtual ~PoseConstraintsChecker();
 
+  void setTolerances(const double centerOfMassTolerance, const double legLengthTolerance);
+
   bool check(const Pose& pose);
+
+ private:
+  double centerOfMassTolerance_;
+  double legLengthTolerance_;
 };
 
 }
