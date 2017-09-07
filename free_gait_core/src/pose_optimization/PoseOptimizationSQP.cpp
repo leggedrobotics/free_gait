@@ -84,7 +84,6 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   state_ = originalState_;
   checkSupportRegion();
 
-  // Compute initial solution.
   objective_->setInitialPose(pose);
   state_.setPoseBaseToWorld(pose);
   adapter_.setInternalDataFromState(state_); // To guide IK.

@@ -30,7 +30,6 @@ class PoseOptimizationSQP
 
   //! Constructor. Keeps are reference to the adapter, be careful when multi-threading!
   //! @param adapter the adapter to the robot data.
-  //! @param state the current state of the robot
   PoseOptimizationSQP(const AdapterBase& adapter);
   virtual ~PoseOptimizationSQP();
 
