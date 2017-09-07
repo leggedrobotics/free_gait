@@ -54,7 +54,7 @@ class StepParameters
     BaseAutoParameters()
     {
       Position2 position;
-      position << 0.385, 0.25;
+      position << 0.33, 0.22;
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LF_LEG, position);
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::RF_LEG, Position2(Eigen::Vector2d(position(0), -position(1))));
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LH_LEG, Position2(Eigen::Vector2d(-position(0), position(1))));
