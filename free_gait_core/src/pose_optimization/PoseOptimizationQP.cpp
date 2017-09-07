@@ -74,9 +74,10 @@ bool PoseOptimizationQP::optimize(Pose& pose)
   Eigen::MatrixXd G;
   Eigen::VectorXd hp;
   supportRegion_.convertToInequalityConstraints(G, hp);
-  Eigen::VectorXd h = hp - G * R * centerOfMassInBaseFrame.vector();
+  Eigen::VectorXd h = hp - G * (R * centerOfMassInBaseFrame.vector()).head(2);
 
 //  std::cout << "G: " << std::endl << G << std::endl;
+//  std::cout << "hp: " << std::endl << hp << std::endl;
 //  std::cout << "h: " << std::endl << h << std::endl;
 
   // Formulation as QP:

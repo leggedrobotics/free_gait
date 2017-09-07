@@ -73,12 +73,12 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
 {
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
-      std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute height." << std::endl;
+      std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
       return false;
     }
   }
   if (!generateFootholdLists(state, step, queue, adapter)) {
-    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not generate foothold lists." << std::endl;
+    std::cerr << "BaseAuto::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
 
@@ -129,7 +129,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   poseOptimizationSQP_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
 
   if (!optimizePose(target_)) {
-    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute pose optimization." << std::endl;
+    std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
     return false;
   }
 
@@ -194,7 +194,7 @@ void BaseAuto::setHeight(const double height)
 double BaseAuto::getHeight() const
 {
   if (height_) return *height_;
-  throw std::runtime_error("Height of BaseAutoStepWiseBasicAlignment has not been set yet.");
+  throw std::runtime_error("Height of BaseAuto has not been set yet.");
 }
 
 void BaseAuto::setAverageLinearVelocity(const double averageLinearVelocity)

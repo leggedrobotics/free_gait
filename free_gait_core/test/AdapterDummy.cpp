@@ -83,6 +83,16 @@ std::string AdapterDummy::getBaseString() const
   throw std::runtime_error("AdapterDummy::getBaseString() is not implemented.");
 }
 
+JointNodeEnum AdapterDummy::getJointNodeEnumFromJointNodeString(const std::string& jointNode) const
+{
+  throw std::runtime_error("AdapterDummy::getJointNodeEnumFromJointNodeString() is not implemented.");
+}
+
+std::string AdapterDummy::getJointNodeStringFromJointNodeEnum(const JointNodeEnum& jointNode) const
+{
+  throw std::runtime_error("AdapterDummy::getJointNodeStringFromJointNodeEnum() is not implemented.");
+}
+
 bool AdapterDummy::getLimbJointPositionsFromPositionBaseToFootInBaseFrame(
     const Position& positionBaseToFootInBaseFrame, const LimbEnum& limb,
     JointPositionsLeg& jointPositions) const
@@ -182,6 +192,16 @@ LocalAngularVelocity AdapterDummy::getAngularVelocityBaseInBaseFrame() const
   return state_->getAngularVelocityBaseInBaseFrame();
 }
 
+LinearAcceleration AdapterDummy::getLinearAccelerationBaseInWorldFrame() const
+{
+  throw std::runtime_error("AdapterDummy::getLinearAccelerationBaseInWorldFrame() is not implemented.");
+}
+
+AngularAcceleration AdapterDummy::getAngularAccelerationBaseInBaseFrame() const
+{
+  throw std::runtime_error("AdapterDummy::getAngularAccelerationBaseInBaseFrame() is not implemented.");
+}
+
 Position AdapterDummy::getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const
 {
   throw std::runtime_error("AdapterDummy::getPositionBaseToFootInBaseFrame() is not implemented.");
@@ -190,6 +210,11 @@ Position AdapterDummy::getPositionBaseToFootInBaseFrame(const LimbEnum& limb) co
 Position AdapterDummy::getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const
 {
   throw std::runtime_error("AdapterDummy::getPositionWorldToFootInWorldFrame() is not implemented.");
+}
+
+Position AdapterDummy::getCenterOfMassInWorldFrame() const
+{
+  return state_->getPositionWorldToBaseInWorldFrame();
 }
 
 void AdapterDummy::getAvailableFrameTransforms(std::vector<std::string>& frameTransforms) const
@@ -217,6 +242,19 @@ JointVelocitiesLeg AdapterDummy::getJointVelocitiesFromEndEffectorLinearVelocity
     const LimbEnum& limb, const LinearVelocity& endEffectorLinearVelocityInWorldFrame) const
 {
   throw std::runtime_error("AdapterDummy::getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame() is not implemented.");
+}
+
+LinearVelocity AdapterDummy::getEndEffectorLinearVelocityFromJointVelocities(const LimbEnum& limb,
+                                                                       const JointVelocitiesLeg& jointVelocities,
+                                                                       const std::string& frameId) const
+{
+  throw std::runtime_error("AdapterDummy::getEndEffectorLinearVelocityFromJointVelocities() is not implemented.");
+}
+
+JointAccelerationsLeg AdapterDummy::getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(
+    const LimbEnum& limb, const LinearAcceleration& endEffectorLinearAccelerationInWorldFrame) const
+{
+  throw std::runtime_error("AdapterDummy::getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame() is not implemented.");
 }
 
 bool AdapterDummy::setInternalDataFromState(const State& state) const

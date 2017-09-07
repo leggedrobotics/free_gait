@@ -33,6 +33,8 @@ class AdapterDummy : public AdapterBase
   virtual LimbEnum getLimbEnumFromLimbString(const std::string& limb) const;
   virtual std::string getLimbStringFromLimbEnum(const LimbEnum& limb) const;
   virtual std::string getBaseString() const;
+  virtual JointNodeEnum getJointNodeEnumFromJointNodeString(const std::string& jointNode) const;
+  virtual std::string getJointNodeStringFromJointNodeEnum(const JointNodeEnum& jointNode) const;
   virtual bool getLimbJointPositionsFromPositionBaseToFootInBaseFrame(
       const Position& positionBaseToFootInBaseFrame, const LimbEnum& limb,
       JointPositionsLeg& jointPositions) const;
@@ -55,8 +57,11 @@ class AdapterDummy : public AdapterBase
   virtual RotationQuaternion getOrientationBaseToWorld() const;
   virtual LinearVelocity getLinearVelocityBaseInWorldFrame() const;
   virtual LocalAngularVelocity getAngularVelocityBaseInBaseFrame() const;
+  virtual LinearAcceleration getLinearAccelerationBaseInWorldFrame() const;
+  virtual AngularAcceleration getAngularAccelerationBaseInBaseFrame() const;
   virtual Position getPositionBaseToFootInBaseFrame(const LimbEnum& limb) const;
   virtual Position getPositionWorldToFootInWorldFrame(const LimbEnum& limb) const;
+  virtual Position getCenterOfMassInWorldFrame() const;
 
   /*!
    * Transform is frameId to world => C_IF.
@@ -71,6 +76,11 @@ class AdapterDummy : public AdapterBase
   //! Depending on state of real robot.
   virtual JointVelocitiesLeg getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(
       const LimbEnum& limb, const LinearVelocity& endEffectorLinearVelocityInWorldFrame) const;
+  virtual LinearVelocity getEndEffectorLinearVelocityFromJointVelocities(const LimbEnum& limb,
+                                                                         const JointVelocitiesLeg& jointVelocities,
+                                                                         const std::string& frameId) const;
+  virtual JointAccelerationsLeg getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(
+      const LimbEnum& limb, const LinearAcceleration& endEffectorLinearAccelerationInWorldFrame) const;
 
   //! Hook to write data to internal robot representation from state.
   virtual bool setInternalDataFromState(const State& state) const;

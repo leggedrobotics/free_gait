@@ -121,8 +121,8 @@ catkin_add_gtest(${PROJECT_NAME}-test
   test/AdapterDummy.cpp
   test/StepTest.cpp
   test/FootstepTest.cpp
-  test/PoseOptimizationQpTest.cpp
-  test/PoseOptimizationSQPTest.cpp
+#  test/PoseOptimizationQpTest.cpp
+#  test/PoseOptimizationSQPTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test

@@ -43,7 +43,7 @@ TEST(PoseOptimizationSQP, ObjectiveFunction)
 //  state.setPoseBaseToWorld(Pose(Position(0.0, 0.0, 0.1), RotationQuaternion()));
 //  state.setRandom();
 //  adapter.setInternalDataFromState(state);
-  PoseOptimizationObjectiveFunction objective(adapter, adapter.getState());
+  PoseOptimizationObjectiveFunction objective;
   Stance nominalStance;
   nominalStance[LimbEnum::LF_LEG] = Position(0.3, 0.2, -0.5);
   nominalStance[LimbEnum::RF_LEG] = Position(0.3, -0.2, -0.5);

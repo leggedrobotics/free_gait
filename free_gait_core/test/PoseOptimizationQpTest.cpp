@@ -8,6 +8,7 @@
 
 #include "free_gait_core/pose_optimization/PoseOptimizationQP.hpp"
 #include "free_gait_core/TypeDefs.hpp"
+#include "AdapterDummy.hpp"
 
 #include <grid_map_core/Polygon.hpp>
 #include <kindr/Core>
@@ -19,7 +20,8 @@ using namespace free_gait;
 
 TEST(PoseOptimizationQP, quadrupedSymmetricUnconstrained)
 {
-  PoseOptimizationQP optimization;
+  AdapterDummy adapter;
+  PoseOptimizationQP optimization(adapter);
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, -0.4)},
@@ -45,7 +47,8 @@ TEST(PoseOptimizationQP, quadrupedSymmetricUnconstrained)
 
 TEST(PoseOptimizationQP, quadrupedSymmetricWithOffsetUnconstrained)
 {
-  PoseOptimizationQP optimization;
+  AdapterDummy adapter;
+  PoseOptimizationQP optimization(adapter);
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -70,7 +73,8 @@ TEST(PoseOptimizationQP, quadrupedSymmetricWithOffsetUnconstrained)
 
 TEST(PoseOptimizationQP, quadrupedAsymmetricUnconstrained)
 {
-  PoseOptimizationQP optimization;
+  AdapterDummy adapter;
+  PoseOptimizationQP optimization(adapter);
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -100,7 +104,8 @@ TEST(PoseOptimizationQP, quadrupedAsymmetricUnconstrained)
 
 TEST(PoseOptimizationQP, quadrupedSymmetricWithYawUnconstrained)
 {
-  PoseOptimizationQP optimization;
+  AdapterDummy adapter;
+  PoseOptimizationQP optimization(adapter);
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
@@ -161,7 +166,8 @@ TEST(PoseOptimizationQP, quadrupedSymmetricWithYawUnconstrained)
 //
 TEST(PoseOptimizationQP, constrained)
 {
-  PoseOptimizationQP optimization;
+  AdapterDummy adapter;
+  PoseOptimizationQP optimization(adapter);
 
   optimization.setNominalStance( Stance({
     {LimbEnum::LF_LEG, Position(1.0, 0.5, 0.0)},
