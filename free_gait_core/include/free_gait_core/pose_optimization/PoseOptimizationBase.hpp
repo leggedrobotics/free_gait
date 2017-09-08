@@ -34,6 +34,8 @@ class PoseOptimizationBase
    */
   virtual void setStance(const Stance& stance);
 
+  virtual void setSupportStance(const Stance& supportStance);
+
   /*!
    * Define the desired leg configuration by specifying the desired feet positions
    * relative to the base.
@@ -43,7 +45,7 @@ class PoseOptimizationBase
 
   /*!
    * Set the support polygon for constraining the pose optimization.
-   * If support polygon is not set, the convex hull of all feet positions is used.
+   * If support polygon is not set, the convex hull of the support feet positions (support stance) is used.
    * @param supportPolygon the support polygon as a list of vertices.
    */
   virtual void setSupportRegion(const grid_map::Polygon& supportRegion);
@@ -73,6 +75,7 @@ class PoseOptimizationBase
   const AdapterBase& adapter_;
   State state_;
   Stance stance_;
+  Stance supportStance_;
   Stance nominalStanceInBaseFrame_;
   grid_map::Polygon supportRegion_;
   LimbLengths minLimbLenghts_, maxLimbLenghts_;

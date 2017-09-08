@@ -124,7 +124,7 @@ class BaseAuto : public BaseMotionBase
   curves::CubicHermiteSE3Curve trajectory_;
 
   // In world frame.
-  Stance footholdsToReach_, footholdsInSupport_, footholdsForOrientation_;
+  Stance footholdsToReach_, footholdsInSupport_, footholdsForOrientation_, footholdsOfNextLegMotion_;
   // In base frame.
   Stance nominalStanceInBaseFrame_;
 

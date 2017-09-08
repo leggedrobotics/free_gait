@@ -30,10 +30,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   virtual ~PoseOptimizationFunctionConstraints();
 
   void setStance(const Stance& stance);
-  const Stance& getStance() const;
-
   void setSupportRegion(const grid_map::Polygon& supportRegion);
-  const grid_map::Polygon& getSupportRegion() const;
 
   void setLimbLengthConstraints(const LimbLengths& minLimbLenghts,
                                 const LimbLengths& maxLimbLenghts);
@@ -56,6 +53,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void updateNumberOfInequalityConstraints();
 
   Stance stance_;
+  Stance supportStance_;
   LegPositions positionsBaseToHipInBaseFrame_;
   Position centerOfMassInBaseFrame_;
 

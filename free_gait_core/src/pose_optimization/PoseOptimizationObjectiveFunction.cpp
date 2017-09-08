@@ -96,7 +96,7 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 
   // Cost for CoM.
   const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
-  value += 1.0 * (supportRegion_.getCentroid().head(2) - centerOfMassInWorldFrame.vector().head(2)).squaredNorm();
+  value += 2.0 * (supportRegion_.getCentroid().head(2) - centerOfMassInWorldFrame.vector().head(2)).squaredNorm();
 
 //  // Cost for torques.
 ////  state_.setPoseBaseToWorld(pose);

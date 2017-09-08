@@ -28,6 +28,11 @@ void PoseOptimizationBase::setStance(const Stance& stance)
   stance_ = stance;
 }
 
+void PoseOptimizationBase::setSupportStance(const Stance& supportStance)
+{
+  supportStance_ = supportStance;
+}
+
 void PoseOptimizationBase::setNominalStance(const Stance& nominalStanceInBaseFrame)
 {
   nominalStanceInBaseFrame_ = nominalStanceInBaseFrame;
@@ -47,7 +52,7 @@ void PoseOptimizationBase::setLimbLengthConstraints(const LimbLengths& minLimbLe
 void PoseOptimizationBase::checkSupportRegion()
 {
   if (supportRegion_.nVertices() == 0) {
-    for (const auto& foot : stance_)
+    for (const auto& foot : supportStance_)
       supportRegion_.addVertex(foot.second.vector().head<2>());
   }
 }

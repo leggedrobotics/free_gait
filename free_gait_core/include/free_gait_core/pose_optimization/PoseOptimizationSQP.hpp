@@ -11,6 +11,7 @@
 #include "free_gait_core/TypeDefs.hpp"
 #include "free_gait_core/executor/AdapterBase.hpp"
 #include "free_gait_core/executor/State.hpp"
+#include "free_gait_core/pose_optimization/PoseOptimizationBase.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimizationObjectiveFunction.hpp"
 #include "free_gait_core/pose_optimization/PoseOptimizationFunctionConstraints.hpp"
 
@@ -22,7 +23,7 @@
 
 namespace free_gait {
 
-class PoseOptimizationSQP
+class PoseOptimizationSQP : public PoseOptimizationBase
 {
  public:
   using OptimizationStepCallbackFunction = std::function<void(const size_t, const State&, const double, const bool)>;
@@ -34,34 +35,6 @@ class PoseOptimizationSQP
   virtual ~PoseOptimizationSQP();
 
   void setCurrentState(const State& state);
-
-  /*!
-   * Set the positions of the feet of the robot in world coordinate system.
-   * @param feetPositions the feet positions.
-   */
-  void setStance(const Stance& stance);
-
-  /*!
-   * Define the desired leg configuration by specifying the desired feet positions
-   * relative to the base.
-   * @param desiredFeetPositionsInBase the desired feet positions in base frame.
-   */
-  void setNominalStance(const Stance& nominalStanceInBaseFrame);
-
-  /*!
-   * Set the support polygon for constraining the pose optimization.
-   * If support polygon is not set, the convex hull of all feet positions is used.
-   * @param supportPolygon the support polygon as a list of vertices.
-   */
-  void setSupportRegion(const grid_map::Polygon& supportRegion);
-
-  /*!
-   * Set the max. and min. value for constraining the limb length.
-   * Note: minLimbLenghts and maxLimbLenghts need to have same length!
-   * @param minLimbLenghts the min. limb length.
-   * @param maxLimbLenghts the max. limb length.
-   */
-  void setLimbLengthConstraints(const LimbLengths& minLimbLenghts, const LimbLengths& maxLimbLenghts);
 
   /*!
    * Registers a callback function that is called after every iteration step
@@ -92,21 +65,15 @@ class PoseOptimizationSQP
   double getOptimizationDuration() const;
 
  private:
-  void checkSupportRegion();
-
-  void updateJointPositionsInState(State& state) const;
-
   void callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue =
                                                 std::numeric_limits<double>::max(),
                                             const bool finalIteration = false);
 
-  const AdapterBase& adapter_;
   State originalState_;
 
   //! State being optimized.
   State state_;
 
-  Stance stance_;
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;
   std::shared_ptr<PoseOptimizationFunctionConstraints> constraints_;
   OptimizationStepCallbackFunction optimizationStepCallback_;

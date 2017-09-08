@@ -46,6 +46,7 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     trajectory_(other.trajectory_),
     footholdsToReach_(other.footholdsToReach_),
     footholdsInSupport_(other.footholdsInSupport_),
+    footholdsOfNextLegMotion_(other.footholdsOfNextLegMotion_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
     isComputed_(other.isComputed_)
 {
@@ -99,11 +100,16 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   // Define min./max. leg lengths.
   for (const auto& limb : adapter.getLimbs()) {
     minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
-    maxLimbLenghts_[limb] = 0.58; // 0.59
+    if (footholdsOfNextLegMotion_.find(limb) == footholdsOfNextLegMotion_.end()) {
+      maxLimbLenghts_[limb] = 0.57; // Foot stays in contact.
+    } else {
+      maxLimbLenghts_[limb] = 0.6; // Foot leaves in contact. // 0.59
+    }
   }
 
   poseOptimizationGeometric_.reset(new PoseOptimizationGeometric(adapter));
   poseOptimizationGeometric_->setStance(footholdsToReach_);
+  poseOptimizationGeometric_->setSupportStance(footholdsInSupport_);
   poseOptimizationGeometric_->setNominalStance(nominalStanceInBaseFrame_);
   poseOptimizationGeometric_->setSupportRegion(supportRegion);
   poseOptimizationGeometric_->setStanceForOrientation(footholdsForOrientation_);
@@ -111,12 +117,14 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   poseOptimizationQP_.reset(new PoseOptimizationQP(adapter));
   poseOptimizationQP_->setCurrentState(state);
   poseOptimizationQP_->setStance(footholdsToReach_);
+  poseOptimizationQP_->setSupportStance(footholdsInSupport_);
   poseOptimizationQP_->setNominalStance(nominalStanceInBaseFrame_);
   poseOptimizationQP_->setSupportRegion(supportRegion);
 
   constraintsChecker_.reset(new PoseConstraintsChecker(adapter));
   constraintsChecker_->setCurrentState(state);
   constraintsChecker_->setStance(footholdsToReach_);
+  constraintsChecker_->setSupportStance(footholdsInSupport_);
   constraintsChecker_->setSupportRegion(supportRegion);
   constraintsChecker_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
   constraintsChecker_->setTolerances(0.02, 0.02); // TODO Make parameter.
@@ -124,6 +132,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   poseOptimizationSQP_.reset(new PoseOptimizationSQP(adapter));
   poseOptimizationSQP_->setCurrentState(state);
   poseOptimizationSQP_->setStance(footholdsToReach_);
+  poseOptimizationSQP_->setSupportStance(footholdsInSupport_);
   poseOptimizationSQP_->setNominalStance(nominalStanceInBaseFrame_);
   poseOptimizationSQP_->setSupportRegion(supportRegion);
   poseOptimizationSQP_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
@@ -256,6 +265,7 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
 bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   footholdsInSupport_.clear();
+  footholdsOfNextLegMotion_.clear();
   bool prepareForNextStep = false;
   if (!step.hasLegMotion() && queue.size() > 1) {
     if (queue.getNextStep().hasLegMotion()) prepareForNextStep = true;
@@ -266,6 +276,8 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     for (const auto& limb : adapter.getLimbs()) {
       if (!state.isIgnoreContact(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      } else {
+        footholdsOfNextLegMotion_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
   } else {
@@ -378,6 +390,9 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
   out << std::endl;
   out << "Footholds to reach: ";
   for (const auto& f : baseAuto.footholdsToReach_) out << f.first << " ";
+  out << std::endl;
+  out << "Footholds of next leg motion: ";
+  for (const auto& f : baseAuto.footholdsOfNextLegMotion_) out << f.first << " ";
   out << std::endl;
   return out;
 }

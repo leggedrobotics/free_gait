@@ -38,11 +38,6 @@ void PoseOptimizationFunctionConstraints::setSupportRegion(const grid_map::Polyg
                                                 supportRegionInequalityConstraintsMaxValues_);
 }
 
-const grid_map::Polygon& PoseOptimizationFunctionConstraints::getSupportRegion() const
-{
-  return supportRegion_;
-}
-
 void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
     const LimbLengths& minLimbLenghts,
     const LimbLengths& maxLimbLenghts)

@@ -23,7 +23,7 @@
 namespace free_gait {
 
 PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
-    : adapter_(adapter),
+    : PoseOptimizationBase(adapter),
       timer_("PoseOptimizationSQP"),
       durationInCallback_(0.0)
 {
@@ -48,30 +48,6 @@ void PoseOptimizationSQP::setCurrentState(const State& state)
   originalState_ = state;
 }
 
-void PoseOptimizationSQP::setStance(const Stance& stance)
-{
-  stance_ = stance;
-  objective_->setStance(stance);
-  constraints_->setStance(stance);
-}
-
-void PoseOptimizationSQP::setNominalStance(
-    const Stance& nominalStanceInBaseFrame)
-{
-  objective_->setNominalStance(nominalStanceInBaseFrame);
-}
-
-void PoseOptimizationSQP::setSupportRegion(const grid_map::Polygon& supportRegion)
-{
-  constraints_->setSupportRegion(supportRegion);
-  objective_->setSupportRegion(supportRegion);
-}
-
-void PoseOptimizationSQP::setLimbLengthConstraints(const LimbLengths& minLimbLenghts, const LimbLengths& maxLimbLenghts)
-{
-  constraints_->setLimbLengthConstraints(minLimbLenghts, maxLimbLenghts);
-}
-
 void PoseOptimizationSQP::registerOptimizationStepCallback(OptimizationStepCallbackFunction callback)
 {
   optimizationStepCallback_ = callback;
@@ -85,6 +61,14 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   checkSupportRegion();
 
   objective_->setInitialPose(pose);
+  objective_->setStance(stance_);
+  objective_->setNominalStance(nominalStanceInBaseFrame_);
+  objective_->setSupportRegion(supportRegion_);
+
+  constraints_->setStance(stance_);
+  constraints_->setSupportRegion(supportRegion_);
+  constraints_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+
   state_.setPoseBaseToWorld(pose);
   adapter_.setInternalDataFromState(state_); // To guide IK.
   updateJointPositionsInState(state_); // For CoM calculation.
@@ -153,27 +137,6 @@ void PoseOptimizationSQP::callExternalOptimizationStepCallbackWithPose(const Pos
 double PoseOptimizationSQP::getOptimizationDuration() const
 {
   return timer_.getAverageElapsedTimeUSec("total") - durationInCallback_;
-}
-
-void PoseOptimizationSQP::checkSupportRegion()
-{
-  // If no support polygon region, use positions.
-  if (constraints_->getSupportRegion().nVertices() == 0) {
-    grid_map::Polygon supportRegion;
-    for (const auto& foot : stance_)
-      supportRegion.addVertex(foot.second.vector().head<2>());
-  }
-}
-
-void PoseOptimizationSQP::updateJointPositionsInState(State& state) const
-{
-  for (const auto& foot : stance_) {
-    const Position footPositionInBase(
-        adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(), foot.second));
-    JointPositionsLeg jointPositions;
-    const bool success = adapter_.getLimbJointPositionsFromPositionBaseToFootInBaseFrame(footPositionInBase, foot.first, jointPositions);
-    if (success) state.setJointPositionsForLimb(foot.first, jointPositions);
-  }
 }
 
 void PoseOptimizationSQP::callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue,
