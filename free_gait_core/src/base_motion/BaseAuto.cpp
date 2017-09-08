@@ -99,7 +99,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   // Define min./max. leg lengths.
   for (const auto& limb : adapter.getLimbs()) {
     minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
-    maxLimbLenghts_[limb] = 0.57; // 0.59
+    maxLimbLenghts_[limb] = 0.58; // 0.59
   }
 
   poseOptimizationGeometric_.reset(new PoseOptimizationGeometric(adapter));
