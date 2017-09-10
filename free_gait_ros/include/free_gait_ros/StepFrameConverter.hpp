@@ -51,11 +51,11 @@ class StepFrameConverter
                         const Transform& transformInSourceFrame,
                         const ros::Time& time);
 
- private:
-
   bool getTransform(const std::string& sourceFrameId, const std::string& targetFrameId,
                     const Transform& transformInSourceFrame, const ros::Time& time,
                     Transform& transform);
+
+ private:
 
   /// TF buffer used to read the transformations.
   /// Note: Needs to be updated from outside with
