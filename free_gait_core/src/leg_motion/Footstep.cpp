@@ -59,6 +59,11 @@ void Footstep::updateStartVelocity(const LinearVelocity& startVelocity)
  // Nothing to todo.
 }
 
+const Position Footstep::getStartPosition() const
+{
+  return start_;
+}
+
 bool Footstep::compute(bool isSupportLeg)
 {
   std::vector<ValueType> values;
@@ -86,9 +91,9 @@ bool Footstep::compute(bool isSupportLeg)
   } else {
     surfaceNormal =  Vector::UnitZ();
   }
-  DerivativeType liftOffVelocity = liftOffSpeed_ * surfaceNormal.vector();
+  const LinearVelocity liftOffVelocity(liftOffSpeed_ * Vector::UnitZ());
   touchdownVelocity_ = LinearVelocity(-touchdownSpeed_ * surfaceNormal.vector());
-  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity, touchdownVelocity_.vector());
+  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity.vector(), touchdownVelocity_.vector());
   duration_ = trajectory_.getMaxTime() - trajectory_.getMinTime();
   isComputed_ = true;
   return true;
