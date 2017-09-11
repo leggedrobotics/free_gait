@@ -70,9 +70,9 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   constraints_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
 
   state_.setPoseBaseToWorld(pose);
-  adapter_.setInternalDataFromState(state, false, true, false, false); // To guide IK.
+  adapter_.setInternalDataFromState(state_, false, true, false, false); // To guide IK.
   updateJointPositionsInState(state_); // For CoM calculation.
-  adapter_.setInternalDataFromState(state, false, true, false, false);
+  adapter_.setInternalDataFromState(state_, false, true, false, false);
   const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
                                  adapter_.getCenterOfMassInWorldFrame()));
   objective_->setCenterOfMass(centerOfMassInBaseFrame);
@@ -114,9 +114,9 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
   // Update center of mass. // TODO Make optional.
   state_.setPoseBaseToWorld(poseParameterization.getPose());
   state_.setAllJointPositions(originalState_.getJointPositions());
-  adapter_.setInternalDataFromState(state, false, true, false, false);
+  adapter_.setInternalDataFromState(state_, false, true, false, false);
   updateJointPositionsInState(state_);
-  adapter_.setInternalDataFromState(state, false, true, false, false); // TODO Improve efficiency.
+  adapter_.setInternalDataFromState(state_, false, true, false, false); // TODO Improve efficiency.
   const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
                                  adapter_.getCenterOfMassInWorldFrame()));
   objective_->setCenterOfMass(centerOfMassInBaseFrame);
@@ -144,7 +144,7 @@ void PoseOptimizationSQP::callExternalOptimizationStepCallback(const size_t iter
 {
   if (optimizationStepCallback_) {
     timer_.pinTime("callback");
-    adapter_.setInternalDataFromState(state, false, true, false, false);
+    adapter_.setInternalDataFromState(state_, false, true, false, false);
     State previewState(state_);
     updateJointPositionsInState(previewState);
     optimizationStepCallback_(iterationStep, previewState, functionValue, finalIteration);
