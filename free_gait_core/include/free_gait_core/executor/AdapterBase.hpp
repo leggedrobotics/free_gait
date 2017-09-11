@@ -111,6 +111,8 @@ class AdapterBase
   //! Hook to write data to internal robot representation from state.
   virtual bool setInternalDataFromState(const State& state, bool updateContacts = true, bool updatePosition = true,
                                         bool updateVelocity = true, bool updateAcceleration = false) const = 0;
+  void createCopyOfState();
+  void resetToCopyOfState();
 };
 
 } /* namespace free_gait */

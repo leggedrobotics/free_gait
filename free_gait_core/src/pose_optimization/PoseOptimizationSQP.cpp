@@ -99,7 +99,6 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   pose = params.getPose();
   // TODO Fix unit quaternion?
 
-  adapter_.setInternalDataFromState(originalState_, false, true, false, false);
   timer_.splitTime("total");
   return true;
 }

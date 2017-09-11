@@ -70,8 +70,11 @@ void BaseAuto::updateStartPose(const Pose& startPose)
   start_ = startPose;
 }
 
-bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
+bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, AdapterBase& adapter)
 {
+  // TODO This shouldn't be necessary if we could create copies of the adapter.
+  adapter.createCopyOfState();
+
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
       std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
@@ -145,7 +148,9 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   computeDuration(step, adapter);
   computeTrajectory();
 
-  adapter.setInternalDataFromState(state, false, true, false, false); // TODO This shouldn't be necessary if we could create copies of the adapter.
+  // TODO This shouldn't be necessary if we could create copies of the adapter.
+  adapter.resetToCopyOfState();
+
   return isComputed_ = true;
 }
 
