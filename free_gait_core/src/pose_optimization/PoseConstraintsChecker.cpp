@@ -29,11 +29,11 @@ void PoseConstraintsChecker::setTolerances(const double centerOfMassTolerance, c
 bool PoseConstraintsChecker::check(const Pose& pose)
 {
   state_.setPoseBaseToWorld(pose);
-  adapter_.setInternalDataFromState(state_); // To guide IK.
+  adapter_.setInternalDataFromState(state, false, true, false, false); // To guide IK.
   if (!updateJointPositionsInState(state_)) {
     return false;
   }
-  adapter_.setInternalDataFromState(state_);
+  adapter_.setInternalDataFromState(state, false, true, false, false);
 
   // Check center of mass.
   grid_map::Polygon supportRegionCopy(supportRegion_);

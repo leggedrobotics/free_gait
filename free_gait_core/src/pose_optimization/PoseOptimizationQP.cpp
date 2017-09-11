@@ -43,9 +43,9 @@ bool PoseOptimizationQP::optimize(Pose& pose)
   checkSupportRegion();
 
   state_.setPoseBaseToWorld(pose);
-  adapter_.setInternalDataFromState(state_); // To guide IK.
+  adapter_.setInternalDataFromState(state, false, true, false, false); // To guide IK.
   updateJointPositionsInState(state_);
-  adapter_.setInternalDataFromState(state_);
+  adapter_.setInternalDataFromState(state, false, true, false, false);
 
   // Compute center of mass.
   const Position centerOfMassInBaseFrame(

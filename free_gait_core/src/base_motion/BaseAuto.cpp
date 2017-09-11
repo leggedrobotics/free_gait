@@ -145,7 +145,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   computeDuration(step, adapter);
   computeTrajectory();
 
-  adapter.setInternalDataFromState(state); // TODO This shouldn't be necessary if we could create copies of the adapter.
+  adapter.setInternalDataFromState(state, false, true, false, false); // TODO This shouldn't be necessary if we could create copies of the adapter.
   return isComputed_ = true;
 }
 
