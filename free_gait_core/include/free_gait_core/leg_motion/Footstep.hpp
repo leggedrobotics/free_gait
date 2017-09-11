@@ -45,6 +45,7 @@ class Footstep : public EndEffectorMotionBase
    */
   void updateStartPosition(const Position& startPosition);
   void updateStartVelocity(const LinearVelocity& startVelocity);
+  const Position getStartPosition() const;
 
   const ControlSetup getControlSetup() const;
 
@@ -72,7 +73,6 @@ class Footstep : public EndEffectorMotionBase
   double getDuration() const;
 
   void setTargetPosition(const std::string& frameId, const Position& target);
-
   const Position getTargetPosition() const;
   const LinearVelocity getTargetVelocity() const;
 

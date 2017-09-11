@@ -88,6 +88,9 @@ std::unique_ptr<Step> Step::clone() const
 
 void Step::addLegMotion(const LegMotionBase& legMotion)
 {
+  if (hasLegMotion(legMotion.getLimb())) {
+    legMotions_.erase(legMotion.getLimb());
+  }
   legMotions_.insert(std::pair<LimbEnum, std::unique_ptr<LegMotionBase>>(legMotion.getLimb(), std::move(legMotion.clone())));
   isUpdated_ = false;
   isComputed_ = false;
