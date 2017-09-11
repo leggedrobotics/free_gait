@@ -91,7 +91,7 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
       std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4));
   solver.setCheckConstraints(false);
-  solver.setPrintOutput(true);
+  solver.setPrintOutput(false);
   PoseParameterization params;
   params.setPose(pose);
   double functionValue;
