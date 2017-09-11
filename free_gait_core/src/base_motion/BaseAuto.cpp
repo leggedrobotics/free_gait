@@ -70,7 +70,7 @@ void BaseAuto::updateStartPose(const Pose& startPose)
   start_ = startPose;
 }
 
-bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, AdapterBase& adapter)
+bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   // TODO This shouldn't be necessary if we could create copies of the adapter.
   adapter.createCopyOfState();
