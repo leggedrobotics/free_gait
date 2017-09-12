@@ -64,24 +64,29 @@ const Position Footstep::getStartPosition() const
   return start_;
 }
 
+const LinearVelocity Footstep::getStartVelocity() const
+{
+  return liftOffVelocity_;
+}
+
 bool Footstep::compute(bool isSupportLeg)
 {
-  std::vector<ValueType> values;
+  values_.clear();
   if (profileType_ == "triangle") {
-    generateTriangleKnots(values);
+    generateTriangleKnots();
   } else if (profileType_ == "square") {
-    generateSquareKnots(values);
+    generateSquareKnots();
   } else if (profileType_ == "straight") {
-    generateStraightKnots(values);
+    generateStraightKnots();
   } else if (profileType_ == "trapezoid") {
-    generateTrapezoidKnots(values);
+    generateTrapezoidKnots();
   } else {
     MELO_ERROR_STREAM("Swing profile of type '" << profileType_ << "' not supported.");
     return false;
   }
 
-  std::vector<Time> times;
-  computeTiming(values, times);
+  times_.clear();
+  computeTiming(values_, averageVelocity_, minimumDuration_, times_);
   std::vector<DerivativeType> velocities, accelerations;
   if (ignoreContact_) touchdownSpeed_ = 0.0;
   if (!isSupportLeg) liftOffSpeed_ = 0.0;
@@ -91,9 +96,9 @@ bool Footstep::compute(bool isSupportLeg)
   } else {
     surfaceNormal =  Vector::UnitZ();
   }
-  const LinearVelocity liftOffVelocity(liftOffSpeed_ * Vector::UnitZ());
+  liftOffVelocity_ = LinearVelocity(liftOffSpeed_ * Vector::UnitZ());
   touchdownVelocity_ = LinearVelocity(-touchdownSpeed_ * surfaceNormal.vector());
-  trajectory_.fitCurveWithDerivatives(times, values, liftOffVelocity.vector(), touchdownVelocity_.vector());
+  trajectory_.fitCurveWithDerivatives(times_, values_, liftOffVelocity_.vector(), touchdownVelocity_.vector());
   duration_ = trajectory_.getMaxTime() - trajectory_.getMinTime();
   isComputed_ = true;
   return true;
@@ -149,6 +154,11 @@ const LinearAcceleration Footstep::evaluateAcceleration(const double time) const
 double Footstep::getDuration() const
 {
   return duration_;
+}
+
+double Footstep::getMinimumDuration() const
+{
+  return minimumDuration_;
 }
 
 void Footstep::setTargetPosition(const std::string& frameId, const Position& target)
@@ -215,6 +225,16 @@ bool Footstep::isIgnoreForPoseAdaptation() const
   return ignoreForPoseAdaptation_;
 }
 
+const std::vector<Footstep::ValueType>& Footstep::getKnotValues() const
+{
+  return values_;
+}
+
+const std::vector<Footstep::Time>& Footstep::getTimes() const
+{
+  return times_;
+}
+
 std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
 {
   out << "Frame: " << footstep.getFrameId(ControlLevel::Position) << std::endl;
@@ -229,19 +249,19 @@ std::ostream& operator<<(std::ostream& out, const Footstep& footstep)
   return out;
 }
 
-void Footstep::generateStraightKnots(std::vector<ValueType>& values) const
+void Footstep::generateStraightKnots()
 {
   // Knot 1.
-  values.push_back(start_.vector());
+  values_.push_back(start_.vector());
 
   // Knot 2.
-  values.push_back(target_.vector());
+  values_.push_back(target_.vector());
 }
 
-void Footstep::generateTriangleKnots(std::vector<ValueType>& values) const
+void Footstep::generateTriangleKnots()
 {
   // Knot 1.
-  values.push_back(start_.vector());
+  values_.push_back(start_.vector());
 
   // Knot 2.
   // Interpolate on the xy-plane.
@@ -249,41 +269,41 @@ void Footstep::generateTriangleKnots(std::vector<ValueType>& values) const
   // Apex height.
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
   knot2.z() = basis + profileHeight_;
-  values.push_back(knot2.vector());
+  values_.push_back(knot2.vector());
 
   // Knot 3.
-  values.push_back(target_.vector());
+  values_.push_back(target_.vector());
 }
 
-void Footstep::generateSquareKnots(std::vector<ValueType>& values) const
+void Footstep::generateSquareKnots()
 {
   double basis = start_.z() > target_.z() ? start_.z() : target_.z();
   double height = basis + profileHeight_;
 
   // Knot 1.
-  values.push_back(start_.vector());
+  values_.push_back(start_.vector());
 
   // Knot 2.
   Position knot2(start_.x(), start_.y(), height);
-  values.push_back(knot2.vector());
+  values_.push_back(knot2.vector());
 
   // Knot 3.
   Position knot3(target_.x(), target_.y(), height);
-  values.push_back(knot3.vector());
+  values_.push_back(knot3.vector());
 
   // Knot 4.
-  values.push_back(target_.vector());
+  values_.push_back(target_.vector());
 }
 
-void Footstep::generateTrapezoidKnots(std::vector<ValueType>& values) const
+void Footstep::generateTrapezoidKnots()
 {
   // Knot 1.
-  values.push_back(start_.vector());
+  values_.push_back(start_.vector());
 
   // Knot 2.
   Position knot2 = start_ + 0.1 * (target_ - start_);
   knot2.z() = start_.z() + profileHeight_;
-  values.push_back(knot2.vector());
+  values_.push_back(knot2.vector());
 
   // Knot 4.
   Position knot4 = start_ + 0.9 * (target_ - start_);
@@ -292,25 +312,26 @@ void Footstep::generateTrapezoidKnots(std::vector<ValueType>& values) const
   // Knot 3.
   Position knot3 = knot2 + 0.5 * (knot4 - knot2);
   knot3.z() = knot4.z();
-  values.push_back(knot3.vector());
-  values.push_back(knot4.vector());
+  values_.push_back(knot3.vector());
+  values_.push_back(knot4.vector());
 
   // Knot 6.
-  values.push_back(target_.vector());
+  values_.push_back(target_.vector());
 }
 
-void Footstep::computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const
+void Footstep::computeTiming(std::vector<ValueType> values, const double averageVelocity, double minimumDuration,
+                             std::vector<Time>& times)
 {
-  // Assuming equal average velocity between all knots.
+  times.clear();
   times.push_back(0.0);
-  for (unsigned int i = 1; i < values.size(); ++i) {
+  for (size_t i = 1; i < values.size(); ++i) {
     double distance = (values[i] - values[i-1]).norm();
-    double duration = distance / averageVelocity_;
+    double duration = distance / averageVelocity;
     times.push_back(times[i-1] + duration);
   }
-  if (times.back() < minimumDuration_) {
-    for (unsigned int i = 1; i < times.size(); ++i) {
-      times[i] = times[i] / times.back() * minimumDuration_;
+  if (times.back() < minimumDuration) {
+    for (size_t i = 1; i < times.size(); ++i) {
+      times[i] = times[i] / times.back() * minimumDuration;
     }
   }
 }

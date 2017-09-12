@@ -46,6 +46,7 @@ class Footstep : public EndEffectorMotionBase
   void updateStartPosition(const Position& startPosition);
   void updateStartVelocity(const LinearVelocity& startVelocity);
   const Position getStartPosition() const;
+  const LinearVelocity getStartVelocity() const;
 
   const ControlSetup getControlSetup() const;
 
@@ -71,6 +72,7 @@ class Footstep : public EndEffectorMotionBase
    * @return the duration.
    */
   double getDuration() const;
+  double getMinimumDuration() const;
 
   void setTargetPosition(const std::string& frameId, const Position& target);
   const Position getTargetPosition() const;
@@ -86,8 +88,16 @@ class Footstep : public EndEffectorMotionBase
   void setAverageVelocity(double averageVelocity);
 
   bool isIgnoreContact() const;
-
   bool isIgnoreForPoseAdaptation() const;
+
+  const std::vector<ValueType>& getKnotValues() const;
+  const std::vector<Time>& getTimes() const;
+
+  /*!
+   * Computes timing assuming equal average velocity between all knots.
+   */
+  static void computeTiming(std::vector<ValueType> values, const double averageVelocity, double minimumDuration,
+                            std::vector<Time>& times);
 
   friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);
 
@@ -96,14 +106,14 @@ class Footstep : public EndEffectorMotionBase
   friend class StepFrameConverter;
 
  private:
-  void generateStraightKnots(std::vector<ValueType>& values) const;
-  void generateTriangleKnots(std::vector<ValueType>& values) const;
-  void generateSquareKnots(std::vector<ValueType>& values) const;
-  void generateTrapezoidKnots(std::vector<ValueType>& values) const;
-  void computeTiming(const std::vector<ValueType>& values, std::vector<Time>& times) const;
+  void generateStraightKnots();
+  void generateTriangleKnots();
+  void generateSquareKnots();
+  void generateTrapezoidKnots();
 
   Position start_;
   Position target_;
+  LinearVelocity liftOffVelocity_;
   LinearVelocity touchdownVelocity_;
   std::string frameId_;
   double profileHeight_;
@@ -119,6 +129,8 @@ class Footstep : public EndEffectorMotionBase
   ControlSetup controlSetup_;
 
   //! Foot trajectory.
+  std::vector<ValueType> values_;
+  std::vector<Time> times_;
   curves::CubicHermiteE3Curve trajectory_;
 
   //! If trajectory is updated.
