@@ -96,7 +96,7 @@ class Footstep : public EndEffectorMotionBase
   /*!
    * Computes timing assuming equal average velocity between all knots.
    */
-  static void computeTiming(std::vector<ValueType> values, const double averageVelocity, double minimumDuration,
+  static void computeTiming(const std::vector<ValueType>& values, const double averageVelocity, double minimumDuration,
                             std::vector<Time>& times);
 
   friend std::ostream& operator << (std::ostream& out, const Footstep& footstep);

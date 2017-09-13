@@ -319,7 +319,7 @@ void Footstep::generateTrapezoidKnots()
   values_.push_back(target_.vector());
 }
 
-void Footstep::computeTiming(std::vector<ValueType> values, const double averageVelocity, double minimumDuration,
+void Footstep::computeTiming(const std::vector<ValueType>& values, const double averageVelocity, double minimumDuration,
                              std::vector<Time>& times)
 {
   times.clear();
