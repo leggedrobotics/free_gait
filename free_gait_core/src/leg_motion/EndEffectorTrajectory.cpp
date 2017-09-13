@@ -9,9 +9,6 @@
 #include <free_gait_core/leg_motion/EndEffectorTrajectory.hpp>
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
-// Robot utils
-#include <curves/PolynomialSplineContainer.hpp>
-
 namespace free_gait {
 
 EndEffectorTrajectory::EndEffectorTrajectory(LimbEnum limb)
@@ -76,10 +73,38 @@ void EndEffectorTrajectory::updateStartPosition(const Position& startPosition)
   }
 }
 
+void EndEffectorTrajectory::updateStartVelocity(const LinearVelocity& startVelocity)
+{
+  isComputed_ = false;
+  auto& values = values_.at(ControlLevel::Velocity);
+  if (times_[0] == 0.0) {
+    values[0] = startVelocity.vector();
+  } else {
+    times_.insert(times_.begin(), 0.0);
+    values.insert(values.begin(), startVelocity.vector());
+  }
+}
+
+const Position EndEffectorTrajectory::getStartPosition() const
+{
+  return Position(values_.at(ControlLevel::Position).front());
+}
+
+const LinearVelocity EndEffectorTrajectory::getStartVelocity() const
+{
+  return LinearVelocity(values_.at(ControlLevel::Velocity).front());
+}
+
 bool EndEffectorTrajectory::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   duration_ = times_.back();
-  trajectory_.fitCurve(times_, values_.at(ControlLevel::Position));
+  if (controlSetup_[ControlLevel::Position] && !controlSetup_[ControlLevel::Velocity]) {
+    trajectory_.fitCurve(times_, values_.at(ControlLevel::Position));
+  } else if (controlSetup_[ControlLevel::Position] && controlSetup_[ControlLevel::Velocity]) {
+    trajectory_.fitCurveWithDerivatives(times_, values_.at(ControlLevel::Position),
+                                        values_.at(ControlLevel::Velocity).front(),
+                                        values_.at(ControlLevel::Velocity).back());
+  } // TODO Extend the options here.
 
   // Curves implementation provides velocities and accelerations.
   if (controlSetup_[ControlLevel::Position]) {
@@ -174,6 +199,11 @@ std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffe
   out << "Positions: ";
   for (const auto& position : endEffectorTrajectory.values_.at(ControlLevel::Position)) out << "[" << position.transpose() << "], ";
   out << std::endl;
+  if (endEffectorTrajectory.values_.find(ControlLevel::Velocity) != endEffectorTrajectory.values_.end()) {
+    out << "Velocities: ";
+    for (const auto& velocity : endEffectorTrajectory.values_.at(ControlLevel::Velocity)) out << "[" << velocity.transpose() << "], ";
+    out << std::endl;
+  }
   return out;
 }
 

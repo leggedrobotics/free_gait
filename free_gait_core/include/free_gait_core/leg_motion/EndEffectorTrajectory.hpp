@@ -13,7 +13,7 @@
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 
 // Curves
-#include <curves/PolynomialSplineVectorSpaceCurve.hpp>
+#include <curves/CubicHermiteE3Curve.hpp>
 
 // STD
 #include <string>
@@ -24,8 +24,8 @@ namespace free_gait {
 class EndEffectorTrajectory : public EndEffectorMotionBase
 {
  public:
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::ValueType ValueType;
-  typedef typename curves::PolynomialSplineQuinticVector3Curve::DerivativeType DerivativeType;
+  typedef typename curves::CubicHermiteE3Curve::ValueType ValueType;
+  typedef typename curves::CubicHermiteE3Curve::DerivativeType DerivativeType;
   typedef typename curves::Time Time;
 
   EndEffectorTrajectory(LimbEnum limb);
@@ -61,6 +61,9 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
    * @return true if successful, false otherwise.
    */
   void updateStartPosition(const Position& startPosition);
+  void updateStartVelocity(const LinearVelocity& startVelocity);
+  const Position getStartPosition() const;
+  const LinearVelocity getStartVelocity() const;
 
   const ControlSetup getControlSetup() const;
 
@@ -117,8 +120,8 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
 
   double duration_;
 
-  //! Foot trajectory.
-  curves::PolynomialSplineQuinticVector3Curve trajectory_;
+  //! End effector trajectory.
+  curves::CubicHermiteE3Curve trajectory_;
 
   //! If trajectory is updated.
   bool isComputed_;
