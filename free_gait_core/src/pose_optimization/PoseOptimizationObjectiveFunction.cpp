@@ -194,7 +194,7 @@ bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& 
 bool PoseOptimizationObjectiveFunction::getLocalHessian(numopt_common::SparseMatrix& hessian,
                                                         const numopt_common::Parameterization& params, bool newParams)
 {
-  // Numercical approach.
+  // Numerical approach.
 //  numopt_common::SparseMatrix numericalHessian(params.getLocalSize(), params.getLocalSize());
 //  NonlinearObjectiveFunction::estimateLocalHessian(numericalHessian, params, 1.0e-6);
 //  std::cout << "Numerical:\n" << numericalHessian << std::endl;
