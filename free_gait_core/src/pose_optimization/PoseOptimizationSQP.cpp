@@ -111,15 +111,23 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
   auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
 
   // Update center of mass. // TODO Make optional.
-  state_.setPoseBaseToWorld(poseParameterization.getPose());
-  state_.setAllJointPositions(originalState_.getJointPositions());
-  adapter_.setInternalDataFromState(state_, false, true, false, false);
-  updateJointPositionsInState(state_);
-  adapter_.setInternalDataFromState(state_, false, true, false, false); // TODO Improve efficiency.
-  const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
-                                 adapter_.getCenterOfMassInWorldFrame()));
-  objective_->setCenterOfMass(centerOfMassInBaseFrame);
-  constraints_->setCenterOfMass(centerOfMassInBaseFrame);
+//  state_.setPoseBaseToWorld(poseParameterization.getPose());
+//  state_.setAllJointPositions(originalState_.getJointPositions());
+//  adapter_.setInternalDataFromState(state_, false, true, false, false);
+//  updateJointPositionsInState(state_);
+//  adapter_.setInternalDataFromState(state_, false, true, false, false); // TODO Improve efficiency.
+//  const Position centerOfMassInBaseFrame(adapter_.transformPosition(adapter_.getWorldFrameId(), adapter_.getBaseFrameId(),
+//                                 adapter_.getCenterOfMassInWorldFrame()));
+//  objective_->setCenterOfMass(centerOfMassInBaseFrame);
+//  constraints_->setCenterOfMass(centerOfMassInBaseFrame);
+
+  if (optimizationStepCallback_) {
+    timer_.pinTime("callback");
+    auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
+    state_.setPoseBaseToWorld(poseParameterization.getPose());
+    timer_.splitTime("callback");
+    durationInCallback_ += timer_.getAverageElapsedTimeUSec("callback");
+  }
 
   callExternalOptimizationStepCallback(iterationStep + 1, functionValue, finalIteration);
 }
@@ -128,7 +136,7 @@ void PoseOptimizationSQP::callExternalOptimizationStepCallbackWithPose(const Pos
                                                                        const double functionValue,
                                                                        const bool finalIteration)
 {
-  state_ = originalState_;;
+  state_ = originalState_;
   state_.setPoseBaseToWorld(pose);
   callExternalOptimizationStepCallback(iterationStep, functionValue, finalIteration);
 }
