@@ -13,7 +13,8 @@
 namespace free_gait {
 
 PoseOptimizationObjectiveFunction::PoseOptimizationObjectiveFunction()
-    : NonlinearObjectiveFunction()
+    : NonlinearObjectiveFunction(),
+      comWeight_(2.0)
 {
 
 }
@@ -97,7 +98,7 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 
   // Cost for CoM.
   const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
-  value += 2.0 * (supportRegion_.getCentroid().head(2) - centerOfMassInWorldFrame.vector().head(2)).squaredNorm();
+  value += comWeight_ * (supportRegion_.getCentroid().head(2) - centerOfMassInWorldFrame.vector().head(2)).squaredNorm();
 
 //  // Cost for torques.
 ////  state_.setPoseBaseToWorld(pose);
@@ -159,24 +160,33 @@ bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& 
   analyticalGradient.setZero();
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
-
   const Eigen::Vector3d& p = pose.getPosition().vector();
-//  const auto& R = pose.getRotation(); // Phi
-//  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
-//  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
+
+  // Default leg position.
   for (const auto& footPosition : stance_) {
     const Eigen::Vector3d f_i = footPosition.second.vector();
     const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
     const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
-    Eigen::VectorXd derivative(params.getLocalSize());
-    derivative.head(3) = p + R_d_i - f_i;
-    derivative.tail(3) = R_d_i_skew * p - R_d_i_skew * f_i;
-    analyticalGradient += derivative;
+    analyticalGradient.head(3) += p + R_d_i - f_i;
+    analyticalGradient.tail(3) += R_d_i_skew * p - R_d_i_skew * f_i;
   }
+
+  // Center of mass.
+  const Eigen::Vector3d p_2d(p.x(), p.y(), 0.0); // Projection.
+  Eigen::Vector3d R_r_com = pose.getRotation().rotate(centerOfMassInBaseFrame_).vector();
+  R_r_com.z() = 0.0;
+  const Eigen::Matrix3d R_r_com_skew = kindr::getSkewMatrixFromVector(R_r_com);
+  const grid_map::Position supportPolygonCentroid(supportRegion_.getCentroid());
+  const Eigen::Vector3d r_centroid(supportPolygonCentroid.x(), supportPolygonCentroid.y(), 0.0);
+  analyticalGradient.head(3) += comWeight_ * (p_2d - r_centroid + R_r_com);
+  analyticalGradient.tail(3) += comWeight_ * (R_r_com_skew * p_2d - R_r_com_skew * r_centroid);
+
+  // Factorized with 2.0 (not weight!).
   analyticalGradient = 2.0 * analyticalGradient; // w_1 = 1.0;
 //  std::cout << "Analytical: " << analyticalGradient.transpose() << std::endl << std::endl;
 
   // Return solution.
+//  gradient = numericalGradient;
   gradient = analyticalGradient;
   return true;
 }
@@ -194,24 +204,35 @@ bool PoseOptimizationObjectiveFunction::getLocalHessian(numopt_common::SparseMat
   analyticalHessian.setZero();
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
-
   const Eigen::Vector3d& p = pose.getPosition().vector();
-  const Eigen::Matrix3d R = romo::RotationMatrix(pose.getRotation()).matrix(); // Phi
-//  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
-//  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
+
+  // Default leg position.
   for (const auto& footPosition : stance_) {
     const Eigen::Vector3d f_i = footPosition.second.vector();
     const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
     const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
-    Eigen::MatrixXd hessianPart(params.getLocalSize(), params.getLocalSize());
-    hessianPart.setZero(); // TODO Remove.
-    hessianPart.topLeftCorner(3, 3) = 2.0 * Eigen::Matrix3d::Identity();
-    hessianPart.topRightCorner(3, 3) = -2.0 * R_d_i_skew;
-    hessianPart.bottomLeftCorner(3, 3) = 2.0 * R_d_i_skew;
-    hessianPart.bottomRightCorner(3, 3) = 2.0 * (kindr::getSkewMatrixFromVector(p) * R_d_i_skew)
-                                        - 2.0 * (kindr::getSkewMatrixFromVector(f_i) * R_d_i_skew);
-    analyticalHessian += hessianPart;
+    analyticalHessian.topLeftCorner(3, 3) += Eigen::Matrix3d::Identity();
+    analyticalHessian.topRightCorner(3, 3) += -R_d_i_skew;
+    analyticalHessian.bottomLeftCorner(3, 3) += R_d_i_skew;
+    analyticalHessian.bottomRightCorner(3, 3) +=   kindr::getSkewMatrixFromVector(p) * R_d_i_skew
+                                                 - kindr::getSkewMatrixFromVector(f_i) * R_d_i_skew;
   }
+
+  // Center of mass.
+  const Eigen::Vector3d p_2d(p.x(), p.y(), 0.0); // Projection.
+  Eigen::Vector3d R_r_com = pose.getRotation().rotate(centerOfMassInBaseFrame_).vector();
+  R_r_com.z() = 0.0;
+  const Eigen::Matrix3d R_r_com_skew = kindr::getSkewMatrixFromVector(R_r_com);
+  const grid_map::Position supportPolygonCentroid(supportRegion_.getCentroid());
+  const Eigen::Vector3d r_centroid(supportPolygonCentroid.x(), supportPolygonCentroid.y(), 0.0);
+  analyticalHessian.topLeftCorner(3, 3) += comWeight_ * Eigen::Vector3d(1.0, 1.0, 0.0).asDiagonal();
+  analyticalHessian.topRightCorner(3, 3) += -comWeight_ * R_r_com_skew;
+  analyticalHessian.bottomLeftCorner(3, 3) += comWeight_ * R_r_com_skew;
+  analyticalHessian.bottomRightCorner(3, 3) += comWeight_ * (kindr::getSkewMatrixFromVector(p) * R_r_com_skew
+                                               - kindr::getSkewMatrixFromVector(r_centroid) * R_r_com_skew);
+
+  // Factorized with 2.0 (not weight!).
+  analyticalHessian = 2.0 * analyticalHessian;
 //  std::cout << "Analytical:\n" << analyticalHessian << std::endl << std::endl;
 
   // Return solution.
