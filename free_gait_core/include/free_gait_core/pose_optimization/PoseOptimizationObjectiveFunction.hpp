@@ -68,6 +68,17 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   bool getLocalGradient(numopt_common::Vector& gradient, const numopt_common::Parameterization& params,
                         bool newParams = true);
 
+  /*! Computes the local nxn Hessian matrix of the objective function.
+   * Note that this function does not need to update the list of triplets.
+   *
+   * @param hessian     Hessian matrix
+   * @param p           parameters
+   * @param newParams   true if this class has already seen the parameters
+   * @returns true if successful
+   */
+  bool getLocalHessian(numopt_common::SparseMatrix& hessian, const numopt_common::Parameterization& params,
+                       bool newParams = true);
+
  private:
   Stance stance_;
   Stance nominalStanceInBaseFrame_;

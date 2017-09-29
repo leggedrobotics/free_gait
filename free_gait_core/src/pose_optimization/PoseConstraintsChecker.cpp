@@ -28,6 +28,9 @@ void PoseConstraintsChecker::setTolerances(const double centerOfMassTolerance, c
 
 bool PoseConstraintsChecker::check(const Pose& pose)
 {
+  return false;
+
+
   state_.setPoseBaseToWorld(pose);
   adapter_.setInternalDataFromState(state_, false, true, false, false); // To guide IK.
   if (!updateJointPositionsInState(state_)) {

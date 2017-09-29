@@ -8,6 +8,7 @@
 
 #include "free_gait_core/pose_optimization/PoseOptimizationObjectiveFunction.hpp"
 #include "free_gait_core/pose_optimization/PoseParameterization.hpp"
+#include "free_gait_core/TypeDefs.hpp"
 
 namespace free_gait {
 
@@ -148,29 +149,77 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& gradient,
                                                          const numopt_common::Parameterization& params, bool newParams)
 {
-  return NonlinearObjectiveFunction::estimateLocalGradient(gradient, params, 1.0e-6);
+  // Numercical approach.
+//  numopt_common::Vector numericalGradient(params.getLocalSize());
+//  NonlinearObjectiveFunction::estimateLocalGradient(numericalGradient, params, 1.0e-6);
+//  std::cout << "Numerical: " << numericalGradient.transpose() << std::endl;
 
-//  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
-//  const Pose pose = poseParameterization.getPose();
-//  gradient.setZero();
-//
-//  const Eigen::Vector3d& p = pose.getPosition().vector();
+  // Analytical approach.
+  numopt_common::Vector analyticalGradient(params.getLocalSize());
+  analyticalGradient.setZero();
+  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
+  const Pose pose = poseParameterization.getPose();
+
+  const Eigen::Vector3d& p = pose.getPosition().vector();
 //  const auto& R = pose.getRotation(); // Phi
-////  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
-////  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
-//  for (const auto& footPosition : stance_) {
-//    const Eigen::Vector3d f_i = footPosition.second.vector();
-//    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
-//    Eigen::VectorXd derivative(params.getLocalSize());
-//    derivative << p + R_d_i - f_i, -p.array() * R_d_i.array() + R_d_i.array() * f_i.array();
-//    gradient += derivative;
-//    std::cout << derivative << std::endl << std::endl;
-//  }
-//  gradient = 2.0 * gradient; // w_1 = 1.0;
-//  std::cout << gradient << std::endl << std::endl;
-//  std::cout << "++++++++++" << std::endl;
-//  return true;
+//  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
+//  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
+  for (const auto& footPosition : stance_) {
+    const Eigen::Vector3d f_i = footPosition.second.vector();
+    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
+    const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
+    Eigen::VectorXd derivative(params.getLocalSize());
+    derivative.head(3) = p + R_d_i - f_i;
+    derivative.tail(3) = R_d_i_skew * p - R_d_i_skew * f_i;
+    analyticalGradient += derivative;
+  }
+  analyticalGradient = 2.0 * analyticalGradient; // w_1 = 1.0;
+//  std::cout << "Analytical: " << analyticalGradient.transpose() << std::endl << std::endl;
+
+  // Return solution.
+  gradient = analyticalGradient;
+  return true;
 }
+
+bool PoseOptimizationObjectiveFunction::getLocalHessian(numopt_common::SparseMatrix& hessian,
+                                                        const numopt_common::Parameterization& params, bool newParams)
+{
+  // Numercical approach.
+//  numopt_common::SparseMatrix numericalHessian(params.getLocalSize(), params.getLocalSize());
+//  NonlinearObjectiveFunction::estimateLocalHessian(numericalHessian, params, 1.0e-6);
+//  std::cout << "Numerical:\n" << numericalHessian << std::endl;
+
+  // Analytical approach.
+  Eigen::MatrixXd analyticalHessian(params.getLocalSize(), params.getLocalSize());
+  analyticalHessian.setZero();
+  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
+  const Pose pose = poseParameterization.getPose();
+
+  const Eigen::Vector3d& p = pose.getPosition().vector();
+  const Eigen::Matrix3d R = romo::RotationMatrix(pose.getRotation()).matrix(); // Phi
+//  const Position centerOfMassInWorldFrame = pose.getPosition() + pose.getRotation().rotate(centerOfMassInBaseFrame_);
+//  const auto& r_CoM = centerOfMassInBaseFrame_.vector();
+  for (const auto& footPosition : stance_) {
+    const Eigen::Vector3d f_i = footPosition.second.vector();
+    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
+    const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
+    Eigen::MatrixXd hessianPart(params.getLocalSize(), params.getLocalSize());
+    hessianPart.setZero(); // TODO Remove.
+    hessianPart.topLeftCorner(3, 3) = 2.0 * Eigen::Matrix3d::Identity();
+    hessianPart.topRightCorner(3, 3) = -2.0 * R_d_i_skew;
+    hessianPart.bottomLeftCorner(3, 3) = 2.0 * R_d_i_skew;
+    hessianPart.bottomRightCorner(3, 3) = 2.0 * (kindr::getSkewMatrixFromVector(p) * R_d_i_skew)
+                                        - 2.0 * (kindr::getSkewMatrixFromVector(f_i) * R_d_i_skew);
+    analyticalHessian += hessianPart;
+  }
+//  std::cout << "Analytical:\n" << analyticalHessian << std::endl << std::endl;
+
+  // Return solution.
+//  hessian = numericalHessian;
+  hessian = analyticalHessian.sparseView(1e-10);
+  return true;
+}
+
 
 } /* namespace free_gait */
 
