@@ -654,6 +654,7 @@ bool StepRosConverter::toMessage(const CustomCommand& customCommand, free_gait_m
   message.type = customCommand.type_;
   message.command = customCommand.command_;
   message.duration = ros::Duration(customCommand.duration_);
+  return true;
 }
 
 } /* namespace */
