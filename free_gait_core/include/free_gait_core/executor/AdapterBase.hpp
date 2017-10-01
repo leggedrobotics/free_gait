@@ -109,7 +109,8 @@ class AdapterBase
       const LimbEnum& limb, const LinearAcceleration& endEffectorLinearAccelerationInWorldFrame) const = 0;
 
   //! Hook to write data to internal robot representation from state.
-  virtual bool setInternalDataFromState(const State& state) const = 0;
+  virtual bool setInternalDataFromState(const State& state, bool updateContacts = true, bool updatePosition = true,
+                                        bool updateVelocity = true, bool updateAcceleration = false) const = 0;
 };
 
 } /* namespace free_gait */
