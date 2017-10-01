@@ -9,9 +9,6 @@
 #include <free_gait_core/leg_motion/Footstep.hpp>
 #include <free_gait_core/leg_motion/LegMotionBase.hpp>
 
-// Curves
-#include <curves/PolynomialSplineContainer.hpp>
-
 // Message logger
 #include <message_logger/message_logger.hpp>
 

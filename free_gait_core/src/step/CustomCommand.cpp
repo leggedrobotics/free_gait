@@ -28,6 +28,21 @@ std::unique_ptr<CustomCommand> CustomCommand::clone() const
   return pointer;
 }
 
+void CustomCommand::setType(const std::string& type)
+{
+  type_ = type;
+}
+
+void CustomCommand::setDuration(const double duration)
+{
+  duration_ = duration;
+}
+
+void CustomCommand::setCommand(const std::string& command)
+{
+  command_ = command;
+}
+
 const std::string& CustomCommand::getType() const
 {
   return type_;

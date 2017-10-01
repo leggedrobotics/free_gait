@@ -26,6 +26,10 @@ class CustomCommand
    */
   std::unique_ptr<CustomCommand> clone() const;
 
+  void setType(const std::string& type);
+  void setDuration(const double duration);
+  void setCommand(const std::string& command);
+
   const std::string& getType() const;
   double getDuration() const;
   const std::string& getCommand() const;

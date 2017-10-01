@@ -61,6 +61,7 @@ class StepRosConverter
   bool toMessage(const JointTrajectory& jointTrajectory, free_gait_msgs::JointTrajectory& message);
   bool toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message);
   bool toMessage(const BaseTrajectory& baseTrajectory, free_gait_msgs::BaseTrajectory& message);
+  bool toMessage(const CustomCommand& customCommand, free_gait_msgs::CustomCommand& message);
 
  private:
   const AdapterBase& adapter_;
