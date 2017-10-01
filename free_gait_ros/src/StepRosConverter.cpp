@@ -500,6 +500,13 @@ bool StepRosConverter::toMessage(const Step& step, free_gait_msgs::Step& message
     }
   }
 
+  // Custom command.
+  for (const auto& customCommand : step.getCustomCommands()) {
+    free_gait_msgs::CustomCommand message;
+    if (!toMessage(customCommand, message)) return false;
+    stepMessage.custom_command.push_back(message);
+  }
+
   return true;
 }
 
@@ -640,6 +647,13 @@ bool StepRosConverter::toMessage(const BaseTrajectory& baseTrajectory, free_gait
   }
 
   return true;
+}
+
+bool StepRosConverter::toMessage(const CustomCommand& customCommand, free_gait_msgs::CustomCommand& message)
+{
+  message.type = customCommand.type_;
+  message.command = customCommand.command_;
+  message.duration = ros::Duration(customCommand.duration_);
 }
 
 } /* namespace */
