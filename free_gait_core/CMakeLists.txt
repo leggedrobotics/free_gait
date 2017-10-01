@@ -8,7 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   quadruped_model
   numopt_common
   numopt_quadprog
-  numopt_ooqp
   numopt_sqp
   curves
   grid_map_core
@@ -39,7 +38,6 @@ catkin_package(
       quadruped_model
       numopt_common
       numopt_quadprog
-      numopt_ooqp
       numopt_sqp
       curves
       grid_map_core
