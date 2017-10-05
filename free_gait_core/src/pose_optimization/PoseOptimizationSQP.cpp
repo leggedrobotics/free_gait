@@ -24,7 +24,8 @@ namespace free_gait {
 PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
     : PoseOptimizationBase(adapter),
       timer_("PoseOptimizationSQP"),
-      durationInCallback_(0.0)
+      durationInCallback_(0.0),
+      nIterations_(0)
 {
   objective_.reset(new PoseOptimizationObjectiveFunction());
 
@@ -82,7 +83,7 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
   PoseOptimizationProblem problem(objective_, constraints_);
   std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
       new numopt_quadprog::ActiveSetFunctionMinimizer);
-  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 1000, 0.01, 3, -DBL_MAX);
+  numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 30, 0.01, 3, -DBL_MAX);
   solver.registerOptimizationStepCallback(
       std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4));
@@ -104,6 +105,7 @@ void PoseOptimizationSQP::optimizationStepCallback(const size_t iterationStep,
                                                    const double functionValue,
                                                    const bool finalIteration)
 {
+  nIterations_ = iterationStep;
   auto& poseParameterization = dynamic_cast<const PoseParameterization&>(parameters);
 
   // Update center of mass. // TODO Make optional.
@@ -140,6 +142,11 @@ void PoseOptimizationSQP::callExternalOptimizationStepCallbackWithPose(const Pos
 double PoseOptimizationSQP::getOptimizationDuration() const
 {
   return timer_.getAverageElapsedTimeUSec("total") - durationInCallback_;
+}
+
+size_t PoseOptimizationSQP::getNumberOfIterations() const
+{
+  return nIterations_;
 }
 
 void PoseOptimizationSQP::callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue,

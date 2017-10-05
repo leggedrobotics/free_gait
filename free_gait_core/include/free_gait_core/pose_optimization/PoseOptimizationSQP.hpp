@@ -63,6 +63,7 @@ class PoseOptimizationSQP : public PoseOptimizationBase
    * @return the duration in micro seconds.
    */
   double getOptimizationDuration() const;
+  size_t getNumberOfIterations() const;
 
  private:
   void callExternalOptimizationStepCallback(const size_t iterationStep, const double functionValue =
@@ -79,6 +80,7 @@ class PoseOptimizationSQP : public PoseOptimizationBase
   OptimizationStepCallbackFunction optimizationStepCallback_;
   robot_utils::HighResolutionClockTimer timer_;
   double durationInCallback_;
+  size_t nIterations_;
 };
 
 } /* namespace loco */
