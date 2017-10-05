@@ -161,28 +161,29 @@ bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& 
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
   const Eigen::Vector3d& p = pose.getPosition().vector();
+  const RotationQuaternion Phi(pose.getRotation());
 
   // Default leg position.
   for (const auto& footPosition : stance_) {
-    const Eigen::Vector3d f_i = footPosition.second.vector();
-    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
-    const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
-    analyticalGradient.head(3) += p + R_d_i - f_i;
-    analyticalGradient.tail(3) += R_d_i_skew * p - R_d_i_skew * f_i;
+    const Eigen::Vector3d& f_i = footPosition.second.vector();
+    const Eigen::Vector3d Phi_d_i = Phi.rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
+    const Eigen::Matrix3d Phi_d_i_skew = kindr::getSkewMatrixFromVector(Phi_d_i);
+    analyticalGradient.head(3) += p + Phi_d_i - f_i;
+    analyticalGradient.tail(3) += Phi_d_i_skew * p - Phi_d_i_skew * f_i;
   }
 
   // Center of mass.
-  const Eigen::Vector3d p_2d(p.x(), p.y(), 0.0); // Projection.
-  Eigen::Vector3d R_r_com = pose.getRotation().rotate(centerOfMassInBaseFrame_).vector();
-  R_r_com.z() = 0.0;
-  const Eigen::Matrix3d R_r_com_skew = kindr::getSkewMatrixFromVector(R_r_com);
+  const Eigen::Vector3d p_bar(p.x(), p.y(), 0.0); // Projection.
+  Eigen::Vector3d Phi_r_com = Phi.rotate(centerOfMassInBaseFrame_).vector();
+  Phi_r_com.z() = 0.0;
+  const Eigen::Matrix3d Phi_r_com_skew = kindr::getSkewMatrixFromVector(Phi_r_com);
   const grid_map::Position supportPolygonCentroid(supportRegion_.getCentroid());
   const Eigen::Vector3d r_centroid(supportPolygonCentroid.x(), supportPolygonCentroid.y(), 0.0);
-  analyticalGradient.head(3) += comWeight_ * (p_2d - r_centroid + R_r_com);
-  analyticalGradient.tail(3) += comWeight_ * (R_r_com_skew * p_2d - R_r_com_skew * r_centroid);
+  analyticalGradient.head(3) += comWeight_ * (p_bar - r_centroid + Phi_r_com);
+  analyticalGradient.tail(3) += comWeight_ * (Phi_r_com_skew * p_bar - Phi_r_com_skew * r_centroid);
 
   // Factorized with 2.0 (not weight!).
-  analyticalGradient = 2.0 * analyticalGradient; // w_1 = 1.0;
+  analyticalGradient = 2.0 * analyticalGradient;
 //  std::cout << "Analytical: " << analyticalGradient.transpose() << std::endl << std::endl;
 
   // Return solution.
@@ -205,31 +206,35 @@ bool PoseOptimizationObjectiveFunction::getLocalHessian(numopt_common::SparseMat
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
   const Eigen::Vector3d& p = pose.getPosition().vector();
+  const Eigen::Matrix3d p_skew = kindr::getSkewMatrixFromVector(p);
+  const RotationQuaternion Phi(pose.getRotation());
 
   // Default leg position.
   for (const auto& footPosition : stance_) {
-    const Eigen::Vector3d f_i = footPosition.second.vector();
-    const Eigen::Vector3d R_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
-    const Eigen::Matrix3d R_d_i_skew = kindr::getSkewMatrixFromVector(R_d_i);
+    const Eigen::Vector3d& f_i = footPosition.second.vector();
+    const Eigen::Matrix3d f_i_skew = kindr::getSkewMatrixFromVector(f_i);
+    const Eigen::Vector3d Phi_d_i = pose.getRotation().rotate(nominalStanceInBaseFrame_.at(footPosition.first)).vector();
+    const Eigen::Matrix3d Phi_d_i_skew = kindr::getSkewMatrixFromVector(Phi_d_i);
     analyticalHessian.topLeftCorner(3, 3) += Eigen::Matrix3d::Identity();
-    analyticalHessian.topRightCorner(3, 3) += -R_d_i_skew;
-    analyticalHessian.bottomLeftCorner(3, 3) += R_d_i_skew;
-    analyticalHessian.bottomRightCorner(3, 3) +=   kindr::getSkewMatrixFromVector(p) * R_d_i_skew
-                                                 - kindr::getSkewMatrixFromVector(f_i) * R_d_i_skew;
+    analyticalHessian.topRightCorner(3, 3) += -Phi_d_i_skew;
+    analyticalHessian.bottomLeftCorner(3, 3) += Phi_d_i_skew;
+    analyticalHessian.bottomRightCorner(3, 3) += 0.5 * (p_skew * Phi_d_i_skew + Phi_d_i_skew * p_skew
+                                                       -f_i_skew * Phi_d_i_skew - Phi_d_i_skew * f_i_skew);
   }
 
   // Center of mass.
-  const Eigen::Vector3d p_2d(p.x(), p.y(), 0.0); // Projection.
-  Eigen::Vector3d R_r_com = pose.getRotation().rotate(centerOfMassInBaseFrame_).vector();
-  R_r_com.z() = 0.0;
-  const Eigen::Matrix3d R_r_com_skew = kindr::getSkewMatrixFromVector(R_r_com);
+  const Eigen::Vector3d p_bar(p.x(), p.y(), 0.0); // Projection.
+  Eigen::Vector3d Phi_r_com = pose.getRotation().rotate(centerOfMassInBaseFrame_).vector();
+  Phi_r_com.z() = 0.0;
+  const Eigen::Matrix3d Phi_r_com_skew = kindr::getSkewMatrixFromVector(Phi_r_com);
   const grid_map::Position supportPolygonCentroid(supportRegion_.getCentroid());
   const Eigen::Vector3d r_centroid(supportPolygonCentroid.x(), supportPolygonCentroid.y(), 0.0);
+  const Eigen::Matrix3d r_centroid_skew = kindr::getSkewMatrixFromVector(r_centroid);
   analyticalHessian.topLeftCorner(3, 3) += comWeight_ * Eigen::Vector3d(1.0, 1.0, 0.0).asDiagonal();
-  analyticalHessian.topRightCorner(3, 3) += -comWeight_ * R_r_com_skew;
-  analyticalHessian.bottomLeftCorner(3, 3) += comWeight_ * R_r_com_skew;
-  analyticalHessian.bottomRightCorner(3, 3) += comWeight_ * (kindr::getSkewMatrixFromVector(p) * R_r_com_skew
-                                               - kindr::getSkewMatrixFromVector(r_centroid) * R_r_com_skew);
+  analyticalHessian.topRightCorner(3, 3) += -comWeight_ * Phi_r_com_skew;
+  analyticalHessian.bottomLeftCorner(3, 3) += comWeight_ * Phi_r_com_skew;
+  analyticalHessian.bottomRightCorner(3, 3) += 0.5 * comWeight_ * (p_skew * Phi_r_com_skew + Phi_r_com_skew * p_skew
+                                                                  -r_centroid_skew * Phi_r_com_skew - Phi_r_com_skew * r_centroid_skew);
 
   // Factorized with 2.0 (not weight!).
   analyticalHessian = 2.0 * analyticalHessian;

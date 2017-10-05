@@ -49,6 +49,9 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   bool getInequalityConstraintMinValues(numopt_common::Vector& d);
   bool getInequalityConstraintMaxValues(numopt_common::Vector& f);
 
+  bool getLocalInequalityConstraintJacobian(numopt_common::SparseMatrix& jacobian,
+                                            const numopt_common::Parameterization& params, bool newParams = true);
+
  private:
   void updateNumberOfInequalityConstraints();
 

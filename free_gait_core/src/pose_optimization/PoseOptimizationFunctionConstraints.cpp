@@ -112,7 +112,7 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
   size_t i(0);
   for (const auto& positionBaseToHipInBaseFrame : positionsBaseToHipInBaseFrame_) {
     const auto limb = positionBaseToHipInBaseFrame.first;
-    const Position footPosition(stance_.at(limb));
+    const Position& footPosition = stance_.at(limb);
     const Position baseToFootInBase = basePose.getRotation().inverseRotate(footPosition - basePose.getPosition());
     const double legLength = Vector(baseToFootInBase - positionBaseToHipInBaseFrame.second).norm();
     values(nSupportRegionInequalityConstraints_ + i) = legLength;
@@ -146,6 +146,54 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintMaxValues(numop
 
   return true;
 }
+
+bool PoseOptimizationFunctionConstraints::getLocalInequalityConstraintJacobian(
+    numopt_common::SparseMatrix& jacobian, const numopt_common::Parameterization& params, bool newParams)
+{
+  // Numerical approach.
+//  numopt_common::SparseMatrix numericalJacobian(getNumberOfInequalityConstraints(), params.getLocalSize());
+//  NonlinearFunctionConstraints::estimateLocalInequalityConstraintJacobian(numericalJacobian, params);
+//  std::cout << "Numerical:\n" << numericalJacobian << std::endl;
+
+  // Analytical approach.
+  Eigen::MatrixXd analyticalJacobian(getNumberOfInequalityConstraints(), params.getLocalSize());
+  const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
+  const Pose pose = poseParameterization.getPose();
+  const Eigen::Vector3d& p = pose.getPosition().vector();
+  const RotationQuaternion Phi(pose.getRotation());
+  const Eigen::Vector3d Phi_r_com = Phi.rotate(centerOfMassInBaseFrame_).vector();
+  const Eigen::Matrix3d Phi_r_com_skew = kindr::getSkewMatrixFromVector(Phi_r_com);
+
+  // Support region.
+  Eigen::MatrixXd G_SP(nSupportRegionInequalityConstraints_, 3);
+  G_SP.setZero();
+  G_SP.leftCols(2) = supportRegionInequalityConstraintGlobalJacobian_;
+  analyticalJacobian.topLeftCorner(nSupportRegionInequalityConstraints_, 3) = G_SP;
+  analyticalJacobian.topRightCorner(nSupportRegionInequalityConstraints_, 3) = -G_SP * Phi_r_com_skew;
+
+  // Leg length.
+  size_t i(0);
+  for (const auto& positionBaseToHipInBaseFrame : positionsBaseToHipInBaseFrame_) {
+    const auto limb = positionBaseToHipInBaseFrame.first;
+    const Position& footPosition = stance_.at(limb);
+    const Eigen::Vector3d Phi_r_BH = Phi.rotate(positionBaseToHipInBaseFrame.second).vector();
+    const Eigen::Matrix3d Phi_r_BH_skew = kindr::getSkewMatrixFromVector(Phi_r_BH);
+    const Eigen::Vector3d l_normalized = (p + Phi_r_BH - stance_.at(limb).vector()).normalized();
+    analyticalJacobian.row(nSupportRegionInequalityConstraints_ + i).head<3>() = l_normalized;
+    analyticalJacobian.row(nSupportRegionInequalityConstraints_ + i).tail<3>() = -l_normalized.transpose() * Phi_r_BH_skew;
+    ++i;
+  }
+
+//  std::cout << "Analytical:\n" << analyticalJacobian << std::endl;
+
+  // Return solution.
+//  jacobian = numericalJacobian;
+  jacobian = analyticalJacobian.sparseView(1e-10);
+  return true;
+
+  return true;
+}
+
 
 void PoseOptimizationFunctionConstraints::updateNumberOfInequalityConstraints()
 {
