@@ -106,7 +106,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     if (footholdsOfNextLegMotion_.find(limb) == footholdsOfNextLegMotion_.end()) {
       maxLimbLenghts_[limb] = 0.575; // Foot stays in contact. // 0.57
     } else {
-      maxLimbLenghts_[limb] = 0.59; // Foot leaves in contact. // 0.6
+      maxLimbLenghts_[limb] = 0.593; // Foot leaves in contact. // 0.6
     }
   }
 
@@ -142,6 +142,14 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
 
   if (!optimizePose(target_)) {
     std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
+    std::cerr << "Printing optimization problem:" << std::endl;
+    std::cerr << "Stance: " << footholdsToReach_ << std::endl;
+    std::cerr << "Support stance: " << footholdsInSupport_ << std::endl;
+    std::cerr << "Nominal stance (in base frame): " << nominalStanceInBaseFrame_ << std::endl;
+    std::cerr << "Limb length constraints: " << std::endl;
+    for (const auto& limb : adapter.getLimbs()) {
+      std::cerr << "  [" <<  limb << "] min: " << minLimbLenghts_[limb] << ", max: " << maxLimbLenghts_[limb] << std::endl;
+    }
     return false;
   }
 
