@@ -104,9 +104,9 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   for (const auto& limb : adapter.getLimbs()) {
     minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
     if (footholdsOfNextLegMotion_.find(limb) == footholdsOfNextLegMotion_.end()) {
-      maxLimbLenghts_[limb] = 0.57; // Foot stays in contact.
+      maxLimbLenghts_[limb] = 0.575; // Foot stays in contact. // 0.57
     } else {
-      maxLimbLenghts_[limb] = 0.6; // Foot leaves in contact. // 0.59
+      maxLimbLenghts_[limb] = 0.59; // Foot leaves in contact. // 0.6
     }
   }
 
