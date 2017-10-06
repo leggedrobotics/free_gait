@@ -84,7 +84,7 @@ bool PoseOptimizationGeometric::optimize(Pose& pose)
 
   // Apply roll/pitch adaptation factor (~0.7).
   const RotationQuaternion yawRotation(RotationVector(RotationVector(pose.getRotation()).vector().cwiseProduct(Eigen::Vector3d::UnitZ())));
-  const RotationQuaternion rollPitchRotation(RotationVector(0.7 * RotationVector(pose.getRotation() * yawRotation.inverted()).vector()));
+  const RotationQuaternion rollPitchRotation(RotationVector(0.7 * RotationVector(yawRotation.inverted() * pose.getRotation()).vector()));
 //  pose.getRotation() = yawRotation * rollPitchRotation; // Alternative.
   pose.getRotation() = desiredHeading * rollPitchRotation;
 
