@@ -71,6 +71,7 @@ class BaseAuto : public BaseMotionBase
   double getAverageAngularVelocity() const;
   double getSupportMargin() const;
   void setSupportMargin(double supportMargin);
+  void setTolerateFailingOptimization(const bool tolerateFailingOptimization);
 
   /*!
    * Evaluate the base pose at a given time.
@@ -130,6 +131,8 @@ class BaseAuto : public BaseMotionBase
 
   //! If trajectory is updated.
   bool isComputed_;
+
+  bool tolerateFailingOptimization_;
 
   //! Optimizers.
   std::unique_ptr<PoseOptimizationGeometric> poseOptimizationGeometric_;

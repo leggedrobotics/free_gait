@@ -22,6 +22,7 @@ BaseAuto::BaseAuto()
       supportMargin_(0.0),
       minimumDuration_(0.0),
       isComputed_(false),
+      tolerateFailingOptimization_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
@@ -48,7 +49,8 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     footholdsInSupport_(other.footholdsInSupport_),
     footholdsOfNextLegMotion_(other.footholdsOfNextLegMotion_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-    isComputed_(other.isComputed_)
+    isComputed_(other.isComputed_),
+    tolerateFailingOptimization_(other.tolerateFailingOptimization_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -151,7 +153,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     for (const auto& limb : adapter.getLimbs()) {
       std::cerr << "[" <<  limb << "] min: " << minLimbLenghts_[limb] << ", max: " << maxLimbLenghts_[limb] << std::endl;
     }
-    return false;
+    if (!tolerateFailingOptimization_) return false;
   }
 
   computeDuration(step, adapter);
@@ -248,6 +250,11 @@ double BaseAuto::getSupportMargin() const
 void BaseAuto::setSupportMargin(double supportMargin)
 {
   supportMargin_ = supportMargin;
+}
+
+void BaseAuto::setTolerateFailingOptimization(const bool tolerateFailingOptimization)
+{
+  tolerateFailingOptimization_ = tolerateFailingOptimization;
 }
 
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
