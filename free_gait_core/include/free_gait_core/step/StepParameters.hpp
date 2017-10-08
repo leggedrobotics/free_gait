@@ -25,7 +25,7 @@ class StepParameters
   {
     std::string profileType = "triangle";
     double profileHeight = 0.08;
-    double averageVelocity = 0.65;
+    double averageVelocity = 0.72;
     double liftOffSpeed = 0.1;
     double touchdownSpeed = 0.2;
     double minimumDuration_ = 0.45; // TODO: 0.3 for trot.
