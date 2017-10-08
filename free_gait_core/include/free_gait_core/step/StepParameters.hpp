@@ -45,8 +45,8 @@ class StepParameters
 
   struct BaseAutoParameters
   {
-    double averageLinearVelocity = 0.15; // 0.23
-    double averageAngularVelocity = 0.23; // 0.33
+    double averageLinearVelocity = 0.12; // 0.23
+    double averageAngularVelocity = 0.2; // 0.33
     double supportMargin = 0.04;
     double minimumDuration = 0.1;
     PlanarStance nominalPlanarStanceInBaseFrame;
