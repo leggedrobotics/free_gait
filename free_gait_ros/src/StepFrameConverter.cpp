@@ -132,7 +132,7 @@ bool StepFrameConverter::getTransform(const std::string& sourceFrameId,
   if (sourceFrameId == cachedSourceFrameId_ && targetFrameId == cachedTargetFrameId_
       && transformInSourceFrame.getPosition() == cachedTransformInSourceFrame_.getPosition()
       && transformInSourceFrame.getRotation() == cachedTransformInSourceFrame_.getRotation()
-      && time == cachedTime_) {
+      && time == cachedTime_ && !time.isZero()) {
     // No lookup required if already cached.
     transform = cachedTransform_;
     return true;

@@ -7,9 +7,7 @@
  */
 
 #include "free_gait_core/base_motion/BaseAuto.hpp"
-
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
-#include "free_gait_core/pose_optimization/PoseOptimizationGeometric.hpp"
 
 #include <math.h>
 
@@ -24,6 +22,7 @@ BaseAuto::BaseAuto()
       supportMargin_(0.0),
       minimumDuration_(0.0),
       isComputed_(false),
+      tolerateFailingOptimization_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
 {
@@ -48,9 +47,10 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     trajectory_(other.trajectory_),
     footholdsToReach_(other.footholdsToReach_),
     footholdsInSupport_(other.footholdsInSupport_),
+    footholdsOfNextLegMotion_(other.footholdsOfNextLegMotion_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
-    poseOptimization_(other.poseOptimization_),
-    isComputed_(other.isComputed_)
+    isComputed_(other.isComputed_),
+    tolerateFailingOptimization_(other.tolerateFailingOptimization_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -74,22 +74,94 @@ void BaseAuto::updateStartPose(const Pose& startPose)
 
 bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
+  // TODO This shouldn't be necessary if we could create copies of the adapter.
+  adapter.createCopyOfState();
+
   if (!height_) {
     if (!computeHeight(state, queue, adapter)) {
-      std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute height." << std::endl;
+      std::cerr << "BaseAuto::compute: Could not compute height." << std::endl;
       return false;
     }
   }
   if (!generateFootholdLists(state, step, queue, adapter)) {
-    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not generate foothold lists." << std::endl;
+    std::cerr << "BaseAuto::compute: Could not generate foothold lists." << std::endl;
     return false;
   }
+
+  // Define support region.
+  grid_map::Polygon supportRegion;
+  std::vector<Position> footholdsOrdered;
+  getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
+  for (auto foothold : footholdsOrdered) {
+    supportRegion.addVertex(foothold.vector().head<2>());
+  }
+  bool isLinePolygon = false;
+  if (supportRegion.nVertices() == 2) {
+    supportRegion.thickenLine(0.001);
+    isLinePolygon = true;
+  }
+  if (!isLinePolygon) supportRegion.offsetInward(supportMargin_);
+
+  // Define min./max. leg lengths.
+  for (const auto& limb : adapter.getLimbs()) {
+    minLimbLenghts_[limb] = 0.2; // TODO Make as parameters.
+    if (footholdsOfNextLegMotion_.find(limb) == footholdsOfNextLegMotion_.end()) {
+      maxLimbLenghts_[limb] = 0.575; // Foot stays in contact. // 0.57
+    } else {
+      maxLimbLenghts_[limb] = 0.595; // Foot leaves contact. // 0.6
+    }
+  }
+
+  poseOptimizationGeometric_.reset(new PoseOptimizationGeometric(adapter));
+  poseOptimizationGeometric_->setStance(footholdsToReach_);
+  poseOptimizationGeometric_->setSupportStance(footholdsInSupport_);
+  poseOptimizationGeometric_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationGeometric_->setSupportRegion(supportRegion);
+  poseOptimizationGeometric_->setStanceForOrientation(footholdsForOrientation_);
+
+  poseOptimizationQP_.reset(new PoseOptimizationQP(adapter));
+  poseOptimizationQP_->setCurrentState(state);
+  poseOptimizationQP_->setStance(footholdsToReach_);
+  poseOptimizationQP_->setSupportStance(footholdsInSupport_);
+  poseOptimizationQP_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationQP_->setSupportRegion(supportRegion);
+
+  constraintsChecker_.reset(new PoseConstraintsChecker(adapter));
+  constraintsChecker_->setCurrentState(state);
+  constraintsChecker_->setStance(footholdsToReach_);
+  constraintsChecker_->setSupportStance(footholdsInSupport_);
+  constraintsChecker_->setSupportRegion(supportRegion);
+  constraintsChecker_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+  constraintsChecker_->setTolerances(0.02, 0.02); // TODO Make parameter.
+
+  poseOptimizationSQP_.reset(new PoseOptimizationSQP(adapter));
+  poseOptimizationSQP_->setCurrentState(state);
+  poseOptimizationSQP_->setStance(footholdsToReach_);
+  poseOptimizationSQP_->setSupportStance(footholdsInSupport_);
+  poseOptimizationSQP_->setNominalStance(nominalStanceInBaseFrame_);
+  poseOptimizationSQP_->setSupportRegion(supportRegion);
+  poseOptimizationSQP_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
+
   if (!optimizePose(target_)) {
-    std::cerr << "BaseAutoStepWiseBasicAlignment::compute: Could not compute pose optimization." << std::endl;
-    return false;
+    std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
+    std::cerr << "Printing optimization problem:" << std::endl;
+    std::cerr << "Stance:\n" << footholdsToReach_;
+    std::cerr << "Support stance:\n" << footholdsInSupport_;
+    std::cerr << "Support margin: " << supportMargin_ << std::endl;
+    std::cerr << "Nominal stance (in base frame):\n" << nominalStanceInBaseFrame_;
+    std::cerr << "Limb length constraints:";
+    for (const auto& limb : adapter.getLimbs()) {
+      std::cerr << "[" <<  limb << "] min: " << minLimbLenghts_[limb] << ", max: " << maxLimbLenghts_[limb] << std::endl;
+    }
+    if (!tolerateFailingOptimization_) return false;
   }
+
   computeDuration(step, adapter);
   computeTrajectory();
+
+  // TODO This shouldn't be necessary if we could create copies of the adapter.
+  adapter.resetToCopyOfState();
+
   return isComputed_ = true;
 }
 
@@ -147,7 +219,7 @@ void BaseAuto::setHeight(const double height)
 double BaseAuto::getHeight() const
 {
   if (height_) return *height_;
-  throw std::runtime_error("Height of BaseAutoStepWiseBasicAlignment has not been set yet.");
+  throw std::runtime_error("Height of BaseAuto has not been set yet.");
 }
 
 void BaseAuto::setAverageLinearVelocity(const double averageLinearVelocity)
@@ -180,6 +252,11 @@ void BaseAuto::setSupportMargin(double supportMargin)
   supportMargin_ = supportMargin;
 }
 
+void BaseAuto::setTolerateFailingOptimization(const bool tolerateFailingOptimization)
+{
+  tolerateFailingOptimization_ = tolerateFailingOptimization;
+}
+
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
 {
   if (queue.previousStepExists()) {
@@ -209,6 +286,7 @@ bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const A
 bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
   footholdsInSupport_.clear();
+  footholdsOfNextLegMotion_.clear();
   bool prepareForNextStep = false;
   if (!step.hasLegMotion() && queue.size() > 1) {
     if (queue.getNextStep().hasLegMotion()) prepareForNextStep = true;
@@ -219,6 +297,8 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     for (const auto& limb : adapter.getLimbs()) {
       if (!state.isIgnoreContact(limb) && !queue.getNextStep().hasLegMotion(limb)) {
         footholdsInSupport_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+      } else {
+        footholdsOfNextLegMotion_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
       }
     }
   } else {
@@ -254,6 +334,11 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
     }
   }
 
+  footholdsForOrientation_ = footholdsToReach_;
+  for (const auto& limb : adapter.getLimbs()) {
+    if (footholdsForOrientation_.count(limb) == 0) footholdsForOrientation_[limb] = adapter.getPositionWorldToFootInWorldFrame(limb);
+  }
+
   nominalStanceInBaseFrame_.clear();
   for (const auto& stance : nominalPlanarStanceInBaseFrame_) {
     nominalStanceInBaseFrame_.emplace(stance.first, Position(stance.second(0), stance.second(1), -*height_));
@@ -264,23 +349,10 @@ bool BaseAuto::generateFootholdLists(const State& state, const Step& step, const
 
 bool BaseAuto::optimizePose(Pose& pose)
 {
-  // Define support region.
-  grid_map::Polygon supportRegion;
-  std::vector<Position> footholdsOrdered;
-  getFootholdsCounterClockwiseOrdered(footholdsInSupport_, footholdsOrdered);
-  for (auto foothold : footholdsOrdered) {
-    supportRegion.addVertex(foothold.vector().head<2>());
-  }
-  supportRegion.offsetInward(supportMargin_);
-
-  // Create initial pose from geometric alignment.
-  pose = PoseOptimizationGeometric::optimize(footholdsToReach_, nominalStanceInBaseFrame_, supportRegion);
-
-  // Optimize pose.
-  poseOptimization_.setStance(footholdsToReach_);
-  poseOptimization_.setNominalStance(nominalStanceInBaseFrame_);
-  poseOptimization_.setSupportRegion(supportRegion);
-  return poseOptimization_.optimize(pose);
+  if (!poseOptimizationGeometric_->optimize(pose));
+  if (!poseOptimizationQP_->optimize(pose)) return false;
+  if (constraintsChecker_->check(pose)) return true;
+  return poseOptimizationSQP_->optimize(pose);
 }
 
 void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
@@ -339,6 +411,9 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
   out << std::endl;
   out << "Footholds to reach: ";
   for (const auto& f : baseAuto.footholdsToReach_) out << f.first << " ";
+  out << std::endl;
+  out << "Footholds of next leg motion: ";
+  for (const auto& f : baseAuto.footholdsOfNextLegMotion_) out << f.first << " ";
   out << std::endl;
   return out;
 }

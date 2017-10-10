@@ -33,7 +33,8 @@ FreeGaitPreviewPlayback::FreeGaitPreviewPlayback(ros::NodeHandle& nodeHandle,
   executor_->initialize();
 
   batchExecutor_.reset(new BatchExecutor(*executor_));
-  batchExecutor_->addProcessingCallback(std::bind(&FreeGaitPreviewPlayback::processingCallback, this, std::placeholders::_1));
+  batchExecutor_->addProcessingCallback(
+      std::bind(&FreeGaitPreviewPlayback::processingCallback, this, std::placeholders::_1));
 }
 
 FreeGaitPreviewPlayback::~FreeGaitPreviewPlayback()

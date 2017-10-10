@@ -34,26 +34,26 @@ using JointNodeEnum = quadruped_model::JointNodeEnum;
 using ContactEnum = quadruped_model::ContactEnum;
 
 // Import kindr aliases.
-using Transform = quadruped_model::Pose;
-using quadruped_model::Pose;
-using quadruped_model::Twist;
-using quadruped_model::RotationQuaternion;
-using quadruped_model::AngleAxis;
-using quadruped_model::RotationMatrix;
-using quadruped_model::EulerAnglesZyx;
-using quadruped_model::RotationVector;
-using quadruped_model::EulerAnglesXyz;
-using quadruped_model::EulerAnglesXyzDiff;
-using quadruped_model::Position;
+using Transform = romo::Pose;
+using romo::Pose;
+using romo::Twist;
+using romo::RotationQuaternion;
+using romo::AngleAxis;
+using romo::RotationMatrix;
+using romo::EulerAnglesZyx;
+using romo::RotationVector;
+using romo::EulerAnglesXyz;
+using romo::EulerAnglesXyzDiff;
+using romo::Position;
 using Position2 = kindr::Position<double, 2>;
-using quadruped_model::LinearVelocity;
-using quadruped_model::LocalAngularVelocity;
-using quadruped_model::EulerAnglesZyxDiff;
-using quadruped_model::LinearAcceleration;
-using quadruped_model::AngularAcceleration;
-using quadruped_model::Force;
-using quadruped_model::Torque;
-using quadruped_model::Vector;
+using romo::LinearVelocity;
+using romo::LocalAngularVelocity;
+using romo::EulerAnglesZyxDiff;
+using romo::LinearAcceleration;
+using romo::AngularAcceleration;
+using romo::Force;
+using romo::Torque;
+using romo::Vector;
 
 // Import robot-specific kindr quantities.
 using quadruped_model::GeneralizedCoordinates;

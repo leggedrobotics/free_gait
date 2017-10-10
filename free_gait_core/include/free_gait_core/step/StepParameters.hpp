@@ -25,10 +25,10 @@ class StepParameters
   {
     std::string profileType = "triangle";
     double profileHeight = 0.08;
-    double averageVelocity = 0.68;
+    double averageVelocity = 0.65;
     double liftOffSpeed = 0.1;
     double touchdownSpeed = 0.2;
-    double minimumDuration_ = 0.6; // TODO: 0.3 for trot.
+    double minimumDuration_ = 0.45; // TODO: 0.3 for trot.
   } footstepParameters;
 
   struct EndEffectorTargetParameters
@@ -45,16 +45,16 @@ class StepParameters
 
   struct BaseAutoParameters
   {
-    double averageLinearVelocity = 0.23;
-    double averageAngularVelocity = 0.33;
-    double supportMargin = 0.08;
+    double averageLinearVelocity = 0.2;
+    double averageAngularVelocity = 0.28;
+    double supportMargin = 0.04;
     double minimumDuration = 0.1;
     PlanarStance nominalPlanarStanceInBaseFrame;
 
     BaseAutoParameters()
     {
       Position2 position;
-      position << 0.385, 0.25;
+      position << 0.33, 0.22;
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LF_LEG, position);
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::RF_LEG, Position2(Eigen::Vector2d(position(0), -position(1))));
       nominalPlanarStanceInBaseFrame.emplace(LimbEnum::LH_LEG, Position2(Eigen::Vector2d(-position(0), position(1))));

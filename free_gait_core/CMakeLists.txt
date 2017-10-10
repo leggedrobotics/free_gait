@@ -6,7 +6,9 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   quadruped_model
+  numopt_common
   numopt_quadprog
+  numopt_sqp
   curves
   grid_map_core
   loco
@@ -34,7 +36,9 @@ catkin_package(
       ${PROJECT_NAME}
     CATKIN_DEPENDS
       quadruped_model
+      numopt_common
       numopt_quadprog
+      numopt_sqp
       curves
       grid_map_core
       loco
@@ -89,8 +93,15 @@ add_library(${PROJECT_NAME}
    src/executor/StateBatch.cpp
    src/executor/StateBatchComputer.cpp
    src/executor/AdapterBase.cpp
+   src/pose_optimization/PoseOptimizationBase.cpp
+   src/pose_optimization/PoseConstraintsChecker.cpp
    src/pose_optimization/PoseOptimizationGeometric.cpp
    src/pose_optimization/PoseOptimizationQP.cpp
+   src/pose_optimization/PoseOptimizationSQP.cpp
+   src/pose_optimization/PoseParameterization.cpp
+   src/pose_optimization/PoseOptimizationObjectiveFunction.cpp
+   src/pose_optimization/PoseOptimizationFunctionConstraints.cpp
+   src/pose_optimization/PoseOptimizationProblem.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -105,9 +116,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 # Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test
   test/test_free_gait_core.cpp
+  test/AdapterDummy.cpp
   test/StepTest.cpp
   test/FootstepTest.cpp
-  test/PoseOptimizationQpTest.cpp
+#  test/PoseOptimizationQpTest.cpp
+#  test/PoseOptimizationSQPTest.cpp
 )
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test
