@@ -217,6 +217,12 @@ const BaseMotionBase& Step::getBaseMotion() const
   return *baseMotion_;
 }
 
+BaseMotionBase& Step::getBaseMotion()
+{
+  if (!hasBaseMotion()) throw std::out_of_range("No base motion in this step!");
+  return *baseMotion_;
+}
+
 bool Step::hasCustomCommand() const
 {
   return !customCommands_.empty();

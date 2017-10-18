@@ -81,6 +81,7 @@ class Step
 
   bool hasBaseMotion() const;
   const BaseMotionBase& getBaseMotion() const;
+  BaseMotionBase& getBaseMotion();
 
   bool hasCustomCommand() const;
   const std::vector<CustomCommand>& getCustomCommands() const;

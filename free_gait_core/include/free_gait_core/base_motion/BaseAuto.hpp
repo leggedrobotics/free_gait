@@ -63,6 +63,7 @@ class BaseAuto : public BaseMotionBase
 
   const std::string& getFrameId(const ControlLevel& controlLevel) const;
 
+  void setNominalStanceInBaseFrame(const PlanarStance& nominalPlanarStanceInBaseFrame);
   void setHeight(const double height);
   double getHeight() const;
   void setAverageLinearVelocity(const double averageLinearVelocity);

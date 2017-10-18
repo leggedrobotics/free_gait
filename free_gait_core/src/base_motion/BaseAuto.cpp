@@ -132,7 +132,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   constraintsChecker_->setSupportStance(footholdsInSupport_);
   constraintsChecker_->setSupportRegion(supportRegion);
   constraintsChecker_->setLimbLengthConstraints(minLimbLenghts_, maxLimbLenghts_);
-  constraintsChecker_->setTolerances(0.02, 0.02); // TODO Make parameter.
+  constraintsChecker_->setTolerances(0.02, 0.0); // TODO Make parameter.
 
   poseOptimizationSQP_.reset(new PoseOptimizationSQP(adapter));
   poseOptimizationSQP_->setCurrentState(state);
@@ -209,6 +209,11 @@ double BaseAuto::getDuration() const
 const std::string& BaseAuto::getFrameId(const ControlLevel& controlLevel) const
 {
   return frameId_;
+}
+
+void BaseAuto::setNominalStanceInBaseFrame(const PlanarStance& nominalPlanarStanceInBaseFrame)
+{
+  nominalPlanarStanceInBaseFrame_ = nominalPlanarStanceInBaseFrame;
 }
 
 void BaseAuto::setHeight(const double height)
