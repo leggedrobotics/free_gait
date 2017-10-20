@@ -129,10 +129,14 @@ bool Step::needsComputation() const
 bool Step::compute()
 {
   for (const auto& legMotion : legMotions_) {
-    if (!legMotion.second->compute()) return false;
+    if (legMotion.second->needsComputation()) {
+      if (!legMotion.second->compute()) return false;
+    }
   }
   if (hasBaseMotion()) {
-    if (!baseMotion_->compute()) return false;
+    if (baseMotion_->needsComputation()) {
+      if (!baseMotion_->compute()) return false;
+    }
   }
   isComputed_ = true;
   return true;
