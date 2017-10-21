@@ -107,7 +107,7 @@ class BaseAuto : public BaseMotionBase
 
   bool computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter);
   bool generateFootholdLists(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter);
-  void computeDuration(const Step& step, const AdapterBase& adapter);
+  void computeDuration(const State& state, const Step& step, const AdapterBase& adapter);
   bool optimizePose(Pose& pose);
 
   /*!

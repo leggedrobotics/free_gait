@@ -8,6 +8,7 @@
 
 #include "free_gait_core/base_motion/BaseAuto.hpp"
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
+#include "free_gait_core/leg_motion/Footstep.hpp"
 
 #include <math.h>
 
@@ -156,7 +157,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     if (!tolerateFailingOptimization_) return false;
   }
 
-  computeDuration(step, adapter);
+  computeDuration(state, step, adapter);
   computeTrajectory();
 
   // TODO This shouldn't be necessary if we could create copies of the adapter.
@@ -360,25 +361,39 @@ bool BaseAuto::optimizePose(Pose& pose)
   return poseOptimizationSQP_->optimize(pose);
 }
 
-void BaseAuto::computeDuration(const Step& step, const AdapterBase& adapter)
+void BaseAuto::computeDuration(const State& state, const Step& step, const AdapterBase& adapter)
 {
-  if (!step.hasLegMotion() || ignoreTimingOfLegMotion_) {
-    double distance = (target_.getPosition() - start_.getPosition()).norm();
-    double translationDuration = distance / averageLinearVelocity_;
-    double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
-    double rotationDuration = angle / averageAngularVelocity_;
-    duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
-  } else {
-    for (const auto& limb : adapter.getLimbs()) {
-      if (step.hasLegMotion(limb)) {
-        if (!step.getLegMotion(limb).isIgnoreForPoseAdaptation()) {
-          if (duration_ < step.getLegMotion(limb).getDuration()) duration_ = step.getLegMotion(limb).getDuration();
-        }
-      }
-    }
+  // Compute nominal speed.
+  double distance = (target_.getPosition() - start_.getPosition()).norm();
+  double translationDuration = distance / averageLinearVelocity_;
+  double angle = fabs(target_.getRotation().getDisparityAngle(start_.getRotation()));
+  double rotationDuration = angle / averageAngularVelocity_;
+  duration_ = translationDuration > rotationDuration ? translationDuration : rotationDuration;
+  duration_ = duration_ < minimumDuration_ ? minimumDuration_ : duration_;
+
+  if (ignoreTimingOfLegMotion_ || !step.hasLegMotion()) return;
+  double desiredDuration = duration_;
+
+  // Adapting timing to reach goal with fastest leg motion.
+  for (auto& legMotion : step.getLegMotions()) {
+    if (legMotion.second->isIgnoreForPoseAdaptation()) continue;
+    if (duration_ < legMotion.second->getDuration()) duration_ = legMotion.second->getDuration();
   }
 
-  duration_ = duration_ < minimumDuration_ ? minimumDuration_ : duration_;
+  if (duration_ > desiredDuration) return;
+
+  // Adapt timing of footsteps to base motion if base motion is faster than specified.
+  // Other leg motions are ignored.
+  duration_ = desiredDuration;
+  for (auto& legMotion : step.getLegMotions()) {
+    if (legMotion.second->isIgnoreForPoseAdaptation()) continue;
+    if (legMotion.second->getType() == free_gait::LegMotionBase::Type::Footstep) {
+      auto& footstep = dynamic_cast<free_gait::Footstep&>(*legMotion.second);
+      if (footstep.getDuration() >= desiredDuration) continue;
+      footstep.setMinimumDuration(desiredDuration);
+      footstep.prepareComputation(state, step, adapter);
+    }
+  }
 }
 
 bool BaseAuto::computeTrajectory()

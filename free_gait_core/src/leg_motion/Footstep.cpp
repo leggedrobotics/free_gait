@@ -95,6 +95,7 @@ bool Footstep::compute(bool isSupportLeg)
   }
   liftOffVelocity_ = LinearVelocity(liftOffSpeed_ * Vector::UnitZ());
   touchdownVelocity_ = LinearVelocity(-touchdownSpeed_ * surfaceNormal.vector());
+  trajectory_.clear();
   trajectory_.fitCurveWithDerivatives(times_, values_, liftOffVelocity_.vector(), touchdownVelocity_.vector());
   duration_ = trajectory_.getMaxTime() - trajectory_.getMinTime();
   isComputed_ = true;
@@ -151,6 +152,12 @@ const LinearAcceleration Footstep::evaluateAcceleration(const double time) const
 double Footstep::getDuration() const
 {
   return duration_;
+}
+
+void Footstep::setMinimumDuration(const double minimumDuration)
+{
+  minimumDuration_ = minimumDuration;
+  isComputed_ = false;
 }
 
 double Footstep::getMinimumDuration() const

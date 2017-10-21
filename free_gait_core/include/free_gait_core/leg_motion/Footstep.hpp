@@ -72,6 +72,7 @@ class Footstep : public EndEffectorMotionBase
    * @return the duration.
    */
   double getDuration() const;
+  void setMinimumDuration(const double minimumDuration);
   double getMinimumDuration() const;
 
   void setTargetPosition(const std::string& frameId, const Position& target);
