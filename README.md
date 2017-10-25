@@ -13,7 +13,7 @@ Maintainer: Péter Fankhauser, pfankhauser@ethz.ch<br />
 With contributions by: Samuel Bachmann, Dario Bellicoso, Thomas Bi, Remo Diethelm, Christian Gehring<br />
 Affiliation: Robotic Systems Lab, ETH Zurich**
 
-[![Build Status](http://rsl-ci.ethz.ch/buildStatus/icon?job=free_gait)](http://rsl-ci.ethz.ch/job/free_gait/)
+[![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_leggedrobotics/free_gait/master)](https://ci.leggedrobotics.com/job/github_leggedrobotics/job/free_gait/job/master/)
 
 ## Publications
 
