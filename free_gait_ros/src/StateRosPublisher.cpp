@@ -18,6 +18,8 @@
 #include <string>
 #include <vector>
 
+#include <urdf/model.h>
+
 namespace free_gait {
 
 StateRosPublisher::StateRosPublisher(ros::NodeHandle& nodeHandle,
