@@ -15,6 +15,7 @@
 #include <kindr/Core>
 #include <message_logger/message_logger.hpp>
 #include <numopt_quadprog/ActiveSetFunctionMinimizer.hpp>
+#include <numopt_ooqp/QPFunctionMinimizer.hpp>
 #include <numopt_sqp/SQPFunctionMinimizer.hpp>
 
 #include <functional>
@@ -81,8 +82,10 @@ bool PoseOptimizationSQP::optimize(Pose& pose)
 
   // Optimize.
   PoseOptimizationProblem problem(objective_, constraints_);
+//  std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
+//      new numopt_quadprog::ActiveSetFunctionMinimizer);
   std::shared_ptr<numopt_common::QuadraticProblemSolver> qpSolver(
-      new numopt_quadprog::ActiveSetFunctionMinimizer);
+      new numopt_ooqp::QPFunctionMinimizer);
   numopt_sqp::SQPFunctionMinimizer solver(qpSolver, 30, 0.01, 3, -DBL_MAX);
   solver.registerOptimizationStepCallback(
       std::bind(&PoseOptimizationSQP::optimizationStepCallback, this, std::placeholders::_1, std::placeholders::_2,
