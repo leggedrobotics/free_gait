@@ -59,8 +59,8 @@ bool PoseOptimizationGeometric::optimize(Pose& pose)
   Eigen::Matrix4d C(Eigen::Matrix4d::Zero()); // See (45).
   Eigen::Matrix4d A(Eigen::Matrix4d::Zero()); // See (46).
   for (const auto& foot : stance_) {
-    const RotationQuaternion footPositionInertialFrame(0.0, foot.second.vector()); // \bar_a_k = S^T * a_k (39).
-    const RotationQuaternion defaultFootPositionBaseFrame(0.0, nominalStanceInBaseFrame_.at(foot.first).vector()); // \bar_b_k = S^T * b_k.
+    kindr::QuaternionD footPositionInertialFrame(0.0, foot.second.vector()); // \bar_a_k = S^T * a_k (39).
+    kindr::QuaternionD defaultFootPositionBaseFrame(0.0, nominalStanceInBaseFrame_.at(foot.first).vector()); // \bar_b_k = S^T * b_k.
     Eigen::Matrix4d Ak = footPositionInertialFrame.getQuaternionMatrix() - defaultFootPositionBaseFrame.getConjugateQuaternionMatrix(); // See (46).
     C += Ak * Ak; // See (45).
     A += Ak; // See (46).
