@@ -17,7 +17,7 @@
 
 #include <grid_map_core/Polygon.hpp>
 #include <numopt_common/QuadraticProblemSolver.hpp>
-#include <robot_utils/timers/ChronoTimer.hpp>
+#include <std_utils/timers/ChronoTimer.hpp>
 
 #include <limits>
 
@@ -78,7 +78,7 @@ class PoseOptimizationSQP : public PoseOptimizationBase
   std::shared_ptr<PoseOptimizationObjectiveFunction> objective_;
   std::shared_ptr<PoseOptimizationFunctionConstraints> constraints_;
   OptimizationStepCallbackFunction optimizationStepCallback_;
-  robot_utils::HighResolutionClockTimer timer_;
+  std_utils::HighResolutionClockTimer timer_;
   double durationInCallback_;
   size_t nIterations_;
 };

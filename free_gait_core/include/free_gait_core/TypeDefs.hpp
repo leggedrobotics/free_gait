@@ -9,12 +9,13 @@
 #pragma once
 
 // quadruped model
-#include <quadruped_model/common/enums.hpp>
 #include <quadruped_model/common/typedefs.hpp>
+#include <quadruped_model/QuadrupedModel.hpp>
 
 // STL
 #include <unordered_map>
 #include <map>
+
 
 namespace free_gait {
 
@@ -28,10 +29,13 @@ struct EnumClassHash
 };
 
 // Import enum aliases.
-using LimbEnum = quadruped_model::LimbEnum;
-using BranchEnum = quadruped_model::BranchEnum;
-using JointNodeEnum = quadruped_model::JointNodeEnum;
-using ContactEnum = quadruped_model::ContactEnum;
+using QD = quadruped_model::QuadrupedModel::QuadrupedDescription;
+
+using LimbEnum = QD::LimbEnum;
+using BranchEnum = QD::BranchEnum;
+using JointNodeEnum = QD::JointNodeEnum;
+using ContactEnum = QD::ContactEnum;
+using FrameTransformEnum = QD::ConcreteTopology::FrameTransformEnum;
 
 // Import kindr aliases.
 using Transform = romo::Pose;
@@ -60,13 +64,13 @@ using quadruped_model::GeneralizedCoordinates;
 using quadruped_model::GeneralizedVelocities;
 using quadruped_model::GeneralizedAccelerations;
 using quadruped_model::JointPositions;
-using quadruped_model::JointPositionsLeg;
+using JointPositionsLeg = quadruped_model::JointPositionsLimb;
 using quadruped_model::JointVelocities;
-using quadruped_model::JointVelocitiesLeg;
+using JointVelocitiesLeg = quadruped_model::JointVelocitiesLimb;
 using quadruped_model::JointAccelerations;
-using quadruped_model::JointAccelerationsLeg;
-typedef quadruped_model::JointTorques JointEfforts;
-typedef quadruped_model::JointTorquesLeg JointEffortsLeg;
+using JointAccelerationsLeg = quadruped_model::JointAccelerationsLimb;
+using JointEfforts = quadruped_model::JointTorques;
+using JointEffortsLeg = quadruped_model::JointTorquesLimb;
 
 enum class ControlLevel
 {
