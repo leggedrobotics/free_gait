@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_core
   loco
   robot_utils
+  std_utils
   message_logger
 )
 
@@ -45,6 +46,7 @@ catkin_package(
       grid_map_core
       loco
       robot_utils
+      std_utils
       message_logger
 )
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_core</name>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
   <description>Free Gait for architecture for the control of legged robots.</description>
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
@@ -21,5 +21,6 @@
   <depend>grid_map_core</depend>
   <depend>loco</depend>
   <depend>robot_utils</depend>
+  <depend>std_utils</depend>
   <depend>message_logger</depend>
 </package>

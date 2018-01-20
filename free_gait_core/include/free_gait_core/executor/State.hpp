@@ -10,6 +10,7 @@
 
 #include "free_gait_core/TypeDefs.hpp"
 #include <quadruped_model/QuadrupedState.hpp>
+#include <quadruped_model/QuadrupedModel.hpp>
 
 // STD
 #include <vector>
@@ -21,6 +22,8 @@ namespace free_gait {
 class State : public quadruped_model::QuadrupedState
 {
  public:
+  using QD = quadruped_model::QuadrupedModel::QuadrupedDescription;
+
   State();
   virtual ~State();
 
