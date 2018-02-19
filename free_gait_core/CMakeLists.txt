@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   numopt_sqp
   curves
   grid_map_core
-  loco
   robot_utils
   std_utils
   message_logger
@@ -42,7 +41,6 @@ catkin_package(
       numopt_sqp
       curves
       grid_map_core
-      loco
       robot_utils
       std_utils
       message_logger
