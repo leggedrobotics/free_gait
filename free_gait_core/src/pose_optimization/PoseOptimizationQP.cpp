@@ -75,6 +75,8 @@ bool PoseOptimizationQP::optimize(Pose& pose)
   Eigen::VectorXd hp;
   supportRegion_.convertToInequalityConstraints(G, hp);
   Eigen::VectorXd h = hp - G * (R * centerOfMassInBaseFrame.vector()).head(2);
+  G.conservativeResize(Eigen::NoChange,3); // Add column corresponding to Z position
+  G.col(2).setZero(); // No constraints in Z position
 
 //  std::cout << "G: " << std::endl << G << std::endl;
 //  std::cout << "hp: " << std::endl << hp << std::endl;
