@@ -35,7 +35,7 @@ class PoseOptimizationFunctionConstraints : public numopt_common::NonlinearFunct
   void setLimbLengthConstraints(const LimbLengths& minLimbLenghts,
                                 const LimbLengths& maxLimbLenghts);
 
-  void setPositionBaseToHip(const LegPositions& positionBaseToHipInBaseFrame);
+  void setPositionsBaseToHip(const LegPositions& positionBaseToHipInBaseFrame);
 
   void setCenterOfMass(const Position& centerOfMassInBaseFrame);
 
