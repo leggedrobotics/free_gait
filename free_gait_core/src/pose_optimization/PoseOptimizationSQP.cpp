@@ -34,7 +34,7 @@ PoseOptimizationSQP::PoseOptimizationSQP(const AdapterBase& adapter)
   for (const auto& limb : adapter_.getLimbs()) {
     positionsBaseToHipInBaseFrame[limb] = adapter_.getPositionBaseToHipInBaseFrame(limb);
   }
-  constraints_->setPositionBaseToHip(positionsBaseToHipInBaseFrame);
+  constraints_->setPositionsBaseToHip(positionsBaseToHipInBaseFrame);
 
   timer_.setAlpha(1.0);
 }

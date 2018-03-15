@@ -47,7 +47,7 @@ void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
         " minLimbLenghts and maxLimbLenghts need to have to same size!");
   }
 
-  nLimbLengthInequalityConstraints_= minLimbLenghts.size();
+  nLimbLengthInequalityConstraints_= stance_.size();
   updateNumberOfInequalityConstraints();
 
 //  if (nLimbLengthInequalityConstraints_ != adapter_.getLimbs().size()) {
@@ -59,15 +59,15 @@ void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
   limbLengthInequalityConstraintsMaxValues_.resize(nLimbLengthInequalityConstraints_);
 
   size_t i(0);
-  for (const auto& minLimbLength : minLimbLenghts) {
-    const auto limb = minLimbLength.first;
+  for (const auto& leg : stance_) {
+    const auto limb = leg.first;
     limbLengthInequalityConstraintsMinValues_(i) = minLimbLenghts.at(limb);
     limbLengthInequalityConstraintsMaxValues_(i) = maxLimbLenghts.at(limb);
     ++i;
   }
 }
 
-void PoseOptimizationFunctionConstraints::setPositionBaseToHip(
+void PoseOptimizationFunctionConstraints::setPositionsBaseToHip(
     const LegPositions& positionBaseToHipInBaseFrame)
 {
   positionsBaseToHipInBaseFrame_ = positionBaseToHipInBaseFrame;
@@ -110,11 +110,11 @@ bool PoseOptimizationFunctionConstraints::getInequalityConstraintValues(numopt_c
 
   // Leg length.
   size_t i(0);
-  for (const auto& positionBaseToHipInBaseFrame : positionsBaseToHipInBaseFrame_) {
-    const auto limb = positionBaseToHipInBaseFrame.first;
-    const Position& footPosition = stance_.at(limb);
+  for (const auto& leg : stance_) {
+    const auto limb = leg.first;
+    const Position& footPosition = leg.second;
     const Position baseToFootInBase = basePose.getRotation().inverseRotate(footPosition - basePose.getPosition());
-    const double legLength = Vector(baseToFootInBase - positionBaseToHipInBaseFrame.second).norm();
+    const double legLength = Vector(baseToFootInBase - positionsBaseToHipInBaseFrame_.at(limb)).norm();
     values(nSupportRegionInequalityConstraints_ + i) = legLength;
     ++i;
   }
@@ -160,7 +160,7 @@ bool PoseOptimizationFunctionConstraints::getLocalInequalityConstraintJacobian(
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
   const Eigen::Vector3d& p = pose.getPosition().vector();
-  const RotationQuaternion Phi(pose.getRotation());
+  const RotationQuaternion& Phi(pose.getRotation());
   const Eigen::Vector3d Phi_r_com = Phi.rotate(centerOfMassInBaseFrame_).vector();
   const Eigen::Matrix3d Phi_r_com_skew = kindr::getSkewMatrixFromVector(Phi_r_com);
 
@@ -173,12 +173,12 @@ bool PoseOptimizationFunctionConstraints::getLocalInequalityConstraintJacobian(
 
   // Leg length.
   size_t i(0);
-  for (const auto& positionBaseToHipInBaseFrame : positionsBaseToHipInBaseFrame_) {
-    const auto limb = positionBaseToHipInBaseFrame.first;
-    const Position& footPosition = stance_.at(limb);
-    const Eigen::Vector3d Phi_r_BH = Phi.rotate(positionBaseToHipInBaseFrame.second).vector();
+  for (const auto& leg : stance_) {
+    const auto limb = leg.first;
+    const Position& footPosition = leg.second;
+    const Eigen::Vector3d Phi_r_BH = Phi.rotate(positionsBaseToHipInBaseFrame_.at(limb)).vector();
     const Eigen::Matrix3d Phi_r_BH_skew = kindr::getSkewMatrixFromVector(Phi_r_BH);
-    const Eigen::Vector3d l_normalized = (p + Phi_r_BH - stance_.at(limb).vector()).normalized();
+    const Eigen::Vector3d l_normalized = (p + Phi_r_BH - footPosition.vector()).normalized();
     analyticalJacobian.row(nSupportRegionInequalityConstraints_ + i).head<3>() = l_normalized;
     analyticalJacobian.row(nSupportRegionInequalityConstraints_ + i).tail<3>() = -l_normalized.transpose() * Phi_r_BH_skew;
     ++i;
@@ -189,7 +189,6 @@ bool PoseOptimizationFunctionConstraints::getLocalInequalityConstraintJacobian(
   // Return solution.
 //  jacobian = numericalJacobian;
   jacobian = analyticalJacobian.sparseView(1e-10);
-  return true;
 
   return true;
 }
