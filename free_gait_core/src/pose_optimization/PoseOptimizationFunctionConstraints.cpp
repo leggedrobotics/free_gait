@@ -160,7 +160,7 @@ bool PoseOptimizationFunctionConstraints::getLocalInequalityConstraintJacobian(
   const auto& poseParameterization = dynamic_cast<const PoseParameterization&>(params);
   const Pose pose = poseParameterization.getPose();
   const Eigen::Vector3d& p = pose.getPosition().vector();
-  const RotationQuaternion Phi(pose.getRotation());
+  const RotationQuaternion& Phi(pose.getRotation());
   const Eigen::Vector3d Phi_r_com = Phi.rotate(centerOfMassInBaseFrame_).vector();
   const Eigen::Matrix3d Phi_r_com_skew = kindr::getSkewMatrixFromVector(Phi_r_com);
 
