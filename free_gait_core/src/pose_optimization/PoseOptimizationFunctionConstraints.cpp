@@ -47,7 +47,7 @@ void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
         " minLimbLenghts and maxLimbLenghts need to have to same size!");
   }
 
-  nLimbLengthInequalityConstraints_= minLimbLenghts.size();
+  nLimbLengthInequalityConstraints_= stance_.size();
   updateNumberOfInequalityConstraints();
 
 //  if (nLimbLengthInequalityConstraints_ != adapter_.getLimbs().size()) {
@@ -59,8 +59,8 @@ void PoseOptimizationFunctionConstraints::setLimbLengthConstraints(
   limbLengthInequalityConstraintsMaxValues_.resize(nLimbLengthInequalityConstraints_);
 
   size_t i(0);
-  for (const auto& minLimbLength : minLimbLenghts) {
-    const auto limb = minLimbLength.first;
+  for (const auto& leg : stance_) {
+    const auto limb = leg.first;
     limbLengthInequalityConstraintsMinValues_(i) = minLimbLenghts.at(limb);
     limbLengthInequalityConstraintsMaxValues_(i) = maxLimbLenghts.at(limb);
     ++i;

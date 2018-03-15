@@ -150,7 +150,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     std::cerr << "Support stance:\n" << footholdsInSupport_;
     std::cerr << "Support margin: " << supportMargin_ << std::endl;
     std::cerr << "Nominal stance (in base frame):\n" << nominalStanceInBaseFrame_;
-    std::cerr << "Limb length constraints:";
+    std::cerr << "Limb length constraints:\n";
     for (const auto& limb : adapter.getLimbs()) {
       std::cerr << "[" <<  limb << "] min: " << minLimbLenghts_[limb] << ", max: " << maxLimbLenghts_[limb] << std::endl;
     }
