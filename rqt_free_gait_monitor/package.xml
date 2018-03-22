@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>rqt_free_gait_monitor</name>
-  <version>0.1.3</version>
+  <version>0.2.0</version>
   <description>A RQT plugin to monitor, pause, and stop Free Gait actions.</description>
   <maintainer email="samuel.bachmann@gmail.com">Samuel Bachmann</maintainer>
   <author email="samuel.bachmann@gmail.com">Samuel Bachmann</author>

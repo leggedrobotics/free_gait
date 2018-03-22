@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_ros</name>
-  <version>0.1.3</version>
+  <version>0.2.0</version>
   <description>ROS wrapper for free gait.</description>
   <maintainer email="pfankhauser@ethz.ch">Peter Fankhauser</maintainer>
   <author email="pfankhauser@ethz.ch">Peter Fankhauser</author>
