@@ -119,6 +119,8 @@ class ActionLoader:
         try:
             if action_entry.type == ActionType.YAML:
                 self._load_yaml_action(action_entry.file)
+            if action_entry.type == ActionType.COMBINED_YAML:
+                self._load_combined_yaml_action(action_entry.file)
             elif action_entry.type == ActionType.PYTHON:
                 self._load_python_action(action_entry.file)
             elif action_entry.type == ActionType.LAUNCH:
@@ -160,6 +162,12 @@ class ActionLoader:
         if goal is None:
             rospy.logerr('Could not load action from YAML file.')
             self.action.set_state(ActionState.ERROR)
+
+    def _load_combined_yaml_action(self, file_path):
+        # Load combined action from YAML file listing the combination of YAML actions.
+        rospy.loginfo('Loading Free Gait action from combined YAML file "' + file_path + '".')
+        self.action = CombinedYamlAction(self.execute_steps_relay)
+        self.action.set_goal_from_file(file_path)
 
     def _load_python_action(self, file_path):
         # Load action from Python script.
