@@ -189,6 +189,7 @@ class CombinedYamlAction(ActionBase):
     def __init__(self, relay):
         """Initialization of the YAML combined action class."""
         ActionBase.__init__(self, relay)
+        self.set_state(ActionState.UNINITIALIZED)
         self.goal = None
 
     def set_goal_from_file(self, file_path):
@@ -234,8 +235,12 @@ class CombinedYamlAction(ActionBase):
                 if not goal:
                     self.set_state(ActionState.ERROR)
                     return
-                print goal
-                print "+++++++++++++"
+                if self.goal is None:
+                    self.goal = goal
+                else:
+                    self.goal.steps = self.goal.steps + goal.steps
+
+        self.set_state(ActionState.INITIALIZED)
 
     def start(self):
         """Sends the goal at start to the execute steps action server."""
