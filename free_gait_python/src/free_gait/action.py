@@ -229,8 +229,10 @@ class CombinedYamlAction(ActionBase):
                 if 'placeholders' in yaml_action['action']:
                     placeholders = yaml_action['action']['placeholders']
                 all_placeholders = {}
-                all_placeholders.update(global_placeholders)
-                all_placeholders.update(placeholders)
+                if global_placeholders is not None:
+                    all_placeholders.update(global_placeholders)
+                if placeholders is not None:
+                    all_placeholders.update(placeholders)
                 goal = free_gait.load_action_from_file(full_file_path, all_placeholders)
                 if not goal:
                     self.set_state(ActionState.ERROR)
@@ -250,6 +252,24 @@ class CombinedYamlAction(ActionBase):
     def _parse_error(self):
         rospy.logerr('Could not parse the combined YAML action.')
         self.set_state(ActionState.ERROR)
+
+
+class CombinedYamlActionDefinition:
+    """Class to hold information and helper functions to define a combined
+    YAML action."""
+
+    def __init__(self):
+        self.yaml_object = [({'global_placeholders': {}, 'yaml_actions': []}, '/')]
+
+    def append_action(self, package, file_path, placeholders=None):
+        if placeholders is None:
+            action = {'action': {'package': package,
+                                 'file_path': file_path}}
+        else:
+            action = {'action': {'package': package,
+                                 'file_path': file_path,
+                                 'placeholders': placeholders}}
+        self.yaml_object[0][0]['yaml_actions'].append(action)
 
 
 class LaunchAction(ActionBase):
