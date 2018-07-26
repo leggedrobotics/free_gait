@@ -319,7 +319,7 @@ void Footstep::generateTrapezoidKnots()
   values_.push_back(knot3.vector());
   values_.push_back(knot4.vector());
 
-  // Knot 6.
+  // Knot 5.
   values_.push_back(target_.vector());
 }
 

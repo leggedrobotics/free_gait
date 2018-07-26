@@ -10,13 +10,16 @@ import free_gait_msgs.msg
 
 class ActionType:
     YAML = 0
-    PYTHON = 1
-    LAUNCH = 2
+    COMBINED_YAML = 1
+    PYTHON = 2
+    LAUNCH = 3
 
     @staticmethod
     def to_text(action_type):
         if action_type == ActionType.YAML:
             return 'yaml'
+        elif action_type == ActionType.COMBINED_YAML:
+            return 'combined_yaml'
         elif action_type == ActionType.PYTHON:
             return 'python'
         elif action_type == ActionType.LAUNCH:
@@ -28,6 +31,8 @@ class ActionType:
     def from_text(action_type):
         if action_type == 'yaml':
             return ActionType.YAML
+        elif action_type == 'combined_yaml':
+            return ActionType.COMBINED_YAML
         elif action_type == 'python':
             return ActionType.PYTHON
         elif action_type == 'launch':

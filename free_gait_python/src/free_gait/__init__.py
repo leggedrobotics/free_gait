@@ -11,6 +11,8 @@ from action import ActionState
 from action import ActionBase
 from action import SimpleAction
 from action import ContinuousAction
+from action import CombinedYamlAction
+from action import CombinedYamlActionDefinition
 from action import LaunchAction
 from action import TriggerOnFeedback
 from action import WaitForState

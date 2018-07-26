@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
-import roslib
-from free_gait import *
+import rospy
+import rospkg
+import free_gait
 import threading
 from actionlib_msgs.msg import GoalStatus
 import roslaunch
@@ -96,12 +97,12 @@ class ActionBase(object):
         """Sends the `self.goal` object to the Free Gait execute steps action server.
         Typically, do not overwrite this method."""
         if self.goal is None:
-            self.result = free_gait_msgs.msg.ExecuteStepsResult()
+            self.result = free_gait.free_gait_msgs.msg.ExecuteStepsResult()
             self.set_state(ActionState.DONE)
             return
 
         if self._use_preview():
-            actionGoal = free_gait_msgs.msg.ExecuteStepsActionGoal()
+            actionGoal = free_gait.free_gait_msgs.msg.ExecuteStepsActionGoal()
             actionGoal.goal = self.goal
             self.relay.publish(actionGoal)
             self.set_state(ActionState.ACTIVE)
@@ -146,6 +147,7 @@ class ActionBase(object):
         else:
             return False
 
+
 class SimpleAction(ActionBase):
     """Base class for simple actions with one known goal at initialization."""
 
@@ -178,6 +180,96 @@ class ContinuousAction(ActionBase):
             self.set_state(ActionState.ERROR)
         else:
             self.set_state(ActionState.IDLE)
+
+
+class CombinedYamlAction(ActionBase):
+    """Class for an action defined as a combination of multiple YAML motion
+    definitions."""
+
+    def __init__(self, relay):
+        """Initialization of the YAML combined action class."""
+        ActionBase.__init__(self, relay)
+        self.set_state(ActionState.UNINITIALIZED)
+        self.goal = None
+
+    def set_goal_from_file(self, file_path):
+        """Set the goal from a YAML file containing the action combination."""
+        from rosparam import load_file
+        if not os.path.isfile(file_path):
+            rospy.logerr('File with path "' + file_path + '" does not exists.')
+            self.set_state(ActionState.ERROR)
+            return
+        self.set_goal_from_yaml(load_file(file_path))
+
+    def set_goal_from_yaml(self, yaml_object):
+        """Set the goal from a YAML object containing the action combination."""
+        if not yaml_object:
+            self._parse_error()
+            return
+        global_placeholders = None
+        if 'global_placeholders' in yaml_object[0][0]:
+            global_placeholders = yaml_object[0][0]['global_placeholders']
+        if 'yaml_actions' not in yaml_object[0][0]:
+            self._parse_error()
+            return
+        yaml_actions = yaml_object[0][0]['yaml_actions']
+        rospack = rospkg.RosPack()
+        for yaml_action in yaml_actions:
+            if 'action' in yaml_action:
+                package = file_path = placeholders = None
+                if 'package' in yaml_action['action']:
+                    package = yaml_action['action']['package']
+                if 'file_path' in yaml_action['action']:
+                    file_path = yaml_action['action']['file_path']
+                if not package or not file_path:
+                    self._parse_error()
+                    return
+                full_file_path = os.path.abspath(os.path.join(rospack.get_path(package), file_path))
+                placeholders = None
+                if 'placeholders' in yaml_action['action']:
+                    placeholders = yaml_action['action']['placeholders']
+                all_placeholders = {}
+                if global_placeholders is not None:
+                    all_placeholders.update(global_placeholders)
+                if placeholders is not None:
+                    all_placeholders.update(placeholders)
+                goal = free_gait.load_action_from_file(full_file_path, all_placeholders)
+                if not goal:
+                    self.set_state(ActionState.ERROR)
+                    return
+                if self.goal is None:
+                    self.goal = goal
+                else:
+                    self.goal.steps = self.goal.steps + goal.steps
+
+        self.set_state(ActionState.INITIALIZED)
+
+    def start(self):
+        """Sends the goal at start to the execute steps action server."""
+        ActionBase.start(self)
+        self._send_goal()
+
+    def _parse_error(self):
+        rospy.logerr('Could not parse the combined YAML action.')
+        self.set_state(ActionState.ERROR)
+
+
+class CombinedYamlActionDefinition:
+    """Class to hold information and helper functions to define a combined
+    YAML action."""
+
+    def __init__(self):
+        self.yaml_object = [({'global_placeholders': {}, 'yaml_actions': []}, '/')]
+
+    def append_action(self, package, file_path, placeholders=None):
+        if placeholders is None:
+            action = {'action': {'package': package,
+                                 'file_path': file_path}}
+        else:
+            action = {'action': {'package': package,
+                                 'file_path': file_path,
+                                 'placeholders': placeholders}}
+        self.yaml_object[0][0]['yaml_actions'].append(action)
 
 
 class LaunchAction(ActionBase):
