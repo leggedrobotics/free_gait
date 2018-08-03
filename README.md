@@ -9,9 +9,11 @@
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
 **Author: Péter Fankhauser<br />
-Maintainer: Péter Fankhauser, pfankhauser@ethz.ch<br />
+Maintainer: Péter Fankhauser, pfankhauser@anybotics.com<br />
 With contributions by: Samuel Bachmann, Dario Bellicoso, Thomas Bi, Remo Diethelm, Christian Gehring<br />
-Affiliation: Robotic Systems Lab, ETH Zurich**
+Affiliation: ANYbotics**
+
+This projected was initially developed at RSL, ETH Zurich.
 
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_leggedrobotics/free_gait/master)](https://ci.leggedrobotics.com/job/github_leggedrobotics/job/free_gait/job/master/)
 
@@ -65,7 +67,7 @@ Free Gait actions can be either launched manually or with help of the *[free_gai
 The *[free_gait_action_loader]* allows to launch actions through a [ROS service](free_gait_msgs/srv/SendAction.srv) or [ROS action](free_gait_msgs/action/ExecuteAction.action). Currently, the action loader supports *YAML* motion definitions, *Python* scripts, and starting *ROS launch files* for *C++* and other libraries.
 
 Run the *[free_gait_action_loader]* with
-	
+
 	rosrun free_gait_action_loader action_loader.py
 
 The *[free_gait_action_loader]* manages the actions and makes sure that only one action is running at the time. To register an action with the *[free_gait_action_loader]*, one has to load the action as a ROS plugin.

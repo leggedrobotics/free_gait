@@ -28,7 +28,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.                                            *
  *                                                                            *
  * Authors: Samuel Bachmann <samuel.bachmann@gmail.com>,                      *
- *          Peter Fankhauser <pfankhauser@ethz.ch>                            *
+ *          Peter Fankhauser <pfankhauser@anybotics.com>                            *
  ******************************************************************************/
 
 #include "rqt_free_gait_action/WorkerThreadSendActionSequence.h"
