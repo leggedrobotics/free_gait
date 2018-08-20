@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_python</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <description>A collection of python scripts for the Free Gait.</description>
   <maintainer email="pfankhauser@anybotics.com">Peter Fankhauser</maintainer>
   <author email="pfankhauser@anybotics.com">Peter Fankhauser</author>
