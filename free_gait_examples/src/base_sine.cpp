@@ -13,7 +13,13 @@ int main(int argc, char** argv)
     free_gait::AdapterRos adapter(n);
     free_gait::StepRosConverter converter(adapter.getAdapter());
 
-    ros::Rate r(10);
+
+    int rate = 10; // [Hz]
+    double freq = 0.5; // [Hz]
+    double default_height = 0.45; // [m]
+    double amplitude = 0.10; // [m]
+
+    ros::Rate r(rate);
 
     int a = 0;
 
@@ -21,12 +27,14 @@ int main(int argc, char** argv)
     client.registerCallback();
 
     while(n.ok()){
+        double t = a++ / (double)rate; // [s]
+
         free_gait_msgs::ExecuteStepsGoal goal;
         free_gait::Step step;
         free_gait::BaseAuto base_auto;
         free_gait_msgs::Step step_msg;
 
-        double height = 0.35 + std::sin(2*M_PI * (double)a++ * 0.01) * 0.10;
+        double height = default_height + std::sin(2*M_PI * freq * t) * amplitude;
         std::cout << "height: " <<  height << std::endl;
 
         base_auto.setHeight(height);
