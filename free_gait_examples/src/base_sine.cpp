@@ -16,10 +16,11 @@ int main(int argc, char** argv)
     ros::Rate r(10);
 
     int a = 0;
+
+    free_gait::FreeGaitActionClient client(n);
+    client.registerCallback();
+
     while(n.ok()){
-        free_gait::FreeGaitActionClient client(n);
-        client.registerCallback();
-        
         free_gait_msgs::ExecuteStepsGoal goal;
         free_gait::Step step;
         free_gait::BaseAuto base_auto;
