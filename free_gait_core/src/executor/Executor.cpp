@@ -51,7 +51,11 @@ Executor::Mutex& Executor::getMutex()
 bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
 {
   if (!isInitialized_) return false;
-  if (!skipStateMeasurmentUpdate) updateStateWithMeasurements();
+  if (!skipStateMeasurmentUpdate) {
+    if(!updateStateWithMeasurements()) {
+      std::cerr << "Executor::advance: Failed to update state with measurements." << std::endl;
+      return false; }
+  }
   bool executionStatus = adapter_.isExecutionOk() && !isPausing_;
 
   if (executionStatus) {
@@ -73,8 +77,14 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
   }
 
   // Advance queue.
-  if (!queue_.advance(dt)) return false;
-  if (!adapter_.updateExtrasBefore(queue_, state_)) return false;
+  if (!queue_.advance(dt)) {
+    std::cerr << "Executor::advance: Failed to advance queue." << std::endl;
+    return false;
+  }
+  if (!adapter_.updateExtrasBefore(queue_, state_)) {
+    std::cerr << "Executor::advance: Failed to update extras before." << std::endl;
+    return false;
+  }
 
   // For a new switch in step, do some work on step for the transition.
   while (queue_.hasSwitchedStep()) {
@@ -95,7 +105,10 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
         computer_.resetIsDone();
       }
     }
-    if (!queue_.advance(dt)) return false; // Advance again after completion.
+    if (!queue_.advance(dt)) {
+      std::cerr << "Executor::advance: Could not advance queue." << std::endl;
+      return false; // Advance again after completion.
+    }
   }
 
   if (queue_.hasStartedStep()) {
@@ -104,16 +117,39 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
     addToFeedback(stream.str());
   }
 
-  if (!writeIgnoreContact()) return false;
-  if (!writeIgnoreForPoseAdaptation()) return false;
-  if (!writeSupportLegs()) return false;
-  if (!writeSurfaceNormals()) return false;
-  if (!writeLegMotion()) return false;
-  if (!writeTorsoMotion()) return false;
-  if (!writeStepId()) return false;
-  if (!adapter_.updateExtrasAfter(queue_, state_)) return false;
+  if (!writeIgnoreContact()) {
+    std::cerr << "Executor::advance: Failed to write ignore contact." << std::endl;
+    return false;
+  }
+  if (!writeIgnoreForPoseAdaptation()) {
+    std::cerr << "Executor::advance: Failed to write ignore for pose adaption." << std::endl;
+    return false;
+  }
+  if (!writeSupportLegs()) {
+    std::cerr << "Executor::advance: Failed to write support legs." << std::endl;
+    return false;
+  }
+  if (!writeSurfaceNormals()) {
+    std::cerr << "Executor::advance: Failed to write surface normals." << std::endl;
+    return false;
+  }
+  if (!writeLegMotion()) {
+    std::cerr << "Executor::advance: Failed to write leg motion." << std::endl;
+    return false;
+  }
+  if (!writeTorsoMotion()) {
+    std::cerr << "Executor::advance: Failed to write torso motion." << std::endl;
+    return false;
+  }
+  if (!writeStepId()) {
+    std::cerr << "Executor::advance: Failed to write step id." << std::endl;
+    return false;
+  }
+  if (!adapter_.updateExtrasAfter(queue_, state_)) {
+    std::cerr << "Executor::advance: Failed to update extras after." << std::endl;
+    return false;
+  }
 //  std::cout << state_ << std::endl;
-
   return true;
 }
 
@@ -259,7 +295,7 @@ bool Executor::updateStateWithMeasurements()
     state_.setAngularVelocityBaseInBaseFrame(adapter_.getAngularVelocityBaseInBaseFrame());
   }
 
-  // TODO Copy also acceleraitons and torques.
+  // TODO Copy also accelerations and torques.
 //    state.setLinearVelocityBaseInWorldFrame(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
 //    state.setAngularVelocityBaseInBaseFrame(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
   return true;
@@ -349,6 +385,8 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::EndEffector:
       {
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
+
+        // Position tracking.
         if (controlSetup[ControlLevel::Position]) {
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
           if (!adapter_.frameIdExists(frameId)) {
@@ -363,6 +401,8 @@ bool Executor::writeLegMotion()
           }
           state_.setJointPositionsForLimb(limb, jointPositions);
         }
+
+        // Velocity tracking.
         if (controlSetup[ControlLevel::Velocity]) {
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
           if (!adapter_.frameIdExists(frameId)) {
@@ -375,6 +415,8 @@ bool Executor::writeLegMotion()
           const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
           state_.setJointVelocitiesForLimb(limb, jointVelocities);
         }
+
+        // Acceleration tracking.
         if (controlSetup[ControlLevel::Acceleration]) {
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Acceleration);
           if (!adapter_.frameIdExists(frameId)) {
@@ -386,6 +428,23 @@ bool Executor::writeLegMotion()
           const JointAccelerationsLeg jointAccelerations = adapter_.getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(limb, accelerationInWorldFrame);
           state_.setJointAccelerationsForLimb(limb, jointAccelerations);
         }
+
+        // Force feed-forward.
+        if (controlSetup[ControlLevel::Effort]) {
+          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
+          if (!adapter_.frameIdExists(frameId)) {
+            std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+            return false;
+          }
+
+          const auto endEffectorForceInWorldFrame = adapter_.transformForce(
+              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateEndEffectorForce(time));
+          state_.setEndEffectorForceInWorldFrame(limb, endEffectorForceInWorldFrame);
+          state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
+        } else {
+          state_.setEndEffectorForceInWorldFrame(limb, Force::Zero());
+        }
+
         break;
       }
 
