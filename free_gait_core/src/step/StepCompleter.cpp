@@ -114,6 +114,10 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     endEffectorMotion.updateStartVelocity(startVelocity);
   }
 
+  if (effortOut) {
+    endEffectorMotion.updateStartEndEffectorForce(Force::Zero());
+  }
+
   return endEffectorMotion.prepareComputation(state, step, adapter_);
 }
 
