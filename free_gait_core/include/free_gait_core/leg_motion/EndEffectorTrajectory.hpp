@@ -54,14 +54,15 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   void setFrameId(const ControlLevel& controlLevel, const std::string& frameId);
   bool addPositionTrajectoryPoint(const Time& time, const Position& position);
 
-  /*!
-   * Update the trajectory with the foot start position.
-   * Do this to avoid jumps of the swing leg.
-   * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
-   * @return true if successful, false otherwise.
-   */
+  //! Update the trajectory with the foot start position.
   void updateStartPosition(const Position& startPosition);
+
+  //! Update the trajectory with the foot start velocity.
   void updateStartVelocity(const LinearVelocity& startVelocity);
+
+  //! Update the trajectory with the end-effector start force.
+  void updateStartEndEffectorForce(const Force& force);
+
   const Position getStartPosition() const;
   const LinearVelocity getStartVelocity() const;
 
@@ -72,16 +73,17 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   bool isComputed() const;
   void reset();
 
-  /*!
-   * Evaluate the swing foot position at a given swing phase value.
-   * @param phase the swing phase value.
-   * @return the position of the foot on the swing trajectory.
-   */
-  const Position evaluatePosition(const double time) const;
+  //! Evaluate the swing foot position at a given swing phase value.
+  const Position evaluatePosition(const double time) const override;
 
-  const LinearVelocity evaluateVelocity(const double time) const;
+  //! Evaluate the swing foot velocity at a given swing phase value.
+  const LinearVelocity evaluateVelocity(const double time) const override;
 
-  const LinearAcceleration evaluateAcceleration(const double time) const;
+  //! Evaluate the swing foot acceleration at a given swing phase value.
+  const LinearAcceleration evaluateAcceleration(const double time) const override;
+
+  //! Evaluate the swing foot force (at end-effector) at a given swing phase value.
+  const Force evaluateEndEffectorForce(const double time) const override;
 
   /*!
    * Returns the total duration of the trajectory.
@@ -122,6 +124,9 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
 
   //! End effector trajectory.
   curves::CubicHermiteE3Curve trajectory_;
+
+  //! End effector trajectory for contact force.
+  curves::CubicHermiteE3Curve trajectoryForce_;
 
   //! If trajectory is updated.
   bool isComputed_;

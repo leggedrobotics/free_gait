@@ -50,7 +50,7 @@ class EndEffectorMotionBase : public LegMotionBase
   virtual void updateStartPosition(const Position& startPosition);
   virtual void updateStartVelocity(const LinearVelocity& startVelocity);
   virtual void updateStartAcceleration(const LinearAcceleration& startAcceleration);
-  virtual void updateStartForce(const Force& startForce);
+  virtual void updateStartEndEffectorForce(const Force& startForce);
 
   /*!
    * Evaluate the swing foot position at a given swing phase value.
@@ -60,7 +60,7 @@ class EndEffectorMotionBase : public LegMotionBase
   virtual const Position evaluatePosition(const double time) const;
   virtual const LinearVelocity evaluateVelocity(const double time) const;
   virtual const LinearAcceleration evaluateAcceleration(const double time) const;
-  virtual const Force evaluateForce(const double time) const;
+  virtual const Force evaluateEndEffectorForce(const double time) const;
 
   /*!
    * Return the target (end position) of the swing trajectory.

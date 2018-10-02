@@ -38,9 +38,9 @@ void EndEffectorMotionBase::updateStartAcceleration(const LinearAcceleration& st
   throw std::runtime_error("EndEffectorMotionBase::updateStartAcceleration() not implemented.");
 }
 
-void EndEffectorMotionBase::updateStartForce(const Force& startForce)
+void EndEffectorMotionBase::updateStartEndEffectorForce(const Force& startForce)
 {
-  throw std::runtime_error("EndEffectorMotionBase::updateStartForce() not implemented.");
+  throw std::runtime_error("EndEffectorMotionBase::updateStartEndEffectorForce() not implemented.");
 }
 
 const Position EndEffectorMotionBase::evaluatePosition(const double time) const
@@ -58,7 +58,7 @@ const LinearAcceleration EndEffectorMotionBase::evaluateAcceleration(const doubl
   throw std::runtime_error("EndEffectorMotionBase::evaluateAcceleration() not implemented.");
 }
 
-const Force EndEffectorMotionBase::evaluateForce(const double time) const
+const Force EndEffectorMotionBase::evaluateEndEffectorForce(const double time) const
 {
   throw std::runtime_error("EndEffectorMotionBase::evaluateForce() not implemented.");
 }

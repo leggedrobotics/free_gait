@@ -63,41 +63,63 @@ const ControlSetup EndEffectorTrajectory::getControlSetup() const
 
 void EndEffectorTrajectory::updateStartPosition(const Position& startPosition)
 {
+  if (!controlSetup_[ControlLevel::Position]) {
+    std::cout  << "[EndEffectorTrajectory::updateStartPosition] Desired control level is not in control setup.\n";
+  }
   isComputed_ = false;
   auto& values = values_.at(ControlLevel::Position);
-  if (times_[0] == 0.0) {
-    values[0] = startPosition.vector();
-  } else {
-    times_.insert(times_.begin(), 0.0);
-    values.insert(values.begin(), startPosition.vector());
-  }
+  if (times_[0] != 0.0) { times_.insert(times_.begin(), 0.0); }
+  values.insert(values.begin(), startPosition.vector());
 }
 
 void EndEffectorTrajectory::updateStartVelocity(const LinearVelocity& startVelocity)
 {
+  if (!controlSetup_.at(ControlLevel::Velocity)) {
+    std::cout  << "[EndEffectorTrajectory::updateStartVelocity] Desired control level is not in control setup.\n";
+  }
   isComputed_ = false;
   auto& values = values_.at(ControlLevel::Velocity);
-  if (times_[0] == 0.0) {
-    values[0] = startVelocity.vector();
-  } else {
-    times_.insert(times_.begin(), 0.0);
-    values.insert(values.begin(), startVelocity.vector());
+  if (times_[0] != 0.0) { times_.insert(times_.begin(), 0.0); }
+  values.insert(values.begin(), startVelocity.vector());
+}
+
+void EndEffectorTrajectory::updateStartEndEffectorForce(const Force& force)
+{
+  if (!controlSetup_[ControlLevel::Effort]) {
+    std::cout  << "[EndEffectorTrajectory::updateStartForce] Desired control level is not in control setup.\n";
   }
+  isComputed_ = false;
+  auto& values = values_.at(ControlLevel::Effort);
+  if (times_[0] != 0.0) { times_.insert(times_.begin(), 0.0); }
+  values.insert(values.begin(), force.vector());
 }
 
 const Position EndEffectorTrajectory::getStartPosition() const
 {
+  if (!controlSetup_.at(ControlLevel::Position)) {
+    std::cout  << "[EndEffectorTrajectory::getStartPosition] Desired control level is not in control setup.\n";
+  }
   return Position(values_.at(ControlLevel::Position).front());
 }
 
 const LinearVelocity EndEffectorTrajectory::getStartVelocity() const
 {
+  if (!controlSetup_.at(ControlLevel::Velocity)) {
+    std::cout  << "[EndEffectorTrajectory::getStartVelocity] Desired control level is not in control setup.\n";
+  }
   return LinearVelocity(values_.at(ControlLevel::Velocity).front());
 }
 
 bool EndEffectorTrajectory::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
 {
   duration_ = times_.back();
+
+  // Fit end-effector force trajectory.
+  if (controlSetup_[ControlLevel::Effort]) {
+    trajectoryForce_.fitCurve(times_, values_.at(ControlLevel::Effort));
+  }
+
+  // Fit end-effector trajectory.
   if (controlSetup_[ControlLevel::Position] && !controlSetup_[ControlLevel::Velocity]) {
     trajectory_.fitCurve(times_, values_.at(ControlLevel::Position));
   } else if (controlSetup_[ControlLevel::Position] && controlSetup_[ControlLevel::Velocity]) {
@@ -131,12 +153,16 @@ bool EndEffectorTrajectory::isComputed() const
 void EndEffectorTrajectory::reset()
 {
   trajectory_.clear();
+  trajectoryForce_.clear();
   duration_ = 0.0;
   isComputed_ = false;
 }
 
 const Position EndEffectorTrajectory::evaluatePosition(const double time) const
 {
+  if (!controlSetup_.at(ControlLevel::Position)) {
+    std::cout  << "[EndEffectorTrajectory::evaluatePosition] Desired control level is not in control setup.\n";
+  }
   const double timeInRange = mapTimeWithinDuration(time);
   Position position;
   trajectory_.evaluate(position.toImplementation(), time);
@@ -145,6 +171,9 @@ const Position EndEffectorTrajectory::evaluatePosition(const double time) const
 
 const LinearVelocity EndEffectorTrajectory::evaluateVelocity(const double time) const
 {
+  if (!controlSetup_.at(ControlLevel::Velocity)) {
+    std::cout  << "[EndEffectorTrajectory::evaluateVelocity] Desired control level is not in control setup.\n";
+  }
   const double timeInRange = mapTimeWithinDuration(time);
   LinearVelocity velocity;
   trajectory_.evaluateDerivative(velocity.toImplementation(), timeInRange, 1);
@@ -153,10 +182,23 @@ const LinearVelocity EndEffectorTrajectory::evaluateVelocity(const double time) 
 
 const LinearAcceleration EndEffectorTrajectory::evaluateAcceleration(const double time) const
 {
+  if (!controlSetup_.at(ControlLevel::Acceleration)) {
+    std::cout  << "[EndEffectorTrajectory::evaluateAcceleration] Desired control level is not in control setup.\n";
+  }
   const double timeInRange = mapTimeWithinDuration(time);
   LinearAcceleration acceleration;
   trajectory_.evaluateDerivative(acceleration.toImplementation(), timeInRange, 2);
   return acceleration;
+}
+
+const Force EndEffectorTrajectory::evaluateEndEffectorForce(const double time) const {
+  if (!controlSetup_.at(ControlLevel::Effort)) {
+    std::cout  << "[EndEffectorTrajectory::evaluateForce] Desired control level is not in control setup.\n";
+  }
+  const double timeInRange = mapTimeWithinDuration(time);
+  Position force;
+  trajectoryForce_.evaluate(force.toImplementation(), time);
+  return Force(force.vector());
 }
 
 double EndEffectorTrajectory::getDuration() const
@@ -166,6 +208,9 @@ double EndEffectorTrajectory::getDuration() const
 
 const Position EndEffectorTrajectory::getTargetPosition() const
 {
+  if (!controlSetup_.at(ControlLevel::Position)) {
+    std::cout  << "[EndEffectorTrajectory::getTargetPosition] Desired control level is not in control setup.\n";
+  }
   return Position(values_.at(ControlLevel::Position).back());
 }
 
