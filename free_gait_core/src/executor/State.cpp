@@ -28,6 +28,7 @@ void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<Bra
     isSupportLegs_[limb] = false;
     ignoreContact_[limb] = false;
     ignoreForPoseAdaptation_[limb] = false;
+    endEffectorForceInWorldFrame_[limb] = Force(0.0, 0.0, 0.0);
   }
 
   for (const auto& branch : branches) {
@@ -122,6 +123,14 @@ const JointPositionsLeg State::getJointPositionsForLimb(const LimbEnum& limb) co
   );
 }
 
+void State::setEndEffectorForceInWorldFrame(const LimbEnum& limb, const Force& endEffectorForceInWorldFrame) {
+  endEffectorForceInWorldFrame_[limb] = endEffectorForceInWorldFrame;
+}
+
+const Force& State::getEndEffectorForceInWorldFrame(const LimbEnum& limb) const {
+  return endEffectorForceInWorldFrame_.at(limb);
+}
+
 void State::setJointPositionsForLimb(const LimbEnum& limb, const JointPositionsLeg& jointPositions)
 {
   quadruped_model::QuadrupedState::getJointPositions().setSegment<QD::getNumDofLimb()>(
@@ -184,7 +193,7 @@ const JointEfforts& State::getAllJointEfforts() const
 
 void State::setJointEffortsForLimb(const LimbEnum& limb, const JointEffortsLeg& jointEfforts)
 {
-  jointEfforts_.getSegment<QD::getNumDofLimb()>(QD::getLimbStartIndexInJ(limb)) = jointEfforts;
+  jointEfforts_.setSegment<QD::getNumDofLimb()>(QD::getLimbStartIndexInJ(limb), jointEfforts);
 }
 
 void State::setAllJointEfforts(const JointEfforts& jointEfforts)

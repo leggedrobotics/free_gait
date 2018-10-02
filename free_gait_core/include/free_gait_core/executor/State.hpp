@@ -50,6 +50,9 @@ class State : public quadruped_model::QuadrupedState
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
 
+  void setEndEffectorForceInWorldFrame(const LimbEnum& limb, const Force& endEffectorForceInWorldFrame);
+  const Force& getEndEffectorForceInWorldFrame(const LimbEnum& limb) const;
+
   const JointPositionsLeg getJointPositionsForLimb(const LimbEnum& limb) const;
   void setJointPositionsForLimb(const LimbEnum& limb, const JointPositionsLeg& jointPositions);
   void setAllJointPositions(const JointPositions& jointPositions);
@@ -96,6 +99,7 @@ class State : public quadruped_model::QuadrupedState
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
   std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
+  std::unordered_map<LimbEnum, Force, EnumClassHash> endEffectorForceInWorldFrame_;
   bool robotExecutionStatus_;
   std::string stepId_; // empty if undefined.
 };
