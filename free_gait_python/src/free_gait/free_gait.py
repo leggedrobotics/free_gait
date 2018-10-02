@@ -183,6 +183,8 @@ def parse_end_effector_trajectory(yaml_object):
         end_effector_trajectory.name = yaml_object['name']
     if 'trajectory' in yaml_object:
         end_effector_trajectory.trajectory = parse_translational_trajectory(end_effector_trajectory.name, yaml_object['trajectory'])
+    if 'force_instead_of_acceleration' in yaml_object:
+        end_effector_trajectory.force_instead_of_acceleration = yaml_object['force_instead_of_acceleration']
     if 'surface_normal' in yaml_object:
         end_effector_trajectory.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
     if 'ignore_contact' in yaml_object:
@@ -288,7 +290,22 @@ def parse_position(yaml_object):
     point.y = yaml_object[1]
     point.z = yaml_object[2]
     return point
-
+    
+    
+def parse_velocity(yaml_object):
+    point = geometry_msgs.msg.Point()
+    point.x = yaml_object[0]
+    point.y = yaml_object[1]
+    point.z = yaml_object[2]
+    return point
+    
+    
+def parse_acceleration(yaml_object):
+    point = geometry_msgs.msg.Point()
+    point.x = yaml_object[0]
+    point.y = yaml_object[1]
+    point.z = yaml_object[2]
+    return point
 
 def parse_orientation(yaml_object):
     quaternion = geometry_msgs.msg.Quaternion()
@@ -321,6 +338,18 @@ def parse_transform(yaml_object):
     if 'orientation' in yaml_object:
         transform.rotation = parse_orientation(yaml_object['orientation'])
     return transform
+    
+def parse_twist_velocities(yaml_object):
+    twist = geometry_msgs.msg.Twist()
+    if 'velocity' in yaml_object:
+        twist.linear = parse_vector(yaml_object['velocity'])
+    return twist
+    
+def parse_twist_accelerations(yaml_object):
+    twist = geometry_msgs.msg.Twist()
+    if 'acceleration' in yaml_object:
+        twist.linear = parse_vector(yaml_object['acceleration'])
+    return twist
 
 
 def parse_position_stamped(yaml_object):
@@ -373,8 +402,15 @@ def parse_translational_trajectory(joint_name, trajectory):
     for knot in trajectory['knots']:
         point = trajectory_msgs.msg.MultiDOFJointTrajectoryPoint()
         point.time_from_start = rospy.Time(knot['time'])
-        transform = parse_transform(knot)
-        point.transforms.append(transform)
+        if 'position' in knot or 'orientation' in knot:
+          transform = parse_transform(knot)
+          point.transforms.append(transform)
+        if 'velocity' in knot:
+          twist_velocity = parse_twist_velocities(knot)
+          point.velocities.append(twist_velocity)
+        if 'acceleration' in knot:
+          twist_acceleration = parse_twist_accelerations(knot)
+          point.accelerations.append(twist_acceleration)
         output.points.append(point)
     return output
 

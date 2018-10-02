@@ -8,8 +8,12 @@ string name
 # or combinations of these. 
 trajectory_msgs/MultiDOFJointTrajectory trajectory
 
+# If true, we interpret acceleration as force
+# Default is false
+bool force_instead_of_acceleration
+
 # Target surface normal.
-# Leave empty of no contact is expected or not known.
+# Leave empty if no contact is expected or not known.
 geometry_msgs/Vector3Stamped surface_normal
 
 # If contact of the end effector should be ignored.
