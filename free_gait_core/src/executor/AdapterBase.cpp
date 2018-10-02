@@ -166,6 +166,15 @@ LinearAcceleration AdapterBase::transformLinearAcceleration(const std::string& i
   return transformedLinearAcceleration;
 }
 
+Force AdapterBase::transformForce(const std::string& inputFrameId,
+                                  const std::string& outputFrameId,
+                                  const Force& force) const
+{
+  Force transformedForce(
+      transformVector(inputFrameId, outputFrameId, Vector(force)));
+  return transformedForce;
+}
+
 Vector AdapterBase::transformVector(const std::string& inputFrameId,
                                     const std::string& outputFrameId, const Vector& vector) const
 {

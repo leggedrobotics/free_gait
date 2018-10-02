@@ -98,6 +98,9 @@ class AdapterBase
   virtual LinearAcceleration transformLinearAcceleration(const std::string& inputFrameId,
                                                          const std::string& outputFrameId,
                                                          const LinearAcceleration& linearAcceleration) const;
+  virtual Force transformForce(const std::string& inputFrameId,
+                               const std::string& outputFrameId,
+                               const Force& force) const;
   virtual Vector transformVector(const std::string& inputFrameId, const std::string& outputFrameId,
                                  const Vector& vector) const;
   virtual JointVelocitiesLeg getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(
