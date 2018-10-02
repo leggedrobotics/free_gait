@@ -193,41 +193,61 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
   // Trajectory.
   endEffectorTrajectory.frameIds_[ControlLevel::Position] = message.trajectory.header.frame_id;
 
+  // Control Setup.
   for (const auto& point : message.trajectory.points) {
     if (!point.transforms.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Position] = true;
     if (!point.velocities.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Velocity] = true;
     if (!point.accelerations.empty()) endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = true;
   }
 
+  if (message.force_instead_of_acceleration) {
+    endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = false;  // switch acceleration with effort
+    endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = true;         // enable effort instead.
+    endEffectorTrajectory.frameIds_[ControlLevel::Effort] = message.trajectory.header.frame_id;
+  }
+
+  // Add trajectory knots.
   for (const auto& controlSetup : endEffectorTrajectory.controlSetup_) {
-    if (!controlSetup.second) continue;
     endEffectorTrajectory.values_[controlSetup.first] = std::vector<EndEffectorTrajectory::ValueType>();
   }
 
-  // TODO Copy times correctly for pure velocity or acceleration trajectories.
+  // Add time.
   for (const auto& point : message.trajectory.points) {
-    if (!point.transforms.empty()) {
-      endEffectorTrajectory.times_.push_back(ros::Duration(point.time_from_start).toSec());
-    } else {
-      std::cerr << "StepRosConverter: Could not read from ROS message, only position trajectories are supported for now." << std::endl;
-      break;
-    }
+    endEffectorTrajectory.times_.push_back(ros::Duration(point.time_from_start).toSec());
   }
 
+  // Set up trajectory knot points.
   for (const auto& controlSetup : endEffectorTrajectory.controlSetup_) {
-    if (!controlSetup.second)continue;
+    if (!controlSetup.second) continue;
     for (const auto& point : message.trajectory.points) {
+
+      // Position knot.
       if (controlSetup.first == ControlLevel::Position && !point.transforms.empty()) {
         Position position;
         kindr_ros::convertFromRosGeometryMsg(point.transforms[0].translation, position);
         endEffectorTrajectory.values_[controlSetup.first].push_back(position.vector());
-      } else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
-//        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.velocities[j]);
-      } else if (controlSetup.first == ControlLevel::Acceleration && !point.accelerations.empty()) {
-//        baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.accelerations[j]);
-      } /*else if (controlSetup.first == ControlLevel::Effort && !point.effort.empty()) {
-          baseTrajectory.derivatives_[controlSetup.first][j].push_back(point.effort[j]);
-      }*/
+      }
+
+      // Velocity knot.
+      else if (controlSetup.first == ControlLevel::Velocity && !point.velocities.empty()) {
+        LinearVelocity velocity;
+        kindr_ros::convertFromRosGeometryMsg(point.velocities[0].linear, velocity);
+        endEffectorTrajectory.values_[controlSetup.first].push_back(velocity.vector());
+      }
+
+      // Acceleration knot.
+      else if (controlSetup.first == ControlLevel::Acceleration && !point.accelerations.empty()) {
+        LinearAcceleration acceleration;
+        kindr_ros::convertFromRosGeometryMsg(point.accelerations[0].linear, acceleration);
+        endEffectorTrajectory.values_[controlSetup.first].push_back(acceleration.vector());
+      }
+
+      // Force knot (Note: we use acceleration as transmitter here).
+      else if (controlSetup.first == ControlLevel::Effort && !point.accelerations.empty()) {
+        LinearAcceleration force;
+        kindr_ros::convertFromRosGeometryMsg(point.accelerations[0].linear, force);
+        endEffectorTrajectory.values_[controlSetup.first].push_back(force.vector());
+      }
     }
   }
 
