@@ -290,22 +290,7 @@ def parse_position(yaml_object):
     point.y = yaml_object[1]
     point.z = yaml_object[2]
     return point
-    
-    
-def parse_velocity(yaml_object):
-    point = geometry_msgs.msg.Point()
-    point.x = yaml_object[0]
-    point.y = yaml_object[1]
-    point.z = yaml_object[2]
-    return point
-    
-    
-def parse_acceleration(yaml_object):
-    point = geometry_msgs.msg.Point()
-    point.x = yaml_object[0]
-    point.y = yaml_object[1]
-    point.z = yaml_object[2]
-    return point
+
 
 def parse_orientation(yaml_object):
     quaternion = geometry_msgs.msg.Quaternion()
