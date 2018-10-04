@@ -16,6 +16,10 @@ geometry_msgs/Vector3Stamped[] target_force
 # If 0, default is used.
 float64 average_velocity
 
+# Duration to reach target [s].
+# If set to zero, the average velocity is used to determine the duration.
+float64 duration
+
 # Target surface normal.
 # Leave empty of no contact is expected or not known.
 geometry_msgs/Vector3Stamped surface_normal

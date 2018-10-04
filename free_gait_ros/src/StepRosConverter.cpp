@@ -142,6 +142,8 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& message,
                                    EndEffectorTarget& endEffectorTarget)
 {
+  // ToDo: there might be a problem with the frames?? --> Peter!!
+
   // Limb.
   endEffectorTarget.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
@@ -163,12 +165,20 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
     endEffectorTarget.targetVelocity_ = targetVelocity;
   }
 
-  // TODO.
-  endEffectorTarget.controlSetup_[ControlLevel::Acceleration] = !message.target_acceleration.empty();
+  // Target force.
   endEffectorTarget.controlSetup_[ControlLevel::Effort] = !message.target_force.empty();
+  if (endEffectorTarget.controlSetup_[ControlLevel::Effort]) {
+    endEffectorTarget.frameIds_[ControlLevel::Effort] = message.target_force[0].header.frame_id;
+    Force targetForce;
+    kindr_ros::convertFromRosGeometryMsg(message.target_force[0].vector, targetForce);
+    endEffectorTarget.targetForce_ = targetForce;
+  }
 
   // Average Velocity.
   endEffectorTarget.averageVelocity_ = message.average_velocity;
+
+  // Duration.
+  endEffectorTarget.duration_ = message.duration;
 
   // Surface normal.
   Vector surfaceNormal;

@@ -166,6 +166,8 @@ def parse_end_effector_target(yaml_object):
         end_effector_target.target_force.append(parse_vector_stamped(yaml_object['target_force']))
     if 'average_velocity' in yaml_object:
         end_effector_target.average_velocity = yaml_object['average_velocity']
+    if 'duration' in yaml_object:
+        end_effector_target.duration = yaml_object['duration']
     if 'ignore_contact' in yaml_object:
         end_effector_target.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
