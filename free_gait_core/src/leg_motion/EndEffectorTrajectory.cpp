@@ -193,7 +193,7 @@ const LinearAcceleration EndEffectorTrajectory::evaluateAcceleration(const doubl
 
 const Force EndEffectorTrajectory::evaluateEndEffectorForce(const double time) const {
   if (!controlSetup_.at(ControlLevel::Effort)) {
-    std::cout  << "[EndEffectorTrajectory::evaluateForce] Desired control level is not in control setup.\n";
+    std::cout  << "[EndEffectorTrajectory::evaluateEndEffectorForce] Desired control level is not in control setup.\n";
   }
   const double timeInRange = mapTimeWithinDuration(time);
   Position force;
@@ -241,14 +241,27 @@ std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffe
   out << "Times: ";
   for (const auto& time : endEffectorTrajectory.times_) out << time << ", ";
   out << std::endl;
-  out << "Positions: ";
-  for (const auto& position : endEffectorTrajectory.values_.at(ControlLevel::Position)) out << "[" << position.transpose() << "], ";
-  out << std::endl;
-  if (endEffectorTrajectory.values_.find(ControlLevel::Velocity) != endEffectorTrajectory.values_.end()) {
-    out << "Velocities: ";
-    for (const auto& velocity : endEffectorTrajectory.values_.at(ControlLevel::Velocity)) out << "[" << velocity.transpose() << "], ";
+
+  if (endEffectorTrajectory.getControlSetup().at(ControlLevel::Position)) {
+    out << "Positions: ";
+    for (const auto& position : endEffectorTrajectory.values_.at(ControlLevel::Position)) out << "[" << position.transpose() << "], ";
     out << std::endl;
   }
+
+  if (endEffectorTrajectory.getControlSetup().at(ControlLevel::Velocity)) {
+    if (endEffectorTrajectory.values_.find(ControlLevel::Velocity) != endEffectorTrajectory.values_.end()) {
+      out << "Velocities: ";
+      for (const auto& velocity : endEffectorTrajectory.values_.at(ControlLevel::Velocity)) out << "[" << velocity.transpose() << "], ";
+      out << std::endl;
+    }
+  }
+
+  if (endEffectorTrajectory.getControlSetup().at(ControlLevel::Effort)) {
+    out << "Positions: ";
+    for (const auto& force : endEffectorTrajectory.values_.at(ControlLevel::Effort)) out << "[" << force.transpose() << "], ";
+    out << std::endl;
+  }
+
   return out;
 }
 

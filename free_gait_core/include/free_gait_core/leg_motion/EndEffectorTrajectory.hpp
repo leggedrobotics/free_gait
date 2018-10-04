@@ -55,13 +55,13 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   bool addPositionTrajectoryPoint(const Time& time, const Position& position);
 
   //! Update the trajectory with the foot start position.
-  void updateStartPosition(const Position& startPosition);
+  void updateStartPosition(const Position& startPosition) override;
 
   //! Update the trajectory with the foot start velocity.
-  void updateStartVelocity(const LinearVelocity& startVelocity);
+  void updateStartVelocity(const LinearVelocity& startVelocity) override;
 
   //! Update the trajectory with the end-effector start force.
-  void updateStartEndEffectorForce(const Force& force);
+  void updateStartEndEffectorForce(const Force& force) override;
 
   const Position getStartPosition() const;
   const LinearVelocity getStartVelocity() const;
