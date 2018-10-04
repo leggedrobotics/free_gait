@@ -115,7 +115,15 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
   }
 
   if (effortOut) {
-    endEffectorMotion.updateStartEndEffectorForce(Force::Zero());
+    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
+    if (!adapter_.frameIdExists(frameId)) {
+      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      return false;
+    }
+
+    const auto& forceInWorldFrame = state.getEndEffectorForceInWorldFrame(endEffectorMotion.getLimb());
+    const auto& endEffectorForce = adapter_.transformForce(adapter_.getWorldFrameId(), frameId, forceInWorldFrame);
+    endEffectorMotion.updateStartEndEffectorForce(endEffectorForce);
   }
 
   return endEffectorMotion.prepareComputation(state, step, adapter_);
