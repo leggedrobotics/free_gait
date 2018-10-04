@@ -43,8 +43,9 @@ class EndEffectorTarget : public EndEffectorMotionBase
    * @param startPosition the start position of the foot in the trajectoryFrameId_ frame.
    * @return true if successful, false otherwise.
    */
-  void updateStartPosition(const Position& startPosition);
-  void updateStartVelocity(const LinearVelocity& startVelocity);
+  void updateStartPosition(const Position& startPosition) override;
+  void updateStartVelocity(const LinearVelocity& startVelocity) override;
+  void updateStartEndEffectorForce(const Force& startForce) override;
 
   const ControlSetup getControlSetup() const;
 
@@ -58,11 +59,10 @@ class EndEffectorTarget : public EndEffectorMotionBase
    * @param phase the swing phase value.
    * @return the position of the foot on the swing trajectory.
    */
-  const Position evaluatePosition(const double time) const;
-
-  const LinearVelocity evaluateVelocity(const double time) const;
-
-  const LinearAcceleration evaluateAcceleration(const double time) const;
+  const Position evaluatePosition(const double time) const override;
+  const LinearVelocity evaluateVelocity(const double time) const override;
+  const LinearAcceleration evaluateAcceleration(const double time) const override;
+  const Force evaluateEndEffectorForce(const double time) const override;
 
   /*!
    * Returns the total duration of the trajectory.
@@ -106,6 +106,8 @@ class EndEffectorTarget : public EndEffectorMotionBase
   Position targetPosition_;
   LinearVelocity startVelocity_;
   LinearVelocity targetVelocity_;
+  Force startForce_;
+  Force targetForce_;
   double duration_;
   double averageVelocity_;
 
