@@ -50,6 +50,12 @@ class State : public quadruped_model::QuadrupedState
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
 
+  void setEndEffectorPositionInWorldFrame(const LimbEnum& limb, const Position& endEffectorPositionInWorldFrame);
+  const Position& getEndEffectorPositionInWorldFrame(const LimbEnum& limb) const;
+
+  void setEndEffectorVelocityInWorldFrame(const LimbEnum& limb, const LinearVelocity& endEffectorVelocityInWorldFrame);
+  const LinearVelocity& getEndEffectorVelocityInWorldFrame(const LimbEnum& limb) const;
+
   void setEndEffectorForceInWorldFrame(const LimbEnum& limb, const Force& endEffectorForceInWorldFrame);
   const Force& getEndEffectorForceInWorldFrame(const LimbEnum& limb) const;
 
@@ -84,6 +90,11 @@ class State : public quadruped_model::QuadrupedState
 
   friend std::ostream& operator << (std::ostream& out, const State& state);
 
+  const Vector& getImpedancePositionGain() const;
+  const Vector& getImpedanceVelocityGain() const;
+  const Vector& getImpedanceForceGain() const;
+  void setImpedanceGains(const Vector& Kp, const Vector& Kd, const Vector& Kf);
+
  private:
   LocalAngularVelocity angularVelocityBaseInWorldFrame_;
   JointEfforts jointEfforts_;
@@ -99,9 +110,16 @@ class State : public quadruped_model::QuadrupedState
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
   std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
+  std::unordered_map<LimbEnum, Position, EnumClassHash> endEffectorPositionInWorldFrame_;
+  std::unordered_map<LimbEnum, LinearVelocity, EnumClassHash> endEffectorVelocityInWorldFrame_;
   std::unordered_map<LimbEnum, Force, EnumClassHash> endEffectorForceInWorldFrame_;
   bool robotExecutionStatus_;
   std::string stepId_; // empty if undefined.
+
+  // Impedance Control gains.
+  Vector Kp_;
+  Vector Kd_;
+  Vector Kf_;
 };
 
 } /* namespace */

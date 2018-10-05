@@ -123,6 +123,22 @@ const JointPositionsLeg State::getJointPositionsForLimb(const LimbEnum& limb) co
   );
 }
 
+void State::setEndEffectorPositionInWorldFrame(const LimbEnum& limb, const Position& endEffectorPositionInWorldFrame) {
+  endEffectorPositionInWorldFrame_[limb] = endEffectorPositionInWorldFrame;
+}
+
+const Position& State::getEndEffectorPositionInWorldFrame(const LimbEnum& limb) const {
+  return endEffectorPositionInWorldFrame_.at(limb);
+}
+
+void State::setEndEffectorVelocityInWorldFrame(const LimbEnum& limb, const LinearVelocity& endEffectorVelocityInWorldFrame) {
+  endEffectorVelocityInWorldFrame_[limb] = endEffectorVelocityInWorldFrame;
+}
+
+const LinearVelocity& State::getEndEffectorVelocityInWorldFrame(const LimbEnum& limb) const {
+  return endEffectorVelocityInWorldFrame_.at(limb);
+}
+
 void State::setEndEffectorForceInWorldFrame(const LimbEnum& limb, const Force& endEffectorForceInWorldFrame) {
   endEffectorForceInWorldFrame_[limb] = endEffectorForceInWorldFrame;
 }
@@ -256,6 +272,24 @@ void State::getAllJointNames(std::vector<std::string>& jointNames) const
   for (const auto& jointKey : QD::getJointKeys()) {
     jointNames.push_back(QD::mapKeyEnumToKeyName(jointKey.getEnum()));
   }
+}
+
+const Vector& State::getImpedancePositionGain() const {
+  return Kp_;
+}
+
+const Vector& State::getImpedanceVelocityGain() const {
+  return Kd_;
+}
+
+const Vector& State::getImpedanceForceGain() const {
+  return Kf_;
+}
+
+void State::setImpedanceGains(const Vector& Kp, const Vector& Kd, const Vector& Kf) {
+  Kp_ = Kp;
+  Kd_ = Kd;
+  Kf_ = Kf;
 }
 
 std::ostream& operator<<(std::ostream& out, const State& state)
