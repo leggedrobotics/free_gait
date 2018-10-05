@@ -82,6 +82,10 @@ class EndEffectorMotionBase : public LegMotionBase
    * @return the resulting output stream.
    */
   friend std::ostream& operator << (std::ostream& out, const LegMotionBase& legMotion);
+
+  virtual const Vector& getImpedancePositionGain() const;
+  virtual const Vector& getImpedanceVelocityGain() const;
+  virtual const Vector& getImpedanceForceGain() const;
 };
 
 } /* namespace */
