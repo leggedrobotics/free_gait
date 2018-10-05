@@ -230,7 +230,7 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
 
   if (message.force_instead_of_acceleration) {
     endEffectorTrajectory.controlSetup_[ControlLevel::Acceleration] = false;  // switch acceleration with effort
-    endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = true;         // enable effort instead.
+    endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = !message.trajectory.points[0].accelerations.empty();
     endEffectorTrajectory.frameIds_[ControlLevel::Effort] = message.trajectory.header.frame_id;
   }
 

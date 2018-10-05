@@ -146,9 +146,6 @@ double EndEffectorTarget::getDuration() const
 
 void EndEffectorTarget::setTargetPosition(const std::string& frameId, const Position& targetPosition)
 {
-  if (!controlSetup_.at(ControlLevel::Position)) {
-    std::cout  << "[EndEffectorTarget::setTargetPosition] Desired control level is not in control setup.\n";
-  }
   controlSetup_[ControlLevel::Position] = true;
   frameIds_[ControlLevel::Position] = frameId;
   targetPosition_ =  targetPosition;
@@ -156,9 +153,6 @@ void EndEffectorTarget::setTargetPosition(const std::string& frameId, const Posi
 
 void EndEffectorTarget::setTargetVelocity(const std::string& frameId, const LinearVelocity& targetVelocity)
 {
-  if (!controlSetup_.at(ControlLevel::Velocity)) {
-    std::cout  << "[EndEffectorTarget::setTargetVelocity] Desired control level is not in control setup.\n";
-  }
   controlSetup_[ControlLevel::Velocity] = true;
   frameIds_[ControlLevel::Velocity] = frameId;
   targetVelocity_ = targetVelocity;
@@ -211,7 +205,7 @@ void EndEffectorTarget::computeDuration()
     duration_ = duration < minimumDuration_ ? minimumDuration_ : duration;
   }
   else if (duration_<= 0.0) {
-    std::cout  << "[EndEffectorTarget::getFrameId] Duration is smaller than zero.\n";
+    std::cout  << "[EndEffectorTarget::computeDuration] Duration is smaller than zero.\n";
   }
 }
 
