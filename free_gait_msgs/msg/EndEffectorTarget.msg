@@ -11,6 +11,11 @@ geometry_msgs/Vector3Stamped[] target_velocity
 geometry_msgs/Vector3Stamped[] target_acceleration
 geometry_msgs/Vector3Stamped[] target_force
 
+# Impedance control gains (k_p: position tracking, k_d: Velocity tracking, k_f: Force tracking).
+geometry_msgs/Vector3Stamped[] k_p
+geometry_msgs/Vector3Stamped[] k_d
+geometry_msgs/Vector3Stamped[] k_f
+
 # Average velocity of the end effector motion [m/s].
 # Determines the duration of the motion.
 # If 0, default is used.
