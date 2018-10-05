@@ -400,6 +400,9 @@ bool Executor::writeLegMotion()
             return false;
           }
           state_.setJointPositionsForLimb(limb, jointPositions);
+
+          Position positionInWorldFrame = adapter_.transformPosition(frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluatePosition(time));
+          state_.setEndEffectorPositionInWorldFrame(limb, positionInWorldFrame);
         }
 
         // Velocity tracking.
@@ -414,6 +417,7 @@ bool Executor::writeLegMotion()
               frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
           const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
           state_.setJointVelocitiesForLimb(limb, jointVelocities);
+          state_.setEndEffectorVelocityInWorldFrame(limb, velocityInWorldFrame);
         }
 
         // Acceleration tracking.
@@ -442,15 +446,11 @@ bool Executor::writeLegMotion()
           state_.setEndEffectorForceInWorldFrame(limb, endEffectorForceInWorldFrame);
           state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
 
-          // Safety.
-          if (!controlSetup[ControlLevel::Velocity]) {
-            const auto endEffectorLinearVelocity = adapter_.getEndEffectorLinearVelocityFromJointVelocities(limb, adapter_.getJointVelocitiesForLimb(limb), frameId);
-            if (endEffectorLinearVelocity.vector().norm() > 1.0) {
-              std::cerr << "[Executor::writeLegMotion] End-effector velocity reached limit"  << std::endl;
-              return false;
-            }
-          }
-
+          state_.setImpedanceGains(
+              endEffectorMotion.getImpedancePositionGain(),
+              endEffectorMotion.getImpedanceVelocityGain(),
+              endEffectorMotion.getImpedanceForceGain()
+          );
 
         } else {
           state_.setEndEffectorForceInWorldFrame(limb, Force::Zero());
