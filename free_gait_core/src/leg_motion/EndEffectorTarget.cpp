@@ -66,7 +66,7 @@ void EndEffectorTarget::updateStartEndEffectorForce(const Force& startForce) {
     std::cout << "[EndEffectorTarget::updateStartEndEffectorForce] Desired control level is not in control setup.\n";
   }
   isComputed_ = false;
-  startForce_ = startForce;
+  startForce_ = targetForce_; // ToDo: May initialize this with measurements
 }
 
 bool EndEffectorTarget::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
