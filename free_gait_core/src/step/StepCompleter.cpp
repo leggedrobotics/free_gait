@@ -230,8 +230,12 @@ void StepCompleter::setParameters(EndEffectorTarget& endEffectorTarget) const
 {
   const auto& parameters = parameters_.endEffectorTargetParameters;
 
-  if (endEffectorTarget.averageVelocity_ == 0.0)
+  if (endEffectorTarget.averageVelocity_ == 0.0 && endEffectorTarget.duration_ == 0.0) {
     endEffectorTarget.averageVelocity_ = parameters.averageVelocity;
+    endEffectorTarget.useAverageVelocity_ = true;
+  } else {
+    endEffectorTarget.useAverageVelocity_ = false; // use duration instead.
+  }
 
   endEffectorTarget.minimumDuration_ = parameters.minimumDuration_;
 }
