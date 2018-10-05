@@ -19,6 +19,7 @@ EndEffectorTarget::EndEffectorTarget(LimbEnum limb)
       duration_(0.0),
       minimumDuration_(0.0),
       averageVelocity_(0.0),
+      useAverageVelocity_(true),
       ignoreContact_(false),
       ignoreForPoseAdaptation_(false),
       isComputed_(false),
@@ -204,12 +205,13 @@ void EndEffectorTarget::setAverageVelocity(const double averageVelocity)
 
 void EndEffectorTarget::computeDuration()
 {
-  if(controlSetup_[ControlLevel::Position]) {
-    if (averageVelocity_>0.0) {
-      double distance = (targetPosition_ - startPosition_).norm();
-      double duration = distance / averageVelocity_;
-      duration_ = duration < minimumDuration_ ? minimumDuration_ : duration;
-    }
+  if(controlSetup_[ControlLevel::Position] && averageVelocity_>0.0 && useAverageVelocity_) {
+    double distance = (targetPosition_ - startPosition_).norm();
+    double duration = distance / averageVelocity_;
+    duration_ = duration < minimumDuration_ ? minimumDuration_ : duration;
+  }
+  else if (duration_<= 0.0) {
+    std::cout  << "[EndEffectorTarget::getFrameId] Duration is smaller than zero.\n";
   }
 }
 
@@ -234,6 +236,18 @@ bool EndEffectorTarget::computeTrajectory()
     trajectory_.fitCurveWithDerivatives(times, values, startVelocity_.vector(), targetVelocity_.vector());
   }
   return true;
+}
+
+const Vector& EndEffectorTarget::getImpedancePositionGain() const {
+  return Kp_;
+}
+
+const Vector& EndEffectorTarget::getImpedanceVelocityGain() const {
+  return Kd_;
+}
+
+const Vector& EndEffectorTarget::getImpedanceForceGain() const {
+  return Kf_;
 }
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTarget& endEffectorTarget)

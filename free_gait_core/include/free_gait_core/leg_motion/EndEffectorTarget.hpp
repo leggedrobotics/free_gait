@@ -92,6 +92,10 @@ class EndEffectorTarget : public EndEffectorMotionBase
   friend class StepCompleter;
   friend class StepRosConverter;
 
+  virtual const Vector& getImpedancePositionGain() const override;
+  virtual const Vector& getImpedanceVelocityGain() const override;
+  virtual const Vector& getImpedanceForceGain() const override;
+
  private:
   void computeDuration();
   bool computeTrajectory();
@@ -110,12 +114,18 @@ class EndEffectorTarget : public EndEffectorMotionBase
   Force targetForce_;
   double duration_;
   double averageVelocity_;
+  bool useAverageVelocity_;
 
   //! End effector trajectory.
   curves::CubicHermiteE3Curve trajectory_;
 
   //! If trajectory is updated.
   bool isComputed_;
+
+  // Impedance Control gains.
+  Vector Kp_;
+  Vector Kd_;
+  Vector Kf_;
 };
 
 } /* namespace */
