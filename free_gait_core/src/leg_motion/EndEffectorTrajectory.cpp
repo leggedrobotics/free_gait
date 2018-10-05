@@ -234,6 +234,18 @@ bool EndEffectorTrajectory::isIgnoreForPoseAdaptation() const
   return ignoreForPoseAdaptation_;
 }
 
+const Vector& EndEffectorTrajectory::getImpedancePositionGain() const {
+  return Kp_;
+}
+
+const Vector& EndEffectorTrajectory::getImpedanceVelocityGain() const {
+  return Kd_;
+}
+
+const Vector& EndEffectorTrajectory::getImpedanceForceGain() const {
+  return Kf_;
+}
+
 std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory)
 {
   out << "Ignore contact: " << (endEffectorTrajectory.isIgnoreContact() ? "True" : "False") << std::endl;

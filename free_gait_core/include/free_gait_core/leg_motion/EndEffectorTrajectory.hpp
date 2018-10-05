@@ -109,6 +109,10 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   friend class StepRosConverter;
   friend class StepFrameConverter;
 
+  const Vector& getImpedancePositionGain() const override;
+  const Vector& getImpedanceVelocityGain() const override;
+  const Vector& getImpedanceForceGain() const override;
+
  private:
   bool ignoreContact_;
   bool ignoreForPoseAdaptation_;
@@ -130,6 +134,11 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
 
   //! If trajectory is updated.
   bool isComputed_;
+
+  // Impedance Control gains.
+  Vector Kp_;
+  Vector Kd_;
+  Vector Kf_;
 };
 
 } /* namespace */

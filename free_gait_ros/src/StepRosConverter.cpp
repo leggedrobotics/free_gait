@@ -279,6 +279,23 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     }
   }
 
+  // Impedance control gain.
+  if (!message.k_p.empty()) {
+    Vector Kp;
+    kindr_ros::convertFromRosGeometryMsg(message.k_p[0].vector, Kp);
+    endEffectorTrajectory.Kp_ = Kp;
+  }
+  if (!message.k_d.empty()) {
+    Vector Kd;
+    kindr_ros::convertFromRosGeometryMsg(message.k_d[0].vector, Kd);
+    endEffectorTrajectory.Kd_ = Kd;
+  }
+  if (!message.k_f.empty()) {
+    Vector Kf;
+    kindr_ros::convertFromRosGeometryMsg(message.k_f[0].vector, Kf);
+    endEffectorTrajectory.Kf_ = Kf;
+  }
+
   // Surface normal.
   Vector surfaceNormal;
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);

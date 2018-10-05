@@ -191,6 +191,12 @@ def parse_end_effector_trajectory(yaml_object):
         end_effector_trajectory.name = yaml_object['name']
     if 'trajectory' in yaml_object:
         end_effector_trajectory.trajectory = parse_translational_trajectory(end_effector_trajectory.name, yaml_object['trajectory'])
+    if 'Kp' in yaml_object:
+        end_effector_trajectory.k_p.append(parse_vector_stamped(yaml_object['Kp']))
+    if 'Kd' in yaml_object:
+        end_effector_trajectory.k_d.append(parse_vector_stamped(yaml_object['Kd']))
+    if 'Kf' in yaml_object:
+        end_effector_trajectory.k_f.append(parse_vector_stamped(yaml_object['Kf'])) 
     if 'force_instead_of_acceleration' in yaml_object:
         end_effector_trajectory.force_instead_of_acceleration = yaml_object['force_instead_of_acceleration']
     if 'surface_normal' in yaml_object:

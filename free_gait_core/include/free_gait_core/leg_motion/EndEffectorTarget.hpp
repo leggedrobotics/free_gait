@@ -92,9 +92,9 @@ class EndEffectorTarget : public EndEffectorMotionBase
   friend class StepCompleter;
   friend class StepRosConverter;
 
-  virtual const Vector& getImpedancePositionGain() const override;
-  virtual const Vector& getImpedanceVelocityGain() const override;
-  virtual const Vector& getImpedanceForceGain() const override;
+  const Vector& getImpedancePositionGain() const override;
+  const Vector& getImpedanceVelocityGain() const override;
+  const Vector& getImpedanceForceGain() const override;
 
  private:
   void computeDuration();
