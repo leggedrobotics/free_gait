@@ -274,22 +274,12 @@ void State::getAllJointNames(std::vector<std::string>& jointNames) const
   }
 }
 
-const Vector& State::getImpedancePositionGain() const {
-  return Kp_;
+const Vector& State::getImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId) const {
+  return impedanceGains_.at(impedanceControlId);
 }
 
-const Vector& State::getImpedanceVelocityGain() const {
-  return Kd_;
-}
-
-const Vector& State::getImpedanceForceGain() const {
-  return Kf_;
-}
-
-void State::setImpedanceGains(const Vector& Kp, const Vector& Kd, const Vector& Kf) {
-  Kp_ = Kp;
-  Kd_ = Kd;
-  Kf_ = Kf;
+void State::setImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId, const Vector& gain) {
+  impedanceGains_[impedanceControlId] = gain;
 }
 
 std::ostream& operator<<(std::ostream& out, const State& state)

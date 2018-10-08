@@ -90,10 +90,8 @@ class State : public quadruped_model::QuadrupedState
 
   friend std::ostream& operator << (std::ostream& out, const State& state);
 
-  const Vector& getImpedancePositionGain() const;
-  const Vector& getImpedanceVelocityGain() const;
-  const Vector& getImpedanceForceGain() const;
-  void setImpedanceGains(const Vector& Kp, const Vector& Kd, const Vector& Kf);
+  const Vector& getImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId) const;
+  void setImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId, const Vector& gain);
 
  private:
   LocalAngularVelocity angularVelocityBaseInWorldFrame_;
@@ -117,9 +115,7 @@ class State : public quadruped_model::QuadrupedState
   std::string stepId_; // empty if undefined.
 
   // Impedance Control gains.
-  Vector Kp_;
-  Vector Kd_;
-  Vector Kf_;
+  std::unordered_map<ImpedanceControl, Vector, EnumClassHash> impedanceGains_;
 };
 
 } /* namespace */
