@@ -468,8 +468,8 @@ bool Executor::writeLegMotion()
           state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
           state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
 
-        } else {
-          state_.setEndEffectorForceInWorldFrame(limb, Force::Zero());
+          // Set friction compensation.
+          state_.setFeedForwardFrictionNorm(endEffectorMotion.getFeedForwardFrictionNorm());
         }
 
         break;

@@ -86,5 +86,9 @@ const std::string& EndEffectorMotionBase::getImpedanceGainFrameId(const Impedanc
   throw std::runtime_error("EndEffectorMotionBase::getImpedanceGainFrameId() not implemented.");
 }
 
+double EndEffectorMotionBase::getFeedForwardFrictionNorm() const {
+  throw std::runtime_error("EndEffectorMotionBase::getFeedForwardFrictionNorm() not implemented.");
+}
+
 
 } /* namespace */

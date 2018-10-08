@@ -14,7 +14,8 @@ namespace free_gait {
 
 State::State()
     : QuadrupedState(),
-      robotExecutionStatus_(false)
+      robotExecutionStatus_(false),
+      feedForwardFrictionNorm_(0.0)
 {
 }
 
@@ -280,6 +281,14 @@ const Vector& State::getImpedanceGainInWorldFrame(const ImpedanceControl& impeda
 
 void State::setImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId, const Vector& gain) {
   impedanceGains_[impedanceControlId] = gain;
+}
+
+double State::getFeedForwardFrictionNorm() const {
+  return feedForwardFrictionNorm_;
+}
+
+void State::setFeedForwardFrictionNorm(double feedForwardFrictionNorm) {
+  feedForwardFrictionNorm_ = feedForwardFrictionNorm;
 }
 
 std::ostream& operator<<(std::ostream& out, const State& state)

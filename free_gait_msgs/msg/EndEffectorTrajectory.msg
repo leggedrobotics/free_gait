@@ -13,6 +13,9 @@ geometry_msgs/Vector3Stamped[] k_p
 geometry_msgs/Vector3Stamped[] k_d
 geometry_msgs/Vector3Stamped[] k_f
 
+# Norm of feed-forward force acting along position profile (friction compensation).
+float64 feed_forward_friction_norm
+
 # If true, we interpret acceleration as force
 # Default is false
 bool force_instead_of_acceleration

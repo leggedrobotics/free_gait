@@ -209,6 +209,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
     endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
   }
 
+  // Friction compensation.
+  endEffectorTarget.feedForwardFrictionNorm_ = message.feed_forward_friction_norm;
+
   // Duration.
   endEffectorTarget.duration_ = message.duration;
 
@@ -323,6 +326,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force].setZero();
     endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
   }
+
+  // Friction compensation.
+  endEffectorTrajectory.feedForwardFrictionNorm_ = message.feed_forward_friction_norm;
 
   // Surface normal.
   Vector surfaceNormal;

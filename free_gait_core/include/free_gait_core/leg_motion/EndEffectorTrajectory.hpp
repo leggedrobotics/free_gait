@@ -111,6 +111,7 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
 
   const Vector& getImpedanceGain(const ImpedanceControl& impedanceControlId) const override;
   const std::string& getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const override;
+  double getFeedForwardFrictionNorm() const override;
 
  private:
   bool ignoreContact_;
@@ -137,6 +138,7 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   // Impedance Control gains.
   std::unordered_map<ImpedanceControl, Vector, EnumClassHash> impedanceGains_;
   std::unordered_map<ImpedanceControl, std::string, EnumClassHash> impedanceGainsFrameId_;
+  double feedForwardFrictionNorm_;
 };
 
 } /* namespace */

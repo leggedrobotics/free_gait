@@ -173,7 +173,9 @@ def parse_end_effector_target(yaml_object):
     if 'Kd' in yaml_object:
         end_effector_target.k_d.append(parse_vector_stamped(yaml_object['Kd']))
     if 'Kf' in yaml_object:
-        end_effector_target.k_f.append(parse_vector_stamped(yaml_object['Kf']))        
+        end_effector_target.k_f.append(parse_vector_stamped(yaml_object['Kf']))
+    if 'feed_forward_friction_norm' in yaml_object:
+        end_effector_target.feed_forward_friction_norm = yaml_object['feed_forward_friction_norm']        
     if 'ignore_contact' in yaml_object:
         end_effector_target.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
@@ -197,6 +199,8 @@ def parse_end_effector_trajectory(yaml_object):
         end_effector_trajectory.k_d.append(parse_vector_stamped(yaml_object['Kd']))
     if 'Kf' in yaml_object:
         end_effector_trajectory.k_f.append(parse_vector_stamped(yaml_object['Kf'])) 
+    if 'feed_forward_friction_norm' in yaml_object:
+        end_effector_trajectory.feed_forward_friction_norm = yaml_object['feed_forward_friction_norm'] 
     if 'force_instead_of_acceleration' in yaml_object:
         end_effector_trajectory.force_instead_of_acceleration = yaml_object['force_instead_of_acceleration']
     if 'surface_normal' in yaml_object:

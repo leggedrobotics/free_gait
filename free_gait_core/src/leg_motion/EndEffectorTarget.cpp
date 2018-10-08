@@ -24,7 +24,8 @@ EndEffectorTarget::EndEffectorTarget(LimbEnum limb)
       ignoreForPoseAdaptation_(false),
       isComputed_(false),
       controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
-                            {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
+                            {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} },
+      feedForwardFrictionNorm_(0.0)
 {
 }
 
@@ -241,6 +242,9 @@ const std::string& EndEffectorTarget::getImpedanceGainFrameId(const ImpedanceCon
   return impedanceGainsFrameId_.at(impedanceControlId);
 }
 
+double EndEffectorTarget::getFeedForwardFrictionNorm() const {
+  return feedForwardFrictionNorm_;
+}
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTarget& endEffectorTarget)
 {

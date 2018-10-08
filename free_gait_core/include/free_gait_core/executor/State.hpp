@@ -92,6 +92,8 @@ class State : public quadruped_model::QuadrupedState
 
   const Vector& getImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId) const;
   void setImpedanceGainInWorldFrame(const ImpedanceControl& impedanceControlId, const Vector& gain);
+  double getFeedForwardFrictionNorm() const;
+  void setFeedForwardFrictionNorm(double feedForwardFrictionNorm);
 
  private:
   LocalAngularVelocity angularVelocityBaseInWorldFrame_;
@@ -116,6 +118,7 @@ class State : public quadruped_model::QuadrupedState
 
   // Impedance Control gains.
   std::unordered_map<ImpedanceControl, Vector, EnumClassHash> impedanceGains_;
+  double feedForwardFrictionNorm_;
 };
 
 } /* namespace */
