@@ -80,6 +80,13 @@ enum class ControlLevel
   Effort
 };
 
+enum class ImpedanceControl
+{
+  Position,
+  Velocity,
+  Force
+};
+
 const std::vector<LimbEnum> limbEnumCounterClockWiseOrder = { LimbEnum::LF_LEG,
                                                               LimbEnum::LH_LEG,
                                                               LimbEnum::RH_LEG,
