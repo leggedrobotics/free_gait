@@ -168,14 +168,8 @@ def parse_end_effector_target(yaml_object):
         end_effector_target.average_velocity = yaml_object['average_velocity']
     if 'duration' in yaml_object:
         end_effector_target.duration = yaml_object['duration']
-    if 'Kp' in yaml_object:
-        end_effector_target.k_p.append(parse_vector_stamped(yaml_object['Kp']))
-    if 'Kd' in yaml_object:
-        end_effector_target.k_d.append(parse_vector_stamped(yaml_object['Kd']))
-    if 'Kf' in yaml_object:
-        end_effector_target.k_f.append(parse_vector_stamped(yaml_object['Kf']))
-    if 'feed_forward_friction_norm' in yaml_object:
-        end_effector_target.feed_forward_friction_norm = yaml_object['feed_forward_friction_norm']        
+    if 'impedance_control' in yaml_object:
+        end_effector_target.impedance_control.append(parse_impedance_control(yaml_object['impedance_control']))
     if 'ignore_contact' in yaml_object:
         end_effector_target.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
@@ -193,14 +187,8 @@ def parse_end_effector_trajectory(yaml_object):
         end_effector_trajectory.name = yaml_object['name']
     if 'trajectory' in yaml_object:
         end_effector_trajectory.trajectory = parse_translational_trajectory(end_effector_trajectory.name, yaml_object['trajectory'])
-    if 'Kp' in yaml_object:
-        end_effector_trajectory.k_p.append(parse_vector_stamped(yaml_object['Kp']))
-    if 'Kd' in yaml_object:
-        end_effector_trajectory.k_d.append(parse_vector_stamped(yaml_object['Kd']))
-    if 'Kf' in yaml_object:
-        end_effector_trajectory.k_f.append(parse_vector_stamped(yaml_object['Kf'])) 
-    if 'feed_forward_friction_norm' in yaml_object:
-        end_effector_trajectory.feed_forward_friction_norm = yaml_object['feed_forward_friction_norm'] 
+    if 'impedance_control' in yaml_object:
+        end_effector_trajectory.impedance_control.append(parse_impedance_control(yaml_object['impedance_control']))
     if 'force_instead_of_acceleration' in yaml_object:
         end_effector_trajectory.force_instead_of_acceleration = yaml_object['force_instead_of_acceleration']
     if 'surface_normal' in yaml_object:
@@ -382,6 +370,19 @@ def parse_vector_stamped(yaml_object):
     if 'vector' in yaml_object:
         vector.vector = parse_vector(yaml_object['vector'])
     return vector
+    
+    
+def parse_impedance_control(yaml_object):
+    impedance_control = free_gait_msgs.msg.ImpedanceControl()
+    if 'proportional_gain' in yaml_object:
+        impedance_control.proportional_gain.append(parse_vector_stamped(yaml_object['proportional_gain']))
+    if 'derivative_gain' in yaml_object:
+        impedance_control.derivative_gain.append(parse_vector_stamped(yaml_object['derivative_gain']))
+    if 'force_gain' in yaml_object:
+        impedance_control.force_gain.append(parse_vector_stamped(yaml_object['force_gain']))
+    if 'feed_forward_friction_norm' in yaml_object:
+        impedance_control.feed_forward_friction_norm = yaml_object['feed_forward_friction_norm'] 
+    return impedance_control   
 
 
 def parse_multi_dof_trajectory(joint_name, trajectory):

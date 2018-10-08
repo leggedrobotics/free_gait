@@ -142,8 +142,6 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
 bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& message,
                                    EndEffectorTarget& endEffectorTarget)
 {
-  // ToDo: there might be a problem with the frames?? --> Peter!!
-
   // Limb.
   endEffectorTarget.limb_ = adapter_.getLimbEnumFromLimbString(message.name);
 
@@ -178,39 +176,35 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
   endEffectorTarget.averageVelocity_ = message.average_velocity;
   endEffectorTarget.useAverageVelocity_ = (endEffectorTarget.averageVelocity_>0.0);
 
-  // Impedance control gain.
-  if (!message.k_p.empty()) {
-    Vector Kp;
-    kindr_ros::convertFromRosGeometryMsg(message.k_p[0].vector, Kp);
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Position] = Kp;
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Position] = message.k_p[0].header.frame_id;
-  } else {
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Position].setZero();
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Position] = "odom";
+  // Impedance Control.
+  Vector Kp(0.0, 0.0, 0.0);
+  Vector Kd(0.0, 0.0, 0.0);
+  Vector Kf(0.0, 0.0, 0.0);
+  std::string impedanceFrame = "odom";
+
+  if (!message.impedance_control.empty()) {
+    if (!message.impedance_control[0].proportional_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].proportional_gain[0].vector, Kp);
+      impedanceFrame = message.impedance_control[0].proportional_gain[0].header.frame_id;
+    }
+    if (!message.impedance_control[0].derivative_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].derivative_gain[0].vector, Kd);
+      impedanceFrame = message.impedance_control[0].derivative_gain[0].header.frame_id;
+    }
+    if (!message.impedance_control[0].force_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].force_gain[0].vector, Kf);
+      impedanceFrame = message.impedance_control[0].force_gain[0].header.frame_id;
+    }
+    endEffectorTarget.feedForwardFrictionNorm_ = message.impedance_control[0].feed_forward_friction_norm;
   }
 
-  if (!message.k_d.empty()) {
-    Vector Kd;
-    kindr_ros::convertFromRosGeometryMsg(message.k_d[0].vector, Kd);
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Velocity] = Kd;
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Velocity] = message.k_d[0].header.frame_id;
-  } else {
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Velocity].setZero();
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Velocity] = "odom";
-  }
+  endEffectorTarget.impedanceGains_[ImpedanceControl::Position] = Kp;
+  endEffectorTarget.impedanceGains_[ImpedanceControl::Velocity] = Kd;
+  endEffectorTarget.impedanceGains_[ImpedanceControl::Force] = Kf;
 
-  if (!message.k_f.empty()) {
-    Vector Kf;
-    kindr_ros::convertFromRosGeometryMsg(message.k_f[0].vector, Kf);
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Force] = Kf;
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = message.k_f[0].header.frame_id;
-  }else {
-    endEffectorTarget.impedanceGains_[ImpedanceControl::Force].setZero();
-    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
-  }
-
-  // Friction compensation.
-  endEffectorTarget.feedForwardFrictionNorm_ = message.feed_forward_friction_norm;
+  endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Position] = impedanceFrame;
+  endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Velocity] = impedanceFrame;
+  endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = impedanceFrame;
 
   // Duration.
   endEffectorTarget.duration_ = message.duration;
@@ -296,39 +290,35 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     }
   }
 
-  // Impedance control gain.
-  if (!message.k_p.empty()) {
-    Vector Kp;
-    kindr_ros::convertFromRosGeometryMsg(message.k_p[0].vector, Kp);
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Position] = Kp;
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Position] = message.k_p[0].header.frame_id;
-  } else {
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Position].setZero();
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Position] = "odom";
+  // Impedance Control.
+  Vector Kp(0.0, 0.0, 0.0);
+  Vector Kd(0.0, 0.0, 0.0);
+  Vector Kf(0.0, 0.0, 0.0);
+  std::string impedanceFrame = "odom";
+
+  if (!message.impedance_control.empty()) {
+    if (!message.impedance_control[0].proportional_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].proportional_gain[0].vector, Kp);
+      impedanceFrame = message.impedance_control[0].proportional_gain[0].header.frame_id;
+    }
+    if (!message.impedance_control[0].derivative_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].derivative_gain[0].vector, Kd);
+      impedanceFrame = message.impedance_control[0].derivative_gain[0].header.frame_id;
+    }
+    if (!message.impedance_control[0].force_gain.empty()) {
+      kindr_ros::convertFromRosGeometryMsg(message.impedance_control[0].force_gain[0].vector, Kf);
+      impedanceFrame = message.impedance_control[0].force_gain[0].header.frame_id;
+    }
+    endEffectorTrajectory.feedForwardFrictionNorm_ = message.impedance_control[0].feed_forward_friction_norm;
   }
 
-  if (!message.k_d.empty()) {
-    Vector Kd;
-    kindr_ros::convertFromRosGeometryMsg(message.k_d[0].vector, Kd);
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Velocity] = Kd;
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Velocity] = message.k_d[0].header.frame_id;
-  } else {
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Velocity].setZero();
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Velocity] = "odom";
-  }
+  endEffectorTrajectory.impedanceGains_[ImpedanceControl::Position] = Kp;
+  endEffectorTrajectory.impedanceGains_[ImpedanceControl::Velocity] = Kd;
+  endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force] = Kf;
 
-  if (!message.k_f.empty()) {
-    Vector Kf;
-    kindr_ros::convertFromRosGeometryMsg(message.k_f[0].vector, Kf);
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force] = Kf;
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = message.k_f[0].header.frame_id;
-  } else {
-    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force].setZero();
-    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
-  }
-
-  // Friction compensation.
-  endEffectorTrajectory.feedForwardFrictionNorm_ = message.feed_forward_friction_norm;
+  endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Position] = impedanceFrame;
+  endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Velocity] = impedanceFrame;
+  endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = impedanceFrame;
 
   // Surface normal.
   Vector surfaceNormal;

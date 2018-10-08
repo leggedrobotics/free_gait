@@ -8,13 +8,8 @@ string name
 # or combinations of these. 
 trajectory_msgs/MultiDOFJointTrajectory trajectory
 
-# Impedance control gains (k_p: position tracking, k_d: Velocity tracking, k_f: Force tracking).
-geometry_msgs/Vector3Stamped[] k_p
-geometry_msgs/Vector3Stamped[] k_d
-geometry_msgs/Vector3Stamped[] k_f
-
-# Norm of feed-forward force acting along position profile (friction compensation).
-float64 feed_forward_friction_norm
+# Impedance control.
+free_gait_msgs/ImpedanceControl[] impedance_control
 
 # If true, we interpret acceleration as force
 # Default is false

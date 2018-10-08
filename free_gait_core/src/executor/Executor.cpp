@@ -456,7 +456,7 @@ bool Executor::writeLegMotion()
           const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
 
           if (!adapter_.frameIdExists(KpId) || !adapter_.frameIdExists(KdId) || !adapter_.frameIdExists(KfId)) {
-            std::cerr << "[Executor::writeLegMotion] Could not find frames '" << KpId << " " << KdId << ", " << KfId << "' for free gait leg motion!" << std::endl;
+            std::cerr << "[Executor::writeLegMotion] Could not find one of the following frames '" << KpId << ", " << KdId << " or " << KfId << "' for free gait leg motion!" << std::endl;
             return false;
           }
 

@@ -29,6 +29,7 @@ add_message_files(
    JointTarget.msg
    JointTrajectory.msg
    CustomCommand.msg
+   ImpedanceControl.msg
 )
 
 ## Generate services in the 'srv' folder
