@@ -66,7 +66,7 @@ void EndEffectorTarget::updateStartEndEffectorForce(const Force& startForce) {
     std::cout << "[EndEffectorTarget::updateStartEndEffectorForce] Desired control level is not in control setup.\n";
   }
   isComputed_ = false;
-  startForce_ = targetForce_; // ToDo: May initialize this with measurements
+  startForce_ = startForce;
 }
 
 bool EndEffectorTarget::prepareComputation(const State& state, const Step& step, const AdapterBase& adapter)
@@ -133,6 +133,7 @@ const Force EndEffectorTarget::evaluateEndEffectorForce(const double time) const
     std::cout  << "[EndEffectorTarget::evaluateEndEffectorForce] Desired control level is not in control setup.\n";
   }
 
+  // Linearly interpolate between start and end-force.
   if (duration_>0.0) {
     return (startForce_ + (targetForce_ - startForce_) * time/duration_);
   }
