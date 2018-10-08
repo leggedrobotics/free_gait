@@ -109,9 +109,8 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   friend class StepRosConverter;
   friend class StepFrameConverter;
 
-  const Vector& getImpedancePositionGain() const override;
-  const Vector& getImpedanceVelocityGain() const override;
-  const Vector& getImpedanceForceGain() const override;
+  const Vector& getImpedanceGain(const ImpedanceControl& impedanceControlId) const override;
+  const std::string& getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const override;
 
  private:
   bool ignoreContact_;
@@ -136,9 +135,8 @@ class EndEffectorTrajectory : public EndEffectorMotionBase
   bool isComputed_;
 
   // Impedance Control gains.
-  Vector Kp_;
-  Vector Kd_;
-  Vector Kf_;
+  std::unordered_map<ImpedanceControl, Vector, EnumClassHash> impedanceGains_;
+  std::unordered_map<ImpedanceControl, std::string, EnumClassHash> impedanceGainsFrameId_;
 };
 
 } /* namespace */

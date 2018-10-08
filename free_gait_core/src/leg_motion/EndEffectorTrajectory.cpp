@@ -234,16 +234,12 @@ bool EndEffectorTrajectory::isIgnoreForPoseAdaptation() const
   return ignoreForPoseAdaptation_;
 }
 
-const Vector& EndEffectorTrajectory::getImpedancePositionGain() const {
-  return Kp_;
+const Vector& EndEffectorTrajectory::getImpedanceGain(const ImpedanceControl& impedanceControlId) const {
+  return impedanceGains_.at(impedanceControlId);
 }
 
-const Vector& EndEffectorTrajectory::getImpedanceVelocityGain() const {
-  return Kd_;
-}
-
-const Vector& EndEffectorTrajectory::getImpedanceForceGain() const {
-  return Kf_;
+const std::string& EndEffectorTrajectory::getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const {
+  return impedanceGainsFrameId_.at(impedanceControlId);
 }
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory)

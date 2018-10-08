@@ -232,17 +232,14 @@ bool EndEffectorTarget::computeTrajectory()
   return true;
 }
 
-const Vector& EndEffectorTarget::getImpedancePositionGain() const {
-  return Kp_;
+const Vector& EndEffectorTarget::getImpedanceGain(const ImpedanceControl& impedanceControlId) const {
+  return impedanceGains_.at(impedanceControlId);
 }
 
-const Vector& EndEffectorTarget::getImpedanceVelocityGain() const {
-  return Kd_;
+const std::string& EndEffectorTarget::getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const {
+  return impedanceGainsFrameId_.at(impedanceControlId);
 }
 
-const Vector& EndEffectorTarget::getImpedanceForceGain() const {
-  return Kf_;
-}
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTarget& endEffectorTarget)
 {

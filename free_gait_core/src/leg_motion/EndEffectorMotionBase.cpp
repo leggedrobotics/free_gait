@@ -78,16 +78,13 @@ const std::string& EndEffectorMotionBase::getFrameId(const ControlLevel& control
   throw std::runtime_error("EndEffectorMotionBase::getFrameId() not implemented.");
 }
 
-const Vector& EndEffectorMotionBase::getImpedancePositionGain() const {
-  throw std::runtime_error("EndEffectorMotionBase::getImpedancePositionGain() not implemented.");
+const Vector& EndEffectorMotionBase::getImpedanceGain(const ImpedanceControl& impedanceControlId) const {
+  throw std::runtime_error("EndEffectorMotionBase::getImpedanceGain() not implemented.");
 }
 
-const Vector& EndEffectorMotionBase::getImpedanceVelocityGain() const {
-  throw std::runtime_error("EndEffectorMotionBase::getImpedanceVelocityGain() not implemented.");
+const std::string& EndEffectorMotionBase::getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const {
+  throw std::runtime_error("EndEffectorMotionBase::getImpedanceGainFrameId() not implemented.");
 }
 
-const Vector& EndEffectorMotionBase::getImpedanceForceGain() const {
-  throw std::runtime_error("EndEffectorMotionBase::getImpedanceForceGain() not implemented.");
-}
 
 } /* namespace */
