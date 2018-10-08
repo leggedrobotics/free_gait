@@ -385,6 +385,7 @@ bool Executor::writeLegMotion()
       case LegMotionBase::TrajectoryType::EndEffector:
       {
         const auto& endEffectorMotion = dynamic_cast<const EndEffectorMotionBase&>(legMotion);
+        const auto& wordlFrameId = adapter_.getWorldFrameId();
 
         // Position tracking.
         if (controlSetup[ControlLevel::Position]) {
@@ -401,7 +402,7 @@ bool Executor::writeLegMotion()
           }
           state_.setJointPositionsForLimb(limb, jointPositions);
 
-          Position positionInWorldFrame = adapter_.transformPosition(frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluatePosition(time));
+          Position positionInWorldFrame = adapter_.transformPosition(frameId, wordlFrameId, endEffectorMotion.evaluatePosition(time));
           state_.setEndEffectorPositionInWorldFrame(limb, positionInWorldFrame);
         }
 
@@ -414,7 +415,7 @@ bool Executor::writeLegMotion()
           }
           // TODO This is dangerous due to difference between relative velocity vs. expression in frames.
           LinearVelocity velocityInWorldFrame = adapter_.transformLinearVelocity(
-              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateVelocity(time));
+              frameId, wordlFrameId, endEffectorMotion.evaluateVelocity(time));
           const JointVelocitiesLeg jointVelocities = adapter_.getJointVelocitiesFromEndEffectorLinearVelocityInWorldFrame(limb, velocityInWorldFrame);
           state_.setJointVelocitiesForLimb(limb, jointVelocities);
           state_.setEndEffectorVelocityInWorldFrame(limb, velocityInWorldFrame);
@@ -428,13 +429,15 @@ bool Executor::writeLegMotion()
             return false;
           }
           LinearAcceleration accelerationInWorldFrame = adapter_.transformLinearAcceleration(
-              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateAcceleration(time));
+              frameId, wordlFrameId, endEffectorMotion.evaluateAcceleration(time));
           const JointAccelerationsLeg jointAccelerations = adapter_.getJointAccelerationsFromEndEffectorLinearAccelerationInWorldFrame(limb, accelerationInWorldFrame);
           state_.setJointAccelerationsForLimb(limb, jointAccelerations);
         }
 
         // Force feed-forward.
         if (controlSetup[ControlLevel::Effort]) {
+
+          // Set end-effector force.
           const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
           if (!adapter_.frameIdExists(frameId)) {
             std::cerr << "[Executor::writeLegMotion] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
@@ -442,15 +445,43 @@ bool Executor::writeLegMotion()
           }
 
           const auto endEffectorForceInWorldFrame = adapter_.transformForce(
-              frameId, adapter_.getWorldFrameId(), endEffectorMotion.evaluateEndEffectorForce(time));
+              frameId, wordlFrameId, endEffectorMotion.evaluateEndEffectorForce(time));
           state_.setEndEffectorForceInWorldFrame(limb, endEffectorForceInWorldFrame);
           state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
 
-          state_.setImpedanceGains(
-              endEffectorMotion.getImpedancePositionGain(),
-              endEffectorMotion.getImpedanceVelocityGain(),
-              endEffectorMotion.getImpedanceForceGain()
-          );
+
+          // Set impedance control gain for position.
+          if (controlSetup[ControlLevel::Position]) {
+            const auto& KpId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Position);
+            if (!adapter_.frameIdExists(KpId)) {
+              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KpId << "' for free gait leg motion!" << std::endl;
+              return false;
+            }
+            const Vector Kp = adapter_.transformVector(KpId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Position));
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Position, Kp);
+          }
+
+          // Set impedance control gain for velocity.
+          if (controlSetup[ControlLevel::Velocity]) {
+            const auto& KdId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Velocity);
+            if (!adapter_.frameIdExists(KdId)) {
+              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KdId << "' for free gait leg motion!" << std::endl;
+              return false;
+            }
+            const Vector Kd = adapter_.transformVector(KdId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Velocity));
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
+          }
+
+          // Set impedance control gain for force.
+          if (controlSetup[ControlLevel::Position] || controlSetup[ControlLevel::Velocity]) {
+            const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
+            if (!adapter_.frameIdExists(KfId)) {
+              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KfId << "' for free gait leg motion!" << std::endl;
+              return false;
+            }
+            const Vector Kf = adapter_.transformVector(KfId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Force));
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
+          }
 
         } else {
           state_.setEndEffectorForceInWorldFrame(limb, Force::Zero());
