@@ -184,18 +184,29 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
     kindr_ros::convertFromRosGeometryMsg(message.k_p[0].vector, Kp);
     endEffectorTarget.impedanceGains_[ImpedanceControl::Position] = Kp;
     endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Position] = message.k_p[0].header.frame_id;
+  } else {
+    endEffectorTarget.impedanceGains_[ImpedanceControl::Position].setZero();
+    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Position] = "odom";
   }
+
   if (!message.k_d.empty()) {
     Vector Kd;
     kindr_ros::convertFromRosGeometryMsg(message.k_d[0].vector, Kd);
     endEffectorTarget.impedanceGains_[ImpedanceControl::Velocity] = Kd;
     endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Velocity] = message.k_d[0].header.frame_id;
+  } else {
+    endEffectorTarget.impedanceGains_[ImpedanceControl::Velocity].setZero();
+    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Velocity] = "odom";
   }
+
   if (!message.k_f.empty()) {
     Vector Kf;
     kindr_ros::convertFromRosGeometryMsg(message.k_f[0].vector, Kf);
     endEffectorTarget.impedanceGains_[ImpedanceControl::Force] = Kf;
     endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = message.k_f[0].header.frame_id;
+  }else {
+    endEffectorTarget.impedanceGains_[ImpedanceControl::Force].setZero();
+    endEffectorTarget.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
   }
 
   // Duration.
@@ -288,18 +299,29 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     kindr_ros::convertFromRosGeometryMsg(message.k_p[0].vector, Kp);
     endEffectorTrajectory.impedanceGains_[ImpedanceControl::Position] = Kp;
     endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Position] = message.k_p[0].header.frame_id;
+  } else {
+    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Position].setZero();
+    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Position] = "odom";
   }
+
   if (!message.k_d.empty()) {
     Vector Kd;
     kindr_ros::convertFromRosGeometryMsg(message.k_d[0].vector, Kd);
     endEffectorTrajectory.impedanceGains_[ImpedanceControl::Velocity] = Kd;
     endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Velocity] = message.k_d[0].header.frame_id;
+  } else {
+    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Velocity].setZero();
+    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Velocity] = "odom";
   }
+
   if (!message.k_f.empty()) {
     Vector Kf;
     kindr_ros::convertFromRosGeometryMsg(message.k_f[0].vector, Kf);
     endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force] = Kf;
     endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = message.k_f[0].header.frame_id;
+  } else {
+    endEffectorTrajectory.impedanceGains_[ImpedanceControl::Force].setZero();
+    endEffectorTrajectory.impedanceGainsFrameId_[ImpedanceControl::Force] = "odom";
   }
 
   // Surface normal.

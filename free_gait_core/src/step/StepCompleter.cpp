@@ -115,6 +115,7 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
   }
 
   if (effortOut) {
+    // ToDo: initialize with measurements
     const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
     if (!adapter_.frameIdExists(frameId)) {
       std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;

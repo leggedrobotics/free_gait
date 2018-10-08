@@ -389,7 +389,7 @@ bool Executor::writeLegMotion()
 
         // Position tracking.
         if (controlSetup[ControlLevel::Position]) {
-          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
+          const auto& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
           if (!adapter_.frameIdExists(frameId)) {
             std::cerr << "[Executor::writeLegMotion] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
             return false;
@@ -450,38 +450,23 @@ bool Executor::writeLegMotion()
           state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
 
 
-          // Set impedance control gain for position.
-          if (controlSetup[ControlLevel::Position]) {
-            const auto& KpId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Position);
-            if (!adapter_.frameIdExists(KpId)) {
-              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KpId << "' for free gait leg motion!" << std::endl;
-              return false;
-            }
-            const Vector Kp = adapter_.transformVector(KpId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Position));
-            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Position, Kp);
+          // Set impedance control gains.
+          const auto& KpId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Position);
+          const auto& KdId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Velocity);
+          const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
+
+          if (!adapter_.frameIdExists(KpId) || !adapter_.frameIdExists(KdId) || !adapter_.frameIdExists(KfId)) {
+            std::cerr << "[Executor::writeLegMotion] Could not find frames '" << KpId << " " << KdId << ", " << KfId << "' for free gait leg motion!" << std::endl;
+            return false;
           }
 
-          // Set impedance control gain for velocity.
-          if (controlSetup[ControlLevel::Velocity]) {
-            const auto& KdId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Velocity);
-            if (!adapter_.frameIdExists(KdId)) {
-              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KdId << "' for free gait leg motion!" << std::endl;
-              return false;
-            }
-            const Vector Kd = adapter_.transformVector(KdId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Velocity));
-            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
-          }
+          const Vector Kp = adapter_.transformVector(KpId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Position));
+          const Vector Kd = adapter_.transformVector(KdId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Velocity));
+          const Vector Kf = adapter_.transformVector(KfId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Force));
 
-          // Set impedance control gain for force.
-          if (controlSetup[ControlLevel::Position] || controlSetup[ControlLevel::Velocity]) {
-            const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
-            if (!adapter_.frameIdExists(KfId)) {
-              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << KfId << "' for free gait leg motion!" << std::endl;
-              return false;
-            }
-            const Vector Kf = adapter_.transformVector(KfId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Force));
-            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
-          }
+          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Position, Kp);
+          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
+          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
 
         } else {
           state_.setEndEffectorForceInWorldFrame(limb, Force::Zero());
