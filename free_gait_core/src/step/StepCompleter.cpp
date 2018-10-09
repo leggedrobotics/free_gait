@@ -76,22 +76,23 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
 {
   // Input.
 //  ControlSetup controlSetupIn = state.getControlSetup(endEffectorMotion.getLimb());
-//  bool positionIn = controlSetupIn.at(ControlLevel::Position);
-//  bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
-//  bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
-//  bool effortIn = controlSetupIn.at(ControlLevel::Effort);
+//  const bool positionIn = controlSetupIn.at(ControlLevel::Position);
+//  const bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
+//  const bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
+//  const bool effortIn = controlSetupIn.at(ControlLevel::Effort);
 
   // Output.
   ControlSetup controlSetupOut = endEffectorMotion.getControlSetup();
-  bool positionOut = controlSetupOut.at(ControlLevel::Position);
-  bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
-  bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
-  bool effortOut = controlSetupOut.at(ControlLevel::Effort);
+  const bool positionOut = controlSetupOut.at(ControlLevel::Position);
+  const bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
+  const bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
+  const bool effortOut = controlSetupOut.at(ControlLevel::Effort);
 
+  // Set initial position.
   if (positionOut) {
-    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
+    const auto& frameId = endEffectorMotion.getFrameId(ControlLevel::Position);
     if (!adapter_.frameIdExists(frameId)) {
-      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      std::cerr << "[StepCompleter::complete] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
       return false;
     }
     Position startPositionInBaseFrame = adapter_.getPositionBaseToFootInBaseFrame(
@@ -100,10 +101,11 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     endEffectorMotion.updateStartPosition(startPosition);
   }
 
+  // Set initial velocity.
   if (velocityOut) {
-    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
+    const auto& frameId = endEffectorMotion.getFrameId(ControlLevel::Velocity);
     if (!adapter_.frameIdExists(frameId)) {
-      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      std::cerr << "[StepCompleter::complete] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
       return false;
     }
 
@@ -114,17 +116,26 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     endEffectorMotion.updateStartVelocity(startVelocity);
   }
 
+
+  // Set initial force.
   if (effortOut) {
-    // ToDo: initialize with measurements
-    const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
+    const auto& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
     if (!adapter_.frameIdExists(frameId)) {
-      std::cerr << "Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+      std::cerr << "[StepCompleter::complete] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
       return false;
     }
 
-    const auto& forceInWorldFrame = state.getEndEffectorForceInWorldFrame(endEffectorMotion.getLimb());
-    const auto& endEffectorForce = adapter_.transformForce(adapter_.getWorldFrameId(), frameId, forceInWorldFrame);
-    endEffectorMotion.updateStartEndEffectorForce(endEffectorForce);
+    auto startForceInWorldFrame = state.getEndEffectorForceInWorldFrame(endEffectorMotion.getLimb());
+
+    // Try to get a measurement.
+    const auto* wholeBody = adapter_.getWholeBodyPtr();
+    if (wholeBody != nullptr) {
+      const auto limbIdInt = static_cast<unsigned int>(endEffectorMotion.getLimb());
+      startForceInWorldFrame = -1.0*wholeBody->getLegs().get(limbIdInt).getEndEffector().getStateMeasured().getForceAtEndEffectorInWorldFrame();
+    }
+
+    const auto startForce = adapter_.transformForce(adapter_.getWorldFrameId(), frameId, startForceInWorldFrame);
+    endEffectorMotion.updateStartEndEffectorForce(startForce);
   }
 
   return endEffectorMotion.prepareComputation(state, step, adapter_);
@@ -134,17 +145,17 @@ bool StepCompleter::complete(const State& state, const Step& step, JointMotionBa
 {
   // Input.
   ControlSetup controlSetupIn = state.getControlSetup(jointMotion.getLimb());
-  bool positionIn = controlSetupIn.at(ControlLevel::Position);
-  bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
-  bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
-  bool effortIn = controlSetupIn.at(ControlLevel::Effort);
+  const bool positionIn = controlSetupIn.at(ControlLevel::Position);
+  const bool velocityIn = controlSetupIn.at(ControlLevel::Velocity);
+  const bool accelerationIn = controlSetupIn.at(ControlLevel::Acceleration);
+  const bool effortIn = controlSetupIn.at(ControlLevel::Effort);
 
   // Output.
   ControlSetup controlSetupOut = jointMotion.getControlSetup();
-  bool positionOut = controlSetupOut.at(ControlLevel::Position);
-  bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
-  bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
-  bool effortOut = controlSetupOut.at(ControlLevel::Effort);
+  const bool positionOut = controlSetupOut.at(ControlLevel::Position);
+  const bool velocityOut = controlSetupOut.at(ControlLevel::Velocity);
+  const bool accelerationOut = controlSetupOut.at(ControlLevel::Acceleration);
+  const bool effortOut = controlSetupOut.at(ControlLevel::Effort);
 
   // Check for special mode transitions.
   if (positionIn && !effortIn && positionOut && effortOut) {
