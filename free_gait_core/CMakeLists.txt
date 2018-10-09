@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   robot_utils
   std_utils
   message_logger
+  loco
 )
 
 ## System dependencies are found with CMake's conventions
@@ -44,6 +45,7 @@ catkin_package(
       robot_utils
       std_utils
       message_logger
+      loco
 )
 
 # Attempt to find catkinized kindr

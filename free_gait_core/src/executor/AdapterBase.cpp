@@ -228,4 +228,8 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
   return transformedVector;
 }
 
+loco::WholeBody* AdapterBase::getWholeBodyPtr() const {
+  return nullptr;
+}
+
 } /* namespace free_gait */

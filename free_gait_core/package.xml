@@ -21,4 +21,5 @@
   <depend>robot_utils</depend>
   <depend>std_utils</depend>
   <depend>message_logger</depend>
+  <depend>loco</depend>
 </package>

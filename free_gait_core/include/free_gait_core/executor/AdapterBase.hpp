@@ -8,8 +8,12 @@
 
 #pragma once
 
+// free_gait_core
 #include "free_gait_core/executor/State.hpp"
 #include "free_gait_core/step/StepQueue.hpp"
+
+// loco
+#include <loco/common/WholeBody.hpp>
 
 #include <memory>
 #include <string>
@@ -116,6 +120,7 @@ class AdapterBase
                                         bool updateVelocity = true, bool updateAcceleration = false) const = 0;
   virtual void createCopyOfState() const = 0;
   virtual void resetToCopyOfState() const = 0;
+  virtual loco::WholeBody* getWholeBodyPtr() const;
 };
 
 } /* namespace free_gait */
