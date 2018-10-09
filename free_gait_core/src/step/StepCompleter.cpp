@@ -128,11 +128,11 @@ bool StepCompleter::complete(const State& state, const Step& step, EndEffectorMo
     auto startForceInWorldFrame = state.getEndEffectorForceInWorldFrame(endEffectorMotion.getLimb());
 
     // Try to get a measurement.
-    const auto* wholeBody = adapter_.getWholeBodyPtr();
-    if (wholeBody != nullptr) {
-      const auto limbIdInt = static_cast<unsigned int>(endEffectorMotion.getLimb());
-      startForceInWorldFrame = -1.0*wholeBody->getLegs().get(limbIdInt).getEndEffector().getStateMeasured().getForceAtEndEffectorInWorldFrame();
-    }
+    // const auto* wholeBody = adapter_.getWholeBodyPtr();
+    // if (wholeBody != nullptr) {
+    //   const auto limbIdInt = static_cast<unsigned int>(endEffectorMotion.getLimb());
+    //   startForceInWorldFrame = -1.0*wholeBody->getLegs().get(limbIdInt).getEndEffector().getStateMeasured().getForceAtEndEffectorInWorldFrame();
+    //  }
 
     const auto startForce = adapter_.transformForce(adapter_.getWorldFrameId(), frameId, startForceInWorldFrame);
     endEffectorMotion.updateStartEndEffectorForce(startForce);
