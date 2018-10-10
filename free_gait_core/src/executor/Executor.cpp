@@ -379,6 +379,7 @@ bool Executor::writeLegMotion()
     auto const& legMotion = step.getLegMotion(limb);
     ControlSetup controlSetup = legMotion.getControlSetup();
     state_.setControlSetup(limb, controlSetup);
+    state_.setIsImpedanceTrajectory(false);
 
     switch (legMotion.getTrajectoryType()) {
 
@@ -436,40 +437,43 @@ bool Executor::writeLegMotion()
 
         // Force feed-forward.
         if (controlSetup[ControlLevel::Effort]) {
+          if (endEffectorMotion.getIsImpedanceTrajectory()) {
+            state_.setIsImpedanceTrajectory(true);
 
-          // Set end-effector force.
-          const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
-          if (!adapter_.frameIdExists(frameId)) {
-            std::cerr << "[Executor::writeLegMotion] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
-            return false;
+            // Set end-effector force.
+            const std::string& frameId = endEffectorMotion.getFrameId(ControlLevel::Effort);
+            if (!adapter_.frameIdExists(frameId)) {
+              std::cerr << "[Executor::writeLegMotion] Could not find frame '" << frameId << "' for free gait leg motion!" << std::endl;
+              return false;
+            }
+
+            const auto endEffectorForceInWorldFrame = adapter_.transformForce(
+                frameId, wordlFrameId, endEffectorMotion.evaluateEndEffectorForce(time));
+            state_.setEndEffectorForceInWorldFrame(limb, endEffectorForceInWorldFrame);
+            state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
+
+
+            // Set impedance control gains.
+            const auto& KpId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Position);
+            const auto& KdId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Velocity);
+            const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
+
+            if (!adapter_.frameIdExists(KpId) || !adapter_.frameIdExists(KdId) || !adapter_.frameIdExists(KfId)) {
+              std::cerr << "[Executor::writeLegMotion] Could not find one of the following frames '" << KpId << ", " << KdId << " or " << KfId << "' for free gait leg motion!" << std::endl;
+              return false;
+            }
+
+            const Vector Kp = adapter_.transformVector(KpId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Position));
+            const Vector Kd = adapter_.transformVector(KdId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Velocity));
+            const Vector Kf = adapter_.transformVector(KfId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Force));
+
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Position, Kp);
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
+            state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
+
+            // Set friction compensation.
+            state_.setFeedForwardFrictionNorm(endEffectorMotion.getFeedForwardFrictionNorm());
           }
-
-          const auto endEffectorForceInWorldFrame = adapter_.transformForce(
-              frameId, wordlFrameId, endEffectorMotion.evaluateEndEffectorForce(time));
-          state_.setEndEffectorForceInWorldFrame(limb, endEffectorForceInWorldFrame);
-          state_.setJointEffortsForLimb(limb, JointEffortsLeg::Zero());
-
-
-          // Set impedance control gains.
-          const auto& KpId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Position);
-          const auto& KdId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Velocity);
-          const auto& KfId = endEffectorMotion.getImpedanceGainFrameId(ImpedanceControl::Force);
-
-          if (!adapter_.frameIdExists(KpId) || !adapter_.frameIdExists(KdId) || !adapter_.frameIdExists(KfId)) {
-            std::cerr << "[Executor::writeLegMotion] Could not find one of the following frames '" << KpId << ", " << KdId << " or " << KfId << "' for free gait leg motion!" << std::endl;
-            return false;
-          }
-
-          const Vector Kp = adapter_.transformVector(KpId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Position));
-          const Vector Kd = adapter_.transformVector(KdId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Velocity));
-          const Vector Kf = adapter_.transformVector(KfId, wordlFrameId, endEffectorMotion.getImpedanceGain(ImpedanceControl::Force));
-
-          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Position, Kp);
-          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Velocity, Kd);
-          state_.setImpedanceGainInWorldFrame(ImpedanceControl::Force, Kf);
-
-          // Set friction compensation.
-          state_.setFeedForwardFrictionNorm(endEffectorMotion.getFeedForwardFrictionNorm());
         }
 
         break;

@@ -90,5 +90,9 @@ double EndEffectorMotionBase::getFeedForwardFrictionNorm() const {
   throw std::runtime_error("EndEffectorMotionBase::getFeedForwardFrictionNorm() not implemented.");
 }
 
+bool EndEffectorMotionBase::getIsImpedanceTrajectory() const noexcept {
+  throw std::runtime_error("EndEffectorMotionBase::getIsImpedanceTrajectory() not implemented.");
+}
+
 
 } /* namespace */

@@ -95,6 +95,7 @@ class EndEffectorTarget : public EndEffectorMotionBase
   const Vector& getImpedanceGain(const ImpedanceControl& impedanceControlId) const override;
   const std::string& getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const override;
   double getFeedForwardFrictionNorm() const override;
+  bool getIsImpedanceTrajectory() const noexcept override;
 
  private:
   void computeDuration();
@@ -125,7 +126,12 @@ class EndEffectorTarget : public EndEffectorMotionBase
   // Impedance Control gains.
   std::unordered_map<ImpedanceControl, Vector, EnumClassHash> impedanceGains_;
   std::unordered_map<ImpedanceControl, std::string, EnumClassHash> impedanceGainsFrameId_;
+
+  //! Gain for friction compensation.
   double feedForwardFrictionNorm_;
+
+  //! True if end-effector trajectory consists of at least position and end-effector force.
+  bool isImpedanceTrajectory_;
 };
 
 } /* namespace */

@@ -86,6 +86,7 @@ class EndEffectorMotionBase : public LegMotionBase
   virtual const Vector& getImpedanceGain(const ImpedanceControl& impedanceControlId) const;
   virtual const std::string& getImpedanceGainFrameId(const ImpedanceControl& impedanceControlId) const;
   virtual double getFeedForwardFrictionNorm() const;
+  virtual bool getIsImpedanceTrajectory() const noexcept;
 };
 
 } /* namespace */

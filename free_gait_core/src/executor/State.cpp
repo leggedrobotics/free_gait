@@ -15,7 +15,8 @@ namespace free_gait {
 State::State()
     : QuadrupedState(),
       robotExecutionStatus_(false),
-      feedForwardFrictionNorm_(0.0)
+      feedForwardFrictionNorm_(0.0),
+      isImpedanceTrajectory_(false)
 {
 }
 
@@ -35,6 +36,8 @@ void State::initialize(const std::vector<LimbEnum>& limbs, const std::vector<Bra
   for (const auto& branch : branches) {
     setEmptyControlSetup(branch);
   }
+  feedForwardFrictionNorm_ = 0.0;
+  isImpedanceTrajectory_ = false;
 }
 
 bool State::getRobotExecutionStatus() const
@@ -289,6 +292,14 @@ double State::getFeedForwardFrictionNorm() const {
 
 void State::setFeedForwardFrictionNorm(double feedForwardFrictionNorm) {
   feedForwardFrictionNorm_ = feedForwardFrictionNorm;
+}
+
+bool State::getIsImpedanceTrajectory() const noexcept {
+  return isImpedanceTrajectory_;
+}
+
+void State::setIsImpedanceTrajectory(bool isImpedanceTrajectory) noexcept {
+  isImpedanceTrajectory_ = isImpedanceTrajectory;
 }
 
 std::ostream& operator<<(std::ostream& out, const State& state)

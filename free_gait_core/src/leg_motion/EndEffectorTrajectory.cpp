@@ -19,7 +19,8 @@ EndEffectorTrajectory::EndEffectorTrajectory(LimbEnum limb)
       isComputed_(false),
       controlSetup_ { {ControlLevel::Position, false}, {ControlLevel::Velocity, false},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} },
-      feedForwardFrictionNorm_(0.0)
+      feedForwardFrictionNorm_(0.0),
+      isImpedanceTrajectory_(false)
 {
 }
 
@@ -245,6 +246,10 @@ const std::string& EndEffectorTrajectory::getImpedanceGainFrameId(const Impedanc
 
 double EndEffectorTrajectory::getFeedForwardFrictionNorm() const {
   return feedForwardFrictionNorm_;
+}
+
+bool EndEffectorTrajectory::getIsImpedanceTrajectory() const noexcept {
+  return isImpedanceTrajectory_;
 }
 
 std::ostream& operator<<(std::ostream& out, const EndEffectorTrajectory& endEffectorTrajectory)

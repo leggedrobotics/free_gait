@@ -172,6 +172,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
     endEffectorTarget.targetForce_ = targetForce;
   }
 
+  endEffectorTarget.isImpedanceTrajectory_ = endEffectorTarget.controlSetup_[ControlLevel::Effort];
+
+
   // Average Velocity.
   endEffectorTarget.averageVelocity_ = message.average_velocity;
   endEffectorTarget.useAverageVelocity_ = (endEffectorTarget.averageVelocity_>0.0);
@@ -244,6 +247,8 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
     endEffectorTrajectory.controlSetup_[ControlLevel::Effort] = !message.trajectory.points[0].accelerations.empty();
     endEffectorTrajectory.frameIds_[ControlLevel::Effort] = message.trajectory.header.frame_id;
   }
+
+  endEffectorTrajectory.isImpedanceTrajectory_ = endEffectorTrajectory.controlSetup_[ControlLevel::Effort];
 
   // Add trajectory knots.
   for (const auto& controlSetup : endEffectorTrajectory.controlSetup_) {
