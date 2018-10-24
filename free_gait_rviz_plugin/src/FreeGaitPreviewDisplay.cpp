@@ -435,7 +435,7 @@ void FreeGaitPreviewDisplay::subscribe()
     adapterRos_.subscribeToLocalization(localizationTopicProperty_->getStdString());
     setStatus(rviz::StatusProperty::Ok, "Localization Topic", "OK");
   } catch (ros::Exception& e) {
-    setStatus(rviz::StatusProperty::Error, "Robot State Topic", QString("Error subscribing: ") + e.what());
+    setStatus(rviz::StatusProperty::Error, "Localization Topic", QString("Error subscribing: ") + e.what());
   }
 }
 
