@@ -135,7 +135,7 @@ class ActionLoader:
                 result.status = result.RESULT_FAILED
                 rospy.logerr('An error occurred while loading the action.')
                 return result
-
+            
             self.action.register_callback(self._action_feedback_callback, self._action_done_callback)
             self.action.wait_for_state([ActionState.ERROR, ActionState.ACTIVE, ActionState.IDLE, ActionState.DONE])
 
@@ -188,6 +188,11 @@ class ActionLoader:
             feedback = free_gait_msgs.msg.ExecuteActionFeedback()
             feedback.status = self.action.state
             self.execute_action_server.publish_feedback(feedback)
+        if self.action.state == ActionState.ERROR:
+            self.action.stop()
+            del self.action
+            self.action = None
+            rospy.loginfo('Stopped action')
 
     def _action_done_callback(self):
         # If action sequence exists, continue with next action.
@@ -239,5 +244,5 @@ if __name__ == '__main__':
             updateRate.sleep()
 
     except rospy.ROSInterruptException:
-        # rospy.logerr(traceback.print_exc())
+        rospy.logerr(traceback.print_exc())
         pass

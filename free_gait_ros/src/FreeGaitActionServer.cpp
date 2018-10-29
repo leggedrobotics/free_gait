@@ -63,8 +63,10 @@ void FreeGaitActionServer::update()
   bool stepQueueEmpty = executor_.getQueue().empty();
   lock.unlock();
   if (stepQueueEmpty) {
-    // Succeeded.
-    if (isPreempting_) {
+    if (nStepsInCurrentGoal_ == 0 ) {
+      //Server is awaiting, action is idle
+    }
+    else if (isPreempting_) {
       // Preempted.
       setPreempted();
     } else {
@@ -95,6 +97,12 @@ void FreeGaitActionServer::goalCallback()
 //  if (server_.isActive()) server_.setRejected();
 
   const auto goal = server_.acceptNewGoal();
+
+  // If goal's steps are empty, set server to wait
+  if (goal->steps.empty()) {
+    ROS_INFO("Received goal is void. Server will wait for next goal.");
+  }
+
   std::vector<Step> steps;
   for (auto& stepMessage : goal->steps) {
     Step step;

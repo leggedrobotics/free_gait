@@ -296,8 +296,11 @@ class LaunchAction(ActionBase):
             rospy.logerr(traceback.print_exc())
             self.set_state(ActionState.ERROR)
             return
-
-        self.set_state(ActionState.ACTIVE)
+        
+        """Subscribe to action state (param in launchfile), if available, to monitor the action state in a different node."""
+        action_state_topic = rospy.get_param('/free_gait/action_state_topic', '')
+        self.action_state_subscriber = rospy.Subscriber(action_state_topic, free_gait.free_gait_msgs.msg.ExecuteActionFeedback, self._feedback_callback)
+        self.set_state(ActionState.IDLE)
 
     def stop(self):
         self.launch.shutdown()
@@ -321,6 +324,12 @@ class LaunchAction(ActionBase):
             self.set_state(ActionState.DONE)
         else:
             self.set_state(ActionState.ERROR)
+
+    def _feedback_callback(self, feedback):
+        if feedback.status == ActionState.INITIALIZED:
+            rospy.loginfo("Launch action client initialized")
+        else:
+            self.set_state(feedback.status)
 
 
 class TriggerOnFeedback:

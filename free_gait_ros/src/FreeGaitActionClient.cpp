@@ -30,14 +30,25 @@ FreeGaitActionClient::FreeGaitActionClient(ros::NodeHandle& nodeHandle)
         "Did not find ROS parameter for Free Gait Preview Topic '/free_gait/preview_topic'.");
   }
 
+  // Get state topic.
+  std::string actionStateTopic;
+  if (nodeHandle_.hasParam("/free_gait/action_state_topic")) {
+    nodeHandle_.getParam("/free_gait/action_state_topic", actionStateTopic);
+  } else {
+    throw std::runtime_error(
+        "Did not find ROS parameter for Free Gait Action State Topic '/free_gait/action_state_topic'.");
+  }
+
   // Initialize action client.
   client_.reset(new actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>(nodeHandle, actionServerTopic));
-  state_ = ActionState::DONE;
 
   // Initialize preview publisher.
   previewPublisher_ = nodeHandle_.advertise<free_gait_msgs::ExecuteStepsActionGoal>(previewTopic, 1, false);
 
-  state_ = ActionState::INITIALIZED;
+  // Initialize state publisher. State is published every time its set with setState();
+  statePublisher_ = nodeHandle_.advertise<free_gait_msgs::ExecuteActionFeedback>(actionStateTopic, 1, true);
+
+  setState(state_ = ActionState::INITIALIZED);
 }
 
 void FreeGaitActionClient::registerCallback(
@@ -70,7 +81,7 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
     free_gait_msgs::ExecuteStepsActionGoal actionGoal;
     actionGoal.goal = goal;
     previewPublisher_.publish(actionGoal);
-    state_ = ActionState::ACTIVE;
+    setState(ActionState::ACTIVE); // TODO: Sure?
     actionlib::SimpleClientGoalState state(actionlib::SimpleClientGoalState::ACTIVE);
     free_gait_msgs::ExecuteStepsResult result;
     doneCallback_(state, result);
@@ -78,7 +89,9 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
     if (state_ == ActionState::ACTIVE || state_ == ActionState::PENDING) {
       client_->stopTrackingGoal();
     }
-    state_ = ActionState::PENDING;
+    if (!goal.steps.empty()) {
+      setState(ActionState::PENDING);
+    }
     client_->waitForServer();
     client_->sendGoal(goal, boost::bind(&FreeGaitActionClient::doneCallback, this, _1, _2),
                       boost::bind(&FreeGaitActionClient::activeCallback, this),
@@ -88,7 +101,9 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
 
 void FreeGaitActionClient::waitForResult(const double timeout)
 {
-  client_->waitForResult(ros::Duration(timeout));
+  if(!client_->waitForResult(ros::Duration(timeout))) {
+    ROS_WARN("Action result not received within timeout!");
+  }
 }
 
 const FreeGaitActionClient::ActionState& FreeGaitActionClient::getState()
@@ -96,10 +111,40 @@ const FreeGaitActionClient::ActionState& FreeGaitActionClient::getState()
   return state_;
 }
 
+void FreeGaitActionClient::setState(const ActionState state)
+{
+  state_ = state;
+  if (state != ActionState::DONE) {
+    free_gait_msgs::ExecuteActionFeedback msg;
+    msg.status = state_;
+    statePublisher_.publish(msg);
+  }
+}
+
+bool FreeGaitActionClient::toIdle()
+{
+  if (state_ == ActionState::INITIALIZED || state_ == ActionState::DONE) {
+    // Send empty goal
+    free_gait_msgs::ExecuteStepsGoal goal;
+    goal.preempt = free_gait_msgs::ExecuteStepsGoal::PREEMPT_IMMEDIATE;
+    sendGoal(goal,false);
+    setState(ActionState::IDLE);
+    return true;
+  } else {
+    ROS_WARN("Cannot set action to idle while running!");
+    return false;
+  }
+}
+
 void FreeGaitActionClient::activeCallback()
 {
-  state_ = ActionState::ACTIVE;
-  if (activeCallback_) activeCallback_();
+  // While idling, even if server is ACTIVE, client stays in IDLE
+  // Client only switches to ACTIVE from PENDING
+  if (state_ != ActionState::IDLE) {
+    setState(ActionState::ACTIVE);
+    if (activeCallback_)
+      activeCallback_();
+  }
 }
 
 void FreeGaitActionClient::feedbackCallback(
@@ -111,8 +156,15 @@ void FreeGaitActionClient::feedbackCallback(
 void FreeGaitActionClient::doneCallback(const actionlib::SimpleClientGoalState& state,
                                         const free_gait_msgs::ExecuteStepsResultConstPtr& result)
 {
-  state_ = ActionState::DONE;
-  if (doneCallback_) doneCallback_(state, *result);
+  if (state == actionlib::SimpleClientGoalState::SUCCEEDED
+      || state == actionlib::SimpleClientGoalState::RECALLED
+      || state == actionlib::SimpleClientGoalState::PREEMPTED) {
+    state_ = ActionState::DONE;
+  } else {
+    setState(ActionState::ERROR);
+  }
+  if (doneCallback_)
+    doneCallback_(state, *result);
 }
 
 }
