@@ -111,6 +111,7 @@ Q_OBJECT
   rviz::Property* settingsTree_;
   rviz::RosTopicProperty* goalTopicProperty_;
   rviz::RosTopicProperty* robotStateTopicProperty_;
+  rviz::RosTopicProperty* localizationTopicProperty_;
   rviz::StringProperty* tfPrefixProperty_;
   rviz::FloatProperty* previewRateRoperty_;
   rviz::BoolProperty* autoPlayProperty_;
