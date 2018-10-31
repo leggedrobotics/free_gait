@@ -57,6 +57,12 @@ FreeGaitPreviewDisplay::FreeGaitPreviewDisplay()
   robotStateTopicProperty_->setMessageType(robotStateMessageType);
   robotStateTopicProperty_->setDescription(robotStateMessageType + " topic to subscribe to.");
 
+  localizationTopicProperty_ = new rviz::RosTopicProperty("Localization Topic", "", "", "",
+                                                          settingsTree_, SLOT(updateTopic()), this);
+  QString localizationMessageType = QString::fromStdString(adapterRos_.getLocalizationMessageType());
+  localizationTopicProperty_->setMessageType(localizationMessageType);
+  localizationTopicProperty_->setDescription(localizationMessageType + " topic to subscribe to.");
+
   startStateMethodProperty_ = new rviz::EnumProperty(
       "Start State", "Reset to Real Robot State", "Determine the robot start state for motion execution.",
       settingsTree_, SLOT(changeStartStateMethod()), this);
@@ -424,6 +430,13 @@ void FreeGaitPreviewDisplay::subscribe()
   } catch (ros::Exception& e) {
     setStatus(rviz::StatusProperty::Error, "Robot State Topic", QString("Error subscribing: ") + e.what());
   }
+
+  try {
+    adapterRos_.subscribeToLocalization(localizationTopicProperty_->getStdString());
+    setStatus(rviz::StatusProperty::Ok, "Localization Topic", "OK");
+  } catch (ros::Exception& e) {
+    setStatus(rviz::StatusProperty::Error, "Localization Topic", QString("Error subscribing: ") + e.what());
+  }
 }
 
 void FreeGaitPreviewDisplay::unsubscribe()
@@ -432,6 +445,7 @@ void FreeGaitPreviewDisplay::unsubscribe()
   feedbackSubscriber_.shutdown();
   resultSubscriber_.shutdown();
   adapterRos_.unsubscribeFromRobotState();
+  adapterRos_.unsubscribeFromLocalization();
 }
 
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
