@@ -188,11 +188,9 @@ class ActionLoader:
             feedback = free_gait_msgs.msg.ExecuteActionFeedback()
             feedback.status = self.action.state
             self.execute_action_server.publish_feedback(feedback)
+        #Temporary abort procedure
         if self.action.state == ActionState.ERROR:
-            self.action.stop()
-            del self.action
-            self.action = None
-            rospy.loginfo('Stopped action')
+            self.reset() 
 
     def _action_done_callback(self):
         # If action sequence exists, continue with next action.
