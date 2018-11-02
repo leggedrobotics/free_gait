@@ -451,6 +451,11 @@ void FreeGaitPreviewDisplay::unsubscribe()
 void FreeGaitPreviewDisplay::processMessage(const free_gait_msgs::ExecuteStepsActionGoal::ConstPtr& message)
 {
   ROS_DEBUG("FreeGaitPreviewDisplay::processMessage: Starting to process new goal.");
+  if (message->goal.steps.empty()) {
+    ROS_DEBUG("FreeGaitPreviewDisplay::processMessage: Received void goal, no preview available.");
+    return;
+  }
+
   std::vector<free_gait::Step> steps;
   stepRosConverter_.fromMessage(message->goal.steps, steps);
 
