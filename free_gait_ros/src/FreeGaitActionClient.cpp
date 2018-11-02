@@ -77,11 +77,10 @@ void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal
 void FreeGaitActionClient::sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal,
                                     const bool usePreview)
 {
-  if (usePreview) {
+  if (usePreview && !goal.steps.empty()) {
     free_gait_msgs::ExecuteStepsActionGoal actionGoal;
     actionGoal.goal = goal;
     previewPublisher_.publish(actionGoal);
-    setState(ActionState::ACTIVE); // TODO: Sure?
     actionlib::SimpleClientGoalState state(actionlib::SimpleClientGoalState::ACTIVE);
     free_gait_msgs::ExecuteStepsResult result;
     doneCallback_(state, result);
