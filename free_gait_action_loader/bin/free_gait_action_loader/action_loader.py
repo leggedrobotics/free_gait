@@ -188,9 +188,6 @@ class ActionLoader:
             feedback = free_gait_msgs.msg.ExecuteActionFeedback()
             feedback.status = self.action.state
             self.execute_action_server.publish_feedback(feedback)
-        #Temporary abort procedure
-        if self.action.state == ActionState.ERROR:
-            self.reset() 
 
     def _action_done_callback(self):
         # If action sequence exists, continue with next action.
@@ -216,7 +213,7 @@ class ActionLoader:
     def reset(self):
         self.execute_steps_relay = None
         try:
-            if self.action:
+            if (self.action and self.action.state != ActionState.DONE):
                 self.action.stop()
             del self.action
             self.action = None

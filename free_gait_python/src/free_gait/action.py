@@ -328,6 +328,11 @@ class LaunchAction(ActionBase):
     def _feedback_callback(self, feedback):
         if feedback.status == ActionState.INITIALIZED:
             rospy.loginfo("Launch action client initialized")
+        elif feedback.status == ActionState.ERROR:
+            self.set_state(feedback.status)
+            self.stop()
+        elif feedback.status == ActionState.DONE:
+            self.stop()
         else:
             self.set_state(feedback.status)
 
