@@ -113,11 +113,10 @@ const FreeGaitActionClient::ActionState& FreeGaitActionClient::getState()
 void FreeGaitActionClient::setState(const ActionState state)
 {
   state_ = state;
-  if (state != ActionState::DONE) {
-    free_gait_msgs::ExecuteActionFeedback msg;
-    msg.status = state_;
-    statePublisher_.publish(msg);
-  }
+  free_gait_msgs::ExecuteActionFeedback msg;
+  msg.status = state_;
+  statePublisher_.publish(msg);
+
 }
 
 bool FreeGaitActionClient::toIdle()
@@ -158,8 +157,14 @@ void FreeGaitActionClient::doneCallback(const actionlib::SimpleClientGoalState& 
   if (state == actionlib::SimpleClientGoalState::SUCCEEDED
       || state == actionlib::SimpleClientGoalState::RECALLED
       || state == actionlib::SimpleClientGoalState::PREEMPTED) {
+    //When step action is finished under control, client is done but action not finished.
     state_ = ActionState::DONE;
-  } else {
+  } else if (state_ == ActionState::IDLE && state == actionlib::SimpleClientGoalState::ABORTED) {
+    // When aborted during idle, no error triggered. It's expected behavior leading to end.
+    setState(ActionState::DONE);
+  }
+  else {
+    // Everything else triggers an error
     setState(ActionState::ERROR);
   }
   if (doneCallback_)
