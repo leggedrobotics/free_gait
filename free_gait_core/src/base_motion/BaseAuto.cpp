@@ -9,6 +9,10 @@
 #include "free_gait_core/base_motion/BaseAuto.hpp"
 #include "free_gait_core/leg_motion/EndEffectorMotionBase.hpp"
 #include "free_gait_core/leg_motion/Footstep.hpp"
+#include "free_gait_core/step/StepCompleter.hpp"
+#include "free_gait_core/step/StepComputer.hpp"
+#include "free_gait_core/executor/Executor.hpp"
+#include "free_gait_core/executor/BatchExecutor.hpp"
 
 #include <math.h>
 
@@ -75,6 +79,16 @@ void BaseAuto::updateStartPose(const Pose& startPose)
 
 bool BaseAuto::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
 {
+
+  AdapterBase previewAdapter_;
+  //  StepCompleter previewCompleter;
+//  StepComputer previewComputer;
+
+//  Executor previewExecutor;
+//  BatchExecutor batchExecutor;
+
+
+
   // TODO This shouldn't be necessary if we could create copies of the adapter.
   adapter.createCopyOfState();
 

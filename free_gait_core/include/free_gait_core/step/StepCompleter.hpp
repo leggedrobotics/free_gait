@@ -22,7 +22,7 @@ namespace free_gait {
 class StepCompleter
 {
  public:
-  StepCompleter(const StepParameters& parameters, const AdapterBase& adapter);
+  StepCompleter(const StepParameters& parameters, const AdapterBase& adapter, const AdapterBase& previewAdapter);
   virtual ~StepCompleter();
   bool complete(const State& state, const StepQueue& queue, Step& step);
   bool complete(const State& state, const Step& step, EndEffectorMotionBase& endEffectorMotion) const;
@@ -39,6 +39,7 @@ class StepCompleter
  private:
   const StepParameters& parameters_;
   const AdapterBase& adapter_;
+  const AdapterBase& previewAdapter_;
 };
 
 } /* namespace */

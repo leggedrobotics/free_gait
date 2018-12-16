@@ -11,9 +11,11 @@
 
 namespace free_gait {
 
-StepCompleter::StepCompleter(const StepParameters& parameters, const AdapterBase& adapter)
+StepCompleter::StepCompleter(const StepParameters& parameters, const AdapterBase& adapter,
+                             const AdapterBase& previewAdapter)
     : parameters_(parameters),
-      adapter_(adapter)
+      adapter_(adapter),
+      previewAdapter_(adapter)
 {
 }
 
@@ -55,7 +57,9 @@ bool StepCompleter::complete(const State& state, const StepQueue& queue, Step& s
   if (step.baseMotion_) {
     switch (step.baseMotion_->getType()) {
       case BaseMotionBase::Type::Auto:
-        setParameters(dynamic_cast<BaseAuto&>(*step.baseMotion_));
+        BaseAuto& baseAuto = dynamic_cast<BaseAuto&>(*step.baseMotion_);
+        baseAuto.setPreviewAdapter(previewAdapter_);
+        setParameters(baseAuto);
         break;
       case BaseMotionBase::Type::Target:
         setParameters(dynamic_cast<BaseTarget&>(*step.baseMotion_));

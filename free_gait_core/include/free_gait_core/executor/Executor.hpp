@@ -85,7 +85,6 @@ class Executor
   void setPreemptionType(const PreemptionType& type);
 
  private:
-  bool completeCurrentStep(bool multiThreaded = false);
   bool resetStateWithRobot();
   bool updateStateWithMeasurements();
   bool writeIgnoreContact();
