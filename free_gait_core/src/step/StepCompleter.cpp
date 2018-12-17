@@ -211,7 +211,7 @@ void StepCompleter::setParameters(Footstep& footstep) const
 
   footstep.liftOffSpeed_ = parameters.liftOffSpeed;
   footstep.touchdownSpeed_ = parameters.touchdownSpeed;
-  footstep.minimumDuration_ = parameters.minimumDuration_;
+  footstep.minimumDuration_ = parameters.minimumDuration;
 }
 
 void StepCompleter::setParameters(EndEffectorTarget& endEffectorTarget) const
@@ -221,7 +221,7 @@ void StepCompleter::setParameters(EndEffectorTarget& endEffectorTarget) const
   if (endEffectorTarget.averageVelocity_ == 0.0)
     endEffectorTarget.averageVelocity_ = parameters.averageVelocity;
 
-  endEffectorTarget.minimumDuration_ = parameters.minimumDuration_;
+  endEffectorTarget.minimumDuration_ = parameters.minimumDuration;
 }
 
 void StepCompleter::setParameters(LegMode& legMode) const
