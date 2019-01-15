@@ -39,9 +39,12 @@ class FreeGaitActionServer
 //  void setAdapter(std::shared_ptr<AdapterBase> adapter);
   void start();
   void update();
+  void block();
+  void unblock();
   void shutdown();
 
   bool isActive();
+  bool isBlocked();
   void goalCallback();
   void preemptCallback();
   void publishFeedback();
@@ -64,6 +67,9 @@ class FreeGaitActionServer
 
   //! True if in process of preempting.
   bool isPreempting_;
+
+  //! True if server is blocked (will not accept any goals)
+  bool isBlocked_;
 
   //! Number of steps of the current goal.
   size_t nStepsInCurrentGoal_;

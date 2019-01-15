@@ -135,7 +135,7 @@ class ActionLoader:
                 result.status = result.RESULT_FAILED
                 rospy.logerr('An error occurred while loading the action.')
                 return result
-
+            
             self.action.register_callback(self._action_feedback_callback, self._action_done_callback)
             self.action.wait_for_state([ActionState.ERROR, ActionState.ACTIVE, ActionState.IDLE, ActionState.DONE])
 
@@ -213,7 +213,7 @@ class ActionLoader:
     def reset(self):
         self.execute_steps_relay = None
         try:
-            if self.action:
+            if (self.action and self.action.state != ActionState.DONE):
                 self.action.stop()
             del self.action
             self.action = None
@@ -239,5 +239,5 @@ if __name__ == '__main__':
             updateRate.sleep()
 
     except rospy.ROSInterruptException:
-        # rospy.logerr(traceback.print_exc())
+        rospy.logerr(traceback.print_exc())
         pass
