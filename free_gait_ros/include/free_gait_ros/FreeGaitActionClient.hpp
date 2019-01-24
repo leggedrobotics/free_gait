@@ -10,6 +10,7 @@
 // Free Gait
 #include <free_gait_core/free_gait_core.hpp>
 #include <free_gait_msgs/ExecuteStepsAction.h>
+#include <free_gait_msgs/ExecuteActionFeedback.h>
 
 // ROS
 #include <actionlib/client/simple_action_client.h>
@@ -26,7 +27,7 @@ class FreeGaitActionClient
  public:
   enum ActionState
   {
-    ERROR,
+    ERROR = -1,
     UNINITIALIZED,
     INITIALIZED,
     PENDING,
@@ -45,6 +46,7 @@ class FreeGaitActionClient
   void sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal);
   void sendGoal(const free_gait_msgs::ExecuteStepsGoal& goal, const bool usePreview);
   void waitForResult(const double timeout = 1e6);  // TODO
+  bool toIdle();
   const ActionState& getState();
 
  private:
@@ -52,6 +54,7 @@ class FreeGaitActionClient
   void feedbackCallback(const free_gait_msgs::ExecuteStepsFeedbackConstPtr& feedback);
   void doneCallback(const actionlib::SimpleClientGoalState& state,
                     const free_gait_msgs::ExecuteStepsResultConstPtr& result);
+  void setState(const ActionState state);
 
   ros::NodeHandle& nodeHandle_;
   std::function<void()> activeCallback_;
@@ -60,6 +63,7 @@ class FreeGaitActionClient
                      const free_gait_msgs::ExecuteStepsResult&)> doneCallback_;
   std::unique_ptr<actionlib::SimpleActionClient<free_gait_msgs::ExecuteStepsAction>> client_;
   ros::Publisher previewPublisher_;
+  ros::Publisher statePublisher_;
   ActionState state_;
 };
 

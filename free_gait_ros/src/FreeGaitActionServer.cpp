@@ -24,7 +24,9 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
       executor_(executor),
       adapter_(adapter),
       server_(nodeHandle_, name_, false),
+      isInitializingNewGoal_(false),
       isPreempting_(false),
+      isBlocked_(false),
       nStepsInCurrentGoal_(0)
 {
 }
@@ -58,13 +60,15 @@ void FreeGaitActionServer::start()
 
 void FreeGaitActionServer::update()
 {
-  if (!server_.isActive()) return;
+  if (!server_.isActive() || isBlocked_ || isInitializingNewGoal_) return;
   Executor::Lock lock(executor_.getMutex());
   bool stepQueueEmpty = executor_.getQueue().empty();
   lock.unlock();
   if (stepQueueEmpty) {
-    // Succeeded.
-    if (isPreempting_) {
+    if (nStepsInCurrentGoal_ == 0 ) {
+      //Server is awaiting, action is idle
+    }
+    else if (isPreempting_) {
       // Preempted.
       setPreempted();
     } else {
@@ -78,10 +82,25 @@ void FreeGaitActionServer::update()
   }
 }
 
+void FreeGaitActionServer::block()
+{
+  isBlocked_ = true;
+}
+
+void FreeGaitActionServer::unblock()
+{
+  isBlocked_ = false;
+}
+
 void FreeGaitActionServer::shutdown()
 {
   ROS_INFO("Shutting down Free Gait Action Server.");
   server_.shutdown();
+}
+
+bool FreeGaitActionServer::isBlocked()
+{
+  return isBlocked_;
 }
 
 bool FreeGaitActionServer::isActive()
@@ -92,9 +111,19 @@ bool FreeGaitActionServer::isActive()
 void FreeGaitActionServer::goalCallback()
 {
   ROS_INFO("Received goal for StepAction.");
-//  if (server_.isActive()) server_.setRejected();
+  if (isBlocked_) {
+    ROS_WARN("StepAction server is blocked, goal will not be processed!");
+    return;
+  }
 
+  isInitializingNewGoal_ = true;
   const auto goal = server_.acceptNewGoal();
+
+  // If goal's steps are empty, set server to wait
+  if (goal->steps.empty()) {
+    ROS_INFO("Received goal is void. Server will wait for next goal.");
+  }
+
   std::vector<Step> steps;
   for (auto& stepMessage : goal->steps) {
     Step step;
@@ -134,11 +163,16 @@ void FreeGaitActionServer::goalCallback()
   nStepsInCurrentGoal_ = goal->steps.size();
   isPreempting_ = false;
   lock.unlock();
+  isInitializingNewGoal_ = false;
 }
 
 void FreeGaitActionServer::preemptCallback()
 {
   ROS_INFO("StepAction is requested to preempt.");
+  if (isBlocked_) {
+    ROS_WARN("StepAction cannot be preempted, server is blocked!");
+    return;
+  }
   Executor::Lock lock(executor_.getMutex());
   executor_.stop();
   isPreempting_ = true;
