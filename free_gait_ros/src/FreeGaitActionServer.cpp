@@ -24,6 +24,7 @@ FreeGaitActionServer::FreeGaitActionServer(ros::NodeHandle nodeHandle, const std
       executor_(executor),
       adapter_(adapter),
       server_(nodeHandle_, name_, false),
+      isInitializingNewGoal_(false),
       isPreempting_(false),
       isBlocked_(false),
       nStepsInCurrentGoal_(0)
@@ -59,7 +60,7 @@ void FreeGaitActionServer::start()
 
 void FreeGaitActionServer::update()
 {
-  if (!server_.isActive() || isBlocked_) return;
+  if (!server_.isActive() || isBlocked_ || isInitializingNewGoal_) return;
   Executor::Lock lock(executor_.getMutex());
   bool stepQueueEmpty = executor_.getQueue().empty();
   lock.unlock();
@@ -115,6 +116,7 @@ void FreeGaitActionServer::goalCallback()
     return;
   }
 
+  isInitializingNewGoal_ = true;
   const auto goal = server_.acceptNewGoal();
 
   // If goal's steps are empty, set server to wait
@@ -161,6 +163,7 @@ void FreeGaitActionServer::goalCallback()
   nStepsInCurrentGoal_ = goal->steps.size();
   isPreempting_ = false;
   lock.unlock();
+  isInitializingNewGoal_ = false;
 }
 
 void FreeGaitActionServer::preemptCallback()

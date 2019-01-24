@@ -23,6 +23,7 @@
 // STD
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace free_gait {
 
@@ -65,6 +66,8 @@ class FreeGaitActionServer
   actionlib::SimpleActionServer<free_gait_msgs::ExecuteStepsAction> server_;
   free_gait_msgs::ExecuteStepsActionResult result_;
 
+  //! True if in process of initializing a new goal.
+  std::atomic<bool> isInitializingNewGoal_;
   //! True if in process of preempting.
   bool isPreempting_;
 
