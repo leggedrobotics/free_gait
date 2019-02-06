@@ -98,6 +98,7 @@ class Executor
 
   Mutex mutex_;
   bool isInitialized_;
+  bool isReset_;
   bool isPausing_;
   PreemptionType preemptionType_;
   StepQueue queue_;

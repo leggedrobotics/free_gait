@@ -19,6 +19,7 @@ Executor::Executor(StepCompleter& completer,
       adapter_(adapter),
       state_(state),
       isInitialized_(false),
+      isReset_(false),
       isPausing_(false),
       preemptionType_(PreemptionType::PREEMPT_STEP),
       queue_(),
@@ -34,7 +35,6 @@ bool Executor::initialize()
 {
   computer_.initialize();
   state_.initialize(adapter_.getLimbs(), adapter_.getBranches());
-  reset();
   return isInitialized_ = true;
 }
 
@@ -51,6 +51,10 @@ Executor::Mutex& Executor::getMutex()
 bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
 {
   if (!isInitialized_) return false;
+  if (!isReset_) {
+    reset();
+    isReset_ = true;
+  }
   if (!skipStateMeasurmentUpdate) updateStateWithMeasurements();
   bool executionStatus = adapter_.isExecutionOk() && !isPausing_;
 
