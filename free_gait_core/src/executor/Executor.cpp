@@ -35,6 +35,7 @@ bool Executor::initialize()
 {
   computer_.initialize();
   state_.initialize(adapter_.getLimbs(), adapter_.getBranches());
+  isReset_ = false;
   return isInitialized_ = true;
 }
 
