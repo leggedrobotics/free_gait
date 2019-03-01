@@ -24,6 +24,7 @@ class BaseTarget : public BaseMotionBase
   typedef typename curves::Time Time;
 
   BaseTarget();
+  BaseTarget(const Pose& targetPose);
   virtual ~BaseTarget();
 
   /*!

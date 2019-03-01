@@ -26,6 +26,20 @@ BaseTarget::BaseTarget()
 {
 }
 
+BaseTarget::BaseTarget(const Pose& targetPose)
+    : BaseMotionBase(BaseMotionBase::Type::Target),
+      ignoreTimingOfLegMotion_(false),
+      averageLinearVelocity_(0.0),
+      averageAngularVelocity_(0.0),
+      minimumDuration_(0.0),
+      duration_(0.0),
+      isComputed_(false),
+      controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, false},
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
+{
+  target_ = targetPose;
+}
+
 BaseTarget::~BaseTarget()
 {
 }
