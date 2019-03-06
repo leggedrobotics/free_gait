@@ -43,6 +43,12 @@ class BaseTarget : public BaseMotionBase
    */
   virtual void updateStartPose(const Pose& startPose);
 
+  /*!
+   * Set the frame ID for base target pose.
+   * @param frameId target frame ID.
+   */
+  void setFrameId(const std::string& frameId);
+
   bool prepareComputation(const State& state, const Step& step, const StepQueue& queue,
                           const AdapterBase& adapter);
   bool needsComputation() const;
@@ -67,6 +73,12 @@ class BaseTarget : public BaseMotionBase
    * @return the pose of the base motion.
    */
   Pose evaluatePose(const double time) const;
+
+  /*!
+   * Get target pose.
+   * @return target pose.
+   */
+  const Pose getTarget() const;
 
   /*!
    * Evaluate the base twist at a given time.

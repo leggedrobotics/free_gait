@@ -55,10 +55,20 @@ const ControlSetup BaseTarget::getControlSetup() const
   return controlSetup_;
 }
 
+const Pose BaseTarget::getTarget() const
+{
+  return target_;
+}
+
 void BaseTarget::updateStartPose(const Pose& startPose)
 {
   isComputed_ = false;
   start_ = startPose;
+}
+
+void BaseTarget::setFrameId(const std::string& frameId)
+{
+  frameId_ = frameId;
 }
 
 bool BaseTarget::prepareComputation(const State& state, const Step& step, const StepQueue& queue, const AdapterBase& adapter)
