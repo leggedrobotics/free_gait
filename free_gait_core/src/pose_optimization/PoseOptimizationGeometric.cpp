@@ -18,12 +18,19 @@ using namespace Eigen;
 namespace free_gait {
 
 PoseOptimizationGeometric::PoseOptimizationGeometric(const AdapterBase& adapter)
-    : PoseOptimizationBase(adapter)
+    : PoseOptimizationBase(adapter),
+    hasNominalRotation_(false)
 {
 }
 
 PoseOptimizationGeometric::~PoseOptimizationGeometric()
 {
+}
+
+void PoseOptimizationGeometric::setNominalRotation(const RotationQuaternion& rotation)
+{
+  nominalRotation_ = rotation;
+  hasNominalRotation_ = true;
 }
 
 void PoseOptimizationGeometric::setStanceForOrientation(const Stance& stance)
@@ -82,11 +89,20 @@ bool PoseOptimizationGeometric::optimize(Pose& pose)
   RotationQuaternion desiredHeading;
   desiredHeading.setFromVectors(Vector::UnitX().toImplementation(), desiredHeadingDirectionInWorld.vector());
 
-  // Apply roll/pitch adaptation factor (~0.7).
-  const RotationQuaternion yawRotation(RotationVector(RotationVector(pose.getRotation()).vector().cwiseProduct(Eigen::Vector3d::UnitZ())));
-  const RotationQuaternion rollPitchRotation(RotationVector(0.7 * RotationVector(yawRotation.inverted() * pose.getRotation()).vector()));
-//  pose.getRotation() = yawRotation * rollPitchRotation; // Alternative.
-  pose.getRotation() = desiredHeading * rollPitchRotation;
+
+  if(hasNominalRotation_){
+    //MELO_WARN_STREAM("pose before: " << pose.getRotation());
+    pose.getRotation() = nominalRotation_;
+/*     const RotationQuaternion rotationDifference = pose.getRotation()*nominalRotation_.conjugated();
+    pose.getRotation() = RotationQuaternion(0.7 * rotationDifference.vector()) * pose.getRotation(); */
+   // MELO_WARN_STREAM("pose after: " << pose.getRotation());
+  } else{
+    // Apply roll/pitch adaptation factor (~0.7).
+    const RotationQuaternion yawRotation(RotationVector(RotationVector(pose.getRotation()).vector().cwiseProduct(Eigen::Vector3d::UnitZ())));
+    const RotationQuaternion rollPitchRotation(RotationVector(0.7 * RotationVector(yawRotation.inverted() * pose.getRotation()).vector()));
+  //  pose.getRotation() = yawRotation * rollPitchRotation; // Alternative.
+    pose.getRotation() = desiredHeading * rollPitchRotation;
+  }
 
   return true;
 }

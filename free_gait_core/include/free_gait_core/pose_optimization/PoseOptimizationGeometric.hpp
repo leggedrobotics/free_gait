@@ -34,8 +34,12 @@ class PoseOptimizationGeometric : public PoseOptimizationBase
    */
   bool optimize(Pose& pose);
 
+  void setNominalRotation(const RotationQuaternion& rotation);
+
  private:
   Stance stanceForOrientation_;
+  RotationQuaternion nominalRotation_;
+  bool hasNominalRotation_;
 };
 
 } /* namespace loco */

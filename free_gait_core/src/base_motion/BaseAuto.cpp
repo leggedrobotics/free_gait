@@ -25,7 +25,8 @@ BaseAuto::BaseAuto()
       isComputed_(false),
       tolerateFailingOptimization_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
-                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} }
+                      {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} },
+      hasNominalRotation_(false)
 {
 }
 
@@ -51,7 +52,9 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     footholdsOfNextLegMotion_(other.footholdsOfNextLegMotion_),
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
     isComputed_(other.isComputed_),
-    tolerateFailingOptimization_(other.tolerateFailingOptimization_)
+    tolerateFailingOptimization_(other.tolerateFailingOptimization_),
+    nominalRotation_(other.nominalRotation_),
+    hasNominalRotation_(other.hasNominalRotation_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -119,6 +122,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   poseOptimizationGeometric_->setNominalStance(nominalStanceInBaseFrame_);
   poseOptimizationGeometric_->setSupportRegion(supportRegion);
   poseOptimizationGeometric_->setStanceForOrientation(footholdsForOrientation_);
+  if(hasNominalRotation_)poseOptimizationGeometric_->setNominalRotation(nominalRotation_);
 
   poseOptimizationQP_.reset(new PoseOptimizationQP(adapter));
   poseOptimizationQP_->setCurrentState(state);
@@ -261,6 +265,12 @@ void BaseAuto::setSupportMargin(double supportMargin)
 void BaseAuto::setTolerateFailingOptimization(const bool tolerateFailingOptimization)
 {
   tolerateFailingOptimization_ = tolerateFailingOptimization;
+}
+
+void BaseAuto::setNominalRotation(const RotationQuaternion& rotation)
+{
+  nominalRotation_ = rotation;
+  hasNominalRotation_ = true;
 }
 
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
@@ -424,6 +434,10 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
   out << "Start Orientation: " << baseAuto.start_.getRotation() << std::endl;
   out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.start_.getRotation()).getUnique().vector().transpose() << std::endl;
   out << "Target Position: " << baseAuto.target_.getPosition() << std::endl;
+  if(baseAuto.hasNominalRotation_){
+    out << "Nominal rotation: " << baseAuto.nominalRotation_ << std::endl;
+    out << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.nominalRotation_).getUnique().vector().transpose() << std::endl;
+  } 
   out << "Target Orientation: " << baseAuto.target_.getRotation() << std::endl;
   out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.target_.getRotation()).getUnique().vector().transpose() << std::endl;
   out << "Footholds in support: ";

@@ -21,3 +21,10 @@ float64 average_angular_velocity
 # Margin for the support polygon [m].
 # If 0, default is used.
 float64 support_margin
+
+# Whether a nominal base rotation has 
+# been specified
+bool has_nominal_rotation
+
+# Nominal Rotation for base
+geometry_msgs/Quaternion nominal_rotation
