@@ -296,10 +296,14 @@ class LaunchAction(ActionBase):
             rospy.logerr(traceback.print_exc())
             self.set_state(ActionState.ERROR)
             return
-
-        self.set_state(ActionState.ACTIVE)
+        
+        """Subscribe to action state (param in launchfile), if available, to monitor the action state in a different node."""
+        action_state_topic = rospy.get_param('/free_gait/action_state_topic', '')
+        self.action_state_subscriber = rospy.Subscriber(action_state_topic, free_gait.free_gait_msgs.msg.ExecuteActionFeedback, self._feedback_callback)
+        self.set_state(ActionState.IDLE)
 
     def stop(self):
+        self.action_state_subscriber.unregister()
         self.launch.shutdown()
         os.unlink(self.temp_launch_file.name)
         ActionBase.stop(self)
@@ -310,7 +314,7 @@ class LaunchAction(ActionBase):
             preview_argument += 'true'
         else:
             preview_argument += 'false'
-        preview_argument += '"/>'
+        preview_argument += '"/>'    
         new_text = launch_text.replace('<arg name="use_preview" default="true"/>', preview_argument, 1)
         new_text = new_text.replace('<arg name="use_preview" default="false"/>', preview_argument, 1)
         return new_text
@@ -320,7 +324,19 @@ class LaunchAction(ActionBase):
         if exit_code == 0:
             self.set_state(ActionState.DONE)
         else:
-            self.set_state(ActionState.ERROR)
+            self.set_state(ActionState.ERROR)     
+
+    def _feedback_callback(self, feedback):
+        if feedback.status == ActionState.INITIALIZED:
+            rospy.loginfo("Launch action client initialized")
+        elif feedback.status == ActionState.ERROR:
+            self.set_state(feedback.status)
+            self.stop()
+        elif feedback.status == ActionState.DONE:
+            self.stop()
+        else:
+            self.set_state(feedback.status) 
+
 
 
 class TriggerOnFeedback:

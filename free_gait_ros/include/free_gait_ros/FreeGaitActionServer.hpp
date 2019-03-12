@@ -23,6 +23,7 @@
 // STD
 #include <string>
 #include <memory>
+#include <atomic>
 
 namespace free_gait {
 
@@ -39,9 +40,12 @@ class FreeGaitActionServer
 //  void setAdapter(std::shared_ptr<AdapterBase> adapter);
   void start();
   void update();
+  void block();
+  void unblock();
   void shutdown();
 
   bool isActive();
+  bool isBlocked();
   void goalCallback();
   void preemptCallback();
   void publishFeedback();
@@ -62,8 +66,13 @@ class FreeGaitActionServer
   actionlib::SimpleActionServer<free_gait_msgs::ExecuteStepsAction> server_;
   free_gait_msgs::ExecuteStepsActionResult result_;
 
+  //! True if in process of initializing a new goal.
+  std::atomic<bool> isInitializingNewGoal_;
   //! True if in process of preempting.
   bool isPreempting_;
+
+  //! True if server is blocked (will not accept any goals)
+  bool isBlocked_;
 
   //! Number of steps of the current goal.
   size_t nStepsInCurrentGoal_;

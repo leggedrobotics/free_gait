@@ -12,6 +12,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>free_gait_msgs</depend>
+  <depend>qtbase5-dev</depend>
   <depend>roscpp</depend>
   <depend>rqt_gui</depend>
   <depend>rqt_gui_cpp</depend>
