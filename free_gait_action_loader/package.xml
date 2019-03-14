@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package format="2">
   <name>free_gait_action_loader</name>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <description>Dynamic loading of Free Gait actions.</description>
   <maintainer email="pfankhauser@anybotics.com">Peter Fankhauser</maintainer>
   <author email="pfankhauser@anybotics.com">Peter Fankhauser</author>
