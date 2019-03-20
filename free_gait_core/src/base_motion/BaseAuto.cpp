@@ -26,7 +26,8 @@ BaseAuto::BaseAuto()
       tolerateFailingOptimization_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} },
-      hasNominalRotation_(false)
+      hasNominalRotation_(false),
+      hasVisibleBodyPlanarPosition_(false)
 {
 }
 
@@ -170,6 +171,19 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   return isComputed_ = true;
 }
 
+void BaseAuto::setBodyPlanarPositionForVisualization(const Position2& planarPosition) {
+  visibleBodyPlanarPosition_ = planarPosition;
+  hasVisibleBodyPlanarPosition_ = true;
+}
+
+Position2 BaseAuto::getVisiblePlanarPosition() const{
+  return visibleBodyPlanarPosition_;
+}
+
+bool BaseAuto::hasVisibleBodyPlanarPosition() const{
+  return hasVisibleBodyPlanarPosition_;
+}
+
 bool BaseAuto::needsComputation() const
 {
   return false;
@@ -271,6 +285,10 @@ void BaseAuto::setNominalRotation(const RotationQuaternion& rotation)
 {
   nominalRotation_ = rotation;
   hasNominalRotation_ = true;
+}
+
+RotationQuaternion BaseAuto::getNominalRotation() const{
+  return nominalRotation_;
 }
 
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
