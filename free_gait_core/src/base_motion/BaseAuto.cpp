@@ -55,7 +55,9 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     isComputed_(other.isComputed_),
     tolerateFailingOptimization_(other.tolerateFailingOptimization_),
     nominalRotation_(other.nominalRotation_),
-    hasNominalRotation_(other.hasNominalRotation_)
+    hasNominalRotation_(other.hasNominalRotation_),
+    visibleBodyPlanarPosition_(other.visibleBodyPlanarPosition_),
+    hasVisibleBodyPlanarPosition_(other.hasVisibleBodyPlanarPosition_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -152,6 +154,10 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
     std::cerr << "Printing optimization problem:" << std::endl;
     std::cerr << "Stance:\n" << footholdsToReach_;
+    if(hasNominalRotation_){
+      std::cerr << "Nominal rotation: " << nominalRotation_ << std::endl;
+      std::cerr << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(nominalRotation_).getUnique().vector().transpose() << std::endl;
+    } 
     std::cerr << "Support stance:\n" << footholdsInSupport_;
     std::cerr << "Support margin: " << supportMargin_ << std::endl;
     std::cerr << "Nominal stance (in base frame):\n" << nominalStanceInBaseFrame_;
@@ -182,6 +188,16 @@ Position2 BaseAuto::getVisiblePlanarPosition() const{
 
 bool BaseAuto::hasVisibleBodyPlanarPosition() const{
   return hasVisibleBodyPlanarPosition_;
+}
+
+void BaseAuto::setNominalRotation(const RotationQuaternion& rotation)
+{
+  nominalRotation_ = rotation;
+  hasNominalRotation_ = true;
+}
+
+RotationQuaternion BaseAuto::getNominalRotation() const{
+  return nominalRotation_;
 }
 
 bool BaseAuto::needsComputation() const
@@ -279,16 +295,6 @@ void BaseAuto::setSupportMargin(double supportMargin)
 void BaseAuto::setTolerateFailingOptimization(const bool tolerateFailingOptimization)
 {
   tolerateFailingOptimization_ = tolerateFailingOptimization;
-}
-
-void BaseAuto::setNominalRotation(const RotationQuaternion& rotation)
-{
-  nominalRotation_ = rotation;
-  hasNominalRotation_ = true;
-}
-
-RotationQuaternion BaseAuto::getNominalRotation() const{
-  return nominalRotation_;
 }
 
 bool BaseAuto::computeHeight(const State& state, const StepQueue& queue, const AdapterBase& adapter)
