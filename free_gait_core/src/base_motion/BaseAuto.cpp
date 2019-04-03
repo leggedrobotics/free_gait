@@ -26,8 +26,7 @@ BaseAuto::BaseAuto()
       tolerateFailingOptimization_(false),
       controlSetup_ { {ControlLevel::Position, true}, {ControlLevel::Velocity, true},
                       {ControlLevel::Acceleration, false}, {ControlLevel::Effort, false} },
-      hasNominalRotation_(false),
-      hasVisibleBodyPlanarPosition_(false)
+      hasNominalTargetPose_(false)
 {
 }
 
@@ -54,10 +53,8 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
     nominalStanceInBaseFrame_(other.nominalStanceInBaseFrame_),
     isComputed_(other.isComputed_),
     tolerateFailingOptimization_(other.tolerateFailingOptimization_),
-    nominalRotation_(other.nominalRotation_),
-    hasNominalRotation_(other.hasNominalRotation_),
-    visibleBodyPlanarPosition_(other.visibleBodyPlanarPosition_),
-    hasVisibleBodyPlanarPosition_(other.hasVisibleBodyPlanarPosition_)
+    nominalTargetPose_(other.nominalTargetPose_),
+    hasNominalTargetPose_(other.hasNominalTargetPose_)
 {
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
@@ -125,7 +122,7 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   poseOptimizationGeometric_->setNominalStance(nominalStanceInBaseFrame_);
   poseOptimizationGeometric_->setSupportRegion(supportRegion);
   poseOptimizationGeometric_->setStanceForOrientation(footholdsForOrientation_);
-  if(hasNominalRotation_)poseOptimizationGeometric_->setNominalRotation(nominalRotation_);
+  if(hasNominalTargetPose_)poseOptimizationGeometric_->setNominalRotation(nominalTargetPose_.getRotation());
 
   poseOptimizationQP_.reset(new PoseOptimizationQP(adapter));
   poseOptimizationQP_->setCurrentState(state);
@@ -154,9 +151,10 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
     std::cerr << "BaseAuto::compute: Could not compute pose optimization." << std::endl;
     std::cerr << "Printing optimization problem:" << std::endl;
     std::cerr << "Stance:\n" << footholdsToReach_;
-    if(hasNominalRotation_){
-      std::cerr << "Nominal rotation: " << nominalRotation_ << std::endl;
-      std::cerr << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(nominalRotation_).getUnique().vector().transpose() << std::endl;
+    if(hasNominalTargetPose_){
+      std::cerr << "Nominal position: " << nominalTargetPose_.getPosition() << std::endl;
+      std::cerr << "Nominal rotation: " << nominalTargetPose_.getRotation() << std::endl;
+      std::cerr << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(nominalTargetPose_.getRotation()).getUnique().vector().transpose() << std::endl;
     } 
     std::cerr << "Support stance:\n" << footholdsInSupport_;
     std::cerr << "Support margin: " << supportMargin_ << std::endl;
@@ -177,27 +175,17 @@ bool BaseAuto::prepareComputation(const State& state, const Step& step, const St
   return isComputed_ = true;
 }
 
-void BaseAuto::setBodyPlanarPositionForVisualization(const Position2& planarPosition) {
-  visibleBodyPlanarPosition_ = planarPosition;
-  hasVisibleBodyPlanarPosition_ = true;
+void BaseAuto::setNominalTargetPose(const Pose& nominalTargetPose) {
+  nominalTargetPose_ = nominalTargetPose;
+  hasNominalTargetPose_ = true;
 }
 
-Position2 BaseAuto::getVisiblePlanarPosition() const{
-  return visibleBodyPlanarPosition_;
+Pose BaseAuto::getNominalTargetPose() const{
+  return nominalTargetPose_;
 }
 
-bool BaseAuto::hasVisibleBodyPlanarPosition() const{
-  return hasVisibleBodyPlanarPosition_;
-}
-
-void BaseAuto::setNominalRotation(const RotationQuaternion& rotation)
-{
-  nominalRotation_ = rotation;
-  hasNominalRotation_ = true;
-}
-
-RotationQuaternion BaseAuto::getNominalRotation() const{
-  return nominalRotation_;
+bool BaseAuto::hasNominalTargetPose() const{
+  return hasNominalTargetPose_;
 }
 
 bool BaseAuto::needsComputation() const
@@ -458,9 +446,10 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
   out << "Start Orientation: " << baseAuto.start_.getRotation() << std::endl;
   out << "Start Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.start_.getRotation()).getUnique().vector().transpose() << std::endl;
   out << "Target Position: " << baseAuto.target_.getPosition() << std::endl;
-  if(baseAuto.hasNominalRotation_){
-    out << "Nominal rotation: " << baseAuto.nominalRotation_ << std::endl;
-    out << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.nominalRotation_).getUnique().vector().transpose() << std::endl;
+  if(baseAuto.hasNominalTargetPose_){
+    out << "Nominal position: " << baseAuto.nominalTargetPose_.getPosition() << std::endl;
+    out << "Nominal rotation: " << baseAuto.nominalTargetPose_.getRotation() << std::endl;
+    out << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.nominalTargetPose_.getRotation()).getUnique().vector().transpose() << std::endl;
   } 
   out << "Target Orientation: " << baseAuto.target_.getRotation() << std::endl;
   out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.target_.getRotation()).getUnique().vector().transpose() << std::endl;

@@ -73,11 +73,10 @@ class BaseAuto : public BaseMotionBase
   double getSupportMargin() const;
   void setSupportMargin(double supportMargin);
   void setTolerateFailingOptimization(const bool tolerateFailingOptimization);
-  void setNominalRotation(const RotationQuaternion& rotation);
-  RotationQuaternion getNominalRotation() const;
-  void setBodyPlanarPositionForVisualization(const Position2& planarPosition);
-  Position2 getVisiblePlanarPosition() const;
-  bool hasVisibleBodyPlanarPosition() const;
+
+  void setNominalTargetPose(const Pose& nominalTargetPose);
+  Pose getNominalTargetPose() const;
+  bool hasNominalTargetPose() const;
 
   /*!
    * Evaluate the base pose at a given time.
@@ -140,10 +139,8 @@ class BaseAuto : public BaseMotionBase
 
   bool tolerateFailingOptimization_;
 
-  RotationQuaternion nominalRotation_;
-  Position2 visibleBodyPlanarPosition_;
-  bool hasNominalRotation_;
-  bool hasVisibleBodyPlanarPosition_;
+  Pose nominalTargetPose_;
+  bool hasNominalTargetPose_;
 
   //! Optimizers.
   std::unique_ptr<PoseOptimizationGeometric> poseOptimizationGeometric_;

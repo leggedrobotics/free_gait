@@ -341,11 +341,11 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::BaseAuto& message,
                                    BaseAuto& baseAuto)
 {
   baseAuto.height_.reset(new double(message.height));
-  if(message.has_nominal_rotation){
-    baseAuto.hasNominalRotation_ = message.has_nominal_rotation;
-    RotationQuaternion nominalRotation;
-    kindr_ros::convertFromRosGeometryMsg(message.nominal_rotation, nominalRotation);
-    baseAuto.nominalRotation_ = nominalRotation;
+  if(message.has_nominal_pose){
+    baseAuto.hasNominalTargetPose_ = message.has_nominal_pose;
+    Pose nominalTargetPose;
+    kindr_ros::convertFromRosGeometryMsg(message.nominal_pose, nominalTargetPose);
+    baseAuto.nominalTargetPose_ = nominalTargetPose;
   } 
   baseAuto.ignoreTimingOfLegMotion_ = message.ignore_timing_of_leg_motion;
   baseAuto.averageLinearVelocity_ = message.average_linear_velocity;
@@ -629,13 +629,13 @@ bool StepRosConverter::toMessage(const JointTrajectory& jointTrajectory, free_ga
 bool StepRosConverter::toMessage(const BaseAuto& baseAuto, free_gait_msgs::BaseAuto& message)
 {
   if (baseAuto.height_) message.height = *(baseAuto.height_);
-  if(baseAuto.hasNominalRotation_){
-    geometry_msgs::Quaternion nominal_rotation;
-    kindr_ros::convertToRosGeometryMsg(baseAuto.nominalRotation_, nominal_rotation);
-    message.has_nominal_rotation = baseAuto.hasNominalRotation_;
-    message.nominal_rotation = nominal_rotation;
+  if(baseAuto.hasNominalTargetPose_){
+    geometry_msgs::Pose nominal_pose;
+    kindr_ros::convertToRosGeometryMsg(baseAuto.nominalTargetPose_, nominal_pose);
+    message.has_nominal_pose = baseAuto.hasNominalTargetPose_;
+    message.nominal_pose = nominal_pose;
   } else {
-    message.has_nominal_rotation = false;
+    message.has_nominal_pose = false;
   }
   message.ignore_timing_of_leg_motion = baseAuto.ignoreTimingOfLegMotion_;
   message.average_linear_velocity = baseAuto.averageLinearVelocity_;

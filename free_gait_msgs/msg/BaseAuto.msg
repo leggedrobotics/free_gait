@@ -24,7 +24,7 @@ float64 support_margin
 
 # Whether a nominal base rotation has 
 # been specified
-bool has_nominal_rotation
+bool has_nominal_pose
 
-# Nominal Rotation for base
-geometry_msgs/Quaternion nominal_rotation
+# Nominal Pose for base
+geometry_msgs/Pose nominal_pose
