@@ -31,12 +31,12 @@ void ExecutorState::setState(size_t stepNumber, double stepPhase)
    stepPhase_ = stepPhase;
 }
 
-const size_t ExecutorState::stepNumber() const
+size_t ExecutorState::stepNumber() const
 {
   return stepNumber_;
 }
 
-const double ExecutorState::stepPhase() const
+double ExecutorState::stepPhase() const
 {
   return stepPhase_;
 }

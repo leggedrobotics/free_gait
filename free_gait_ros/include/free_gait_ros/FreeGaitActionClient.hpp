@@ -13,7 +13,10 @@
 #include <free_gait_msgs/ExecuteActionFeedback.h>
 
 // ROS
+#pragma GCC diagnostic push // Get rid of compiler warnings we can't fix.
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include <actionlib/client/simple_action_client.h>
+#pragma GCC diagnostic pop // Back to normal warning handling.
 #include <tf2_ros/transform_listener.h>
 
 // STD

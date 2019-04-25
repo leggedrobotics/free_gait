@@ -20,8 +20,8 @@ class ExecutorState
   virtual ~ExecutorState();
 
   void setState(size_t stepNumber, double stepPhase);
-  const size_t stepNumber() const;
-  const double stepPhase() const;
+  size_t stepNumber() const;
+  double stepPhase() const;
 
   friend bool operator>(const ExecutorState& stateA, const ExecutorState& stateB);
   friend bool operator<=(const ExecutorState& stateA, const ExecutorState& stateB);
