@@ -17,6 +17,7 @@ namespace free_gait {
 Footstep::Footstep(LimbEnum limb)
     : EndEffectorMotionBase(LegMotionBase::Type::Footstep, limb),
       profileHeight_(0.0),
+      profileType_("triangle"),
       averageVelocity_(0.0),
       liftOffSpeed_(0.0),
       touchdownSpeed_(0.0),
