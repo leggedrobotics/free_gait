@@ -81,14 +81,15 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 //    value += (footPosition - hipInWorld).vector().head(2).squaredNorm();
 //  }
 
-//  // Cost for deviation from initial position.
-//  Vector positionDifference(state.getPositionWorldToBaseInWorldFrame() - initialPose_.getPosition());
-//  value += 0.1 * positionDifference.vector().squaredNorm();
+ // Cost for deviation from initial height.
+ double positionDifference(pose.getPosition().z() - initialPose_.getPosition().z());
+ value += 0.1 * positionDifference * positionDifference;
 
   // Cost for deviation from initial orientation.
-//  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
-//  const double rotationDifferenceNorm = rotationDifference.norm();
-//  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
+  //RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
+  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().conjugated());
+  const double rotationDifferenceNorm = rotationDifference.norm();
+  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
 
   // Cost for deviation from horizontal pose.
 //  RotationVector rotationDifference(pose.getRotation());
