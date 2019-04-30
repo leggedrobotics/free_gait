@@ -104,6 +104,26 @@ void State::removeSurfaceNormal(const LimbEnum& limb)
   surfaceNormals_.erase(limb);
 }
 
+bool State::hasFrictionCoefficient(const LimbEnum& limb) const
+{
+  return (frictionCoefficients_.count(limb) > 0u);
+}
+
+double State::getFrictionCoefficient(const LimbEnum& limb) const
+{
+  return frictionCoefficients_.at(limb);
+}
+
+void State::setFrictionCoefficient(const LimbEnum& limb, double frictionCoefficient)
+{
+  frictionCoefficients_[limb] = frictionCoefficient;
+}
+
+void State::removeFrictionCoefficient(const LimbEnum& limb)
+{
+  frictionCoefficients_.erase(limb);
+}
+
 bool State::isIgnoreForPoseAdaptation(const LimbEnum& limb) const
 {
   return ignoreForPoseAdaptation_.at(limb);

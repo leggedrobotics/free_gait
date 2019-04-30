@@ -47,6 +47,11 @@ class State : public quadruped_model::QuadrupedState
   void setSurfaceNormal(const LimbEnum& limb, const Vector& surfaceNormal);
   void removeSurfaceNormal(const LimbEnum& limb);
 
+  bool hasFrictionCoefficient(const LimbEnum& limb) const;
+  double getFrictionCoefficient(const LimbEnum& limb) const;
+  void setFrictionCoefficient(const LimbEnum& limb, double frictionCoefficient);
+  void removeFrictionCoefficient(const LimbEnum& limb);
+
   bool isIgnoreForPoseAdaptation(const LimbEnum& limb) const;
   void setIgnoreForPoseAdaptation(const LimbEnum& limb, bool ignorePoseAdaptation);
 
@@ -96,6 +101,7 @@ class State : public quadruped_model::QuadrupedState
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreContact_;
   std::unordered_map<LimbEnum, bool, EnumClassHash> ignoreForPoseAdaptation_;
   std::unordered_map<LimbEnum, Vector, EnumClassHash> surfaceNormals_;
+  std::unordered_map<LimbEnum, double, EnumClassHash> frictionCoefficients_;
   bool robotExecutionStatus_;
   std::string stepId_; // empty if undefined.
 };

@@ -196,6 +196,10 @@ void StepCompleter::setParameters(LegMotionBase& legMotion) const
     if (*(legMotion.surfaceNormal_) == Vector::Zero())
       legMotion.surfaceNormal_.reset(nullptr);
   }
+  if (legMotion.frictionCoefficient_) {
+    if (*(legMotion.frictionCoefficient_) <= 0.0)
+      legMotion.frictionCoefficient_.reset(nullptr);
+  }
 }
 
 void StepCompleter::setParameters(Footstep& footstep) const

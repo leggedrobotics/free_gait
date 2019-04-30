@@ -94,6 +94,10 @@ class LegMotionBase
   const Vector& getSurfaceNormal() const;
   void setSurfaceNormal(const Vector& surfaceNormal);
 
+  bool hasFrictionCoefficient() const;
+  double getFrictionCoefficient() const;
+  void setFrictionCoefficient(double frictionCoefficient);
+
   virtual bool isIgnoreContact() const;
 
   virtual bool isIgnoreForPoseAdaptation() const;
@@ -119,6 +123,7 @@ class LegMotionBase
 
   LimbEnum limb_;
   std::unique_ptr<Vector> surfaceNormal_;
+  std::unique_ptr<double> frictionCoefficient_;
   bool hasContactAtStart_;
 
  private:

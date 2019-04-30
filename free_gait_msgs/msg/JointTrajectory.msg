@@ -10,6 +10,10 @@ trajectory_msgs/JointTrajectory trajectory
 # Leave empty of no contact is expected or not known.
 geometry_msgs/Vector3Stamped surface_normal
 
+# Target foothold friction coefficient.
+# Leave empty of no contact is expected or not known.
+float64 friction_coefficient
+
 # If contact of the end effector should be ignored.
 # Default is false.
 bool ignore_contact

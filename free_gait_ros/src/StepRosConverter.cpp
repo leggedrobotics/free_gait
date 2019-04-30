@@ -130,6 +130,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::Footstep& message,
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   footstep.surfaceNormal_.reset(new Vector(surfaceNormal));
 
+  // Friction coefficient.
+  footstep.frictionCoefficient_.reset(new double(message.friction_coefficient));
+
   // Ignore contact.
   footstep.ignoreContact_ = message.ignore_contact;
 
@@ -174,6 +177,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTarget& mess
   Vector surfaceNormal;
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   endEffectorTarget.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Friction coefficient.
+  endEffectorTarget.frictionCoefficient_.reset(new double(message.friction_coefficient));
 
   // Ignore contact.
   endEffectorTarget.ignoreContact_ = message.ignore_contact;
@@ -236,6 +242,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::EndEffectorTrajectory& 
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   endEffectorTrajectory.surfaceNormal_.reset(new Vector(surfaceNormal));
 
+  // Friction coefficient.
+  endEffectorTrajectory.frictionCoefficient_.reset(new double(message.friction_coefficient));
+
   // Ignore contact.
   endEffectorTrajectory.ignoreContact_ = message.ignore_contact;
 
@@ -263,6 +272,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::LegMode& message, LegMo
   Vector surfaceNormal;
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   legMode.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Friction coefficient.
+  legMode.frictionCoefficient_.reset(new double(message.friction_coefficient));
 
   // Ignore for pose adaptation.
   legMode.ignoreForPoseAdaptation_ = message.ignore_for_pose_adaptation;
@@ -330,6 +342,9 @@ bool StepRosConverter::fromMessage(const free_gait_msgs::JointTrajectory& messag
   Vector surfaceNormal;
   kindr_ros::convertFromRosGeometryMsg(message.surface_normal.vector, surfaceNormal);
   jointTrajectory.surfaceNormal_.reset(new Vector(surfaceNormal));
+
+  // Friction coefficient.
+  jointTrajectory.frictionCoefficient_.reset(new double(message.friction_coefficient));
 
   // Ignore contact.
   jointTrajectory.ignoreContact_ = message.ignore_contact;
@@ -531,6 +546,11 @@ bool StepRosConverter::toMessage(const Footstep& footstep, free_gait_msgs::Foots
     kindr_ros::convertToRosGeometryMsg(*(footstep.surfaceNormal_), message.surface_normal.vector);
   }
 
+  // Friction coefficient.
+  if (footstep.frictionCoefficient_) {
+    message.friction_coefficient = *(footstep.frictionCoefficient_);
+  }
+
   // Ignore contact.
   message.ignore_contact = footstep.ignoreContact_;
 
@@ -567,6 +587,11 @@ bool StepRosConverter::toMessage(const EndEffectorTrajectory& endEffectorTraject
     kindr_ros::convertToRosGeometryMsg(*(endEffectorTrajectory.surfaceNormal_), message.surface_normal.vector);
   }
 
+  // Friction coefficient.
+  if (endEffectorTrajectory.frictionCoefficient_) {
+    message.friction_coefficient = *(endEffectorTrajectory.frictionCoefficient_);
+  }
+
   // Ignore contact.
   message.ignore_contact = endEffectorTrajectory.ignoreContact_;
 
@@ -584,6 +609,11 @@ bool StepRosConverter::toMessage(const JointTrajectory& jointTrajectory, free_ga
   // Surface normal.
   if (jointTrajectory.surfaceNormal_) {
     kindr_ros::convertToRosGeometryMsg(*(jointTrajectory.surfaceNormal_), message.surface_normal.vector);
+  }
+
+  // Friction coefficient.
+  if (jointTrajectory.frictionCoefficient_) {
+    message.friction_coefficient = *(jointTrajectory.frictionCoefficient_);
   }
 
   // Trajectory.
