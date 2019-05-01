@@ -35,6 +35,9 @@ class AdapterRos
   bool subscribeToLocalization(const std::string& localizationTopic = "");
   void unsubscribeFromLocalization();
   const std::string getLocalizationMessageType();
+  bool subscribeToExternalOdometry(const std::string& extOdometryTopic = "");
+  void unsubscribeFromExternalOdometry();
+  const std::string getExternalOdometryMessageType();
   bool isReady() const ;
   bool updateAdapterWithState();
   const AdapterBase& getAdapter() const;

@@ -93,6 +93,33 @@ const std::string AdapterRos::getLocalizationMessageType()
   return adapterRosInterface_->getLocalizationMessageType();
 }
 
+bool AdapterRos::subscribeToExternalOdometry(const std::string& externalOdometryTopic)
+{
+  // Get topic name parameter.
+  std::string topic(externalOdometryTopic);
+  if (topic.empty()) {
+    if (nodeHandle_.hasParam("/free_gait/external_odometry_topic")) {
+      nodeHandle_.getParam("/free_gait/external_odometry_topic", topic);
+    } else {
+      ROS_ERROR("Did not find ROS parameter for external odometry topic '/free_gait/external_odometry_topic'.");
+      return false;
+    }
+  }
+
+  // Subscribe.
+  return adapterRosInterface_->subscribeToExternalOdometry(topic);
+}
+
+void AdapterRos::unsubscribeFromExternalOdometry()
+{
+  adapterRosInterface_->unsubscribeFromExternalOdometry();
+}
+
+const std::string AdapterRos::getExternalOdometryMessageType()
+{
+  return adapterRosInterface_->getExternalOdometryMessageType();
+}
+
 bool AdapterRos::isReady() const
 {
   return adapterRosInterface_->isReady();

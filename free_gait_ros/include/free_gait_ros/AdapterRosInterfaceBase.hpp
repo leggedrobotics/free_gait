@@ -32,6 +32,9 @@ class AdapterRosInterfaceBase
   virtual bool subscribeToLocalization(const std::string& localizationTopic) = 0;
   virtual void unsubscribeFromLocalization() = 0;
   virtual const std::string getLocalizationMessageType() = 0;
+  virtual bool subscribeToExternalOdometry(const std::string& externalOdometryTopic) = 0;
+  virtual void unsubscribeFromExternalOdometry() = 0;
+  virtual const std::string getExternalOdometryMessageType() = 0;
   virtual bool isReady() const = 0;
 
   //! Update adapter.

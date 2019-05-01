@@ -22,7 +22,8 @@ bool AdapterBase::frameIdExists(const std::string& frameId) const
 {
   if (frameId == getBaseFrameId()) return true;
   if (frameId == getWorldFrameId()) return true;
-  if (frameId == "map") return true;
+  if (frameId == "map") return true; //TODO(paco): not hardcode, make param-dependent
+  if (frameId == "local_map") return true; 
   return false;
 }
 
@@ -39,7 +40,7 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
       transformedPosition = position;
     } else if (outputFrameId == getWorldFrameId()) {
       transformedPosition = getPositionWorldToBaseInWorldFrame() + getOrientationBaseToWorld().rotate(position);
-    } else if (outputFrameId == "map") {
+    } else if (outputFrameId == "map" || outputFrameId == "local_map") {
       const Position positionInOdom = transformPosition(inputFrameId, getWorldFrameId(), position);
       transformedPosition = transformPosition(getWorldFrameId(), outputFrameId, positionInOdom);
     } else {
@@ -52,13 +53,13 @@ Position AdapterBase::transformPosition(const std::string& inputFrameId,
       transformedPosition = getOrientationBaseToWorld().inverseRotate(position - getPositionWorldToBaseInWorldFrame());
     } else if (outputFrameId == getWorldFrameId()) {
       transformedPosition = position;
-    } else if (outputFrameId == "map") {
+    } else if (outputFrameId == "map" || outputFrameId == "local_map") {
       transformedPosition = getFrameTransform(outputFrameId).inverseTransform(position);
     } else {
       frameError = true;
     }
 
-  } else if (inputFrameId == "map") {
+  } else if (inputFrameId == "map" || inputFrameId == "local_map") {
 
     if (outputFrameId == getBaseFrameId()) {
       const Position positionInOdom = transformPosition(inputFrameId, getWorldFrameId(), position);
@@ -91,14 +92,14 @@ RotationQuaternion AdapterBase::transformOrientation(const std::string& inputFra
 
     if (outputFrameId == getWorldFrameId()) {
       transformedOrientation = orientation;
-    } else if (outputFrameId == "map") {
+    } else if (outputFrameId == "map" || outputFrameId == "local_map") {
       const Pose transform(getFrameTransform(outputFrameId));
       transformedOrientation = transform.getRotation().inverted() * orientation;
     } else {
       frameError = true;
     }
 
-  } else if (inputFrameId == "map") {
+  } else if (inputFrameId == "map" || inputFrameId == "local_map") {
 
     if (outputFrameId == getWorldFrameId()) {
       const Pose transform(getFrameTransform(inputFrameId));
@@ -177,7 +178,7 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
       transformedVector = vector;
     } else if (outputFrameId == getWorldFrameId()) {
       transformedVector = getOrientationBaseToWorld().rotate(vector);
-    } else if (outputFrameId == "map") {
+    } else if (outputFrameId == "map" || outputFrameId == "local_map") {
       const Vector vectorInOdom = transformVector(inputFrameId, getWorldFrameId(), vector);
       transformedVector = transformVector(getWorldFrameId(), outputFrameId, vectorInOdom);
     } else {
@@ -190,13 +191,13 @@ Vector AdapterBase::transformVector(const std::string& inputFrameId,
       transformedVector = getOrientationBaseToWorld().inverseRotate(vector);
     } else if (outputFrameId == getWorldFrameId()) {
       transformedVector = vector;
-    } else if (outputFrameId == "map") {
+    } else if (outputFrameId == "map" || outputFrameId == "local_map") {
       transformedVector = getFrameTransform(outputFrameId).getRotation().rotate(vector);
     } else {
       frameError = true;
     }
 
-  } else if (inputFrameId == "map") {
+  } else if (inputFrameId == "map" || inputFrameId == "local_map") {
 
     if (outputFrameId == getBaseFrameId()) {
       const Vector vectorInOdom = transformVector(inputFrameId, getWorldFrameId(), vector);
