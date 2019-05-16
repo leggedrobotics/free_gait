@@ -86,6 +86,8 @@ class PoseOptimizationObjectiveFunction : public numopt_common::NonlinearObjecti
   grid_map::Polygon supportRegion_;
   Position centerOfMassInBaseFrame_;
   const double comWeight_; // w_2
+  double heightWeight_;
+  double rotationWeight_;
 };
 
 } /* namespace free_gait */

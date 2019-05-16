@@ -92,6 +92,8 @@ class BaseAuto : public BaseMotionBase
    */
   Twist evaluateTwist(const double time) const;
 
+  BaseAuto& operator=(BaseAuto&& other);
+
   friend std::ostream& operator << (std::ostream& out, const BaseAuto& baseAuto);
 
   friend class StepCompleter;

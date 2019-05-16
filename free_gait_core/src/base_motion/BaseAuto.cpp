@@ -59,6 +59,48 @@ BaseAuto::BaseAuto(const BaseAuto& other) :
   if (other.height_) height_.reset(new double(*(other.height_)));
 }
 
+// Move assignment operator.
+BaseAuto& BaseAuto::operator=(BaseAuto&& other)
+{
+
+   if (this != &other)
+   {
+      // Free the existing resource.
+      //delete[] _data;
+
+      // Copy the data pointer and its length from the
+      // source object.
+      //BaseMotionBase = other;
+      ignoreTimingOfLegMotion_ = other.ignoreTimingOfLegMotion_;
+      averageLinearVelocity_ = other.averageLinearVelocity_;
+      averageAngularVelocity_ = other.averageAngularVelocity_;
+      supportMargin_ = other.supportMargin_;
+      minimumDuration_ = other.minimumDuration_;
+      start_ = other.start_;
+      target_ = other.target_;
+      duration_ = other.duration_;
+      nominalPlanarStanceInBaseFrame_ = other.nominalPlanarStanceInBaseFrame_;
+      controlSetup_ = other.controlSetup_;
+      trajectory_ = other.trajectory_;
+      footholdsToReach_ = other.footholdsToReach_;
+      footholdsInSupport_ = other.footholdsInSupport_;
+      footholdsOfNextLegMotion_ = other.footholdsOfNextLegMotion_;
+      nominalStanceInBaseFrame_ = other.nominalStanceInBaseFrame_;
+      isComputed_ = other.isComputed_;
+      tolerateFailingOptimization_ = other.tolerateFailingOptimization_;
+      nominalTargetPose_ = other.nominalTargetPose_;
+      hasNominalTargetPose_ = other.hasNominalTargetPose_;
+
+      if (other.height_) height_.reset(new double(*(other.height_)));
+
+      // Release the data pointer from the source object so that
+      // the destructor does not free the memory multiple times.
+      //other._data = nullptr;
+      //other._length = 0;
+   }
+   return *this;
+}
+
 std::unique_ptr<BaseMotionBase> BaseAuto::clone() const
 {
   std::unique_ptr<BaseMotionBase> pointer(new BaseAuto(*this));
@@ -451,6 +493,7 @@ std::ostream& operator<<(std::ostream& out, const BaseAuto& baseAuto)
     out << "Nominal rotation: " << baseAuto.nominalTargetPose_.getRotation() << std::endl;
     out << "Nominal rotation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.nominalTargetPose_.getRotation()).getUnique().vector().transpose() << std::endl;
   } 
+  out << "Target position: " << baseAuto.target_.getPosition() << std::endl;
   out << "Target Orientation: " << baseAuto.target_.getRotation() << std::endl;
   out << "Target Orientation (yaw, pitch, roll) [deg]: " << 180.0 / M_PI * EulerAnglesZyx(baseAuto.target_.getRotation()).getUnique().vector().transpose() << std::endl;
   out << "Footholds in support: ";

@@ -14,7 +14,9 @@ namespace free_gait {
 
 PoseOptimizationObjectiveFunction::PoseOptimizationObjectiveFunction()
     : NonlinearObjectiveFunction(),
-      comWeight_(2.0)
+      comWeight_(2.0),
+      heightWeight_(10.0),
+      rotationWeight_(10.0)
 {
 
 }
@@ -83,13 +85,13 @@ bool PoseOptimizationObjectiveFunction::computeValue(numopt_common::Scalar& valu
 
  // Cost for deviation from initial height.
  double positionDifference(pose.getPosition().z() - initialPose_.getPosition().z());
- value += 0.1 * positionDifference * positionDifference;
+ value += heightWeight_ * positionDifference * positionDifference;
 
   // Cost for deviation from initial orientation.
-  //RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
-  RotationQuaternion rotationDifference(pose.getRotation() * initialPose_.getRotation().conjugated());
-  const double rotationDifferenceNorm = rotationDifference.norm();
-  value += 10.0 * rotationDifferenceNorm * rotationDifferenceNorm;
+  kindr::RotationMatrixD rotationDifference(pose.getRotation() * initialPose_.getRotation().conjugated());
+  const double rotationDifferenceNorm = (rotationDifference.matrix() - Eigen::Matrix3d::Identity()).squaredNorm();
+/*   std::cout << "norm: " << rotationDifferenceNorm << std::endl;
+ */  value += rotationWeight_ * rotationDifferenceNorm;
 
   // Cost for deviation from horizontal pose.
 //  RotationVector rotationDifference(pose.getRotation());
@@ -164,6 +166,13 @@ bool PoseOptimizationObjectiveFunction::getLocalGradient(numopt_common::Vector& 
   const Eigen::Vector3d& p = pose.getPosition().vector();
   const RotationQuaternion Phi(pose.getRotation());
 
+  // diff from height
+  analyticalGradient(2) += heightWeight_ * 2.0 * (p(2) - initialPose_.getPosition().z());
+
+  // diff from nominal rotation
+/*   kindr::EulerAnglesXyzD rotationDifference(pose.getRotation() * initialPose_.getRotation().inverted());
+  analyticalGradient.tail(3) += rotationWeight_ * Eigen::Vector3d(1.0, 1.0, 1.0); */
+
   // Default leg position.
   for (const auto& footPosition : stance_) {
     const Eigen::Vector3d& f_i = footPosition.second.vector();
@@ -236,6 +245,17 @@ bool PoseOptimizationObjectiveFunction::getLocalHessian(numopt_common::SparseMat
   analyticalHessian.bottomLeftCorner(3, 3) += comWeight_ * Phi_r_com_skew;
   analyticalHessian.bottomRightCorner(3, 3) += 0.5 * comWeight_ * (p_skew * Phi_r_com_skew + Phi_r_com_skew * p_skew
                                                                   -r_centroid_skew * Phi_r_com_skew - Phi_r_com_skew * r_centroid_skew);
+
+  // pose diff.
+  kindr::EulerAnglesXyzD rotationDifference(pose.getRotation() * initialPose_.getRotation().conjugated());
+  Eigen::Vector3d Phi_r_pose = rotationDifference.vector();
+  const Eigen::Matrix3d Phi_r_pose_skew = kindr::getSkewMatrixFromVector(Phi_r_pose);
+  const Eigen::Vector3d r_desired(0.0,0.0,pose.getPosition().z());
+  const Eigen::Matrix3d r_desired_skew = kindr::getSkewMatrixFromVector(r_desired);
+  analyticalHessian.topLeftCorner(3, 3) += heightWeight_ * Eigen::Vector3d(0.0, 0.0, 1.0).asDiagonal();
+/*   analyticalHessian.topRightCorner(3, 3) += -rotationWeight_ * Phi_r_pose_skew;
+  analyticalHessian.bottomLeftCorner(3, 3) += rotationWeight_ * Phi_r_pose_skew;
+  analyticalHessian.bottomRightCorner(3, 3) += rotationWeight_ * Eigen::Matrix3d::Identity(); */
 
   // Factorized with 2.0 (not weight!).
   analyticalHessian = 2.0 * analyticalHessian;
