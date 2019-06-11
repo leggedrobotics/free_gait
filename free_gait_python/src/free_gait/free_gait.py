@@ -145,6 +145,8 @@ def parse_footstep(yaml_object):
         footstep.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
         footstep.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'friction_coefficient' in yaml_object:
+        footstep.friction_coefficient = yaml_object['friction_coefficient']
     if 'ignore_for_pose_adaptation' in yaml_object:
         footstep.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
     return footstep
@@ -170,6 +172,8 @@ def parse_end_effector_target(yaml_object):
         end_effector_target.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
         end_effector_target.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'friction_coefficient' in yaml_object:
+        end_effector_target.friction_coefficient = yaml_object['friction_coefficient']
     if 'ignore_for_pose_adaptation' in yaml_object:
         end_effector_target.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
     return end_effector_target
@@ -185,6 +189,8 @@ def parse_end_effector_trajectory(yaml_object):
         end_effector_trajectory.trajectory = parse_translational_trajectory(end_effector_trajectory.name, yaml_object['trajectory'])
     if 'surface_normal' in yaml_object:
         end_effector_trajectory.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'friction_coefficient' in yaml_object:
+        end_effector_trajectory.friction_coefficient = yaml_object['friction_coefficient']
     if 'ignore_contact' in yaml_object:
         end_effector_trajectory.ignore_contact = yaml_object['ignore_contact']
     if 'ignore_for_pose_adaptation' in yaml_object:
@@ -204,6 +210,8 @@ def parse_leg_mode(yaml_object):
         leg_mode.duration = parse_duration(yaml_object['duration'])
     if 'surface_normal' in yaml_object:
         leg_mode.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'friction_coefficient' in yaml_object:
+        leg_mode.friction_coefficient = yaml_object['friction_coefficient']
     if 'ignore_for_pose_adaptation' in yaml_object:
         leg_mode.ignore_for_pose_adaptation = yaml_object['ignore_for_pose_adaptation']
     return leg_mode
@@ -221,6 +229,8 @@ def parse_joint_trajectory(yaml_object):
         joint_trajectory.ignore_contact = yaml_object['ignore_contact']
     if 'surface_normal' in yaml_object:
         joint_trajectory.surface_normal = parse_vector_stamped(yaml_object['surface_normal'])
+    if 'friction_coefficient' in yaml_object:
+        joint_trajectory.friction_coefficient = yaml_object['friction_coefficient']
     return joint_trajectory
 
 

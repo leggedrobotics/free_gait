@@ -14,6 +14,10 @@ duration duration
 # Leave empty if non-support leg or not known.
 geometry_msgs/Vector3Stamped surface_normal
 
+# Target foothold friction coefficient.
+# Leave empty of no contact is expected or not known.
+float64 friction_coefficient
+
 # If pose adaptation should ignore this leg motion.
 # Default is false.
 bool ignore_for_pose_adaptation

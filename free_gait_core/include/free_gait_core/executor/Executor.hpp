@@ -92,6 +92,7 @@ class Executor
   bool writeIgnoreForPoseAdaptation();
   bool writeSupportLegs();
   bool writeSurfaceNormals();
+  bool writeFrictionCoefficients();
   bool writeLegMotion();
   bool writeTorsoMotion();
   bool writeStepId();

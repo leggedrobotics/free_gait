@@ -31,6 +31,7 @@ LegMotionBase::LegMotionBase(const LegMotionBase& other) :
     hasContactAtStart_(other.hasContactAtStart_)
 {
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
+  if (other.frictionCoefficient_) frictionCoefficient_.reset(new double(*(other.frictionCoefficient_)));
 }
 
 LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
@@ -39,6 +40,7 @@ LegMotionBase& LegMotionBase::operator=(const LegMotionBase& other)
   limb_ = other.limb_;
   hasContactAtStart_ = other.hasContactAtStart_;
   if (other.surfaceNormal_) surfaceNormal_.reset(new Vector(*(other.surfaceNormal_)));
+  if (other.frictionCoefficient_) frictionCoefficient_.reset(new double(*(other.frictionCoefficient_)));
   return *this;
 }
 
@@ -113,6 +115,22 @@ void LegMotionBase::setSurfaceNormal(const Vector& surfaceNormal)
   surfaceNormal_.reset(new Vector(surfaceNormal));
 }
 
+bool LegMotionBase::hasFrictionCoefficient() const
+{
+  return (bool)(frictionCoefficient_);
+}
+
+double LegMotionBase::getFrictionCoefficient() const
+{
+  if (!hasFrictionCoefficient()) throw std::runtime_error("LegMotionBase::getFrictionCoefficient(): Not available.");
+  else return (*frictionCoefficient_);
+}
+
+void LegMotionBase::setFrictionCoefficient(double frictionCoefficient)
+{
+  frictionCoefficient_.reset(new double(frictionCoefficient));
+}
+
 bool LegMotionBase::isIgnoreContact() const
 {
   throw std::runtime_error("LegMotionBase::isIgnoreContact() not implemented.");
@@ -161,6 +179,12 @@ std::ostream& operator<< (std::ostream& out, const LegMotionBase& legMotion)
   out << "Surface normal: ";
   if (legMotion.hasSurfaceNormal()) {
     out << legMotion.getSurfaceNormal() << std::endl;
+  } else {
+    out << "None" << std::endl;
+  }
+  out << "Friction coefficient: ";
+  if (legMotion.hasFrictionCoefficient()) {
+    out << legMotion.getFrictionCoefficient() << std::endl;
   } else {
     out << "None" << std::endl;
   }

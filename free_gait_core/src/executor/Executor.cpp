@@ -113,6 +113,7 @@ bool Executor::advance(double dt, bool skipStateMeasurmentUpdate)
   if (!writeIgnoreForPoseAdaptation()) return false;
   if (!writeSupportLegs()) return false;
   if (!writeSurfaceNormals()) return false;
+  if (!writeFrictionCoefficients()) return false;
   if (!writeLegMotion()) return false;
   if (!writeTorsoMotion()) return false;
   if (!writeStepId()) return false;
@@ -207,6 +208,7 @@ bool Executor::resetStateWithRobot()
     state_.setIgnoreContact(limb, !adapter_.isLegGrounded(limb));
     state_.setIgnoreForPoseAdaptation(limb, !adapter_.isLegGrounded(limb));
     state_.removeSurfaceNormal(limb);
+    state_.removeFrictionCoefficient(limb);
   }
 
   if (state_.getNumberOfSupportLegs() > 0) {
@@ -326,6 +328,22 @@ bool Executor::writeSurfaceNormals()
         state_.setSurfaceNormal(limb, step.getLegMotion(limb).getSurfaceNormal());
       } else {
         state_.removeSurfaceNormal(limb);
+      }
+    }
+  }
+  return true;
+}
+
+bool Executor::writeFrictionCoefficients()
+{
+  if (!queue_.active()) return true;
+  const Step& step = queue_.getCurrentStep();
+  for (const auto& limb : adapter_.getLimbs()) {
+    if (step.hasLegMotion(limb)) {
+      if (step.getLegMotion(limb).hasFrictionCoefficient()) {
+        state_.setFrictionCoefficient(limb, step.getLegMotion(limb).getFrictionCoefficient());
+      } else {
+        state_.removeFrictionCoefficient(limb);
       }
     }
   }
