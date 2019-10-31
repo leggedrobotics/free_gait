@@ -2,7 +2,7 @@
 
 **An Architecture for the Versatile Control of Legged Robots**
 
-   ***NOTICE: This software is not supported anymore! The authors of this software have changed their affiliation and do not work on this project anymore. Please excuse any inconvenience this might cause.***
+   ***NOTICE: This software is not supported anymore! The authors of this software have changed their affiliation and do not work on this project anymore. Please excuse any inconvenience this might cause. If you are interested in working with the ANYmal robot, please reach out to [ANYbotics](https://www.anybotics.com/).***
 
 [![Free Gait Applications](http://i.imgur.com/fsxbJNn.gif)](https://www.youtube.com/watch?v=EI1zBTYpXW0)
 
