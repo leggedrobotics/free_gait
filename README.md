@@ -2,6 +2,8 @@
 
 **An Architecture for the Versatile Control of Legged Robots**
 
+   ***NOTICE: This software is not supported anymore! The authors of this software have changed their affiliation and do not work on this project anymore. Please excuse any inconvenience this might cause.***
+
 [![Free Gait Applications](http://i.imgur.com/fsxbJNn.gif)](https://www.youtube.com/watch?v=EI1zBTYpXW0)
 
 *Free Gait* is a software framework for the versatile, robust, and task-oriented control of legged robots. The Free Gait interface defines a *whole-body abstraction layer* to accommodate a variety of task-space control commands such as end effector, joint, and base motions. The deﬁned motion tasks are tracked with a feedback whole-body controller to ensure accurate and robust motion execution even under slip and external disturbances. The application of this framework includes intuitive tele-operation of the robot, efficient scripting of behaviors, and fully autonomous operation with motion and footstep planners.
@@ -9,9 +11,7 @@
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
 **Author: Péter Fankhauser<br />
-Maintainer: Péter Fankhauser, pfankhauser@anybotics.com<br />
-With contributions by: Samuel Bachmann, Dario Bellicoso, Thomas Bi, Remo Diethelm, Christian Gehring<br />
-Affiliation: ANYbotics**
+With contributions by: Samuel Bachmann, Dario Bellicoso, Thomas Bi, Remo Diethelm, Christian Gehring**
 
 This projected was initially developed at RSL, ETH Zurich.
 
